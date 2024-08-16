@@ -1,0 +1,21 @@
+*** [ INPUT/OUTPUT PARAMETERS ] ***
+CREATE REPORT IN FILE? (.T.=yes, .F.=no, on screen)
+.F.
+CREATE SPREADSHEET FILE? (.T.=yes, .F.=no)
+.T.
+
+*** [ SOLUTION CONTROL ] ***
+Convergence criterion (DEFAULT:1.D-6)
+1.D-6 
+Max iterations for bisection method (DEFAULT:100)
+100
+Sweeps for activity coef. calculation (DEFAULT:4)
+4
+Accuracy in activity coef. calculation (DEFAULT:5e-2)
+5e-2
+Subdivisions for root tracking (DEFAULT:5)
+5
+Method for binary activity coefs (0-online, 1-tables) (DEFAULT:1)
+1
+Force mass conservation to machine precision? (0-no, 1-yes) (DEFAULT:0)
+0

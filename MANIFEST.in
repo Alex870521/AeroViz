@@ -1,0 +1,4 @@
+include *.csv
+include *.json
+recursive-include AeroViz *.csv
+recursive-include AeroViz *.json

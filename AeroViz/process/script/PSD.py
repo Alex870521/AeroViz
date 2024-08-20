@@ -9,32 +9,32 @@ from AeroViz.process.script.AbstractDistCalc import DistributionCalculator
 
 class ParticleSizeDistProc(DataProc):
 	"""
-	A class for process particle size distribution (PSD) data.
+    A class for process particle size distribution (PSD) data.
 
-	Parameters
-	----------
-	filename : str, optional
-		The name of the PSD data file.
-		Defaults to 'PNSD_dNdlogdp.csv' in the default path.
+    Parameters
+    ----------
+    filename : str, optional
+        The name of the PSD data file.
+        Defaults to 'PNSD_dNdlogdp.csv' in the default path.
 
-	Attributes
-	----------
-	file_path : Path
-		The directory path where the PSD data file is located.
+    Attributes
+    ----------
+    file_path : Path
+        The directory path where the PSD data file is located.
 
-	psd : SizeDist
-		The SizeDist object.
+    psd : SizeDist
+        The SizeDist object.
 
-	Methods
-	-------
-	process_data(filename='PSD.csv')
-		Process and save overall PSD properties.
+    Methods
+    -------
+    process_data(filename='PSD.csv')
+        Process and save overall PSD properties.
 
-	Examples
-	--------
-	Example 1: Use default path and filename
-	>>> psd_data = ParticleSizeDistProc(filename='PNSD_dNdlogdp.csv').process_data(reset=True)
-	"""
+    Examples
+    --------
+    Example 1: Use default path and filename
+    >>> psd_data = ParticleSizeDistProc(filename='PNSD_dNdlogdp.csv').process_data(reset=True)
+    """
 
 	def __init__(self, file_path: Path | str = None):
 		super().__init__()

@@ -69,13 +69,6 @@ def _plot(ax, df, _y, _color, plot_kws):
 	ax.plot(df.index, df[_y], color=_color, **plot_kws)
 
 
-def combine_legends(axes_list: list[Axes]) -> tuple[list, list]:
-	return (
-		[legend for axes in axes_list for legend in axes.get_legend_handles_labels()[0]],
-		[label for axes in axes_list for label in axes.get_legend_handles_labels()[1]]
-	)
-
-
 @set_figure(fs=8, autolayout=False)
 def timeseries(df: DataFrame,
 			   y: list[str] | str,
@@ -93,59 +86,59 @@ def timeseries(df: DataFrame,
 			   **kwargs
 			   ) -> tuple[Figure, Axes]:
 	"""
-	Plot the timeseries data with the option of scatterplot, barplot, and lineplot.
+    Plot the timeseries data with the option of scatterplot, barplot, and lineplot.
 
-	Parameters
-	-----------
-	df : DataFrame
-	The data to plot.
-	y : list[str] | str
-		The primary y-axis data columns.
-	y2 : list[str] | str, optional
-		The secondary y-axis data columns. Defaults to None.
-	c : str, optional
-		The column for color mapping or the color. Defaults to None.
-	rolling : str | int | None, optional
-		Rolling window size for smoothing. Defaults to None.
-	times : tuple[datetime, datetime] | tuple[Timestamp, Timestamp], optional
-		Time range for the data. Defaults to None.
-	freq : str, optional
-		Frequency for x-axis ticks. Defaults to '2MS'.
-	style : Literal['scatter', 'bar', 'line'] | None, optional
-		Style of the plot. Defaults to 'scatter'.
-	ax : Axes | None, optional
-		Matplotlib Axes object to plot on. Defaults to None.
-	set_xaxis_visible : bool | None, optional
-		Whether to set x-axis visibility. Defaults to None.
-	legend_loc : Literal['best', 'upper right', 'upper left', 'lower left', 'lower right'], optional
-		Location of the legend. Defaults to 'best'.
-	legend_ncol : int, optional
-		Number of columns in the legend. Defaults to 1.
-	**kwargs : Additional keyword arguments for customization.
-		fig_kws : dict, optional
-			Additional keyword arguments for the figure. Defaults to {}.
-		scatter_kws : dict, optional
-			Additional keyword arguments for the scatter plot. Defaults to {}.
-		bar_kws : dict, optional
-			Additional keyword arguments for the bar plot. Defaults to {}.
-		ax_plot_kws : dict, optional
-			Additional keyword arguments for the primary y-axis plot. Defaults to {}.
-		ax2_plot_kws : dict, optional
-			Additional keyword arguments for the secondary y-axis plot. Defaults to {}.
-		cbar_kws : dict, optional
-			Additional keyword arguments for the colorbar. Defaults to {}.
-		inset_kws : dict, optional
-			Additional keyword arguments for the inset axes. Defaults to {}.
+    Parameters
+    -----------
+    df : DataFrame
+    The data to plot.
+    y : list[str] | str
+        The primary y-axis data columns.
+    y2 : list[str] | str, optional
+        The secondary y-axis data columns. Defaults to None.
+    c : str, optional
+        The column for color mapping or the color. Defaults to None.
+    rolling : str | int | None, optional
+        Rolling window size for smoothing. Defaults to None.
+    times : tuple[datetime, datetime] | tuple[Timestamp, Timestamp], optional
+        Time range for the data. Defaults to None.
+    freq : str, optional
+        Frequency for x-axis ticks. Defaults to '2MS'.
+    style : Literal['scatter', 'bar', 'line'] | None, optional
+        Style of the plot. Defaults to 'scatter'.
+    ax : Axes | None, optional
+        Matplotlib Axes object to plot on. Defaults to None.
+    set_xaxis_visible : bool | None, optional
+        Whether to set x-axis visibility. Defaults to None.
+    legend_loc : Literal['best', 'upper right', 'upper left', 'lower left', 'lower right'], optional
+        Location of the legend. Defaults to 'best'.
+    legend_ncol : int, optional
+        Number of columns in the legend. Defaults to 1.
+    **kwargs : Additional keyword arguments for customization.
+        fig_kws : dict, optional
+            Additional keyword arguments for the figure. Defaults to {}.
+        scatter_kws : dict, optional
+            Additional keyword arguments for the scatter plot. Defaults to {}.
+        bar_kws : dict, optional
+            Additional keyword arguments for the bar plot. Defaults to {}.
+        ax_plot_kws : dict, optional
+            Additional keyword arguments for the primary y-axis plot. Defaults to {}.
+        ax2_plot_kws : dict, optional
+            Additional keyword arguments for the secondary y-axis plot. Defaults to {}.
+        cbar_kws : dict, optional
+            Additional keyword arguments for the colorbar. Defaults to {}.
+        inset_kws : dict, optional
+            Additional keyword arguments for the inset axes. Defaults to {}.
 
-	Returns
-	-------
-	ax : AxesSubplot
-		Matplotlib AxesSubplot.
+    Returns
+    -------
+    ax : AxesSubplot
+        Matplotlib AxesSubplot.
 
-	Example
-	-------
-	>>> timeseries(df, y='WS', c='WD', scatter_kws=dict(cmap='hsv'), cbar_kws=dict(ticks=[0, 90, 180, 270, 360]), ylim=[0, None])
-	"""
+    Example
+    -------
+    >>> timeseries(df, y='WS', c='WD', scatter_kws=dict(cmap='hsv'), cbar_kws=dict(ticks=[0, 90, 180, 270, 360]), ylim=[0, None])
+    """
 	# Set the time
 
 	if times is not None:

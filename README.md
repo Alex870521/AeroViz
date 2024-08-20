@@ -17,8 +17,15 @@
 <img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
 <a href="https://medium.com/@alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-medium.png?raw=true" width="3%" alt="Alex870521 Medium"></a>
 
-
 </div>
+
+## <div align="center">Key Features</div>
+
+* Data Reading: Supports reading multiple aerosol data formats.
+* Data Visualization: Offers various charts and graphs, including time series plots, distribution plots, and correlation
+  matrices.
+* Data Processing: Includes multiple data processing tools, such as linear regression and Mie theory calculations.
+
 
 ## <div align="center">Installation</div>
 
@@ -91,11 +98,11 @@ For bug reports and feature requests please visit [GitHub Issues](https://github
 
 <div align="center">
 
-<a href="https://github.com/Alex870521"><img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-social-github.png?raw=true" width="3%" alt="Alex870521 GitHub"></a>
-<img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
-<a href="https://www.linkedin.com/in/Alex870521/"><img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-social-linkedin.png?raw=true" width="3%" alt="Alex870521 LinkedIn"></a>
-<img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
-<a href="https://medium.com/@alex870521"><img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-social-medium.png?raw=true" width="3%" alt="Alex870521 Medium"></a>
+<a href="https://github.com/Alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-github.png?raw=true" width="3%" alt="Alex870521 GitHub"></a>
+<img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
+<a href="https://www.linkedin.com/in/Alex870521/"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-linkedin.png?raw=true" width="3%" alt="Alex870521 LinkedIn"></a>
+<img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
+<a href="https://medium.com/@alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-medium.png?raw=true" width="3%" alt="Alex870521 Medium"></a>
 
 
 </div>

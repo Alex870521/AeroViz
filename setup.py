@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name="AeroViz",
-	version="0.1.0",
+	version="0.1.3-beta",
 	author="alex",
 	author_email="alex870521@gmail.com",
 	description="Aerosol science",
@@ -30,5 +30,6 @@ setup(
 		"tabulate"
 		# Add any other dependencies here
 	],
-	packages=find_packages()
+	packages=find_packages(),
+	include_package_data=True
 )

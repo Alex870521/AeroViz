@@ -7,13 +7,13 @@ __all__ = ['DataProc']
 
 
 class DataProc(ABC):
-	def __init__(self):
-		pass
+    def __init__(self):
+        pass
 
-	@abstractmethod
-	def process_data(self,
-					 reset: bool = False,
-					 save_filename: str | Path = None
-					 ) -> DataFrame:
-		""" Implementation of processing data """
-		pass
+    @abstractmethod
+    def process_data(self,
+                     reset: bool = False,
+                     save_filename: str | Path = None
+                     ) -> DataFrame:
+        """ Implementation of processing data """
+        pass

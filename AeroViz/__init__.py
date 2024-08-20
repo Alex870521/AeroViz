@@ -5,8 +5,8 @@ from AeroViz.rawDataReader import RawDataReader
 from AeroViz.tools import DataBase, DataReader, DataClassifier
 
 __all__ = [
-	'plot',
-	'RawDataReader',
-	'Optical', 'SizeDistr', 'Chemistry', 'VOC',
-	'DataBase', 'DataReader', 'DataClassifier'
+    'plot',
+    'RawDataReader',
+    'Optical', 'SizeDistr', 'Chemistry', 'VOC',
+    'DataBase', 'DataReader', 'DataClassifier'
 ]

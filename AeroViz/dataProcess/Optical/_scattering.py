@@ -1,30 +1,29 @@
 import numpy as np
-from scipy.optimize import curve_fit
+from pandas import concat
 
-__all__ = [
-	'_SAE',
-]
+__all__ = ['_scaCoe']
 
 
-def _SAE(df):
-	def _SAEcalc(_df):
-		## parameter
-		band = np.array([450, 550, 700]) * 1e-3
+def _scaCoe(df, instru, specified_band: list):
+    from .Angstrom_exponent import get_Angstrom_exponent, get_species_wavelength
+    band_Neph = np.array([450, 550, 700])
+    band_Aurora = np.array([450, 525, 635])
 
-		## 3 pts fitting
-		## function
-		def _get_slope(__df):
-			func = lambda _x, _sl, _int: _sl * _x + _int
-			popt, pcov = curve_fit(func, np.log(band), np.log(__df))
+    band = band_Neph if instru == 'Neph' else band_Aurora
 
-			return popt
+    df_sca = df.copy().dropna()
 
-		## calculate
-		_SAE = _df.apply(_get_slope, axis=1, result_type='expand')
-		_SAE.columns = ['slope', 'intercept']
+    if instru == 'Neph':
+        df_out = df_sca[['B']].copy()
+        df_out.columns = [f'sca_{_band}' for _band in specified_band]
+    else:
+        df_out = df_sca.apply(get_species_wavelength, axis=1, result_type='expand', args=(specified_band,))
+        df_out.columns = [f'sca_{_band}' for _band in specified_band]
 
-		return _SAE
+    # calculate
+    df_SAE = df[['B', 'G', 'R']].dropna().apply(get_Angstrom_exponent, axis=1, result_type='expand', args=(band,))
+    df_SAE.columns = ['SAE', 'SAE_intercept']
 
-	df_out = _SAEcalc(df[['B', 'G', 'R']].dropna())
+    _df = concat([df_out, df_SAE['SAE']], axis=1)
 
-	return df_out.reindex(df.index)
+    return _df.reindex(df.index)

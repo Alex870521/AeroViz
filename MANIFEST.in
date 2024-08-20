@@ -1,0 +1,14 @@
+include *.csv
+include *.json
+include *.cnf
+include *.txt
+include *.md
+include *.pkl
+include *.exe
+recursive-include AeroViz *.csv
+recursive-include AeroViz *.json
+recursive-include AeroViz *.cnf
+recursive-include AeroViz *.txt
+recursive-include AeroViz *.md
+recursive-include AeroViz *.pkl
+recursive-include AeroViz *.exe

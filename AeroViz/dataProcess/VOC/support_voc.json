@@ -1,0 +1,446 @@
+{
+  "Benzene": {
+    "MIR": 0.72,
+    "MW": 78.11,
+    "SOAP": 92.9,
+    "KOH": 1.22
+  },
+  "Toluene": {
+    "MIR": 4.0,
+    "MW": 92.14,
+    "SOAP": 100.0,
+    "KOH": 5.63
+  },
+  "Ethylbenzene": {
+    "MIR": 3.04,
+    "MW": 106.17,
+    "SOAP": 111.6,
+    "KOH": 7.0
+  },
+  "m/p-Xylene": {
+    "MIR": 7.8,
+    "MW": 106.2,
+    "SOAP": 75.8,
+    "KOH": 18.95
+  },
+  "o-Xylene": {
+    "MIR": 7.64,
+    "MW": 106.16,
+    "SOAP": 95.5,
+    "KOH": 13.6
+  },
+  "Ethane": {
+    "MIR": 0.28,
+    "MW": 30.07,
+    "SOAP": 0.1,
+    "KOH": 0.248
+  },
+  "Propane": {
+    "MIR": 0.49,
+    "MW": 44.1,
+    "SOAP": 0.0,
+    "KOH": 1.09
+  },
+  "Isobutane": {
+    "MIR": 1.23,
+    "MW": 58.12,
+    "SOAP": 0.0,
+    "KOH": 2.12
+  },
+  "n-Butane": {
+    "MIR": 1.15,
+    "MW": 58.12,
+    "SOAP": 0.3,
+    "KOH": 2.36
+  },
+  "Isopentane": {
+    "MIR": 1.45,
+    "MW": 72.15,
+    "SOAP": 0.2,
+    "KOH": 3.6
+  },
+  "n-Pentane": {
+    "MIR": 1.31,
+    "MW": 72.15,
+    "SOAP": 0.3,
+    "KOH": 3.8
+  },
+  "n-Hexane": {
+    "MIR": 1.24,
+    "MW": 86.18,
+    "SOAP": 0.1,
+    "KOH": 5.2
+  },
+  "n-Heptane": {
+    "MIR": 1.07,
+    "MW": 100.21,
+    "SOAP": 0.1,
+    "KOH": 6.76
+  },
+  "n-Octane": {
+    "MIR": 0.9,
+    "MW": 114.23,
+    "SOAP": 0.8,
+    "KOH": 8.11
+  },
+  "n-Nonane": {
+    "MIR": 0.78,
+    "MW": 128.2,
+    "SOAP": 1.9,
+    "KOH": 9.7
+  },
+  "n-Decane": {
+    "MIR": 0.68,
+    "MW": 142.29,
+    "SOAP": 7.0,
+    "KOH": 11.0
+  },
+  "n-Undecane": {
+    "MIR": 0.61,
+    "MW": 156.31,
+    "SOAP": 16.2,
+    "KOH": 12.3
+  },
+  "n-Dodecane": {
+    "MIR": 0.55,
+    "MW": 170.34,
+    "SOAP": null,
+    "KOH": null
+  },
+  "Ethylene": {
+    "MIR": 9.0,
+    "MW": 28.05,
+    "SOAP": 1.3,
+    "KOH": 8.52
+  },
+  "Propylene": {
+    "MIR": 11.66,
+    "MW": 42.08,
+    "SOAP": 1.6,
+    "KOH": 26.3
+  },
+  "1-Butene": {
+    "MIR": 9.73,
+    "MW": 56.1,
+    "SOAP": 1.2,
+    "KOH": 31.4
+  },
+  "t-2-Butene": {
+    "MIR": 15.16,
+    "MW": 56.1,
+    "SOAP": 3.1,
+    "KOH": 56.4
+  },
+  "cis-2-Butene": {
+    "MIR": 14.24,
+    "MW": 56.1,
+    "SOAP": 3.6,
+    "KOH": 64.0
+  },
+  "1-Pentene": {
+    "MIR": 7.21,
+    "MW": 70.13,
+    "SOAP": 0.0,
+    "KOH": 31.4
+  },
+  "t-2-Pentene": {
+    "MIR": 10.56,
+    "MW": 70.13,
+    "SOAP": 4.0,
+    "KOH": 67.0
+  },
+  "cis-2-Pentene": {
+    "MIR": 10.38,
+    "MW": 70.13,
+    "SOAP": 3.6,
+    "KOH": 65.0
+  },
+  "1-Hexene": {
+    "MIR": 5.49,
+    "MW": 84.16,
+    "SOAP": null,
+    "KOH": null
+  },
+  "Acetylene": {
+    "MIR": 0.95,
+    "MW": 26.04,
+    "SOAP": 0.1,
+    "KOH": 0.85
+  },
+  "Cyclopentane": {
+    "MIR": 2.39,
+    "MW": 70.1,
+    "SOAP": 0.0,
+    "KOH": 4.97
+  },
+  "Methylcyclopentane": {
+    "MIR": 2.19,
+    "MW": 84.16,
+    "SOAP": 0.0,
+    "KOH": 5.2
+  },
+  "Cyclohexane": {
+    "MIR": 1.25,
+    "MW": 84.16,
+    "SOAP": 0.0,
+    "KOH": 6.97
+  },
+  "Methylcyclohexane": {
+    "MIR": 1.7,
+    "MW": 98.19,
+    "SOAP": 0.0,
+    "KOH": 4.97
+  },
+  "Isoprene": {
+    "MIR": 10.61,
+    "MW": 68.1,
+    "SOAP": 1.9,
+    "KOH": 100.0
+  },
+  "2,2-Dimethylbutane": {
+    "MIR": 1.17,
+    "MW": 86.17,
+    "SOAP": 0.0,
+    "KOH": 2.23
+  },
+  "2,3-Dimethylbutane": {
+    "MIR": 0.97,
+    "MW": 86.18,
+    "SOAP": 0.0,
+    "KOH": 5.78
+  },
+  "2-Methylpentane": {
+    "MIR": 1.5,
+    "MW": 86.18,
+    "SOAP": 0.0,
+    "KOH": 5.4
+  },
+  "3-Methylpentane": {
+    "MIR": 1.8,
+    "MW": 86.18,
+    "SOAP": 0.2,
+    "KOH": 5.2
+  },
+  "2,3-Dimethylpentane": {
+    "MIR": 1.34,
+    "MW": 100.2,
+    "SOAP": 0.4,
+    "KOH": 1.5
+  },
+  "2,4-Dimethylpentane": {
+    "MIR": 1.55,
+    "MW": 100.2,
+    "SOAP": 0.0,
+    "KOH": 4.77
+  },
+  "2-Methylhexane": {
+    "MIR": 1.19,
+    "MW": 100.2,
+    "SOAP": 0.0,
+    "KOH": 5.65
+  },
+  "3-Methylheptane": {
+    "MIR": 1.24,
+    "MW": 114.23,
+    "SOAP": 0.0,
+    "KOH": 5.6
+  },
+  "2,2,4-Trimethylpentane": {
+    "MIR": 1.26,
+    "MW": 114.23,
+    "SOAP": 0.0,
+    "KOH": 3.34
+  },
+  "2,3,4-Trimethylpentane": {
+    "MIR": 1.03,
+    "MW": 114.23,
+    "SOAP": 0.0,
+    "KOH": 6.6
+  },
+  "2-Methylheptane": {
+    "MIR": 1.07,
+    "MW": 114.23,
+    "SOAP": 0.0,
+    "KOH": 7.0
+  },
+  "3-Methylhexane": {
+    "MIR": 1.61,
+    "MW": 100.2,
+    "SOAP": 0.0,
+    "KOH": 7.0
+  },
+  "Styrene": {
+    "MIR": 1.73,
+    "MW": 104.15,
+    "SOAP": 212.3,
+    "KOH": 58.0
+  },
+  "Isopropylbenzene": {
+    "MIR": 2.52,
+    "MW": 120.19,
+    "SOAP": 95.5,
+    "KOH": 6.3
+  },
+  "n-Propylbenzene": {
+    "MIR": 2.03,
+    "MW": 120.2,
+    "SOAP": 109.7,
+    "KOH": 5.8
+  },
+  "m-Ethyltoluene": {
+    "MIR": 7.39,
+    "MW": 120.19,
+    "SOAP": 100.6,
+    "KOH": 11.8
+  },
+  "p-Ethyltoluene": {
+    "MIR": 4.44,
+    "MW": 120.19,
+    "SOAP": 69.7,
+    "KOH": 18.6
+  },
+  "o-Ethyltoluene": {
+    "MIR": 5.59,
+    "MW": 120.19,
+    "SOAP": 94.8,
+    "KOH": 11.9
+  },
+  "m-Diethylbenzene": {
+    "MIR": 7.1,
+    "MW": 134.22,
+    "SOAP": 0.0,
+    "KOH": 32.5
+  },
+  "p-Diethylbenzene": {
+    "MIR": 4.43,
+    "MW": 134.22,
+    "SOAP": 0.0,
+    "KOH": 32.7
+  },
+  "1,3,5-Trimethylbenzene": {
+    "MIR": 11.76,
+    "MW": 120.19,
+    "SOAP": 13.5,
+    "KOH": 56.7
+  },
+  "1,2,4-Trimethylbenzene": {
+    "MIR": 8.87,
+    "MW": 120.19,
+    "SOAP": 20.6,
+    "KOH": 32.5
+  },
+  "1,2,3-Trimethylbenzene": {
+    "MIR": 11.97,
+    "MW": 120.19,
+    "SOAP": 43.9,
+    "KOH": 32.7
+  },
+  "1,2-DCB": {
+    "MIR": 0.18,
+    "MW": 147.0,
+    "SOAP": null,
+    "KOH": null
+  },
+  "1,3-Butadiene": {
+    "MIR": 12.61,
+    "MW": 54.1,
+    "SOAP": 1.8,
+    "KOH": 66.6
+  },
+  "1,4-DCB": {
+    "MIR": 0.18,
+    "MW": 147.0,
+    "SOAP": null,
+    "KOH": null
+  },
+  "1-Octene": {
+    "MIR": 3.25,
+    "MW": 112.2,
+    "SOAP": null,
+    "KOH": 30.0
+  },
+  "2-Ethyltoluene": {
+    "MIR": 5.59,
+    "MW": 120.2,
+    "SOAP": 94.8,
+    "KOH": 11.9
+  },
+  "3,4-Ethyltoluene": {
+    "MIR": 5.92,
+    "MW": 120.2,
+    "SOAP": 85.2,
+    "KOH": 15.2
+  },
+  "Acetaldehyde": {
+    "MIR": 6.54,
+    "MW": 44.1,
+    "SOAP": 0.6,
+    "KOH": 15.0
+  },
+  "Acetone": {
+    "MIR": 0.36,
+    "MW": 58.1,
+    "SOAP": 0.3,
+    "KOH": 0.17
+  },
+  "Butyl Acetate": {
+    "MIR": 0.83,
+    "MW": 116.2,
+    "SOAP": 0.0,
+    "KOH": null
+  },
+  "Ethanol": {
+    "MIR": 1.53,
+    "MW": 46.1,
+    "SOAP": 0.6,
+    "KOH": 3.2
+  },
+  "Ethyl Acetate": {
+    "MIR": 0.63,
+    "MW": 88.1,
+    "SOAP": 0.1,
+    "KOH": null
+  },
+  "Hexane": {
+    "MIR": 1.24,
+    "MW": 86.2,
+    "SOAP": 0.1,
+    "KOH": 5.2
+  },
+  "IPA": {
+    "MIR": 0.61,
+    "MW": 60.1,
+    "SOAP": 0.4,
+    "KOH": 5.1
+  },
+  "Iso-Propylbenzene": {
+    "MIR": 2.52,
+    "MW": 120.2,
+    "SOAP": 95.5,
+    "KOH": 6.3
+  },
+  "PCE": {
+    "MIR": 0.03,
+    "MW": 165.8,
+    "SOAP": null,
+    "KOH": 0.16
+  },
+  "Propene": {
+    "MIR": 11.66,
+    "MW": 42.1,
+    "SOAP": 1.6,
+    "KOH": 26.3
+  },
+  "TCE": {
+    "MIR": 0.64,
+    "MW": 131.4,
+    "SOAP": null,
+    "KOH": 1.9
+  },
+  "VCM": {
+    "MIR": 2.83,
+    "MW": 62.5,
+    "SOAP": null,
+    "KOH": null
+  }
+}

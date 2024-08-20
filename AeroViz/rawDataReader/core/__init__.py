@@ -1,400 +1,311 @@
-import json as jsn
-import pickle as pkl
+import json
 from abc import ABC, abstractmethod
-from datetime import datetime as dtm, timedelta as dtmdt
-from itertools import chain
+from contextlib import contextmanager
+from datetime import datetime
 from pathlib import Path
+from typing import Optional, Generator
 
 import numpy as np
-from pandas import DataFrame, date_range, concat, to_numeric, to_datetime
+import pandas as pd
+from pandas import DataFrame, concat, read_pickle, to_numeric
+from rich.console import Console
+from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn, TaskProgressColumn
 
-from ..utils.config import meta
+from AeroViz.rawDataReader.config.supported_instruments import meta
+from AeroViz.rawDataReader.core.logger import ReaderLogger
+from AeroViz.rawDataReader.core.qc import DataQualityControl
 
 __all__ = ['AbstractReader']
 
 
 class AbstractReader(ABC):
-	nam = 'AbstractReader'
+    """
+    Abstract class for reading raw data from different instruments. Each instrument should have a separate class that
+    inherits from this class and implements the abstract methods. The abstract methods are `_raw_reader` and `_QC`.
+
+    List the file in the path and read pickle file if it exists, else read raw data and dump the pickle file the
+    pickle file will be generated after read raw data first time, if you want to re-read the rawdata, please set
+    'reset=True'
+    """
+
+    nam = 'AbstractReader'
+
+    def __init__(self,
+                 path: Path | str,
+                 reset: bool = False,
+                 qc: bool = True,
+                 qc_freq: Optional[str] = None,
+                 rate: bool = True,
+                 append_data: bool = False,
+                 **kwargs):
+
+        self.path = Path(path)
+        self.meta = meta[self.nam]
+        self.logger = ReaderLogger(self.nam, self.path)
+
+        self.reset = reset
+        self.qc = qc
+        self.qc_freq = qc_freq
+        self.rate = rate
+        self.append = append_data and reset
+
+        self.pkl_nam = self.path / f'_read_{self.nam.lower()}.pkl'
+        self.csv_nam = self.path / f'_read_{self.nam.lower()}.csv'
+        self.pkl_nam_raw = self.path / f'_read_{self.nam.lower()}_raw.pkl'
+        self.csv_nam_raw = self.path / f'_read_{self.nam.lower()}_raw.csv'
+        self.csv_out = self.path / f'output_{self.nam.lower()}.csv'
+
+        self.size_range = kwargs.get('size_range', (11.8, 593.5))
+
+    def __call__(self,
+                 start: datetime,
+                 end: datetime,
+                 mean_freq: str = '1h',
+                 csv_out: bool = True,
+                 ) -> DataFrame:
+
+        data = self._run(start, end)
+
+        if data is not None:
+            if mean_freq:
+                data = data.resample(mean_freq).mean()
+            if csv_out:
+                data.to_csv(self.csv_out)
+
+        return data
+
+    @abstractmethod
+    def _raw_reader(self, file):
+        pass
+
+    @abstractmethod
+    def _QC(self, df: DataFrame) -> DataFrame:
+        return df
+
+    def _rate_calculate(self, raw_data, qc_data) -> None:
+        def __base_rate(raw_data, qc_data):
+            period_size = len(raw_data.resample('1h').mean().index)
+
+            for _nam, _key in self.meta['deter_key'].items():
+                _columns_key, _drop_how = (qc_data.keys(), 'all') if _key == ['all'] else (_key, 'any')
+
+                sample_size = len(raw_data[_columns_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
+                qc_size = len(qc_data[_columns_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
+
+                # validate rate calculation
+                if period_size == 0 or sample_size == 0 or qc_size == 0:
+                    self.logger.warning(f'\t\t No data for this period... skip')
+                    continue
+                if period_size < sample_size:
+                    self.logger.warning(f'\t\tError: Sample({sample_size}) > Period({period_size})... skip')
+                    continue
+                if sample_size < qc_size:
+                    self.logger.warning(f'\t\tError: QC({qc_size}) > Sample({sample_size})... skip')
+                    continue
+
+                else:
+                    _sample_rate = round((sample_size / period_size) * 100, 1)
+                    _valid_rate = round((qc_size / sample_size) * 100, 1)
+                    _total_rate = round((qc_size / period_size) * 100, 1)
+
+                self.logger.info(f"\t\t{self.logger.CYAN}{self.logger.ARROW} {_nam}{self.logger.RESET}")
+                self.logger.info(
+                    f"\t\t\t├─ {'Sample Rate':15}: {self.logger.BLUE}{_sample_rate:>6.1f}%{self.logger.RESET}")
+                self.logger.info(
+                    f"\t\t\t├─ {'Valid  Rate':15}: {self.logger.BLUE}{_valid_rate:>6.1f}%{self.logger.RESET}")
+                self.logger.info(
+                    f"\t\t\t└─ {'Total  Rate':15}: {self.logger.BLUE}{_total_rate:>6.1f}%{self.logger.RESET}")
+
+        if self.meta['deter_key'] is not None:
+            # use qc_freq to calculate each period rate
+            if self.qc_freq is not None:
+                raw_data_grouped = raw_data.groupby(pd.Grouper(freq=self.qc_freq))
+                qc_data_grouped = qc_data.groupby(pd.Grouper(freq=self.qc_freq))
+
+                for (month, _sub_raw_data), (_, _sub_qc_data) in zip(raw_data_grouped, qc_data_grouped):
+                    self.logger.info(
+                        f"\t{self.logger.BLUE}{self.logger.ARROW} Processing: {_sub_raw_data.index[0].strftime('%F')}"
+                        f" to {_sub_raw_data.index[-1].strftime('%F')}{self.logger.RESET}")
+
+                    __base_rate(_sub_raw_data, _sub_qc_data)
+
+            else:
+                __base_rate(raw_data, qc_data)
+
+    def _timeIndex_process(self, _df, user_start=None, user_end=None, append_df=None):
+        """
+        Process time index, resample data, extract specified time range, and optionally append new data.
+
+        :param _df: Input DataFrame with time index
+        :param user_start: Start of user-specified time range (optional)
+        :param user_end: End of user-specified time range (optional)
+        :param append_df: DataFrame to append (optional)
+        :return: Processed DataFrame
+        """
+        # Round timestamps and remove duplicates
+        _df = _df.groupby(_df.index.round('1min')).first()
+
+        # Determine frequency
+        freq = _df.index.inferred_freq or self.meta['freq']
+
+        # Append new data if provided
+        if append_df is not None:
+            append_df.index = append_df.index.round('1min')
+            _df = pd.concat([append_df.dropna(how='all'), _df.dropna(how='all')])
+            _df = _df.loc[~_df.index.duplicated()]
+
+        # Determine time range
+        df_start, df_end = _df.index.sort_values()[[0, -1]]
+
+        # Create new time index
+        new_index = pd.date_range(user_start or df_start, user_end or df_end, freq=freq, name='time')
+
+        # Process data: convert to numeric, resample, and reindex
+        return _df.reindex(new_index)
+
+    def _outlier_process(self, _df):
+        outlier_file = self.path / 'outlier.json'
+
+        if not outlier_file.exists():
+            return _df
+
+        with outlier_file.open('r', encoding='utf-8', errors='ignore') as f:
+            outliers = json.load(f)
+
+        for _st, _ed in outliers.values():
+            _df.loc[_st:_ed] = np.nan
+
+        return _df
+
+    def _save_data(self, raw_data: DataFrame, qc_data: DataFrame) -> None:
+        try:
+            raw_data.to_pickle(self.pkl_nam_raw)
+            raw_data.to_csv(self.csv_nam_raw)
+
+            if self.meta['deter_key'] is not None:
+                qc_data.to_pickle(self.pkl_nam)
+                qc_data.to_csv(self.csv_nam)
+
+        except Exception as e:
+            raise IOError(f"Error saving data. {e}")
+
+    @contextmanager
+    def progress_reading(self, files: list) -> Generator:
+        # Create message temporary storage and replace logger method
+        logs = {level: [] for level in ['info', 'warning', 'error']}
+        original = {level: getattr(self.logger, level) for level in logs}
 
-	# initial config
-	# input : file path, reset switch
+        for level, msgs in logs.items():
+            setattr(self.logger, level, msgs.append)
 
-	# list the file in the path and read pickle file if it exists, else read raw data and dump the pickle file the
-	# pickle file will be generated after read raw data first time, if you want to re-read the rawdata, please set
-	# 'reset=True'
+        try:
+            with Progress(
+                    TextColumn("[bold blue]{task.description}", style="bold blue"),
+                    BarColumn(bar_width=25, complete_style="green", finished_style="bright_green"),
+                    TaskProgressColumn(),
+                    TimeRemainingColumn(),
+                    TextColumn("{task.fields[filename]}", style="yellow"),
+                    console=Console(force_terminal=True, color_system="auto", width=120),
+                    expand=False
+            ) as progress:
+                task = progress.add_task(f"{self.logger.ARROW} Reading {self.nam} files", total=len(files), filename="")
+                yield progress, task
+        finally:
+            # Restore logger method and output message
+            for level, msgs in logs.items():
+                setattr(self.logger, level, original[level])
+                for msg in msgs:
+                    original[level](msg)
 
-	def __init__(self, _path, QC=True, csv_raw=True, reset=False, rate=False, append_data=False, update_meta=None):
-		# logging.info(f'\n{self.nam}')
-		# print('='*65)
-		# logger.info(f"Reading file and process data")
+    def _read_raw_files(self) -> tuple[DataFrame | None, DataFrame | None]:
+        files = [f
+                 for file_pattern in self.meta['pattern']
+                 for pattern in {file_pattern.lower(), file_pattern.upper(), file_pattern}
+                 for f in self.path.glob(pattern)
+                 if f.name not in [self.csv_out.name, self.csv_nam.name, self.csv_nam_raw.name, f'{self.nam}.log']]
 
-		# class parameter
-		# self.index = lambda _freq: date_range(_sta, _fin, freq=_freq)
-		self.path = Path(_path)
-		self.meta = meta[self.nam]
+        if not files:
+            raise FileNotFoundError(f"No files in '{self.path}' could be read. Please check the current path.")
 
-		if update_meta is not None:
-			self.meta.update(update_meta)
+        df_list = []
 
-		self.reset = reset
-		self.rate = rate
-		self.qc = QC
-		self.csv = csv_raw
-		self.apnd = append_data & reset
+        # Context manager for progress bar display
+        with self.progress_reading(files) as (progress, task):
+            for file in files:
+                progress.update(task, advance=1, filename=file.name)
+                try:
+                    if (df := self._raw_reader(file)) is not None and not df.empty:
+                        df_list.append(df)
+                    else:
+                        self.logger.warning(f"\tFile {file.name} produced an empty DataFrame or None.")
 
-		self.pkl_nam = f'_read_{self.nam.lower()}.pkl'
-		self.csv_nam = f'_read_{self.nam.lower()}.csv'
+                except Exception as e:
+                    self.logger.error(f"Error reading {file.name}: {e}")
 
-		self.pkl_nam_raw = f'_read_{self.nam.lower()}_raw.pkl'
-		self.csv_nam_raw = f'_read_{self.nam.lower()}_raw.csv'
+        if not df_list:
+            raise ValueError(f"\033[41m\033[97mAll files were either empty or failed to read.\033[0m")
 
-		self.csv_out = f'output_{self.nam.lower()}.csv'
+        raw_data = concat(df_list, axis=0).groupby(level=0).first()
 
-	# print(f" from {_sta.strftime('%Y-%m-%d %X')} to {_fin.strftime('%Y-%m-%d %X')}")
-	# print('='*65)
-	# print(f"{dtm.now().strftime('%m/%d %X')}")
+        if self.nam == 'SMPS':
+            raw_data = raw_data.sort_index(axis=1, key=lambda x: x.astype(float))
 
-	# get data
-	def __call__(self,
-				 start: dtm | None = None,
-				 end: dtm | None = None,
-				 mean_freq='1h',
-				 csv_out=True,
-				 **kwarg):
+        raw_data = self._timeIndex_process(raw_data).apply(to_numeric, errors='coerce').copy(deep=True)
+        qc_data = self._QC(raw_data).apply(to_numeric, errors='coerce').copy(deep=True)
 
-		self._oth_set = kwarg
+        return raw_data, qc_data
 
-		if start and end and end <= start:
-			raise ValueError(
-				f'\nPlease check out input time : \n\tstart : {start.strftime("%Y-%m-%d %X")}\n\tend   : {end.strftime("%Y-%m-%d %X")}')
+    def _run(self, user_start, user_end):
+        # read pickle if pickle file exists and 'reset=False' or process raw data or append new data
+        if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and not self.reset:
+            self.logger.info_box(f"Reading {self.nam} PICKLE from {user_start} to {user_end}", color_part="PICKLE")
 
-		fout = self._run(start, end)
+            _f_raw_done, _f_qc_done = read_pickle(self.pkl_nam_raw), read_pickle(self.pkl_nam)
 
-		if fout is not None:
-			if mean_freq is not None:
-				fout = fout.resample(mean_freq).mean()
+            if self.append:
+                self.logger.info_box(f"Appending New data from {user_start} to {user_end}", color_part="New data")
 
-			if csv_out:
-				fout.to_csv(self.path / self.csv_out)
+                _f_raw_new, _f_qc_new = self._read_raw_files()
+                _f_raw = self._timeIndex_process(_f_raw_done, append_df=_f_raw_new)
+                _f_qc = self._timeIndex_process(_f_qc_done, append_df=_f_qc_new)
 
-		return fout
+            else:
+                _f_raw, _f_qc = _f_raw_done, _f_qc_done
 
-	# dependency injection function
-	@abstractmethod
-	def _raw_reader(self, _file):
-		# customize each instrument
-		pass
+                return _f_qc if self.qc else _f_raw
 
-	@abstractmethod
-	def _QC(self, df: DataFrame):
-		# customize each instrument
-		return df
+        else:
+            self.logger.info_box(f"Reading {self.nam} RAW DATA from {user_start} to {user_end}", color_part="RAW DATA")
 
-	# set each to true datetime(18:30:01 -> 18:30:00) and rindex data
-	def _raw_process(self, _df):
-		# get time from df and set time to whole time to create time index
-		_st, _ed = _df.index.sort_values()[[0, -1]]
-		_tm_index = date_range(_st.strftime('%Y%m%d %H00'),
-							   (_ed + dtmdt(hours=1)).strftime('%Y%m%d %H00'),
-							   freq=self.meta['freq'])
-		_tm_index.name = 'time'
+            _f_raw, _f_qc = self._read_raw_files()
 
-		return _df.apply(to_numeric, errors='coerce').resample(self.meta['freq']).mean().reindex(_tm_index)
+        # process time index
+        _f_raw = self._timeIndex_process(_f_raw, user_start, user_end)
+        _f_qc = self._timeIndex_process(_f_qc, user_start, user_end)
+        _f_qc = self._outlier_process(_f_qc)
 
-	# acquisition rate and yield rate
-	def _rate_calculate(self, _fout_raw, _fout_qc, _st_raw, _ed_raw):
+        # save
+        self._save_data(_f_raw, _f_qc)
 
-		if self.meta['deter_key'] is not None:
-			_start, _end = _fout_qc.index[[0, -1]]
+        if self.rate:
+            self._rate_calculate(_f_raw.apply(to_numeric, errors='coerce'), _f_qc.apply(to_numeric, errors='coerce'))
 
-			_drop_how = 'any'
-			_the_size = len(_fout_raw.resample('1h').mean().index)
+        return _f_qc if self.qc else _f_raw
 
-			_f_pth = (self.path / f'{self.nam}.log')
-			_f = _f_pth.open('r+' if _f_pth.exists() else 'w+')
+    @staticmethod
+    def reorder_dataframe_columns(df, order_lists, others_col=False):
+        new_order = []
 
-			_cont = _f.read()
-			_f.seek(0)
+        for order in order_lists:
+            # 只添加存在於DataFrame中的欄位，且不重複添加
+            new_order.extend([col for col in order if col in df.columns and col not in new_order])
 
-			_f.write(f"\n{dtm.now().strftime('%Y/%m/%d %X')}\n")
-			_f.write(f"{'-' * 60}\n")
-			_f.write(f"rawdata time : \n\t{_st_raw.strftime('%Y-%m-%d %X')} ~ {_ed_raw.strftime('%Y-%m-%d %X')}\n")
-			_f.write(f"output time : \n\t{_start.strftime('%Y-%m-%d %X')} ~ {_end.strftime('%Y-%m-%d %X')}\n")
-			_f.write(f"{'-' * 60}\n")
-			print(f"\n\t\tfrom {_start.strftime('%Y-%m-%d %X')} to {_end.strftime('%Y-%m-%d %X')}\n")
+        if others_col:
+            # 添加所有不在新順序列表中的原始欄位，保持它們的原始順序
+            new_order.extend([col for col in df.columns if col not in new_order])
 
-			for _nam, _key in self.meta['deter_key'].items():
+        return df[new_order]
 
-				if _key == ['all']:
-					_key, _drop_how = _fout_qc.keys(), 'all'
-
-				_real_size = len(_fout_raw[_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
-				_QC_size = len(_fout_qc[_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
-
-				try:
-					_acq_rate = round((_real_size / _the_size) * 100, 1)
-					_yid_rate = round((_QC_size / _real_size) * 100, 1)
-				except ZeroDivisionError:
-					_acq_rate, _yid_rate = 0, 0
-
-				_f.write(f'{_nam} : \n')
-				_f.write(f"\tacquisition rate : {_acq_rate}%\n")
-				_f.write(f'\tyield rate : {_yid_rate}%\n')
-
-				print(f'\t\t{_nam} : ')
-				print(f'\t\t\tacquisition rate : \033[91m{_acq_rate}%\033[0m')
-				print(f'\t\t\tyield rate : \033[91m{_yid_rate}%\033[0m')
-
-			_f.write(f"{'=' * 40}\n")
-			_f.write(_cont)
-
-			_f.close()
-
-	# process time index
-	@staticmethod
-	def _tmidx_process(_start, _end, _df):
-		_st, _ed = _df.index.sort_values()[[0, -1]]
-		_start, _end = to_datetime(_start) or _st, to_datetime(_end) or _ed
-		_idx = date_range(_start, _end, freq=_df.index.freq.copy())
-		_idx.name = 'time'
-
-		return _df.reindex(_idx), _st, _ed
-
-	# append new data to exist pkl
-	@staticmethod
-	def _apnd_prcs(_df_done, _df_apnd):
-
-		if _df_apnd is not None:
-			_df = concat([_df_apnd.dropna(how='all').copy(), _df_done.dropna(how='all').copy()])
-
-			_idx = date_range(*_df.index.sort_values()[[0, -1]], freq=_df_done.index.freq.copy())
-			_idx.name = 'time'
-
-			return _df.loc[~_df.index.duplicated()].copy().reindex(_idx)
-
-		return _df_done
-
-	# remove outlier
-	def _outlier_prcs(self, _df):
-
-		if (self.path / 'outlier.json') not in self.path.glob('*.json'):
-			return _df
-
-		with (self.path / 'outlier.json').open('r', encoding='utf-8', errors='ignore') as f:
-			self.outlier = jsn.load(f)
-
-		for _st, _ed in self.outlier.values():
-			_df.loc[_st:_ed] = np.nan
-
-		return _df
-
-	# save pickle file
-	def _save_dt(self, _save_raw, _save_qc):
-		# dump pickle file
-		_check = True
-		while _check:
-			try:
-				with (self.path / self.pkl_nam).open('wb') as f:
-					pkl.dump(_save_qc, f, protocol=pkl.HIGHEST_PROTOCOL)
-
-				# dump csv file
-				if self.csv:
-					_save_qc.to_csv(self.path / self.csv_nam)
-
-				# output raw data if qc file
-				if self.meta['deter_key'] is not None:
-					with (self.path / self.pkl_nam_raw).open('wb') as f:
-						pkl.dump(_save_raw, f, protocol=pkl.HIGHEST_PROTOCOL)
-
-					if self.csv:
-						_save_raw.to_csv(self.path / self.csv_nam_raw)
-
-				_check = False
-
-			except PermissionError as _err:
-				print('\n', _err)
-				input('\t\t\33[41m Please Close The File And Press "Enter" \33[0m\n')
-
-	# read pickle file
-	def _read_pkl(self, ):
-		with (self.path / self.pkl_nam).open('rb') as f:
-			_fout_qc = pkl.load(f)
-
-		if (self.path / self.pkl_nam_raw).exists():
-			with (self.path / self.pkl_nam_raw).open('rb') as f:
-				_fout_raw = pkl.load(f)
-		else:
-			_fout_raw = _fout_qc
-
-		return _fout_raw, _fout_qc
-
-	# read raw data
-	def _read_raw(self, ):
-		pattern = self.meta['pattern']
-		patterns = {pattern, pattern.lower(), pattern.upper()}
-		_df_con, _f_list = None, list(chain.from_iterable(self.path.glob(p) for p in patterns))
-
-		for file in _f_list:
-			if file.name in [self.csv_out, self.csv_nam, self.csv_nam_raw, f'{self.nam}.log']:
-				continue
-
-			print(f"\r\t\treading {file.name}", end='')
-
-			_df = self._raw_reader(file)
-
-			# concat the concated list
-			if _df is not None:
-				_df_con = concat([_df_con, _df]) if _df_con is not None else _df
-
-		if _df_con is None:
-			print(f"\t\t\033[31mNo File in '{self.path}' Could Read, Please Check Out the Current Path\033[0m")
-			return None, None
-
-		# QC
-		_fout_raw = self._raw_process(_df_con)
-		_fout_qc = self._QC(_fout_raw)
-
-		return _fout_raw, _fout_qc
-
-	# main flow
-	def _run(self, _start, _end):
-
-		_f_raw_done, _f_qc_done = None, None
-
-		# read pickle if pickle file exists and 'reset=False' or process raw data or append new data
-		_pkl_exist = self.path / self.pkl_nam in list(self.path.glob('*.pkl'))
-		if _pkl_exist & ((~self.reset) | self.apnd):
-			print(f"\n\t{dtm.now().strftime('%m/%d %X')} : Reading \033[96mPICKLE\033[0m file of {self.nam}")
-
-			_f_raw_done, _f_qc_done = self._read_pkl()
-
-			if not self.apnd:
-				_f_raw_done, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_raw_done)
-				_f_qc_done, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_qc_done)
-
-				_f_qc_done = self._outlier_prcs(_f_qc_done)
-
-				if self.rate:
-					self._rate_calculate(_f_raw_done, _f_qc_done, _start_raw, _end_raw)
-
-				return _f_qc_done if self.qc else _f_raw_done
-
-		# read raw data
-		print(f"\n\t{dtm.now().strftime('%m/%d %X')} : Reading \033[96mRAW DATA\033[0m of {self.nam} and process it")
-
-		_f_raw, _f_qc = self._read_raw()
-		if _f_raw is None:
-			return None
-
-		# append new data and pickle data
-		if self.apnd & _pkl_exist:
-			_f_raw = self._apnd_prcs(_f_raw_done, _f_raw)
-			_f_qc = self._apnd_prcs(_f_qc_done, _f_qc)
-
-		_f_qc = self._outlier_prcs(_f_qc)
-
-		# save
-		self._save_dt(_f_raw, _f_qc)
-
-		# process time index
-		# if (_start is not None)|(_end is not None):
-		_f_raw, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_raw)
-		_f_qc, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_qc)
-
-		self._rate_calculate(_f_raw, _f_qc, _start_raw, _end_raw)
-
-		return _f_qc if self.qc else _f_raw
-
-	# -------------------------------------------------------------------------------------
-	# old flow
-	# def __run(self, _start, _end):
-	#
-	#     ## read pickle if pickle file exists and 'reset=False' or process raw data
-	#     if (self.path / self.pkl_nam in list(self.path.glob('*.pkl'))) & (~self.reset):
-	#         print(f"\n\t{dtm.now().strftime('%m/%d %X')} : Reading \033[96mPICKLE\033[0m file of {self.nam}")
-	#
-	#         with (self.path / self.pkl_nam).open('rb') as f:
-	#             _fout_qc = pkl.load(f)
-	#
-	#         _exist = (self.path / self.pkl_nam_raw).exists()
-	#         if _exist:
-	#             with (self.path / self.pkl_nam_raw).open('rb') as f:
-	#                 _fout_raw = pkl.load(f)
-	#         else:
-	#             _fout_raw = _fout_qc
-	#
-	#         _start, _end = to_datetime(_start) or _fout_qc.index[0], to_datetime(_end) or _fout_qc.index[-1]
-	#         _idx = date_range(_start, _end, freq=_fout_qc.index.freq.copy())
-	#         _idx.name = 'time'
-	#
-	#         _fout_raw, _fout_qc = _fout_raw.reindex(_idx), _fout_qc.reindex(_idx)
-	#         if (self.rate) & (_exist):
-	#             self._rate_calculate(_fout_raw, _fout_qc)
-	#
-	#         return _fout_qc if self.qc else _fout_raw
-	#     else:
-	#         print(
-	#             f"\n\t{dtm.now().strftime('%m/%d %X')} : Reading \033[96mRAW DATA\033[0m of {self.nam} and process it")
-	#
-	#     ##=================================================================================================================
-	#     ## read raw data
-	#     _df_con, _f_list = None, list(self.path.glob(self.meta['pattern']))
-	#
-	#     if len(_f_list) == 0:
-	#         print(f"\t\t\033[31mNo File in '{self.path}' Could Read, Please Check Out the Current Path\033[0m")
-	#         return None
-	#
-	#     for file in _f_list:
-	#         if file.name in [self.csv_out, self.csv_nam, self.csv_nam_raw, f'{self.nam}.log']: continue
-	#
-	#         print(f"\r\t\treading {file.name}", end='')
-	#
-	#         _df = self._raw_reader(file)
-	#
-	#         ## concat the concated list
-	#         if _df is not None:
-	#             _df_con = concat([_df_con, _df]) if _df_con is not None else _df
-	#     print()
-	#
-	#     ## QC
-	#     _save_raw = self._raw_process(_df_con)
-	#     _save_qc = self._QC(_save_raw)
-	#
-	#     _start, _end = to_datetime(_start) or _save_raw.index[0], to_datetime(_end) or _save_raw.index[-1]
-	#     _idx = date_range(_start, _end, freq=_save_raw.index.freq.copy())
-	#     _idx.name = 'time'
-	#
-	#     _fout_raw, _fout_qc = _save_raw.reindex(_idx).copy(), _save_qc.reindex(_idx).copy()
-	#
-	#     self._rate_calculate(_fout_raw, _fout_qc)
-	#
-	#     ##=================================================================================================================
-	#     ## dump pickle file
-	#     _check = True
-	#     while _check:
-	#
-	#         try:
-	#             with (self.path / self.pkl_nam).open('wb') as f:
-	#                 pkl.dump(_save_qc, f, protocol=pkl.HIGHEST_PROTOCOL)
-	#
-	#             ## dump csv file
-	#             if self.csv:
-	#                 _save_qc.to_csv(self.path / self.csv_nam)
-	#
-	#             ## output raw data if qc file
-	#             if self.meta['deter_key'] is not None:
-	#                 with (self.path / self.pkl_nam_raw).open('wb') as f:
-	#                     pkl.dump(_save_raw, f, protocol=pkl.HIGHEST_PROTOCOL)
-	#
-	#                 if self.csv:
-	#                     _save_raw.to_csv(self.path / self.csv_nam_raw)
-	#
-	#                 return _fout_qc if self.qc else _fout_raw
-	#
-	#             _check = False
-	#
-	#         except PermissionError as _err:
-	#             print('\n', _err)
-	#             input('\t\t\33[41m Please Close The File And Press "Enter" \33[0m\n')
-	#
-	#     return _fout_qc
+    @staticmethod
+    def time_aware_IQR_QC(df: pd.DataFrame, time_window='1D', log_dist=False) -> pd.DataFrame:
+        return DataQualityControl().time_aware_iqr(df, time_window=time_window, log_dist=log_dist)

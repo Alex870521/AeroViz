@@ -1,13 +1,13 @@
 ## <div align="center">AeroViz for Aerosol Science Visualization</div>
 
-<p align="center">
+<div align="center">
 
-  <img alt="Static Badge" src="https://img.shields.io/badge/python-3.12-blue?logo=python">
-  <img alt="Static Badge" src="https://img.shields.io/badge/License-MIT-yellow">
-  <img alt="Static Badge" src="https://img.shields.io/badge/github-updating-red?logo=github">
-  <img src="https://img.shields.io/badge/testing-green?logo=Pytest&logoColor=blue">
+![Python](https://img.shields.io/pypi/pyversions/aeroviz?logo=python)
+![PyPI](https://img.shields.io/pypi/v/aeroviz?logo=pypi)
+![Pytest](https://img.shields.io/github/actions/workflow/status/Alex870521/aeroviz/pytest.yml?logo=pytest&label=pytest)
+![GitHub last commit](https://img.shields.io/github/last-commit/Alex870521/aeroviz?logo=github)
 
-</p>
+</div>
 
 <div align="center">
 
@@ -16,86 +16,78 @@
 <a href="https://www.linkedin.com/in/Alex870521/"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-linkedin.png?raw=true" width="3%" alt="Alex870521 LinkedIn"></a>
 <img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
 <a href="https://medium.com/@alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-medium.png?raw=true" width="3%" alt="Alex870521 Medium"></a>
-
-
 </div>
 
 ## <div align="center">Installation</div>
-
 ```bash
-pip install AeroViz # ensure the python version is >= 3.12
+pip install AeroViz
 ```
 
-## <div align="center">Usage</div>
+## <div align="center">Key Features</div>
+
+### 📊 Data Reading ▶ RawDataReader
+
+Built-in `RawDataReader` supporting multiple aerosol instruments:
+- **Particle Sizers**: SMPS, APS, GRIMM, OPC
+- **Mass & Optical**: TEOM, NEPH, Aurora, AE33/43, BC1054
+- **Chemical Analysis**: OCEC, IGAC, XRF, VOC
+
+> Features include quality control, data filtering, flexible resampling, and CSV export. For detailed instrument support
+> and usage, check our [RawDataReader Guide](docs/guide/RawDataReader.md).
+
+### 🔬 Data Processing ▶ DataProcess
+
+Built-in `DataProcess` provides advanced aerosol analysis:
+- **Size Distribution**: Mode Fitting, Log-Normal Analysis
+- **Optical Properties**: Mie Theory, SOAP Calculation
+- **Chemical**: Mass Closure, Source Apportionment
+- **VOC**: OFP, SOAP
+
+### 📈 Data Visualization ▶ plot
+
+Comprehensive visualization tools `plot`:
+- **Time Analysis**: Trends, Diurnal Patterns
+- **Statistical**: Distributions, Correlations
+- **Specialized**: Size Contours, Wind Rose, Polar Plots, Hysplit, CBPF
+
+> **Note:** We are continuously adding support for more instruments and features. Contributions are welcome!
+
+## <div align="center">Quick Start</div>
 
 ```python
-import AeroViz
+from datetime import datetime
+from pathlib import Path
+from AeroViz import RawDataReader, DataProcess, plot
+
+# Read data from a supported instrument
+data = RawDataReader('NEPH', Path('/path/to/data'), start=datetime(2024, 2, 1), end=datetime(2024, 4, 30))
+
+# Create a visualization
+plot.timeseries(data, y='scattering_coefficient')
 ```
 
-## <div align="center">RawDataReader Supported Instruments</div>
+For more detailed usage instructions, please refer to our [User Guide](docs/guide).
 
-> [!NOTE]\
-> We are continuously working to support more instruments. Please check back for updates or contribute to our project on
-> GitHub.
-
-The AeroViz project currently supports data from the following instruments:
-
-- **SMPS (Scanning Mobility Particle Sizer)**
-- **APS (Aerodynamic Particle Sizer)**
-- **GRIMM (GRIMM Aerosol Technik)**
-- **TEOM (Continuous Ambient Particulate Monitor)**
-- **NEPH (Nephelometer)**
-- **Aurora (Nephelometer)**
-- **AE33 (Aethalometer Model 33)**
-- **AE43 (Aethalometer Model 43)**
-- **BC1054 (Black Carbon Monitor 1054)**
-- **MA350 (MicroAeth MA350)**
-- **OCEC (Organic Carbon Elemental Carbon Analyzer)**
-- **IGAC (In-situ Gas and Aerosol Compositions monitor)**
-- **VOC (Volatile Organic Compounds Monitor)**
-
-## <div align="center">DataProcess Supported Method</div>
-
-The AeroViz project currently supports the following processing methods:
-
-- **Chemistry**
-- **Optical**
-- **SizeDistr**
-- **VOC**
 
 ## <div align="center">Documentation</div>
-
 For detailed documentation, please refer to the `docs` folder, which includes:
 
 <div align="center">
 
-| Documentation                              | Description                |
-|--------------------------------------------|----------------------------|
-| [User Guide](docs/user_guide.md)           | Basic usage instructions   |
-| [Developer Guide](docs/developer_guide.md) | Developer guidelines       |
-| [API Reference](docs/api_reference.md)     | API documentation          |
-| [FAQ](docs/faq.md)                         | Frequently Asked Questions |
-| [Changelog](docs/changelog.md)             | List of changes            |
-
+| Documentation                  | Description              |
+|--------------------------------|--------------------------|
+| [User Guide](docs/guide)       | Basic usage instructions |
+| [Changelog](docs/CHANGELOG.md) | List of changes          |
 </div>
 
-## <div align="center">Related Dependencies</div>
-
-* #### [PyMieScatt](https://github.com/bsumlin/PyMieScatt.git)
-* #### [py-smps](https://github.com/quant-aq/py-smps.git)
-* #### [ContainerHandle](https://github.com/yrr-Su/ContainerHandle.git)
-
 ## <div align="center">Contact</div>
-
 For bug reports and feature requests please visit [GitHub Issues](https://github.com/Alex870521/DataPlot/issues).
 
 <div align="center">
 
-<a href="https://github.com/Alex870521"><img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-social-github.png?raw=true" width="3%" alt="Alex870521 GitHub"></a>
-<img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
-<a href="https://www.linkedin.com/in/Alex870521/"><img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-social-linkedin.png?raw=true" width="3%" alt="Alex870521 LinkedIn"></a>
-<img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
-<a href="https://medium.com/@alex870521"><img src="https://github.com/Alex870521/assets_repo/blob/main/assets/media/logo-social-medium.png?raw=true" width="3%" alt="Alex870521 Medium"></a>
-
-
+<a href="https://github.com/Alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-github.png?raw=true" width="3%" alt="Alex870521 GitHub"></a>
+<img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
+<a href="https://www.linkedin.com/in/Alex870521/"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-linkedin.png?raw=true" width="3%" alt="Alex870521 LinkedIn"></a>
+<img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
+<a href="https://medium.com/@alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-medium.png?raw=true" width="3%" alt="Alex870521 Medium"></a>
 </div>

@@ -1,34 +1,36 @@
-from pandas import read_csv
+from pandas import read_csv, to_numeric
 
 from AeroViz.rawDataReader.core import AbstractReader
 
 
 class Reader(AbstractReader):
-	nam = 'AE43'
+    nam = 'AE43'
 
-	def _raw_reader(self, _file):
-		_df = read_csv(_file, parse_dates={'time': ['StartTime']}, index_col='time')
-		_df_id = _df['SetupID'].iloc[-1]
+    def _raw_reader(self, file):
+        _df = read_csv(file, parse_dates={'time': ['StartTime']}, index_col='time')
+        _df_id = _df['SetupID'].iloc[-1]
 
-		# get last SetupID data
-		_df = _df.groupby('SetupID').get_group(_df_id)[
-			['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'Status']].copy()
+        # get last SetupID data
+        _df = _df.groupby('SetupID').get_group(_df_id)[
+            ['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'Status']].copy()
 
-		# remove data without Status=0
-		_df = _df.where(_df['Status'] == 0).copy()
+        # remove data without Status=0, 128 (Not much filter tape), 256 (Not much filter tape)
+        if self.meta.get('error_state', False):
+            _df = _df.where(~_df['Status'].isin(self.meta['error_state'])).copy()
 
-		return _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7']]
+        _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7']].apply(to_numeric, errors='coerce')
 
-	# QC data
-	def _QC(self, _df):
-		# remove negative value
-		_df = _df.mask((_df < 0).copy())
+        return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
-		# QC data in 5 min
-		def _QC_func(df):
-			_df_ave, _df_std = df.mean(), df.std()
-			_df_lowb, _df_highb = df < (_df_ave - _df_std * 1.5), df > (_df_ave + _df_std * 1.5)
+    # QC data
+    def _QC(self, _df):
+        _index = _df.index.copy()
 
-			return df.mask(_df_lowb | _df_highb).copy()
+        # remove negative value
+        _df = _df.mask((_df <= 0) | (_df > 20000))
 
-		return _df.resample('5min').apply(_QC_func).resample('1h').mean()
+        # use IQR_QC
+        _df = self.time_aware_IQR_QC(_df, time_window='1h')
+
+        # make sure all columns have values, otherwise set to nan
+        return _df.dropna(how='any').reindex(_index)

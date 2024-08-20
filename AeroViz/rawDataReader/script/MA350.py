@@ -1,45 +1,46 @@
-from pandas import read_csv
+from pandas import read_csv, to_numeric
 
 from AeroViz.rawDataReader.core import AbstractReader
 
 
 class Reader(AbstractReader):
-	nam = 'MA350'
+    nam = 'MA350'
 
-	def _raw_reader(self, _file):
-		_df = read_csv(_file, parse_dates=['Date / time local'], index_col='Date / time local').rename_axis("Time")
+    def _raw_reader(self, file):
+        _df = read_csv(file, parse_dates=['Date / time local'], index_col='Date / time local').rename_axis(
+            "Time")
 
-		_df = _df.rename(columns={
-			'UV BCc': 'BC1',
-			'Blue BCc': 'BC2',
-			'Green BCc': 'BC3',
-			'Red BCc': 'BC4',
-			'IR BCc': 'BC5',
-			'Biomass BCc  (ng/m^3)': 'BB mass',
-			'Fossil fuel BCc  (ng/m^3)': 'FF mass',
-			'Delta-C  (ng/m^3)': 'Delta-C',
-			'AAE': 'AAE',
-			'BB (%)': 'BB',
-		})
+        _df = _df.rename(columns={
+            'UV BCc': 'BC1',
+            'Blue BCc': 'BC2',
+            'Green BCc': 'BC3',
+            'Red BCc': 'BC4',
+            'IR BCc': 'BC5',
+            'Biomass BCc  (ng/m^3)': 'BB mass',
+            'Fossil fuel BCc  (ng/m^3)': 'FF mass',
+            'Delta-C  (ng/m^3)': 'Delta-C',
+            'AAE': 'AAE',
+            'BB (%)': 'BB',
+        })
 
-		# remove data without Status=32 (Automatic Tape Advance), 65536 (Tape Move)
-		# if not self._oth_set.get('ignore_err', False):
-		#     _df = _df.where((_df['Status'] != 32) | (_df['Status'] != 65536)).copy()
+        # if self.meta.get('error_state', False):
+        #     _df = _df.where(~_df['Status'].isin(self.meta['error_state'])).copy()
 
-		return _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BB mass', 'FF mass', 'Delta-C', 'AAE', 'BB']]
+        _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BB mass', 'FF mass', 'Delta-C', 'AAE', 'BB']].apply(to_numeric,
+                                                                                                           errors='coerce')
 
-	# QC data
-	def _QC(self, _df):
-		# remove negative value
-		_df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BB mass', 'FF mass', 'AAE', 'BB']].mask((_df < 0).copy())
+        return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
-		# call by _QC function
-		# QC data in 1 hr
-		def _QC_func(_df_1hr):
-			_df_ave = _df_1hr.mean()
-			_df_std = _df_1hr.std()
-			_df_lowb, _df_highb = _df_1hr < (_df_ave - _df_std * 1.5), _df_1hr > (_df_ave + _df_std * 1.5)
+    # QC data
+    def _QC(self, _df):
+        _index = _df.index.copy()
 
-			return _df_1hr.mask(_df_lowb | _df_highb).copy()
+        # remove negative value
+        _df = _df.mask(
+            (_df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5']] <= 0) | (_df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5']] > 20000))
 
-		return _df.resample('1h', group_keys=False).apply(_QC_func).resample('5min').mean()
+        # use IQR_QC
+        _df = self.time_aware_IQR_QC(_df, time_window='1h')
+
+        # make sure all columns have values, otherwise set to nan
+        return _df.dropna(how='any').reindex(_index)

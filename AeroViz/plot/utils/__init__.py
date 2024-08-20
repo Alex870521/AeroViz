@@ -1,3 +1,4 @@
 from ._color import Color
-from ._decorator import set_figure
 from ._unit import Unit
+from .plt_utils import *
+from .sklearn_utils import *

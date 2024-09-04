@@ -24,12 +24,5 @@ class Reader(AbstractReader):
         return _df / 0.035
 
     def _QC(self, _df):
-        # QC data in 1 hr
-        def _QC_func(_df_1hr):
-            _df_ave = _df_1hr.mean()
-            _df_std = _df_1hr.std()
-            _df_lowb, _df_highb = _df_1hr < (_df_ave - _df_std * 1.5), _df_1hr > (_df_ave + _df_std * 1.5)
-
-            return _df_1hr.mask(_df_lowb | _df_highb).copy()
-
-        return _df.resample('5min').apply(_QC_func).resample('1h').mean()
+        # QC data in 1h
+        return _df.resample('1h').apply(self.basic_QC).resample(self.meta.get("freq")).mean()

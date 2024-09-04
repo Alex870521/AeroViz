@@ -7,6 +7,9 @@ from pandas import concat, DataFrame, to_numeric, read_csv
 from ._calculate import _ug2umol
 
 
+# TODO: fix isoropia2.exe can not run
+
+
 def _basic(df_che, path_out, nam_lst):
     # parameter
     df_all = concat(df_che, axis=1)
@@ -68,8 +71,8 @@ def _basic(df_che, path_out, nam_lst):
     # read dat file and transform to the normal name
     cond_idx = df_all[['SO42-', 'NH4+', 'NO3-']].dropna().index
 
-    with (pth_output).open('r', encoding='utf-8', errors='ignore') as f:
-        df_res = read_csv(f, delimiter='\s+').apply(to_numeric, errors='coerce').set_index(index)
+    with pth_output.open('r', encoding='utf-8', errors='ignore') as f:
+        df_res = read_csv(f, delimiter=r'\s+').apply(to_numeric, errors='coerce').set_index(index)
 
     df_out['H'] = df_res['HLIQ'] / (df_res['WATER'] / 1000)
 

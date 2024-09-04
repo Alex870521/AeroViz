@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import seaborn as sns
 from matplotlib.pyplot import Figure, Axes
 from pandas import DataFrame
 
@@ -10,7 +11,7 @@ __all__ = ['violin']
 
 
 @set_figure(fw='bold')
-def violin(data_set: DataFrame | dict,
+def violin(df: DataFrame | dict,
            unit: str,
            ax: Axes | None = None,
            **kwargs
@@ -20,7 +21,7 @@ def violin(data_set: DataFrame | dict,
 
     Parameters
     ----------
-    data_set : pd.DataFrame or dict
+    df : pd.DataFrame or dict
         A mapping from category names to pandas DataFrames containing the data.
     unit : str
         The unit for the data being plotted.
@@ -31,13 +32,15 @@ def violin(data_set: DataFrame | dict,
 
     Returns
     -------
-    matplotlib.axes.Axes
-        The Axes object containing the violin plot.
+    fig : Figure
+        The matplotlib Figure object.
+    ax : Axes
+        The matplotlib Axes object with the scatter plot.
 
     """
     fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
 
-    data = data_set.to_numpy()
+    data = df.to_numpy()
 
     data = data[~np.isnan(data).any(axis=1)]
 
@@ -67,12 +70,10 @@ def violin(data_set: DataFrame | dict,
     ylim = kwargs.get('ylim') or (0, None)
     xlabel = kwargs.get('xlabel') or ''
     ylabel = kwargs.get('ylabel') or Unit(unit)
-    xticks = kwargs.get('xticks') or [x.replace('-', '\n') for x in list(data_set.keys())]
+    xticks = kwargs.get('xticks') or [x.replace('-', '\n') for x in list(df.keys())]
 
     ax.set(xlim=xlim, ylim=ylim, xlabel=xlabel, ylabel=ylabel, title=kwargs.get('title'))
     ax.set_xticks(x_position, xticks, fontweight='bold', fontsize=12)
-
-    # fig.savefig(f'Violin_{unit}')
 
     plt.show()
 

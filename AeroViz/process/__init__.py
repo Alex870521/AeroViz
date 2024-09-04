@@ -5,10 +5,10 @@ from pandas import read_csv, concat
 from AeroViz.process.script import (ImpactProc, ImproveProc, ChemicalProc, ParticleSizeDistProc,
                                     ExtinctionDistProc, OthersProc)
 
-__all__ = ['DataProcess']
+__all__ = ['DataProcessor', 'ImpactProc', 'ImproveProc', 'ChemicalProc', 'ParticleSizeDistProc', 'ExtinctionDistProc', ]
 
 
-class DataProcess:
+class DataProcessor:
     def __new__(cls, file_path, reset: bool = False, save_file: Path | str = 'All_data.csv'):
         file_path = Path(file_path)
 

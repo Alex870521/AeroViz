@@ -64,7 +64,7 @@ class ExtinctionDistCalc(AbstractDistCalc):
     def __init__(self,
                  psd: SizeDist,
                  RI: DataFrame,
-                 method: Literal['internal', 'external', 'utils-shell', 'sensitivity'],
+                 method: Literal['internal', 'external', 'config-shell', 'sensitivity'],
                  result_type: Literal['extinction', 'scattering', 'absorption'] = 'extinction'
                  ):
         self.psd = psd

@@ -45,7 +45,8 @@ def load_dataset_by_url(dataset_name: Literal["Tunghai", "Taipei"] = "Tunghai") 
     response = requests.get(url)
 
     if response.status_code == 200:
-        return read_csv(StringIO(response.text), parse_dates=['Time'], index_col='Time')
+        return read_csv(StringIO(response.text), na_values=('E', 'F', '-', '_', '#', '*'), index_col=0,
+                        parse_dates=True, low_memory=False)
     else:
         print(f"Failed to download file: {response.status_code}")
         print(response.text)  # Print the response text for debugging
@@ -54,7 +55,7 @@ def load_dataset_by_url(dataset_name: Literal["Tunghai", "Taipei"] = "Tunghai") 
 
 def load_dataset_local(dataset_name: Literal["Tunghai", "Taipei", "PNSD"] = "Tunghai") -> DataFrame:
     base_dir = Path(__file__).resolve().parent.parent
-    config_dir = base_dir / 'config'
+    config_dir = base_dir / 'data'
 
     dataset_paths = {
         "Tunghai": config_dir / 'DEFAULT_DATA.csv',
@@ -70,7 +71,8 @@ def load_dataset_local(dataset_name: Literal["Tunghai", "Taipei", "PNSD"] = "Tun
     if not file_path.exists():
         raise FileNotFoundError(f"The file {file_path} does not exist.")
 
-    return read_csv(file_path, parse_dates=['Time'], index_col='Time', na_values=('-', 'E', 'F'), low_memory=False)
+    return read_csv(file_path, na_values=('E', 'F', '-', '_', '#', '*'), index_col=0, parse_dates=True,
+                    low_memory=False)
 
 
 class DataBase:
@@ -79,15 +81,11 @@ class DataBase:
         if file_path is not None:
             file_path = Path(file_path)
             if file_path.exists():
-                return read_csv(file_path, parse_dates=['Time'], index_col='Time', na_values=('-', 'E', 'F'),
+                return read_csv(file_path, na_values=('E', 'F', '-', '_', '#', '*'), index_col=0, parse_dates=True,
                                 low_memory=False)
 
         if load_data ^ load_PSD:
-            if load_data:
-                return load_dataset_local("Tunghai")
-
-            elif load_PSD:
-                return load_dataset_local("PNSD")
+            return load_dataset_local("Tunghai") if load_data else load_dataset_local("PNSD")
 
         else:
             raise ValueError("Exactly one of 'load_data' or 'load_PSD' must be True.")

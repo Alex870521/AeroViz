@@ -23,53 +23,47 @@ def linear_regression(df: pd.DataFrame,
                       **kwargs
                       ) -> tuple[Figure, Axes]:
     """
-    Create a scatter plot with multiple regression lines for the given data.
+    Create a scatter plot with regression lines for the given data.
 
     Parameters
     ----------
-    df : DataFrame
+    df : pd.DataFrame
         Input DataFrame containing the data.
-
     x : str or list of str
-        Column name(s) for the x-axis variable(s).
-
+        Column name(s) for the x-axis variable(s). If a list, only the first element is used.
     y : str or list of str
         Column name(s) for the y-axis variable(s).
-
     labels : str or list of str, optional
         Labels for the y-axis variable(s). If None, column names are used as labels. Default is None.
-
-    ax : AxesSubplot, optional
-        Matplotlib AxesSubplot to use for the plot. If None, a new subplot is created. Default is None.
-
+    ax : Axes, optional
+        Matplotlib Axes object to use for the plot. If None, a new subplot is created. Default is None.
     diagonal : bool, optional
         If True, a diagonal line (1:1 line) is added to the plot. Default is False.
-
     positive : bool, optional
-       Whether to let coefficient positive. Default is True.
-
+        Whether to constrain the regression coefficients to be positive. Default is True.
     fit_intercept: bool, optional
-        Whether to fit intercept. Default is True.
-
+        Whether to calculate the intercept for this model. Default is True.
     **kwargs
-        Additional keyword arguments to customize the plot.
+        Additional keyword arguments for plot customization.
 
     Returns
     -------
-    AxesSubplot
-        Matplotlib AxesSubplot containing the scatter plot.
+    fig : Figure
+        The matplotlib Figure object.
+    ax : Axes
+        The matplotlib Axes object with the scatter plot.
 
     Notes
     -----
-    - The function creates a scatter plot with the option to include multiple regression lines.
-    - If regression is True, regression lines are fitted for each y variable.
-    - Additional customization can be done using the **kwargs.
+    - The function creates a scatter plot with optional regression lines.
+    - The regression line is fitted for each y variable.
+    - Customization options are provided via **kwargs.
 
     Example
     -------
     >>> linear_regression(df, x='X', y=['Y1', 'Y2'], labels=['Label1', 'Label2'],
-    ...                      regression=True, diagonal=True, xlim=(0, 10), ylim=(0, 20),
-    ...                      xlabel="X-axis", ylabel="Y-axis", title="Scatter Plot with Regressions")
+    ...                  diagonal=True, xlim=(0, 10), ylim=(0, 20),
+    ...                  xlabel="X-axis", ylabel="Y-axis", title="Scatter Plot with Regressions")
     """
     fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
 
@@ -140,37 +134,29 @@ def multiple_linear_regression(df: pd.DataFrame,
 
     Parameters
     ----------
-    df : pandas.DataFrame
+    df : pd.DataFrame
        Input DataFrame containing the data.
-
     x : str or list of str
        Column name(s) for the independent variable(s). Can be a single string or a list of strings.
-
     y : str or list of str
        Column name(s) for the dependent variable(s). Can be a single string or a list of strings.
-
     labels : str or list of str, optional
        Labels for the dependent variable(s). If None, column names are used as labels. Default is None.
-
-    ax : matplotlib.axes.Axes or None, optional
+    ax : Axes, optional
        Matplotlib Axes object to use for the plot. If None, a new subplot is created. Default is None.
-
     diagonal : bool, optional
        Whether to include a diagonal line (1:1 line) in the plot. Default is False.
-
     positive : bool, optional
-       Whether to let coefficient positive. Default is True.
-
+       Whether to constrain the regression coefficients to be positive. Default is True.
     fit_intercept: bool, optional
-        Whether to fit intercept. Default is True.
-
+        Whether to calculate the intercept for this model. Default is True.
     **kwargs
-       Additional keyword arguments to customize the plot.
+       Additional keyword arguments for plot customization.
 
     Returns
     -------
-    matplotlib.axes.Axes
-       Matplotlib Axes object containing the regression plot.
+    tuple[Figure, Axes]
+       The Figure and Axes containing the regression plot.
 
     Notes
     -----
@@ -180,7 +166,7 @@ def multiple_linear_regression(df: pd.DataFrame,
     Example
     -------
     >>> multiple_linear_regression(df, x=['X1', 'X2'], y='Y', labels=['Y1', 'Y2'],
-    ...                             diagonal=True, add_constant=True,
+    ...                             diagonal=True, fit_intercept=True,
     ...                             xlabel="X-axis", ylabel="Y-axis", title="Multiple Linear Regression Plot")
     """
     fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)

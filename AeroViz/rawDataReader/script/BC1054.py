@@ -8,7 +8,9 @@ class Reader(AbstractReader):
 
     def _raw_reader(self, _file):
         with open(_file, 'r', encoding='utf-8', errors='ignore') as f:
-            _df = read_csv(f, parse_dates=['Time'], index_col='Time')
+            _df = read_csv(f, parse_dates=True, index_col=0)
+
+            _df.columns = _df.columns.str.replace(' ', '')
 
             _df = _df.rename(columns={
                 'BC1(ng/m3)': 'BC1',
@@ -23,24 +25,18 @@ class Reader(AbstractReader):
                 'BC10(ng/m3)': 'BC10'
             })
 
-            # remove data without Status=32 (Automatic Tape Advance), 65536 (Tape Move)
-            # if not self._oth_set.get('ignore_err', False):
-            #     _df = _df.where((_df['Status'] != 32) | (_df['Status'] != 65536)).copy()
+            # remove data without Status=1, 8, 16, 32 (Automatic Tape Advance), 65536 (Tape Move)
+            if self.meta.get('error_state', False):
+                _df = _df[~_df['Status'].isin(self.meta.get('error_state'))]
 
-            return _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'BC8', 'BC9', 'BC10', 'Status']]
+            _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'BC8', 'BC9', 'BC10']]
+
+            return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
     # QC data
     def _QC(self, _df):
         # remove negative value
         _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'BC8', 'BC9', 'BC10']].mask((_df < 0).copy())
 
-        # call by _QC function
-        # QC data in 1 hr
-        def _QC_func(_df_1hr):
-            _df_ave = _df_1hr.mean()
-            _df_std = _df_1hr.std()
-            _df_lowb, _df_highb = _df_1hr < (_df_ave - _df_std * 1.5), _df_1hr > (_df_ave + _df_std * 1.5)
-
-            return _df_1hr.mask(_df_lowb | _df_highb).copy()
-
-        return _df.resample('1h', group_keys=False).apply(_QC_func).resample('5min').mean()
+        # QC data in 1h
+        return _df.resample('1h').apply(self.basic_QC).resample(self.meta.get("freq")).mean()

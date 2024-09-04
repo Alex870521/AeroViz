@@ -22,24 +22,17 @@ class Reader(AbstractReader):
             'BB (%)': 'BB',
         })
 
-        # remove data without Status=32 (Automatic Tape Advance), 65536 (Tape Move)
-        # if not self._oth_set.get('ignore_err', False):
-        #     _df = _df.where((_df['Status'] != 32) | (_df['Status'] != 65536)).copy()
+        # if self.meta.get('error_state', False):
+        #     _df = _df.where(~_df['Status'].isin(self.meta['error_state'])).copy()
 
-        return _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BB mass', 'FF mass', 'Delta-C', 'AAE', 'BB']]
+        _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BB mass', 'FF mass', 'Delta-C', 'AAE', 'BB']]
+
+        return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
     # QC data
     def _QC(self, _df):
         # remove negative value
         _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BB mass', 'FF mass', 'AAE', 'BB']].mask((_df < 0).copy())
 
-        # call by _QC function
-        # QC data in 1 hr
-        def _QC_func(_df_1hr):
-            _df_ave = _df_1hr.mean()
-            _df_std = _df_1hr.std()
-            _df_lowb, _df_highb = _df_1hr < (_df_ave - _df_std * 1.5), _df_1hr > (_df_ave + _df_std * 1.5)
-
-            return _df_1hr.mask(_df_lowb | _df_highb).copy()
-
-        return _df.resample('1h', group_keys=False).apply(_QC_func).resample('5min').mean()
+        # QC data in 1h
+        return _df.resample('1h').apply(self.basic_QC).resample(self.meta.get("freq")).mean()

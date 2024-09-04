@@ -15,7 +15,8 @@ def box(df: pd.DataFrame,
         x_bins: list | np.ndarray = None,
         add_scatter: bool = True,
         ax: Axes | None = None,
-        **kwargs) -> tuple[Figure, Axes]:
+        **kwargs
+        ) -> tuple[Figure, Axes]:
     fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
 
     df = df.dropna(subset=[x, y]).copy()

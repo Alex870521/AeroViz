@@ -6,7 +6,7 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
     index = df_all.index.copy()
     df_all.columns = nam_lst
 
-    ## parameter
+    # parameter
     mol_A, mol_S, mol_N = df_all['NH4+'] / 18, df_all['SO42-'] / 96, df_all['NO3-'] / 62
     df_all['status'] = (mol_A) / (2 * mol_S + mol_N)
 
@@ -43,7 +43,7 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
                       'EC': 1.80 + 0.72j,
                       },
 
-              ## m + kj -> m value is same as 550 current
+              # m + kj -> m value is same as 550 current
               '450': {'ALWC': 1.333 + 0j,
                       'AS': 1.57 + 0j,
                       'AN': 1.57 + 0j,
@@ -54,21 +54,21 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
                       },
               }
 
-    ## mass
-    ## NH4 Enough
+    # mass
+    # NH4 Enough
     df_mass = DataFrame()
     df_enough = df_all.where(df_all['status'] >= 1).dropna().copy()
 
     for _mass_nam, _coe in mass_coe.items():
         df_mass[_mass_nam] = df_all[convert_nam[_mass_nam]] * _coe
 
-    ## NH4 Deficiency
+    # NH4 Deficiency
     defic_idx = df_all['status'] < 1
 
     if defic_idx.any():
         residual = mol_A - 2 * mol_S
 
-        ## residual > 0
+        # residual > 0
         _status = residual > 0
         if _status.any():
             _cond = _status & (residual <= mol_N)
@@ -77,7 +77,7 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
             _cond = _status & (residual > mol_N)
             df_mass.loc[_cond, 'AN'] = mol_N.loc[_cond] * 80
 
-        ## residual < 0
+        # residual < 0
         _status = residual <= 0
         if _status.any():
             df_mass.loc[_status, 'AN'] = 0
@@ -94,19 +94,19 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
     qc_ratio = df_mass['total'] / df_ref
     qc_cond = (qc_ratio >= 0.7) & (qc_ratio <= 1.3)
 
-    ## volume
+    # volume
     df_vol = DataFrame()
     for _vol_nam, _coe in vol_coe.items():
         df_vol[_vol_nam] = df_mass_cal[_vol_nam] / _coe
 
     if df_water is not None:
-        df_vol['ALWC'] = df_water
+        df_vol['ALWC'] = df_water.copy()
         df_vol = df_vol.dropna()
         df_vol['total_wet'] = df_vol.sum(axis=1, min_count=6)
 
     df_vol['total_dry'] = df_vol[vol_coe.keys()].sum(axis=1, min_count=6)
 
-    ## density
+    # density
     df_vol_cal = DataFrame()
     df_den_rec = df_mass['total'] / df_vol['total_dry']
     if df_density is not None:
@@ -117,10 +117,10 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
                      df_den_all['OM'] / 1.4 + df_den_all['EC'] / 1.77
 
         df_den = df_den_all.sum(axis=1, min_count=6) / df_vol_cal
-    # df_den = df_den_all.sum(axis=1) / df_vol_cal
-    # df_den = df_mass['total'].loc[df_den_all.index] / df_vol_cal
+    else:
+        df_den = df_den_rec
 
-    ## refractive index
+    # refractive index
     ri_dic = {}
     for _lambda, _coe in RI_coe.items():
 
@@ -138,11 +138,11 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
 
         ri_dic[f'RI_{_lambda}'] = df_RI[['RI_dry', 'RI_wet']]
 
-    ## mole and equivalent
+    # mole and equivalent
     df_eq = concat((mol_A, mol_S, mol_N, mol_A * 1, mol_S * 2, mol_N * 1), axis=1)
     df_eq.columns = ['mol_NH4', 'mol_SO4', 'mol_NO3', 'eq_NH4', 'eq_SO4', 'eq_NO3', ]
 
-    ## out
+    # out
     out = {'mass': df_mass,
            'volume': df_vol,
            'vol_cal': df_vol_cal,
@@ -156,9 +156,6 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
         out[_ky] = _df.reindex(index).where(qc_cond)
 
     return out
-
-
-# '''
 
 
 def mass_ratio(_df):

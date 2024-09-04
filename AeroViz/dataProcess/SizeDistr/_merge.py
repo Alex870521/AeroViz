@@ -5,7 +5,7 @@ from pandas import DataFrame, to_datetime
 # from scipy.interpolate import interp1d
 from scipy.interpolate import UnivariateSpline as unvpline, interp1d
 
-from AeroViz.dataProcess.core import _union_index
+from AeroViz.dataProcess.core import union_index
 
 __all__ = ['merge_SMPS_APS']
 
@@ -195,7 +195,7 @@ def _merge_data(_smps_ori, _aps_ori, _shift_ori, _smps_lb, _aps_hb, _coe, _shift
 
 
 def merge_SMPS_APS(df_smps, df_aps, aps_unit='um', smps_overlap_lowbound=500, aps_fit_highbound=1000):
-    df_smps, df_aps = _union_index(df_smps, df_aps)
+    df_smps, df_aps = union_index(df_smps, df_aps)
 
     ## set to the same units
     smps, aps_ori = df_smps.copy(), df_aps.copy()

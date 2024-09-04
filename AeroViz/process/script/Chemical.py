@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import numpy as np
-from pandas import read_csv, concat, notna, DataFrame
+from pandas import read_csv, concat, notna, DataFrame, to_numeric
 
 from AeroViz.process.core import DataProc
 from AeroViz.tools.datareader import DataReader
@@ -72,7 +72,7 @@ class ChemicalProc(DataProc):
                 _df['AN'] = 0
 
         _df['OM'] = 1.8 * OC
-        _df['Soil'] = 28.57 * Soil
+        _df['Soil'] = 28.57 * Soil / 1000
         _df['SS'] = 2.54 * SS
         _df['EC'] = EC
         _df['SIA'] = _df['AS'] + _df['AN']
@@ -159,9 +159,10 @@ class ChemicalProc(DataProc):
         if save_file.exists() and not reset:
             return read_csv(save_file, parse_dates=['Time'], index_col='Time')
         else:
-            df = concat([DataReader(file) for file in self.file_paths], axis=1)
+            df = concat([DataReader(file) for file in self.file_paths], axis=1).apply(to_numeric, errors='coerce')
 
-            df_mass = df[['NH4+', 'SO42-', 'NO3-', 'O_OC', 'Fe', 'Na+', 'O_EC', 'PM25']].dropna().apply(self.mass,
+            df_mass = df[['NH4+', 'SO42-', 'NO3-', 'Optical_OC', 'Fe', 'Na+', 'Optical_EC', 'PM2.5']].dropna().apply(
+                self.mass,
                                                                                                         axis=1)
             df_mass['ALWC'] = df['ALWC']
             df_volume = df_mass[['AS', 'AN', 'OM', 'Soil', 'SS', 'EC', 'total_mass', 'ALWC']].dropna().apply(

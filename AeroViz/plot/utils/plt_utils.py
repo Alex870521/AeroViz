@@ -17,7 +17,7 @@ def set_figure(func=None,
     def decorator(_func):
         @wraps(_func)
         def wrapper(*args, **kwargs):
-            print(f'\tPlot:\033[96m {_func.__name__}\033[0m')
+            print(f'\n\tPlot:\033[96m {_func.__name__}\033[0m')
 
             plt.rcParams['mathtext.fontset'] = 'custom'
             plt.rcParams['mathtext.rm'] = 'Times New Roman'
@@ -53,7 +53,7 @@ def set_figure(func=None,
             plt.rcParams['figure.dpi'] = 200
             plt.rcParams['figure.autolayout'] = autolayout
 
-            if ~autolayout:
+            if not autolayout:
                 plt.rcParams['figure.subplot.left'] = 0.1
                 plt.rcParams['figure.subplot.right'] = 0.875
                 plt.rcParams['figure.subplot.top'] = 0.875

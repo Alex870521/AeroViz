@@ -5,7 +5,7 @@ from pandas import DataFrame, to_datetime
 # from scipy.interpolate import interp1d
 from scipy.interpolate import UnivariateSpline as unvpline, interp1d
 
-from AeroViz.dataProcess.core import _union_index
+from AeroViz.dataProcess.core import union_index
 
 __all__ = ['_merge_SMPS_APS']
 
@@ -203,7 +203,7 @@ def _merge_data(_smps_ori, _aps_ori, _shift_ori, _shift_mode, _smps_lb, _aps_hb,
 
 ## aps_fit_highbound : the diameter I choose randomly
 def _merge_SMPS_APS(df_smps, df_aps, aps_unit, shift_mode, smps_overlap_lowbound, aps_fit_highbound):
-    df_smps, df_aps = _union_index(df_smps, df_aps)
+    df_smps, df_aps = union_index(df_smps, df_aps)
 
     # print(f'\nMerge data :')
     # print(f' APS fittint higher diameter : {aps_fit_highbound:4d} nm')

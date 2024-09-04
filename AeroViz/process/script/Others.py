@@ -58,7 +58,7 @@ class OthersProc(DataProc):
             # results['fRH_PNSD'] = df['Bext_internal'] / df['Bext_dry']
             results['fRH_IMPR'] = df['total_ext'] / df['total_ext_dry']
             results['OCEC_ratio'] = df['O_OC'] / df['O_EC']
-            results['PM1/PM25'] = np.where(df['PM1'] / df['PM25'] < 1, df['PM1'] / df['PM25'], np.nan)
+            results['PM1/PM25'] = np.where(df['PM1'] / df['PM2.5'] < 1, df['PM1'] / df['PM2.5'], np.nan)
             # results['MEE_PNSD'] = df['Bext_internal'] / df['PM25']
             # results['MEE_dry_PNSD'] = df['Bext_dry'] / df['PM25']
 

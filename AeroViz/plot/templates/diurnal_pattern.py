@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
-import pandas as pd
 from matplotlib.pyplot import Figure, Axes
 from matplotlib.ticker import AutoMinorLocator
+from pandas import DataFrame
 
 from AeroViz.plot.utils import *
 
@@ -9,22 +9,24 @@ __all__ = ['diurnal_pattern']
 
 
 @set_figure
-def diurnal_pattern(data_set: pd.DataFrame,
-                    data_std: pd.DataFrame,
+def diurnal_pattern(df: DataFrame,
                     y: str | list[str],
-                    std_area=0.5,
+                    std_area: float = 0.5,
                     ax: Axes | None = None,
-                    **kwargs) -> tuple[Figure, Axes]:
-    fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
+                    **kwargs
+                    ) -> tuple[Figure, Axes]:
+    if 'hour' or 'Hour' not in df.columns:
+        df['Hour'] = df.index.hour
 
     Hour = range(0, 24)
+    mean = df.groupby('Hour')[y].mean()
+    std = df.groupby('Hour')[y].std() * std_area
 
-    mean = data_set[y]
-    std = data_std[y] * std_area
+    fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
 
     # Plot Diurnal pattern
     ax.plot(Hour, mean, 'blue')
-    ax.fill_between(Hour, y1=mean + std, y2=mean - std, alpha=0.5, color='blue', edgecolor=None)
+    ax.fill_between(Hour, y1=mean + std, y2=mean - std, alpha=0.2, color='blue', edgecolor=None)
 
     ax.set(xlabel=kwargs.get('xlabel', 'Hours'),
            ylabel=kwargs.get('ylabel', Unit(y)),

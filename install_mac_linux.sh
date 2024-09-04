@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo "Script directory: $SCRIPT_DIR"
 # 检查是否有虚拟环境
-if [ -d "$SCRIPT_DIR/.venvv" ]; then
+if [ -d "$SCRIPT_DIR/.venv" ]; then
     echo "Virtual environment found. Checking Python version..."
 
     # 虚拟环境中的 Python 路径

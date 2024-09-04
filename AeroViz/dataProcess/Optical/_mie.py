@@ -1,5 +1,4 @@
 # from PyMieScatt import Mie_SD
-# from PyMieScatt import Mie_SD
 
 from ._mie_sd import Mie_SD
 

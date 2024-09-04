@@ -61,17 +61,18 @@ plot.multiple_linear_regression(df, x=['NO', 'NO2', 'CO', 'PM1'], y=['PM25'])
 
 ```python
 from AeroViz import plot, DataBase
-df = DataBase() # build default data, uers can use their own data
+
+df = DataBase()  # build default data, uers can use their own data
 
 # timeseries
 plot.timeseries.timeseries(df,
                            y=['Extinction', 'Scattering'],
-                           c=[None, None],
+                           color=[None, None],
                            style=['line', 'line'],
                            times=('2021-02-01', '2021-03-31'), ylim=[0, None], ylim2=[0, None], rolling=50,
                            inset_kws2=dict(bbox_to_anchor=(1.12, 0, 1.2, 1)))
 
-plot.timeseries.timeseries(df, y='WS', c='WD', style='scatter', times=('2020-10-01', '2020-11-30'),
+plot.timeseries.timeseries(df, y='WS', color='WD', style='scatter', times=('2020-10-01', '2020-11-30'),
                            scatter_kws=dict(cmap='hsv'), cbar_kws=dict(ticks=[0, 90, 180, 270, 360]),
                            ylim=[0, None])
 
@@ -94,7 +95,7 @@ from AeroViz.tools import DataBase, DataReader
 
 df = DataBase() # build default data, uers can use their own data
 
-PNSD = DataReader(Path(__file__)/'AeroViz'/'config'/'DEFAULT_PNSD_DATA.csv')
+PNSD = DataReader(Path(__file__)/'AeroViz'/'data'/'DEFAULT_PNSD_DATA.csv')
 
 plot.distribution.distribution.heatmap(PNSD, unit='Number')
 plot.distribution.distribution.heatmap_tms(PNSD, unit='Number', freq='60d')

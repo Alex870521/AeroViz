@@ -21,19 +21,19 @@ class Reader(AbstractReader):
             _df_idx = to_datetime(_df.index, errors='coerce')
         return _df[_newkey.keys()].rename(_newkey, axis=1).set_index(_df_idx).loc[_df_idx.dropna()]
 
-    ## QC data
+    # QC data
     def _QC(self, _df):
         import numpy as n
 
-        ## mask out the data size lower than 7
+        # mask out the data size lower than 7
         _df['total'] = _df.sum(axis=1, min_count=1) * (n.diff(n.log(_df.keys().to_numpy(float)))).mean()
         _df_size = _df['total'].dropna().resample('1h').size().resample(_df.index.freq).ffill()
         _df = _df.mask(_df_size < 7)
 
-        ## remove total conc. lower than 2000
+        # remove total conc. lower than 2000
         _df = _df.mask(_df['total'] < 2000)
 
-        ## remove the bin over 400 nm which num. conc. larger than 4000
+        # remove the bin over 400 nm which num. conc. larger than 4000
         _df_remv_ky = _df.keys()[:-2][_df.keys()[:-2] >= 400.]
 
         _df[_df_remv_ky] = _df[_df_remv_ky].copy().mask(_df[_df_remv_ky] > 4000.)

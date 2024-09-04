@@ -1,7 +1,8 @@
 def _basic(_teom, _check):
+    import numpy as np
     _teom['Volatile_Fraction'] = (_teom['PM_Total'] - _teom['PM_NV']) / _teom['PM_Total']
 
-    _teom.loc[(_teom['Volatile_Fraction'] < 0) | (_teom['Volatile_Fraction'] > 1)] = n.nan
+    _teom.loc[(_teom['Volatile_Fraction'] < 0) | (_teom['Volatile_Fraction'] > 1)] = np.nan
 
     if _check is not None:
         _ratio = _teom['PM_NV'] / _check

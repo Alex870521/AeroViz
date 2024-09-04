@@ -1,4 +1,4 @@
-from ..core import _writter, _run_process
+from ..core import Writer, run_process
 
 __all__ = [
 
@@ -7,10 +7,10 @@ __all__ = [
 ]
 
 
-class VOC(_writter):
+class VOC(Writer):
 
     ## Reconstruction
-    @_run_process('VOC - basic', 'voc_basic')
+    @run_process('VOC - basic', 'voc_basic')
     def VOC_basic(self, _df_voc):
         from ._potential_par import _basic
 

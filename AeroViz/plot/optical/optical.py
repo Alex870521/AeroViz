@@ -381,8 +381,8 @@ def response_surface(real_range=(1.33, 1.7),
 
 
 if __name__ == '__main__':
-    Q_plot(['AS', 'AN', 'OM', 'Soil', 'SS', 'BC'], x='dp', y='MEE')
-    Q_plot(['AS', 'AN', 'OM', 'Soil', 'SS', 'BC'], x='dp', y='Q')
+    # Q_plot(['AS', 'AN', 'OM', 'Soil', 'SS', 'BC'], x='dp', y='MEE')
+    # Q_plot(['AS', 'AN', 'OM', 'Soil', 'SS', 'BC'], x='dp', y='Q')
 
-# RI_couple()
-# response_surface()
+    # RI_couple()
+    response_surface()

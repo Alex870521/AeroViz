@@ -1,4 +1,10 @@
 include *.csv
 include *.json
+include *.cnf
+include *.txt
+include *.md
 recursive-include AeroViz *.csv
 recursive-include AeroViz *.json
+recursive-include AeroViz *.cnf
+recursive-include AeroViz *.txt
+recursive-include AeroViz *.md

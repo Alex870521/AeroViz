@@ -2,7 +2,7 @@ import numpy as np
 from pandas import concat, DataFrame
 from scipy.optimize import curve_fit
 
-from AeroViz.dataProcess.core import _union_index
+from AeroViz.dataProcess.core import union_index
 
 __all__ = [
     '_basic',
@@ -96,7 +96,7 @@ def _ocec_ratio_cal(_nam, _lcres_splt, _hr_lim, _range_, _wisoc_range_):
 
 
 def _basic(_lcres, _res, _mass, _ocec_ratio, _ocec_ratio_month, _hr_lim, _range, _wisoc_range):
-    _lcres, _res, _mass = _union_index(_lcres, _res, _mass)
+    _lcres, _res, _mass = union_index(_lcres, _res, _mass)
 
     _out = {}
 

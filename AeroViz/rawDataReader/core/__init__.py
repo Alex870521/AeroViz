@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import pandas as pd
 from pandas import DataFrame, date_range, concat, to_numeric, to_datetime
 
 from ..config.supported_instruments import meta
@@ -40,7 +41,7 @@ class AbstractReader(ABC):
         self.rate = rate
         self.qc = qc
         self.csv = csv_raw
-        self.apnd = append_data & reset
+        self.append = append_data & reset
 
         self.pkl_nam = self.path / f'_read_{self.nam.lower()}.pkl'
         self.csv_nam = self.path / f'_read_{self.nam.lower()}.csv'
@@ -50,7 +51,7 @@ class AbstractReader(ABC):
 
     # dependency injection function, customize each instrument
     @abstractmethod
-    def _raw_reader(self, _file):
+    def _raw_reader(self, file):
         pass
 
     @abstractmethod
@@ -112,9 +113,9 @@ class AbstractReader(ABC):
 
             self.logger.info(f"{'=' * 60}")
             self.logger.info(
-                f"Raw data time : {_st_raw.strftime('%Y-%m-%d %H:%M:%S')} ~ {_ed_raw.strftime('%Y-%m-%d %H:%M:%S')}")
+                f"Raw data time : {_st_raw.strftime('%Y-%m-%d %H:%M:%S')} to {_ed_raw.strftime('%Y-%m-%d %H:%M:%S')}")
             self.logger.info(
-                f"Output   time : {_start.strftime('%Y-%m-%d %H:%M:%S')} ~ {_end.strftime('%Y-%m-%d %H:%M:%S')}")
+                f"Output   time : {_start.strftime('%Y-%m-%d %H:%M:%S')} to {_end.strftime('%Y-%m-%d %H:%M:%S')}")
             self.logger.info(f"{'-' * 60}")
             print(f"\n\n\t\tfrom {_start.strftime('%Y-%m-%d %H:%M:%S')} to {_end.strftime('%Y-%m-%d %H:%M:%S')}\n")
 
@@ -211,18 +212,29 @@ class AbstractReader(ABC):
                  if f.name not in [self.csv_out.name, self.csv_nam.name, self.csv_nam_raw.name, f'{self.nam}.log']]
 
         if not files:
-            print(f"\t\t\033[31mNo files in '{self.path}' could be read. Please check the current path.\033[0m")
-            return None, None
+            raise FileNotFoundError(f"\t\t\033[31mNo files in '{self.path}' could be read."
+                                    f"Please check the current path.\033[0m")
 
         df_list = []
         for file in files:
             print(f"\r\t\treading {file.name}", end='')
-            df = self._raw_reader(file)
-            if df is not None:
-                df_list.append(df)
+
+            try:
+                df = self._raw_reader(file)
+
+                if df is not None and not df.empty:
+                    df_list.append(df)
+                else:
+                    self.logger.warning(f"File {file.name} produced an empty DataFrame or None.")
+
+            except pd.errors.ParserError as e:
+                self.logger.error(f"Error tokenizing data: {e}")
+
+            except Exception as e:
+                self.logger.error(f"Error reading {file.name}: {e}")
 
         if not df_list:
-            return None, None
+            raise ValueError("All files were either empty or failed to read.")
 
         raw_data = self._raw_process(concat(df_list))
         qc_data = self._QC(raw_data)
@@ -234,12 +246,12 @@ class AbstractReader(ABC):
         _f_raw_done, _f_qc_done = None, None
 
         # read pickle if pickle file exists and 'reset=False' or process raw data or append new data
-        if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and (not self.reset or self.apnd):
+        if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and (not self.reset or self.append):
             print(f"\n\t{dtm.now().strftime('%m/%d %X')} : Reading \033[96mPICKLE\033[0m file of {self.nam}")
 
             _f_raw_done, _f_qc_done = self._read_pkl()
 
-            if not self.apnd:
+            if not self.append:
                 _f_raw_done, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_raw_done)
                 _f_qc_done, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_qc_done)
 
@@ -254,11 +266,9 @@ class AbstractReader(ABC):
         print(f"\n\t{dtm.now().strftime('%m/%d %X')} : Reading \033[96mRAW DATA\033[0m of {self.nam} and process it")
 
         _f_raw, _f_qc = self._read_raw_files()
-        if _f_raw is None:
-            return None
 
         # append new data and pickle data
-        if self.apnd and self.pkl_nam.exists():
+        if self.append and self.pkl_nam.exists():
             _f_raw = self._apnd_prcs(_f_raw_done, _f_raw)
             _f_qc = self._apnd_prcs(_f_qc_done, _f_qc)
 

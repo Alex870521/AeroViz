@@ -6,8 +6,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'TEOM'
 
-    def _raw_reader(self, _file):
-        with open(_file, 'r', encoding='utf-8', errors='ignore') as f:
+    def _raw_reader(self, file):
+        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             _df = read_csv(f, skiprows=3, index_col=False)
 
             _df = _df.rename(columns={'Time Stamp': 'time',

@@ -6,8 +6,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'SMPS_aim11'
 
-    def _raw_reader(self, _file):
-        with open(_file, 'r', encoding='utf-8', errors='ignore') as f:
+    def _raw_reader(self, file):
+        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
 
             skiprows = 0
             for _line in f:

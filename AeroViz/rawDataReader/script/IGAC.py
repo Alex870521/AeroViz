@@ -10,9 +10,9 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'IGAC'
 
-    def _raw_reader(self, _file):
+    def _raw_reader(self, file):
 
-        with _file.open('r', encoding='utf-8-sig', errors='ignore') as f:
+        with file.open('r', encoding='utf-8-sig', errors='ignore') as f:
             _df = read_csv(f, parse_dates=True, index_col=0, na_values='-').apply(to_numeric, errors='coerce')
 
             _df.columns = _df.keys().str.strip(' ')

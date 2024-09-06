@@ -6,8 +6,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'BC1054'
 
-    def _raw_reader(self, _file):
-        with open(_file, 'r', encoding='utf-8', errors='ignore') as f:
+    def _raw_reader(self, file):
+        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             _df = read_csv(f, parse_dates=True, index_col=0)
 
             _df.columns = _df.columns.str.replace(' ', '')

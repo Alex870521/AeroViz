@@ -6,8 +6,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'Aurora'
 
-    def _raw_reader(self, _file):
-        with _file.open('r', encoding='utf-8-sig', errors='ignore') as f:
+    def _raw_reader(self, file):
+        with file.open('r', encoding='utf-8-sig', errors='ignore') as f:
             _df = read_csv(f, low_memory=False, index_col=0)
 
             _df.index = to_datetime(_df.index, errors='coerce')
@@ -32,6 +32,9 @@ class Reader(AbstractReader):
     def _QC(self, _df):
         # remove negative value
         _df = _df.mask((_df <= 0) | (_df > 2000)).copy()
+
+        # total scattering is larger than back scattering
+        _df = _df[(_df['BB'] < _df['B']) & (_df['BG'] < _df['G']) & (_df['BR'] < _df['R'])]
 
         # QC data in 1h
         return _df.resample('1h').apply(self.basic_QC).resample(self.meta.get("freq")).mean()

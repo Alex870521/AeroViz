@@ -6,8 +6,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'MA350'
 
-    def _raw_reader(self, _file):
-        _df = read_csv(_file, parse_dates=['Date / time local'], index_col='Date / time local').rename_axis("Time")
+    def _raw_reader(self, file):
+        _df = read_csv(file, parse_dates=['Date / time local'], index_col='Date / time local').rename_axis("Time")
 
         _df = _df.rename(columns={
             'UV BCc': 'BC1',

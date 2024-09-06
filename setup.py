@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name="AeroViz",
-	version="0.1.4",
+    version="0.1.5",
 	author="alex",
 	author_email="alex870521@gmail.com",
 	description="Aerosol science",

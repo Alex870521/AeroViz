@@ -7,8 +7,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'APS_3321'
 
-    def _raw_reader(self, _file):
-        with open(_file, 'r', encoding='utf-8', errors='ignore') as f:
+    def _raw_reader(self, file):
+        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             _df = read_table(f, skiprows=6, parse_dates={'Time': ['Date', 'Start Time']}).set_index('Time')
             _key = list(_df.keys()[3:54])  ## 542 ~ 1981
 

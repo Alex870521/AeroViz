@@ -6,8 +6,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'AE43'
 
-    def _raw_reader(self, _file):
-        _df = read_csv(_file, parse_dates={'time': ['StartTime']}, index_col='time')
+    def _raw_reader(self, file):
+        _df = read_csv(file, parse_dates={'time': ['StartTime']}, index_col='time')
         _df_id = _df['SetupID'].iloc[-1]
 
         # get last SetupID data

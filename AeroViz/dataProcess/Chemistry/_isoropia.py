@@ -7,9 +7,6 @@ from pandas import concat, DataFrame, to_numeric, read_csv
 from ._calculate import _ug2umol
 
 
-# TODO: fix isoropia2.exe can not run
-
-
 def _basic(df_che, path_out, nam_lst):
     # parameter
     df_all = concat(df_che, axis=1)
@@ -18,8 +15,8 @@ def _basic(df_che, path_out, nam_lst):
 
     df_umol = _ug2umol(df_all)
 
-    ## output
-    ## Na, SO4, NH3, NO3, Cl, Ca, K, Mg, RH, TEMP
+    # output
+    # Na, SO4, NH3, NO3, Cl, Ca, K, Mg, RH, TEMP
     df_input = DataFrame(index=index)
     df_out = DataFrame(index=index)
 
@@ -29,25 +26,25 @@ def _basic(df_che, path_out, nam_lst):
     pth_input.unlink(missing_ok=True)
     pth_output.unlink(missing_ok=True)
 
-    ## header
+    # header
     _header = 'Input units (0=umol/m3, 1=ug/m3)\n' + '0\n\n' + \
               'Problem type (0=forward, 1=reverse); Phase state (0=solid+liquid, 1=metastable)\n' + '0, 1\n\n' + \
               'NH4-SO4 system case\n'
 
-    ## software
+    # software
     path_iso = Path(__file__).parent / 'isrpia2.exe'
 
     # make input file and output temp input (without index)
-    ## NH3
+    # NH3
     df_input['NH3'] = df_umol['NH4+'].fillna(0).copy() + df_umol['NH3']
 
-    ## NO3
+    # NO3
     df_input['NO3'] = df_umol['HNO3'].fillna(0).copy() + df_umol['NO3-']
 
-    ## Cl
+    # Cl
     df_input['Cl'] = df_umol['HCl'].fillna(0).copy() + df_umol['Cl-']
 
-    ## temp, RH
+    # temp, RH
     df_input['RH'] = df_all['RH'] / 100
     df_input['TEMP'] = df_all['temp'] + 273.15
 
@@ -55,7 +52,7 @@ def _basic(df_che, path_out, nam_lst):
 
     df_input = df_input[['Na', 'SO4', 'NH3', 'NO3', 'Cl', 'Ca', 'K', 'Mg', 'RH', 'TEMP']].fillna('-').copy()
 
-    ## output the input data
+    # output the input data
     df_input.to_csv(pth_input, index=False)
     with (pth_input).open('r+', encoding='utf-8', errors='ignore') as _f:
         _cont = _f.read()

@@ -7,8 +7,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'EPA_vertical'
 
-    def _raw_reader(self, _file):
-        with _file.open('r', encoding='ascii', errors='ignore') as f:
+    def _raw_reader(self, file):
+        with file.open('r', encoding='ascii', errors='ignore') as f:
             # 有、無輸出有效值都可以
             # read 查詢小時值(測項).csv
             df = read_csv(f, encoding='ascii', encoding_errors='ignore', index_col=0, parse_dates=True,

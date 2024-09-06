@@ -6,8 +6,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'NEPH'
 
-    def _raw_reader(self, _file):
-        with _file.open('r', encoding='utf-8', errors='ignore') as f:
+    def _raw_reader(self, file):
+        with file.open('r', encoding='utf-8', errors='ignore') as f:
             _df = read_csv(f, header=None, names=range(11))
 
             _df_grp = _df.groupby(0)
@@ -47,29 +47,24 @@ class Reader(AbstractReader):
                 return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
             except ValueError:
-                group_sizes = _df_grp.size()
-                print(group_sizes)
-
                 # Define valid groups and find invalid indices
-                valid_groups = {'B', 'G', 'R', 'D', 'T', 'Y', 'Z'}
-                invalid_indices = _df[~_df[0].isin(valid_groups)].index
-
-                # Print invalid indices and values
+                invalid_indices = _df[~_df[0].isin({'B', 'G', 'R', 'D', 'T', 'Y', 'Z'})].index
                 print("Invalid values and their indices:")
-                for idx in invalid_indices:
-                    print(f"Index: {idx}, Value: {_df.at[idx, 0]}")
+                print("\n".join([f"Index: {idx}, Value: {_df.at[idx, 0]}" for idx in invalid_indices]))
 
                 # Return an empty DataFrame with specified columns if there's a length mismatch
-                columns = ['B', 'G', 'R', 'BB', 'BG', 'BR', 'RH']
-                _df_out = DataFrame(index=_idx_tm, columns=columns)
+                _df_out = DataFrame(index=_idx_tm, columns=['B', 'G', 'R', 'BB', 'BG', 'BR', 'RH'])
                 _df_out.index.name = 'Time'
-                print(f'\n\t\t\t Length mismatch in {_file} data. Returning an empty DataFrame.')
+                print(f'\n\t\t\t Length mismatch in {file} data. Returning an empty DataFrame.')
                 return _df_out
 
     # QC data
     def _QC(self, _df):
         # remove negative value
         _df = _df.mask((_df <= 5).copy())
+
+        # total scattering is larger than back scattering
+        _df = _df[(_df['BB'] < _df['B']) & (_df['BG'] < _df['G']) & (_df['BR'] < _df['R'])]
 
         # QC data in 1h
         return _df.resample('1h').apply(self.basic_QC).resample(self.meta.get("freq")).mean()

@@ -6,11 +6,11 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'AE33'
 
-    def _raw_reader(self, _file):
-        if _file.stat().st_size / 1024 < 550:
+    def _raw_reader(self, file):
+        if file.stat().st_size / 1024 < 550:
             print('\t It may not be a whole daily data.')
 
-        _df = read_table(_file, parse_dates={'time': [0, 1]}, index_col='time',
+        _df = read_table(file, parse_dates={'time': [0, 1]}, index_col='time',
                          delimiter=r'\s+', skiprows=5, usecols=range(67))
         _df.columns = _df.columns.str.strip(';')
 

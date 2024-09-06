@@ -7,8 +7,8 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     nam = 'Minion'
 
-    def _raw_reader(self, _file):
-        with _file.open('r', encoding='utf-8-sig', errors='ignore') as f:
+    def _raw_reader(self, file):
+        with file.open('r', encoding='utf-8-sig', errors='ignore') as f:
             _df = read_csv(f, low_memory=False, index_col=0)
 
             _df.index = to_datetime(_df.index, errors='coerce')

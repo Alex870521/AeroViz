@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+with open('requirements.txt') as f:
+    requirements = f.read().splitlines()
+
 setup(
 	name="AeroViz",
     version="0.1.5",
@@ -19,17 +22,7 @@ setup(
 	],
 
 	# Specify your project's dependencies
-	install_requires=[
-		"pandas",
-		"numpy",
-		"matplotlib",
-		"seaborn",
-		"scipy",
-		"scikit-learn",
-		"windrose",
-		"tabulate"
-		# Add any other dependencies here
-	],
+    install_requires=requirements,
 	packages=find_packages(),
 	include_package_data=True
 )

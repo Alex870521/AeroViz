@@ -1,6 +1,8 @@
 import json as jsn
 import logging
+import os
 import pickle as pkl
+import time
 from abc import ABC, abstractmethod
 from datetime import datetime as dtm
 from pathlib import Path
@@ -9,10 +11,15 @@ from typing import Any
 import numpy as np
 import pandas as pd
 from pandas import DataFrame, date_range, concat, to_numeric, to_datetime
+from rich.console import Console
+from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn, TaskProgressColumn
 
 from ..config.supported_instruments import meta
 
 __all__ = ['AbstractReader']
+
+os.environ["FORCE_COLOR"] = "true"
+console = Console(force_terminal=True, color_system="auto")
 
 
 class AbstractReader(ABC):
@@ -63,7 +70,7 @@ class AbstractReader(ABC):
                  end: dtm | None = None,
                  mean_freq: str = '1h',
                  csv_out: bool = True,
-                 ) -> DataFrame | None:
+                 ) -> DataFrame:
 
         if start and end and end <= start:
             raise ValueError(f"Invalid time range: start {start} is after end {end}")
@@ -111,14 +118,6 @@ class AbstractReader(ABC):
             _drop_how = 'any'
             _the_size = len(_fout_raw.resample('1h').mean().index)
 
-            self.logger.info(f"{'=' * 60}")
-            self.logger.info(
-                f"Raw data time : {_st_raw.strftime('%Y-%m-%d %H:%M:%S')} to {_ed_raw.strftime('%Y-%m-%d %H:%M:%S')}")
-            self.logger.info(
-                f"Output   time : {_start.strftime('%Y-%m-%d %H:%M:%S')} to {_end.strftime('%Y-%m-%d %H:%M:%S')}")
-            self.logger.info(f"{'-' * 60}")
-            print(f"\n\n\t\tfrom {_start.strftime('%Y-%m-%d %H:%M:%S')} to {_end.strftime('%Y-%m-%d %H:%M:%S')}\n")
-
             for _nam, _key in self.meta['deter_key'].items():
                 if _key == ['all']:
                     _key, _drop_how = _fout_qc.keys(), 'all'
@@ -137,9 +136,9 @@ class AbstractReader(ABC):
                 self.logger.info(f'\tYield       rate: {_yid_rate}%')
                 self.logger.info(f"{'=' * 60}")
 
-                print(f'\t\t{_nam} : ')
-                print(f'\t\t\tacquisition rate : \033[91m{_acq_rate}%\033[0m')
-                print(f'\t\t\tyield       rate : \033[91m{_yid_rate}%\033[0m')
+                print(f'\n\t{_nam} : ')
+                print(f'\t\tacquisition rate : \033[91m{_acq_rate}%\033[0m')
+                print(f'\t\tyield       rate : \033[91m{_yid_rate}%\033[0m')
 
     # process time index
     @staticmethod
@@ -216,22 +215,34 @@ class AbstractReader(ABC):
                                     f"Please check the current path.\033[0m")
 
         df_list = []
-        for file in files:
-            print(f"\r\t\treading {file.name}", end='')
+        with Progress(
+                TextColumn("[bold blue]{task.description}", style="bold blue"),
+                BarColumn(bar_width=18,
+                          complete_style="green",
+                          finished_style="bright_green"),
+                TaskProgressColumn(),
+                TimeRemainingColumn(),
+                TextColumn("{task.fields[filename]}", style="yellow"),
+                console=console,
+                expand=False
+        ) as progress:
+            task = progress.add_task(f"Reading {self.nam} files", total=len(files), filename="")
+            for file in files:
+                progress.update(task, advance=1, filename=file.name)
+                time.sleep(0.01)
+                try:
+                    df = self._raw_reader(file)
 
-            try:
-                df = self._raw_reader(file)
+                    if df is not None and not df.empty:
+                        df_list.append(df)
+                    else:
+                        self.logger.warning(f"File {file.name} produced an empty DataFrame or None.")
 
-                if df is not None and not df.empty:
-                    df_list.append(df)
-                else:
-                    self.logger.warning(f"File {file.name} produced an empty DataFrame or None.")
+                except pd.errors.ParserError as e:
+                    self.logger.error(f"Error tokenizing data: {e}")
 
-            except pd.errors.ParserError as e:
-                self.logger.error(f"Error tokenizing data: {e}")
-
-            except Exception as e:
-                self.logger.error(f"Error reading {file.name}: {e}")
+                except Exception as e:
+                    self.logger.error(f"Error reading {file.name}: {e}")
 
         if not df_list:
             raise ValueError("All files were either empty or failed to read.")
@@ -243,11 +254,17 @@ class AbstractReader(ABC):
 
     # main flow
     def _run(self, _start, _end):
+        self.logger.info(f"{'=' * 60}")
+        # self.logger.info(f"Raw data time : {_st_raw.strftime('%Y-%m-%d %X')} to {_ed_raw.strftime('%Y-%m-%d %X')}")
+        self.logger.info(f"Output   time : {_start.strftime('%Y-%m-%d %X')} to {_end.strftime('%Y-%m-%d %X')}")
+        self.logger.info(f"{'-' * 60}")
+
         _f_raw_done, _f_qc_done = None, None
 
         # read pickle if pickle file exists and 'reset=False' or process raw data or append new data
         if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and (not self.reset or self.append):
-            print(f"\n\t{dtm.now().strftime('%m/%d %X')} : Reading \033[96mPICKLE\033[0m file of {self.nam}")
+            print(f"\n{dtm.now().strftime('%m/%d %X')} : Reading {self.nam} \033[96mPICKLE\033[0m "
+                  f"from {_start.strftime('%Y-%m-%d %X')} to {_end.strftime('%Y-%m-%d %X')}\n")
 
             _f_raw_done, _f_qc_done = self._read_pkl()
 
@@ -263,7 +280,8 @@ class AbstractReader(ABC):
                 return _f_qc_done if self.qc else _f_raw_done
 
         # read raw data
-        print(f"\n\t{dtm.now().strftime('%m/%d %X')} : Reading \033[96mRAW DATA\033[0m of {self.nam} and process it")
+        print(f"\n{dtm.now().strftime('%m/%d %X')} : Reading {self.nam} \033[96mRAW DATA\033[0m "
+              f"from {_start.strftime('%Y-%m-%d %X')} to {_end.strftime('%Y-%m-%d %X')}\n")
 
         _f_raw, _f_qc = self._read_raw_files()
 

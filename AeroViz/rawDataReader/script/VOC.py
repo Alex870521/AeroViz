@@ -20,8 +20,8 @@ class Reader(AbstractReader):
 
             if invalid_keys:
                 self.logger.warning(f'{invalid_keys} are not supported keys.')
-                print(f'\n\t\t{invalid_keys} are not supported keys.'
-                      f'\n\t\tPlease check the\033[91m support_voc.md\033[0m file to use the correct name.')
+                print(f'\n\t{invalid_keys} are not supported keys.'
+                      f'\n\tPlease check the\033[91m support_voc.md\033[0m file to use the correct name.')
 
             if valid_keys:
                 return _df[valid_keys].loc[~_df.index.duplicated() & _df.index.notna()]

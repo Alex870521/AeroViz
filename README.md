@@ -30,13 +30,15 @@
 ## <div align="center">Installation</div>
 
 ```bash
-pip install AeroViz # ensure the python version is >= 3.12
+pip install AeroViz
 ```
 
 ## <div align="center">Usage</div>
 
 ```python
 import AeroViz
+
+from AeroViz import RawDataReader, DataProcess, plot
 ```
 
 ## <div align="center">RawDataReader Supported Instruments</div>

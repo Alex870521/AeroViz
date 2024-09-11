@@ -2,13 +2,14 @@ from pandas import concat, DataFrame
 
 
 def _basic(df_che, df_ref, df_water, df_density, nam_lst):
+
     df_all = concat(df_che, axis=1)
     index = df_all.index.copy()
     df_all.columns = nam_lst
 
     # parameter
     mol_A, mol_S, mol_N = df_all['NH4+'] / 18, df_all['SO42-'] / 96, df_all['NO3-'] / 62
-    df_all['status'] = (mol_A) / (2 * mol_S + mol_N)
+    df_all['status'] = mol_A / (2 * mol_S + mol_N)
 
     convert_nam = {'AS': 'SO42-',
                    'AN': 'NO3-',
@@ -92,7 +93,7 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
     df_mass['total'] = df_mass.sum(axis=1, min_count=6)
 
     qc_ratio = df_mass['total'] / df_ref
-    qc_cond = (qc_ratio >= 0.7) & (qc_ratio <= 1.3)
+    qc_cond = (qc_ratio >= 0.5) & (qc_ratio <= 1.5)
 
     # volume
     df_vol = DataFrame()
@@ -153,7 +154,7 @@ def _basic(df_che, df_ref, df_water, df_density, nam_lst):
     out.update(ri_dic)
 
     for _ky, _df in out.items():
-        out[_ky] = _df.reindex(index).where(qc_cond)
+        out[_ky] = _df.reindex(index)
 
     return out
 

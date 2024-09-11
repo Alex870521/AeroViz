@@ -1,8 +1,7 @@
-import pickle as pkl
 from pathlib import Path
 
 import numpy as np
-from pandas import DataFrame
+from pandas import DataFrame, read_pickle
 
 from AeroViz.dataProcess.core import union_index
 
@@ -12,7 +11,7 @@ def _revised(_df_mass, _df_RH):
 
     # fRH
     with (Path(__file__).parent / 'fRH.pkl').open('rb') as f:
-        _fRH = pkl.load(f)
+        _fRH = read_pickle(f)
         _fRH.loc[np.nan] = np.nan
 
     def fRH(_RH):

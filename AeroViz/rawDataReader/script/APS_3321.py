@@ -1,4 +1,4 @@
-import numpy as n
+import numpy as np
 from pandas import to_datetime, read_table
 
 from AeroViz.rawDataReader.core import AbstractReader
@@ -29,7 +29,7 @@ class Reader(AbstractReader):
     # QC data
     def _QC(self, _df):
         # mask out the data size lower than 7
-        _df['total'] = _df.sum(axis=1, min_count=1) * (n.diff(n.log(_df.keys().to_numpy(float)))).mean()
+        _df['total'] = _df.sum(axis=1, min_count=1) * (np.diff(np.log(_df.keys().to_numpy(float)))).mean()
         _df_size = _df['total'].dropna().resample('1h').size().resample(_df.index.freq).ffill()
         _df = _df.mask(_df_size < 7)
 

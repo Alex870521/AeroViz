@@ -4,7 +4,7 @@ from AeroViz.rawDataReader.core import AbstractReader
 
 
 class Reader(AbstractReader):
-    nam = 'Sunset_OCEC'
+    nam = 'OCEC'
 
     def _raw_reader(self, file):
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:

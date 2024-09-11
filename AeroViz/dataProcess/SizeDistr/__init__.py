@@ -1,15 +1,11 @@
 from ..core import Writer, run_process
 
-__all__ = [
-
-    'SizeDistr',
-
-]
+__all__ = ['SizeDistr']
 
 
 class SizeDistr(Writer):
 
-    ## basic
+    # basic
     @run_process('SizeDistr - basic', 'distr_basic')
     def basic(self, df, hybrid_bin_start_loc=None, unit='nm', bin_range=(0, 20000), input_type='norm'):
         from ._size_distr import _basic
@@ -18,7 +14,7 @@ class SizeDistr(Writer):
 
         return self, out
 
-    ## merge
+    # merge
     @run_process('SizeDistr - merge_SMPS_APS_v4', 'distr_merge')
     def merge_SMPS_APS_v4(self, df_smps, df_aps, df_pm25, aps_unit='um',
                           smps_overlap_lowbound=500, aps_fit_highbound=1000, dndsdv_alg=True,
@@ -30,7 +26,7 @@ class SizeDistr(Writer):
 
         return self, out
 
-    ## merge
+    # merge
     @run_process('SizeDistr - merge_SMPS_APS_v3', 'distr_merge')
     def merge_SMPS_APS_v3(self, df_smps, df_aps, aps_unit='um',
                           smps_overlap_lowbound=500, aps_fit_highbound=1000, dndsdv_alg=True):
@@ -40,7 +36,7 @@ class SizeDistr(Writer):
 
         return self, out
 
-    ## merge
+    # merge
     @run_process('SizeDistr - merge_SMPS_APS_v2', 'distr_merge')
     def merge_SMPS_APS_v2(self, df_smps, df_aps, aps_unit='um',
                           smps_overlap_lowbound=500, aps_fit_highbound=1000):
@@ -50,7 +46,7 @@ class SizeDistr(Writer):
 
         return self, out
 
-    ## merge
+    # merge
     @run_process('SizeDistr - merge_SMPS_APS_v1', 'distr_merge')
     def merge_SMPS_APS(self, df_smps, df_aps, aps_unit='um', shift_mode='mobility',
                        smps_overlap_lowbound=523, aps_fit_highbound=800):

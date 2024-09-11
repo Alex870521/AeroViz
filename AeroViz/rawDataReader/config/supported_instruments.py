@@ -2,76 +2,64 @@
 
 meta = {
     "NEPH": {
-        "pattern": "*.dat",
+        "pattern": ["*.dat"],
         "freq": "5min",
         "deter_key": {"Scatter Coe. (550 nm)": ["G"]},
     },
 
     "Aurora": {
-        "pattern": "*.csv",
+        "pattern": ["*.csv"],
         "freq": "1min",
         "deter_key": {"Scatter Coe. (550 nm)": ["G"]},
     },
 
-    "SMPS_TH": {
-        "pattern": "*.txt",
-        "freq": "6min",
-        "deter_key": {"Bins": ["all"]},
-    },
-
-    "SMPS_genr": {
-        "pattern": "*.txt",
-        "freq": "6min",
-        "deter_key": {"Bins": ["all"]},
-    },
-
-    "SMPS_aim11": {
-        "pattern": "*.csv",
+    "SMPS": {
+        "pattern": ["*.txt", "*.csv"],
         "freq": "6min",
         "deter_key": {"Bins": ["all"]},
     },
 
     "GRIMM": {
-        "pattern": "*.dat",
+        "pattern": ["*.dat"],
         "freq": "6min",
         "deter_key": {"Bins": ["all"]},
     },
 
     "APS_3321": {
-        "pattern": "*.TXT",
+        "pattern": ["*.txt"],
         "freq": "6min",
         "deter_key": {"Bins": ["all"]},
     },
 
     "AE33": {
-        "pattern": "[!ST|!CT|!FV]*[!log]_AE33*.dat",
+        "pattern": ["[!ST|!CT|!FV]*[!log]_AE33*.dat"],
         "freq": "1min",
         "deter_key": {"BC Mass Conc. (880 nm)": ["BC6"]},
         "error_state": [],
     },
 
     "AE43": {
-        "pattern": "[!ST|!CT|!FV]*[!log]_AE43*.dat",
+        "pattern": ["[!ST|!CT|!FV]*[!log]_AE43*.dat"],
         "freq": "1min",
         "deter_key": {"BC Mass Conc. (880 nm)": ["BC6"]},
         "error_state": [],
     },
 
     "BC1054": {
-        "pattern": "*.csv",
+        "pattern": ["*.csv"],
         "freq": "1min",
         "deter_key": {"BC Mass Conc. (880 nm)": ["BC9"]},
         "error_state": [1, 2, 4, 8, 16, 32, 65536],
     },
 
     "MA350": {
-        "pattern": "*.csv",
+        "pattern": ["*.csv"],
         "freq": "1min",
         "deter_key": {"BC Mass Conc. (880 nm)": ["BC5"]},
     },
 
     "TEOM": {
-        "pattern": "*.csv",
+        "pattern": ["*.csv"],
         "freq": "6min",
         "deter_key": {
             "PM1.0 Mass Conc.": ["PM_Total"],
@@ -79,8 +67,8 @@ meta = {
         },
     },
 
-    "Sunset_OCEC": {
-        "pattern": "*LCRes.csv",
+    "OCEC": {
+        "pattern": ["*LCRes.csv"],
         "freq": "1h",
         "deter_key": {
             "Thermal OC": ["Thermal_OC"],
@@ -91,7 +79,7 @@ meta = {
     },
 
     "IGAC": {
-        "pattern": "*.csv",
+        "pattern": ["*.csv"],
         "freq": "1h",
         "deter_key": {
             "Na+": ["Na+"],
@@ -108,7 +96,7 @@ meta = {
     },
 
     "VOC": {
-        "pattern": "*.csv",
+        "pattern": ["*.csv"],
         "freq": "1h",
         "key": [
             'Benzene', 'Toluene', 'Ethylbenzene', 'm/p-Xylene', 'o-Xylene', 'Ethane', 'Propane', 'Isobutane',
@@ -129,20 +117,31 @@ meta = {
     },
 
     "Table": {
-        "pattern": "*.csv",
+        "pattern": ["*.csv"],
         "freq": "1h",
         "deter_key": None,
     },
 
     "EPA_vertical": {
-        "pattern": "*.csv",
+        "pattern": ["*.csv"],
         "freq": "1h",
         "deter_key": None,
     },
 
     "Minion": {
-        "pattern": "*.csv",
+        "pattern": ["*.csv"],
         "freq": "1h",
-        "deter_key": None,
+        "deter_key": {
+            "Na+": ["Na+"],
+            "NH4+": ["NH4+"],
+            "K+": ["K+"],
+            "Mg2+": ["Mg2+"],
+            "Ca2+": ["Ca2+"],
+            "Cl-": ["Cl-"],
+            "NO2-": ["NO2-"],
+            "NO3-": ["NO3-"],
+            "SO42-": ["SO42-"],
+            "Main Salt (NH4+, NO3-, SO42-)": ["NO3-", "SO42-", "NH4+"],
+        },
     },
 }

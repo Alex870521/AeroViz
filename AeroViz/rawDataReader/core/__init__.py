@@ -1,8 +1,6 @@
-import json as jsn
+import json
 import logging
-import os
 import pickle as pkl
-import time
 from abc import ABC, abstractmethod
 from datetime import datetime as dtm
 from pathlib import Path
@@ -18,26 +16,28 @@ from ..config.supported_instruments import meta
 
 __all__ = ['AbstractReader']
 
-os.environ["FORCE_COLOR"] = "true"
+
 console = Console(force_terminal=True, color_system="auto")
 
 
 class AbstractReader(ABC):
+    """
+    Abstract class for reading raw data from different instruments. Each instrument should have a separate class that
+    inherits from this class and implements the abstract methods. The abstract methods are `_raw_reader` and `_QC`.
+
+    List the file in the path and read pickle file if it exists, else read raw data and dump the pickle file the
+    pickle file will be generated after read raw data first time, if you want to re-read the rawdata, please set
+    'reset=True'
+    """
+
     nam = 'AbstractReader'
-
-    # initial data
-    # input : file path, reset switch
-
-    # list the file in the path and read pickle file if it exists, else read raw data and dump the pickle file the
-    # pickle file will be generated after read raw data first time, if you want to re-read the rawdata, please set
-    # 'reset=True'
 
     def __init__(self,
                  path: Path | str,
                  qc: bool = True,
                  csv_raw: bool = True,
                  reset: bool = False,
-                 rate: bool = False,
+                 rate: bool = True,
                  append_data: bool = False):
 
         self.path = Path(path)
@@ -48,22 +48,13 @@ class AbstractReader(ABC):
         self.rate = rate
         self.qc = qc
         self.csv = csv_raw
-        self.append = append_data & reset
+        self.append = append_data and reset
 
         self.pkl_nam = self.path / f'_read_{self.nam.lower()}.pkl'
         self.csv_nam = self.path / f'_read_{self.nam.lower()}.csv'
         self.pkl_nam_raw = self.path / f'_read_{self.nam.lower()}_raw.pkl'
         self.csv_nam_raw = self.path / f'_read_{self.nam.lower()}_raw.csv'
         self.csv_out = self.path / f'output_{self.nam.lower()}.csv'
-
-    # dependency injection function, customize each instrument
-    @abstractmethod
-    def _raw_reader(self, file):
-        pass
-
-    @abstractmethod
-    def _QC(self, df: DataFrame):
-        return df
 
     def __call__(self,
                  start: dtm | None = None,
@@ -85,6 +76,14 @@ class AbstractReader(ABC):
 
         return data
 
+    @abstractmethod
+    def _raw_reader(self, file):
+        pass
+
+    @abstractmethod
+    def _QC(self, df: DataFrame):
+        return df
+
     @staticmethod
     def basic_QC(df: DataFrame):
         df_ave, df_std = df.mean(), df.std()
@@ -92,26 +91,19 @@ class AbstractReader(ABC):
 
         return df.mask(df_lowb | df_highb).copy()
 
-    # set each to true datetime(18:30:01 -> 18:30:00) and rindex data
-    def _raw_process(self, _df):
-        # get time from df and set time to whole time to create time index
-        _st, _ed = _df.index.sort_values()[[0, -1]]
-        _tm_index = date_range(_st.strftime('%Y%m%d %H00'), _ed.floor('h').strftime('%Y%m%d %H00'),
-                               freq=self.meta['freq'])
-        _tm_index.name = 'time'
-
-        return _df.apply(to_numeric, errors='coerce').resample(self.meta['freq']).mean().reindex(_tm_index)
-
     def _setup_logger(self) -> logging.Logger:
         logger = logging.getLogger(self.nam)
         logger.setLevel(logging.INFO)
+
+        for handler in logger.handlers[:]:
+            logger.removeHandler(handler)
+
         handler = logging.FileHandler(self.path / f'{self.nam}.log')
         handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
         logger.addHandler(handler)
         return logger
 
-    # acquisition rate and yield rate
-    def _rate_calculate(self, _fout_raw, _fout_qc, _st_raw, _ed_raw):
+    def _rate_calculate(self, _fout_raw, _fout_qc, _st_raw, _ed_raw) -> None:
         if self.meta['deter_key'] is not None:
             _start, _end = _fout_qc.index[[0, -1]]
 
@@ -140,6 +132,16 @@ class AbstractReader(ABC):
                 print(f'\t\tacquisition rate : \033[91m{_acq_rate}%\033[0m')
                 print(f'\t\tyield       rate : \033[91m{_yid_rate}%\033[0m')
 
+    # set each to true datetime(18:30:01 -> 18:30:00) and rindex data
+    def _raw_process(self, _df):
+        # get time from df and set time to whole time to create time index
+        _st, _ed = _df.index.sort_values()[[0, -1]]
+        _tm_index = date_range(_st.strftime('%Y%m%d %H00'), _ed.floor('h').strftime('%Y%m%d %H00'),
+                               freq=self.meta['freq'])
+        _tm_index.name = 'time'
+
+        return _df.apply(to_numeric, errors='coerce').resample(self.meta['freq']).mean().reindex(_tm_index)
+
     # process time index
     @staticmethod
     def _tmidx_process(_start, _end, _df):
@@ -152,7 +154,7 @@ class AbstractReader(ABC):
 
     # append new data to exist pkl
     @staticmethod
-    def _apnd_prcs(_df_done, _df_apnd):
+    def _append_process(_df_done, _df_apnd):
 
         if _df_apnd is not None:
             _df = concat([_df_apnd.dropna(how='all').copy(), _df_done.dropna(how='all').copy()])
@@ -164,16 +166,16 @@ class AbstractReader(ABC):
 
         return _df_done
 
-    # remove outlier
-    def _outlier_prcs(self, _df):
+    def _outlier_process(self, _df):
+        outlier_file = self.path / 'outlier.json'
 
-        if (self.path / 'outlier.json') not in self.path.glob('*.json'):
+        if not outlier_file.exists():
             return _df
 
-        with (self.path / 'outlier.json').open('r', encoding='utf-8', errors='ignore') as f:
-            self.outlier = jsn.load(f)
+        with outlier_file.open('r', encoding='utf-8', errors='ignore') as f:
+            outliers = json.load(f)
 
-        for _st, _ed in self.outlier.values():
+        for _st, _ed in outliers.values():
             _df.loc[_st:_ed] = np.nan
 
         return _df
@@ -191,14 +193,13 @@ class AbstractReader(ABC):
 
     @staticmethod
     def _safe_pickle_dump(file_path: Path, data: Any) -> None:
-        while True:
-            try:
-                with file_path.open('wb') as f:
-                    pkl.dump(data, f, protocol=pkl.HIGHEST_PROTOCOL)
-                break
-            except PermissionError as err:
-                print('\n', err)
-                input('\t\t\33[41m Please close the file and press "Enter" \33[0m\n')
+        try:
+            with file_path.open('wb') as f:
+                pkl.dump(data, f, protocol=pkl.HIGHEST_PROTOCOL)
+        except PermissionError as e:
+            raise IOError(f"Unable to write to {file_path}. The file may be in use or you may not have permission: {e}")
+        except Exception as e:
+            raise IOError(f"Error writing to {file_path}: {e}")
 
     # read pickle file
     def _read_pkl(self):
@@ -206,20 +207,19 @@ class AbstractReader(ABC):
             return pkl.load(raw_data), pkl.load(qc_data)
 
     def _read_raw_files(self) -> tuple[DataFrame | None, DataFrame | None]:
-        patterns = {self.meta['pattern'].lower(), self.meta['pattern'].upper(), self.meta['pattern']}
-        files = [f for pattern in patterns for f in self.path.glob(pattern)
+        files = [f
+                 for file_pattern in self.meta['pattern']
+                 for pattern in {file_pattern.lower(), file_pattern.upper(), file_pattern}
+                 for f in self.path.glob(pattern)
                  if f.name not in [self.csv_out.name, self.csv_nam.name, self.csv_nam_raw.name, f'{self.nam}.log']]
 
         if not files:
-            raise FileNotFoundError(f"\t\t\033[31mNo files in '{self.path}' could be read."
-                                    f"Please check the current path.\033[0m")
+            raise FileNotFoundError(f"No files in '{self.path}' could be read. Please check the current path.")
 
         df_list = []
         with Progress(
                 TextColumn("[bold blue]{task.description}", style="bold blue"),
-                BarColumn(bar_width=18,
-                          complete_style="green",
-                          finished_style="bright_green"),
+                BarColumn(bar_width=18, complete_style="green", finished_style="bright_green"),
                 TaskProgressColumn(),
                 TimeRemainingColumn(),
                 TextColumn("{task.fields[filename]}", style="yellow"),
@@ -229,7 +229,6 @@ class AbstractReader(ABC):
             task = progress.add_task(f"Reading {self.nam} files", total=len(files), filename="")
             for file in files:
                 progress.update(task, advance=1, filename=file.name)
-                time.sleep(0.01)
                 try:
                     df = self._raw_reader(file)
 
@@ -252,54 +251,42 @@ class AbstractReader(ABC):
 
         return raw_data, qc_data
 
-    # main flow
     def _run(self, _start, _end):
-        self.logger.info(f"{'=' * 60}")
-        # self.logger.info(f"Raw data time : {_st_raw.strftime('%Y-%m-%d %X')} to {_ed_raw.strftime('%Y-%m-%d %X')}")
-        self.logger.info(f"Output   time : {_start.strftime('%Y-%m-%d %X')} to {_end.strftime('%Y-%m-%d %X')}")
-        self.logger.info(f"{'-' * 60}")
-
-        _f_raw_done, _f_qc_done = None, None
-
         # read pickle if pickle file exists and 'reset=False' or process raw data or append new data
-        if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and (not self.reset or self.append):
+        if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and not self.reset:
             print(f"\n{dtm.now().strftime('%m/%d %X')} : Reading {self.nam} \033[96mPICKLE\033[0m "
-                  f"from {_start.strftime('%Y-%m-%d %X')} to {_end.strftime('%Y-%m-%d %X')}\n")
+                  f"from {_start} to {_end}\n")
 
             _f_raw_done, _f_qc_done = self._read_pkl()
 
-            if not self.append:
-                _f_raw_done, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_raw_done)
-                _f_qc_done, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_qc_done)
+            if self.append:
+                print(f"Appending new data from {_start} to {_end}")
+                _f_raw_new, _f_qc_new = self._read_raw_files()
+                _f_raw = self._append_process(_f_raw_done, _f_raw_new)
+                _f_qc = self._append_process(_f_qc_done, _f_qc_new)
+            else:
+                _f_raw, _f_qc = _f_raw_done, _f_qc_done
 
-                _f_qc_done = self._outlier_prcs(_f_qc_done)
+        else:
+            print(f"\n{dtm.now().strftime('%m/%d %X')} : Reading {self.nam} \033[96mRAW DATA\033[0m "
+                  f"from {_start} to {_end}\n")
+            _f_raw, _f_qc = self._read_raw_files()
 
-                if self.rate:
-                    self._rate_calculate(_f_raw_done, _f_qc_done, _start_raw, _end_raw)
+        # process time index
+        _f_raw, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_raw)
+        _f_qc, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_qc)
 
-                return _f_qc_done if self.qc else _f_raw_done
-
-        # read raw data
-        print(f"\n{dtm.now().strftime('%m/%d %X')} : Reading {self.nam} \033[96mRAW DATA\033[0m "
-              f"from {_start.strftime('%Y-%m-%d %X')} to {_end.strftime('%Y-%m-%d %X')}\n")
-
-        _f_raw, _f_qc = self._read_raw_files()
-
-        # append new data and pickle data
-        if self.append and self.pkl_nam.exists():
-            _f_raw = self._apnd_prcs(_f_raw_done, _f_raw)
-            _f_qc = self._apnd_prcs(_f_qc_done, _f_qc)
-
-        _f_qc = self._outlier_prcs(_f_qc)
+        _f_qc = self._outlier_process(_f_qc)
 
         # save
         self._save_data(_f_raw, _f_qc)
 
-        # process time index
-        # if (_start is not None)|(_end is not None):
-        _f_raw, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_raw)
-        _f_qc, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_qc)
+        self.logger.info(f"{'=' * 60}")
+        self.logger.info(f"Raw data time : {_start_raw} to {_end_raw}")
+        self.logger.info(f"Output   time : {_start} to {_end}")
+        self.logger.info(f"{'-' * 60}")
 
-        self._rate_calculate(_f_raw, _f_qc, _start_raw, _end_raw)
+        if self.rate:
+            self._rate_calculate(_f_raw, _f_qc, _start_raw, _end_raw)
 
         return _f_qc if self.qc else _f_raw

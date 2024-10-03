@@ -51,7 +51,7 @@ class Reader(AbstractReader):
     def _QC(self, _df):
         import numpy as np
 
-        _df = _df.where(_df > 0)
+        _df = _df.mask((_df <= 0) | (_df > 100)).copy()
 
         thresholds = {
             'Thermal_OC': 0.3,

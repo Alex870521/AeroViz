@@ -348,7 +348,6 @@ def timeseries_stacked(df,
             ylabel=kwargs.get('ylabel', 'Percentage (%)'),
             xlim=kwargs.get('xlim', (st_tm, fn_tm)),
             ylim=(0, 100),
-            title=kwargs.get('title', '')
             )
 
     xticks = kwargs.get('xticks', date_range(start=st_tm, end=fn_tm, freq=major_freq))

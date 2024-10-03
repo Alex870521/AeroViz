@@ -1,27 +1,3 @@
-## <div align="center">RawDataReader Usage</div>
-
-```python
-from datetime import datetime as dtm
-from pathlib import Path
-from AeroViz.rawDataReader import RawDataReader
-
-# 設定資料的起始和結束時間
-start, end = dtm(2024, 2, 1), dtm(2024, 7, 31)
-
-# 設定資料路徑
-path_raw = Path('/path/to/data')
-
-# 讀取 AE33 資料
-dt_ae33 = RawDataReader('AE33', path_raw / 'AE33', reset=False, start=start, end=end)
-
-dt_neph = RawDataReader('NEPH', path_raw / 'NEPH', reset=False, start=start, end=end)
-```
-
-## <div align="center">DataProcess Usage</div>
-
-```python
-```
-
 ## <div align="center">AeroViz.plot Usage</div>
 
 ### <div align="center">WindRose and Conditional Bivariate Probability Function (CBPF)</div>

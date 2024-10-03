@@ -1,6 +1,8 @@
+import warnings
+
 import numpy as np
 from pandas import concat, DataFrame
-from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit, least_squares, OptimizeWarning
 
 from AeroViz.dataProcess.core import union_index
 
@@ -22,15 +24,26 @@ def _min_Rsq(_oc, _ec, _rng):
     for _ocec, _out in _out_table.items():
         _df = DataFrame([_out.values, _ec.values]).T.dropna()
 
-        _x, _y = _df[0], _df[1]
-        _opt, _ = curve_fit(_func, _x, _y)
+        _x, _y = _df[0].values, _df[1].values
 
-        _tss = np.sum((_y - _y.mean()) ** 2.)
-        _rss = np.sum((_y - _func(_x, *_opt)) ** 2.)
+        # 初始參數估計
+        slope_guess = (_y[-1] - _y[0]) / (_x[-1] - _x[0])
+        intercept_guess = _y[0] - slope_guess * _x[0]
 
-        _r2_dic[round(_ocec, 3)] = 1. - _rss / _tss
+        try:
+            with warnings.catch_warnings():
+                warnings.filterwarnings('error')
+                _opt, _ = curve_fit(_func, _x, _y, p0=[slope_guess, intercept_guess], maxfev=5000)
+        except (RuntimeWarning, OptimizeWarning):
+            # 如果 curve_fit 失敗，嘗試使用 least_squares
+            residuals = lambda p: _func(_x, *p) - _y
+            _opt = least_squares(residuals, [slope_guess, intercept_guess]).x
 
-    # get the min R2
+        _tss = np.sum((_y - np.mean(_y)) ** 2)
+        _rss = np.sum((_y - _func(_x, *_opt)) ** 2)
+
+        _r2_dic[round(_ocec, 3)] = 1 - _rss / _tss
+
     _ratio = DataFrame(_r2_dic, index=[0]).idxmin(axis=1).values[0]
 
     return _ratio, _out_table[_ratio]

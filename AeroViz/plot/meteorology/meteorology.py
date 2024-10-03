@@ -70,6 +70,7 @@ def wind_rose(df: DataFrame,
             rlabel_position=rlabel_pos,
             theta_direction=-1,
             theta_zero_location='N',
+            title=kwargs.get('title', None)
         )
         ax.set_thetagrids(angles=[0, 45, 90, 135, 180, 225, 270, 315],
                           labels=["N", "NE", "E", "SE", "S", "SW", "W", "NW"])
@@ -81,6 +82,7 @@ def wind_rose(df: DataFrame,
     return fig, ax
 
 
+# TODO: fix the bug of the CBPF function
 @set_figure(figsize=(4.3, 4))
 def CBPF(df: DataFrame,
          WS: Series | str,

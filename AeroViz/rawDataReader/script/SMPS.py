@@ -54,6 +54,7 @@ class Reader(AbstractReader):
 
             _df_smps = _df[numeric_cols]
             _df_smps.columns = _df_smps.columns.astype(float)
+            _df_smps = _df_smps.loc[_df_smps.index.dropna().copy()]
 
             return _df_smps.apply(to_numeric, errors='coerce')
 

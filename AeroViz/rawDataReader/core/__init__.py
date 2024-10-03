@@ -1,23 +1,19 @@
 import json
 import logging
-import pickle as pkl
 from abc import ABC, abstractmethod
-from datetime import datetime as dtm
+from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Optional
 
 import numpy as np
 import pandas as pd
-from pandas import DataFrame, date_range, concat, to_numeric, to_datetime
+from pandas import DataFrame, concat, read_pickle
 from rich.console import Console
 from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn, TaskProgressColumn
 
-from ..config.supported_instruments import meta
+from AeroViz.rawDataReader.config.supported_instruments import meta
 
 __all__ = ['AbstractReader']
-
-
-console = Console(force_terminal=True, color_system="auto")
 
 
 class AbstractReader(ABC):
@@ -34,9 +30,9 @@ class AbstractReader(ABC):
 
     def __init__(self,
                  path: Path | str,
-                 qc: bool = True,
-                 csv_raw: bool = True,
                  reset: bool = False,
+                 qc: bool = True,
+                 qc_freq: Optional[str] = None,
                  rate: bool = True,
                  append_data: bool = False):
 
@@ -45,9 +41,9 @@ class AbstractReader(ABC):
         self.logger = self._setup_logger()
 
         self.reset = reset
-        self.rate = rate
         self.qc = qc
-        self.csv = csv_raw
+        self.qc_freq = qc_freq
+        self.rate = rate
         self.append = append_data and reset
 
         self.pkl_nam = self.path / f'_read_{self.nam.lower()}.pkl'
@@ -57,14 +53,11 @@ class AbstractReader(ABC):
         self.csv_out = self.path / f'output_{self.nam.lower()}.csv'
 
     def __call__(self,
-                 start: dtm | None = None,
-                 end: dtm | None = None,
+                 start: datetime,
+                 end: datetime,
                  mean_freq: str = '1h',
                  csv_out: bool = True,
                  ) -> DataFrame:
-
-        if start and end and end <= start:
-            raise ValueError(f"Invalid time range: start {start} is after end {end}")
 
         data = self._run(start, end)
 
@@ -81,15 +74,8 @@ class AbstractReader(ABC):
         pass
 
     @abstractmethod
-    def _QC(self, df: DataFrame):
-        return df
-
-    @staticmethod
-    def basic_QC(df: DataFrame):
-        df_ave, df_std = df.mean(), df.std()
-        df_lowb, df_highb = df < (df_ave - df_std * 1.5), df > (df_ave + df_std * 1.5)
-
-        return df.mask(df_lowb | df_highb).copy()
+    def _QC(self, df: DataFrame) -> DataFrame:
+        return self.n_sigma_QC(df)
 
     def _setup_logger(self) -> logging.Logger:
         logger = logging.getLogger(self.nam)
@@ -99,29 +85,26 @@ class AbstractReader(ABC):
             logger.removeHandler(handler)
 
         handler = logging.FileHandler(self.path / f'{self.nam}.log')
-        handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s'))
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
         logger.addHandler(handler)
         return logger
 
-    def _rate_calculate(self, _fout_raw, _fout_qc, _st_raw, _ed_raw) -> None:
-        if self.meta['deter_key'] is not None:
-            _start, _end = _fout_qc.index[[0, -1]]
-
-            _drop_how = 'any'
-            _the_size = len(_fout_raw.resample('1h').mean().index)
+    def _rate_calculate(self, raw_data, qc_data) -> None:
+        def __base_rate(raw_data, qc_data):
+            period_size = len(raw_data.resample('1h').mean().index)
 
             for _nam, _key in self.meta['deter_key'].items():
-                if _key == ['all']:
-                    _key, _drop_how = _fout_qc.keys(), 'all'
+                _key, _drop_how = (qc_data.keys(), 'all') if _key is ['all'] else (_key, 'any')
 
-                _real_size = len(_fout_raw[_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
-                _QC_size = len(_fout_qc[_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
+                sample_size = len(raw_data[_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
+                qc_size = len(qc_data[_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
 
-                try:
-                    _acq_rate = round((_real_size / _the_size) * 100, 1)
-                    _yid_rate = round((_QC_size / _real_size) * 100, 1)
-                except ZeroDivisionError:
-                    _acq_rate, _yid_rate = 0, 0
+                # validate rate calculation
+                if period_size < sample_size or sample_size < qc_size or period_size == 0 or sample_size == 0:
+                    raise ValueError(f"Invalid sample sizes: period={period_size}, sample={sample_size}, QC={qc_size}")
+
+                _acq_rate = round((sample_size / period_size) * 100, 1)
+                _yid_rate = round((qc_size / sample_size) * 100, 1)
 
                 self.logger.info(f'{_nam}:')
                 self.logger.info(f"\tAcquisition rate: {_acq_rate}%")
@@ -132,39 +115,55 @@ class AbstractReader(ABC):
                 print(f'\t\tacquisition rate : \033[91m{_acq_rate}%\033[0m')
                 print(f'\t\tyield       rate : \033[91m{_yid_rate}%\033[0m')
 
-    # set each to true datetime(18:30:01 -> 18:30:00) and rindex data
-    def _raw_process(self, _df):
-        # get time from df and set time to whole time to create time index
-        _st, _ed = _df.index.sort_values()[[0, -1]]
-        _tm_index = date_range(_st.strftime('%Y%m%d %H00'), _ed.floor('h').strftime('%Y%m%d %H00'),
-                               freq=self.meta['freq'])
-        _tm_index.name = 'time'
+        if self.meta['deter_key'] is not None:
+            # use qc_freq to calculate each period rate
+            if self.qc_freq is not None:
+                raw_data_grouped = raw_data.groupby(pd.Grouper(freq=self.qc_freq))
+                qc_data_grouped = qc_data.groupby(pd.Grouper(freq=self.qc_freq))
 
-        return _df.apply(to_numeric, errors='coerce').resample(self.meta['freq']).mean().reindex(_tm_index)
+                for (month, _sub_raw_data), (_, _sub_qc_data) in zip(raw_data_grouped, qc_data_grouped):
+                    self.logger.info(
+                        f"\tProcessing: {_sub_raw_data.index[0].strftime('%F')} to {_sub_raw_data.index[-1].strftime('%F')}")
+                    print(
+                        f"\n\tProcessing: {_sub_raw_data.index[0].strftime('%F')} to {_sub_raw_data.index[-1].strftime('%F')}")
 
-    # process time index
-    @staticmethod
-    def _tmidx_process(_start, _end, _df):
-        _st, _ed = _df.index.sort_values()[[0, -1]]
-        _start, _end = to_datetime(_start) or _st, to_datetime(_end) or _ed
-        _idx = date_range(_start, _end, freq=_df.index.freq.copy())
-        _idx.name = 'time'
+                    __base_rate(_sub_raw_data, _sub_qc_data)
 
-        return _df.reindex(_idx), _st, _ed
+            else:
+                __base_rate(raw_data, qc_data)
 
-    # append new data to exist pkl
-    @staticmethod
-    def _append_process(_df_done, _df_apnd):
+    def _timeIndex_process(self, _df, user_start=None, user_end=None, append_df=None):
+        """
+        Process time index, resample data, extract specified time range, and optionally append new data.
 
-        if _df_apnd is not None:
-            _df = concat([_df_apnd.dropna(how='all').copy(), _df_done.dropna(how='all').copy()])
+        :param _df: Input DataFrame with time index
+        :param user_start: Start of user-specified time range (optional)
+        :param user_end: End of user-specified time range (optional)
+        :param append_df: DataFrame to append (optional)
+        :return: Processed DataFrame
+        """
+        # Round timestamps and remove duplicates
+        _df = _df.groupby(_df.index.round('1min')).first()
 
-            _idx = date_range(*_df.index.sort_values()[[0, -1]], freq=_df_done.index.freq.copy())
-            _idx.name = 'time'
+        # Determine frequency
+        freq = _df.index.inferred_freq or self.meta['freq']
 
-            return _df.loc[~_df.index.duplicated()].copy().reindex(_idx)
+        # Append new data if provided
+        if append_df is not None:
+            append_df.index = append_df.index.round('1min')
+            _df = pd.concat([append_df.dropna(how='all'), _df.dropna(how='all')])
+            _df = _df.loc[~_df.index.duplicated()]
 
-        return _df_done
+        # Determine time range
+        df_start, df_end = _df.index.sort_values()[[0, -1]]
+
+        # Create new time index
+        new_index = pd.date_range(user_start or df_start, user_end or df_end, freq=freq, name='time')
+
+        # Process data: convert to numeric, resample, and reindex
+        return (_df.apply(pd.to_numeric, errors='coerce')
+                .resample(freq).mean()
+                .reindex(new_index))
 
     def _outlier_process(self, _df):
         outlier_file = self.path / 'outlier.json'
@@ -180,31 +179,17 @@ class AbstractReader(ABC):
 
         return _df
 
-    # save pickle file
     def _save_data(self, raw_data: DataFrame, qc_data: DataFrame) -> None:
-        self._safe_pickle_dump(self.pkl_nam, qc_data)
-        if self.csv:
-            qc_data.to_csv(self.csv_nam)
-
-        if self.meta['deter_key'] is not None:
-            self._safe_pickle_dump(self.pkl_nam_raw, raw_data)
-            if self.csv:
-                raw_data.to_csv(self.csv_nam_raw)
-
-    @staticmethod
-    def _safe_pickle_dump(file_path: Path, data: Any) -> None:
         try:
-            with file_path.open('wb') as f:
-                pkl.dump(data, f, protocol=pkl.HIGHEST_PROTOCOL)
-        except PermissionError as e:
-            raise IOError(f"Unable to write to {file_path}. The file may be in use or you may not have permission: {e}")
-        except Exception as e:
-            raise IOError(f"Error writing to {file_path}: {e}")
+            raw_data.to_pickle(self.pkl_nam_raw)
+            raw_data.to_csv(self.csv_nam_raw)
 
-    # read pickle file
-    def _read_pkl(self):
-        with self.pkl_nam.open('rb') as qc_data, self.pkl_nam_raw.open('rb') as raw_data:
-            return pkl.load(raw_data), pkl.load(qc_data)
+            if self.meta['deter_key'] is not None:
+                qc_data.to_pickle(self.pkl_nam)
+                qc_data.to_csv(self.csv_nam)
+
+        except Exception as e:
+            raise IOError(f"Error saving data. {e}")
 
     def _read_raw_files(self) -> tuple[DataFrame | None, DataFrame | None]:
         files = [f
@@ -223,7 +208,7 @@ class AbstractReader(ABC):
                 TaskProgressColumn(),
                 TimeRemainingColumn(),
                 TextColumn("{task.fields[filename]}", style="yellow"),
-                console=console,
+                console=Console(force_terminal=True, color_system="auto"),
                 expand=False
         ) as progress:
             task = progress.add_task(f"Reading {self.nam} files", total=len(files), filename="")
@@ -246,47 +231,87 @@ class AbstractReader(ABC):
         if not df_list:
             raise ValueError("All files were either empty or failed to read.")
 
-        raw_data = self._raw_process(concat(df_list))
+        raw_data = concat(df_list, axis=0).groupby(level=0).first()
+
+        raw_data = self._timeIndex_process(raw_data)
         qc_data = self._QC(raw_data)
 
         return raw_data, qc_data
 
-    def _run(self, _start, _end):
+    def _run(self, user_start, user_end):
         # read pickle if pickle file exists and 'reset=False' or process raw data or append new data
         if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and not self.reset:
-            print(f"\n{dtm.now().strftime('%m/%d %X')} : Reading {self.nam} \033[96mPICKLE\033[0m "
-                  f"from {_start} to {_end}\n")
+            print(f"\n{datetime.now().strftime('%m/%d %X')} : Reading {self.nam} \033[96mPICKLE\033[0m "
+                  f"from {user_start} to {user_end}\n")
 
-            _f_raw_done, _f_qc_done = self._read_pkl()
+            _f_raw_done, _f_qc_done = read_pickle(self.pkl_nam_raw), read_pickle(self.pkl_nam)
 
             if self.append:
-                print(f"Appending new data from {_start} to {_end}")
+                print(f"Appending new data from {user_start} to {user_end}")
                 _f_raw_new, _f_qc_new = self._read_raw_files()
-                _f_raw = self._append_process(_f_raw_done, _f_raw_new)
-                _f_qc = self._append_process(_f_qc_done, _f_qc_new)
+                _f_raw = self._timeIndex_process(_f_raw_done, append_df=_f_raw_new)
+                _f_qc = self._timeIndex_process(_f_qc_done, append_df=_f_qc_new)
             else:
                 _f_raw, _f_qc = _f_raw_done, _f_qc_done
+                return _f_qc if self.qc else _f_raw
 
         else:
-            print(f"\n{dtm.now().strftime('%m/%d %X')} : Reading {self.nam} \033[96mRAW DATA\033[0m "
-                  f"from {_start} to {_end}\n")
+            print(f"\n{datetime.now().strftime('%m/%d %X')} : Reading {self.nam} \033[96mRAW DATA\033[0m "
+                  f"from {user_start} to {user_end}\n")
+
             _f_raw, _f_qc = self._read_raw_files()
 
         # process time index
-        _f_raw, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_raw)
-        _f_qc, _start_raw, _end_raw = self._tmidx_process(_start, _end, _f_qc)
+        data_start, data_end = _f_raw.index.sort_values()[[0, -1]]
 
+        _f_raw = self._timeIndex_process(_f_raw, user_start, user_end)
+        _f_qc = self._timeIndex_process(_f_qc, user_start, user_end)
         _f_qc = self._outlier_process(_f_qc)
 
         # save
         self._save_data(_f_raw, _f_qc)
 
         self.logger.info(f"{'=' * 60}")
-        self.logger.info(f"Raw data time : {_start_raw} to {_end_raw}")
-        self.logger.info(f"Output   time : {_start} to {_end}")
+        self.logger.info(f"Raw data time : {data_start} to {data_end}")
+        self.logger.info(f"Output   time : {user_start} to {user_end}")
         self.logger.info(f"{'-' * 60}")
 
         if self.rate:
-            self._rate_calculate(_f_raw, _f_qc, _start_raw, _end_raw)
+            self._rate_calculate(_f_raw, _f_qc)
 
         return _f_qc if self.qc else _f_raw
+
+    @staticmethod
+    def reorder_dataframe_columns(df, order_lists, others_col=False):
+        new_order = []
+
+        for order in order_lists:
+            # 只添加存在於DataFrame中的欄位，且不重複添加
+            new_order.extend([col for col in order if col in df.columns and col not in new_order])
+
+        if others_col:
+            # 添加所有不在新順序列表中的原始欄位，保持它們的原始順序
+            new_order.extend([col for col in df.columns if col not in new_order])
+
+        return df[new_order]
+
+    @staticmethod
+    def n_sigma_QC(df: DataFrame, std_range: int = 5) -> DataFrame:
+        df_ave, df_std = df.mean(), df.std()
+        df_lowb, df_highb = df < (df_ave - df_std * std_range), df > (df_ave + df_std * std_range)
+
+        return df.mask(df_lowb | df_highb).copy()
+
+    # "四分位數範圍法"（Inter-quartile Range Method）
+    @staticmethod
+    def IQR_QC(df: DataFrame, log_dist=False) -> tuple[DataFrame, DataFrame]:
+        df = np.log10(df) if log_dist else df
+
+        _df_qua = df.quantile([.25, .75])
+        _df_q1, _df_q3 = _df_qua.loc[.25].copy(), _df_qua.loc[.75].copy()
+        _df_iqr = _df_q3 - _df_q1
+
+        _se = concat([_df_q1 - 1.5 * _df_iqr] * len(df), axis=1).T.set_index(df.index)
+        _le = concat([_df_q3 + 1.5 * _df_iqr] * len(df), axis=1).T.set_index(df.index)
+
+        return (10 ** _se, 10 ** _le) if log_dist else (_se, _le)

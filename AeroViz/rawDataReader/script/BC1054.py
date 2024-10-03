@@ -39,4 +39,4 @@ class Reader(AbstractReader):
         _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'BC8', 'BC9', 'BC10']].mask((_df < 0).copy())
 
         # QC data in 1h
-        return _df.resample('1h').apply(self.basic_QC).resample(self.meta.get("freq")).mean()
+        return _df.resample('1h').apply(self.n_sigma_QC).resample(self.meta.get("freq")).mean()

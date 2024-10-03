@@ -22,9 +22,11 @@ def scatter(df: pd.DataFrame,
             x: str,
             y: str,
             c: str | None = None,
+            color: str | None = '#7a97c9',
             s: str | None = None,
             cmap='jet',
             regression=False,
+            regression_line_color: str | None = sns.xkcd_rgb["denim blue"],
             diagonal=False,
             ax: Axes | None = None,
             **kwargs
@@ -41,6 +43,8 @@ def scatter(df: pd.DataFrame,
     y : str
         The column name for the y-axis values.
     c : str, optional
+        The column name for c encoding. Default is None.
+    color : str, optional
         The column name for color encoding. Default is None.
     s : str, optional
         The column name for size encoding. Default is None.
@@ -48,6 +52,8 @@ def scatter(df: pd.DataFrame,
         The colormap to use for the color encoding. Default is 'jet'.
     regression : bool, optional
         If True, fits and plots a linear regression line. Default is False.
+    regression_line_color : str, optional
+        The color of the regression line. Default is 'sns.xkcd_rgb["denim blue"]'.
     diagonal : bool, optional
         If True, plots a 1:1 diagonal line. Default is False.
     ax : Axes, optional
@@ -118,7 +124,7 @@ def scatter(df: pd.DataFrame,
         x_data, y_data, s_data = df_[x].to_numpy(), df_[y].to_numpy(), df_[s].to_numpy()
         check_empty(x_data, y_data, s_data)
 
-        scatter = ax.scatter(x_data, y_data, s=50 * (s_data / s_data.max()) ** 1.5, color='#7a97c9', alpha=0.7,
+        scatter = ax.scatter(x_data, y_data, s=50 * (s_data / s_data.max()) ** 1.5, color=color, alpha=0.5,
                              edgecolors='white')
         colorbar = False
 
@@ -135,7 +141,7 @@ def scatter(df: pd.DataFrame,
         x_data, y_data = df_[x].to_numpy(), df_[y].to_numpy()
         check_empty(x_data, y_data)
 
-        scatter = ax.scatter(x_data, y_data, s=30, color='#7a97c9', alpha=0.7, edgecolors='white')
+        scatter = ax.scatter(x_data, y_data, s=30, color=color, alpha=0.5, edgecolors='white')
         colorbar = False
 
     ax.set(xlim=kwargs.get('xlim', (x_data.min(), x_data.max())),
@@ -144,21 +150,24 @@ def scatter(df: pd.DataFrame,
            ylabel=kwargs.get('ylabel', Unit(y)),
            title=kwargs.get('title', ''))
 
+    ax.xaxis.set_major_formatter(ScalarFormatter())
+    ax.yaxis.set_major_formatter(ScalarFormatter())
+
     if colorbar:
         plt.colorbar(scatter, extend='both', label=Unit(c))
 
     if regression:
         text, y_predict, slope = linear_regression_base(x_data, y_data)
-        ax.plot(x_data, y_predict, linewidth=3, color=sns.xkcd_rgb["denim blue"], alpha=1, zorder=3)
-        plt.text(0.05, 0.95, text, fontdict={'weight': 'bold'}, color=sns.xkcd_rgb["denim blue"],
+        ax.plot(x_data, y_predict, linewidth=3, color=regression_line_color, alpha=1, zorder=3)
+        plt.text(0.05, 0.95, text, fontdict={'weight': 'bold'}, color=regression_line_color,
                  ha='left', va='top', transform=ax.transAxes)
 
     if diagonal:
         ax.axline((0, 0), slope=1., color='k', lw=2, ls='--', alpha=0.5, label='1:1')
-        plt.text(0.91, 0.97, r'$\bf 1:1\ Line$', color='k', ha='right', va='top', transform=ax.transAxes)
 
-    ax.xaxis.set_major_formatter(ScalarFormatter())
-    ax.yaxis.set_major_formatter(ScalarFormatter())
+        data_range = min(ax.get_xlim()[1] - ax.get_xlim()[0], ax.get_ylim()[1] - ax.get_ylim()[0])
+        plt.text(0.9 * data_range, 0.9 * data_range, r'$\bf 1:1\ Line$', color='k', ha='left', va='bottom',
+                 bbox=dict(facecolor='white', edgecolor='none', alpha=0.1, pad=3))
 
     plt.show()
 

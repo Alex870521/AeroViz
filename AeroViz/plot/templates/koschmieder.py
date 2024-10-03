@@ -10,7 +10,7 @@ from AeroViz.plot.utils import *
 __all__ = ['koschmieder']
 
 
-@set_figure
+@set_figure(figsize=(2.4, 3))
 def koschmieder(df: pd.DataFrame,
                 vis: str,
                 ext: list[str],
@@ -30,8 +30,8 @@ def koschmieder(df: pd.DataFrame,
 
     fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
 
-    boxcolors = ['#3f83bf', '#a5bf6b']
-    scattercolor = ['blue', 'green']
+    boxcolors = ['#a5bf6b', '#3f83bf']
+    scattercolor = ['green', 'blue']
     arts = []
     labels = []
 
@@ -74,15 +74,18 @@ def koschmieder(df: pd.DataFrame,
                         label=f'Vis (km) = {round(coeff)} / Ext')
 
         arts.append(line)
-        labels.append(f'Vis (km) = {round(coeff)} / Ext')
+        if 'dry' in ext_col:
+            labels.append(f'Vis (km) = {round(coeff)} / Ext (dry)')
+        else:
+            labels.append(f'Vis (km) = {round(coeff)} / Ext (amb)')
 
     ax.legend(handles=arts, labels=labels, loc='upper right', prop=dict(weight='bold'), bbox_to_anchor=(0.99, 0.99))
 
-    ax.set(xlabel=kwargs.get('xlim', 'Visibility (km)'),
-           ylabel=kwargs.get('xlim', 'Extinction (1/Mm)'),
-           title=kwargs.get('ylim', 'Koschmieder relationship'),
+    ax.set(xlabel=kwargs.get('xlabel', 'Visibility (km)'),
+           ylabel=kwargs.get('ylabel', 'Extinction (1/Mm)'),
+           title=kwargs.get('title', 'Koschmieder relationship'),
            xlim=kwargs.get('xlim', (0, 30)),
-           ylim=kwargs.get('ylim', (0, 500))
+           ylim=kwargs.get('ylim', (0, 800))
            )
 
     plt.xticks(ticks=np.array(range(0, 31, 5)), labels=np.array(range(0, 31, 5)))

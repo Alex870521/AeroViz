@@ -25,4 +25,4 @@ class Reader(AbstractReader):
 
     def _QC(self, _df):
         # QC data in 1h
-        return _df.resample('1h').apply(self.basic_QC).resample(self.meta.get("freq")).mean()
+        return _df.resample('1h').apply(self.n_sigma_QC).resample(self.meta.get("freq")).mean()

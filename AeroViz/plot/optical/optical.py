@@ -7,7 +7,7 @@ import numpy as np
 from matplotlib.pyplot import Figure, Axes
 
 from AeroViz.plot.utils import *
-from AeroViz.process.method.mie_theory import Mie_Q, Mie_MEE, Mie_PESD
+from temp.process.method.mie_theory import Mie_Q, Mie_MEE, Mie_PESD
 
 __all__ = ['Q_plot',
            'RI_couple',

@@ -81,7 +81,9 @@ def pie(data_set: DataFrame | dict,
     radius = 4
     width = 4 if style == 'pie' else 1
 
-    text = [''] * pies if style == 'pie' else [Unit(unit) + '\n\n' + '{:.2f}'.format(x) for x in data.sum(axis=1)]
+    text = [''] * pies if style == 'pie' else [Unit(unit) + '\n\n' +
+                                               '{:.2f} ± {:.2f}'.format(x, s)
+                                               for x, s in zip(data.sum(axis=1), data.std(axis=1))]
     pct_distance = 0.6 if style == 'pie' else 0.88
 
     fig, ax = plt.subplots(1, pies, figsize=((pies * 2) + 1, 2)) if ax is None else (ax.get_figure(), ax)
@@ -99,7 +101,17 @@ def pie(data_set: DataFrame | dict,
                   pctdistance=1.3, radius=radius, wedgeprops=dict(width=width, edgecolor='w'))
         ax[i].axis('equal')
         ax[i].text(0, 0, text[i], ha='center', va='center')
-        ax[i].set_title(category_names[i])
+
+        if kwargs.get('title') is None:
+            ax[i].set_title(category_names[i])
+
+        else:
+            if len(kwargs.get('title')) == pies:
+                title = kwargs.get('title')
+            else:
+                raise ValueError('The length of the title list must match the number of pies.')
+
+            ax[i].set_title(title[i])
 
     ax[-1].legend(labels, loc='center left', prop={'size': 8, 'weight': 'normal'}, bbox_to_anchor=(1, 0, 1.15, 1))
 

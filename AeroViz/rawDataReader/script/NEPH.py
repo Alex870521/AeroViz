@@ -67,4 +67,4 @@ class Reader(AbstractReader):
         _df = _df[(_df['BB'] < _df['B']) & (_df['BG'] < _df['G']) & (_df['BR'] < _df['R'])]
 
         # QC data in 1h
-        return _df.resample('1h').apply(self.basic_QC).resample(self.meta.get("freq")).mean()
+        return _df.resample('1h').apply(self.n_sigma_QC).resample(self.meta.get("freq")).mean()

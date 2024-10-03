@@ -25,9 +25,9 @@ class Reader(AbstractReader):
 
             _df = _df.set_index(to_datetime(_tm_idx, errors='coerce', format='%d - %m - %Y %X'))
 
-            _df = _df.where(_df['status'] < 1e-7)
+            _df = _df.where(_df['status'] < 1)
 
-        _df = _df[['PM_NV', 'PM_Total', 'noise', ]]
+        _df = _df[['PM_NV', 'PM_Total', 'noise']]
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

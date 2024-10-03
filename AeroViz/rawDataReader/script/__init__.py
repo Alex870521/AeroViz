@@ -11,8 +11,8 @@ __all__ = [
     'TEOM',
     'OCEC',
     'IGAC',
+    'XRF',
     'VOC',
-    'Table',
-    'EPA_vertical',
+    'EPA',
     'Minion'
 ]

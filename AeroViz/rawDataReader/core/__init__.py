@@ -101,11 +101,13 @@ class AbstractReader(ABC):
 
                 # validate rate calculation
                 if period_size < sample_size or sample_size < qc_size or period_size == 0 or sample_size == 0:
-                    raise ValueError(f"Invalid sample sizes: period={period_size}, sample={sample_size}, QC={qc_size}")
+                    _acq_rate, _yid_rate, _OEE_rate = 0, 0, 0
+                    # raise ValueError(f"Invalid sample sizes: period={period_size}, sample={sample_size}, QC={qc_size}")
 
-                _acq_rate = round((sample_size / period_size) * 100, 1)
-                _yid_rate = round((qc_size / sample_size) * 100, 1)
-                _OEE_rate = round((qc_size / period_size) * 100, 1)
+                else:
+                    _acq_rate = round((sample_size / period_size) * 100, 1)
+                    _yid_rate = round((qc_size / sample_size) * 100, 1)
+                    _OEE_rate = round((qc_size / period_size) * 100, 1)
 
                 self.logger.info(f'{_nam}:')
                 self.logger.info(f"\tAcquisition rate: {_acq_rate}%")
@@ -114,7 +116,7 @@ class AbstractReader(ABC):
                 self.logger.info(f"{'=' * 60}")
 
                 print(f'\n\t{_nam} : ')
-                print(f'\t\tacquisition rate | yield rate | OEE rate :'
+                print(f'\t\tacquisition rate | yield rate -> OEE rate :'
                       f' \033[91m{_acq_rate}% | {_yid_rate}% -> {_OEE_rate}%\033[0m')
 
         if self.meta['deter_key'] is not None:

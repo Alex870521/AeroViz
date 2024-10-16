@@ -9,7 +9,7 @@ class Reader(AbstractReader):
 
     def _raw_reader(self, file):
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            _df = read_csv(f, skiprows=3).apply(to_numeric, errors='coerce')
+            _df = read_csv(f, skiprows=3)
 
             _df['Start Date/Time'] = _df['Start Date/Time'].str.strip()
             _df['time'] = to_datetime(_df['Start Date/Time'], format='%m/%d/%Y %I:%M:%S %p', errors='coerce')
@@ -51,6 +51,8 @@ class Reader(AbstractReader):
                 'ECPk5-ug C': 'EC5_raw',
             })
 
+            _df = _df.apply(to_numeric, errors='coerce')
+
             _df['OC1'] = _df['OC1_raw'] / _df['Sample_Volume']
             _df['OC2'] = _df['OC2_raw'] / _df['Sample_Volume']
             _df['OC3'] = _df['OC3_raw'] / _df['Sample_Volume']
@@ -64,7 +66,7 @@ class Reader(AbstractReader):
             # _df['EC4'] = _df['EC4_raw'] / _df['Sample_Volume']
             # _df['EC5'] = _df['EC5_raw'] / _df['Sample_Volume']
 
-            _df = _df[['Thermal_OC', 'Optical_OC', 'Thermal_EC', 'Optical_EC', 'TC', 'Sample_Volume',
+            _df = _df[['Thermal_OC', 'Thermal_EC', 'Optical_OC', 'Optical_EC', 'TC', 'Sample_Volume',
                        'OC1', 'OC2', 'OC3', 'OC4', 'PC']]
 
             return _df.loc[~_df.index.duplicated() & _df.index.notna()]

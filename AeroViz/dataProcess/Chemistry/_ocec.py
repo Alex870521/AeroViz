@@ -114,8 +114,7 @@ def _basic(_lcres, _mass, _ocec_ratio, _ocec_ratio_month, _hr_lim, _range, _wiso
     _out = {}
 
     # OC1, OC2, OC3, OC4, PC
-    _df_bsc = _lcres[['OC1_raw', 'OC2_raw', 'OC3_raw', 'OC4_raw']] / _lcres['Sample_Volume'].to_frame().values.copy()
-    _df_bsc.rename(columns={'OC1_raw': 'OC1', 'OC2_raw': 'OC2', 'OC3_raw': 'OC3', 'OC4_raw': 'OC4'}, inplace=True)
+    _df_bsc = _lcres[['OC1', 'OC2', 'OC3', 'OC4', 'PC']].copy()
 
     # SOC, POC, OC/EC
     if _ocec_ratio is not None:
@@ -144,7 +143,8 @@ def _basic(_lcres, _mass, _ocec_ratio, _ocec_ratio_month, _hr_lim, _range, _wiso
     _df_ratio = DataFrame(index=_df_bsc.index)
 
     for _ky, _val in _df_bsc.items():
-        if 'OC/EC' in _ky: continue
+        if 'OC/EC' in _ky:
+            continue
         _df_ratio[f'{_ky}/Thermal_OC'] = _val / _lcres['Thermal_OC']
         _df_ratio[f'{_ky}/Optical_OC'] = _val / _lcres['Optical_OC']
 
@@ -159,14 +159,14 @@ def _basic(_lcres, _mass, _ocec_ratio, _ocec_ratio_month, _hr_lim, _range, _wiso
         _df_ratio[f'Optical_EC/PM'] = _lcres['Optical_EC'] / _mass
 
     # ratio status
-    _df_bsc = concat((_lcres, _df_bsc.copy()), axis=1)
+    _df_bsc = concat((_lcres.loc[:, :'Sample_Volume'], _df_bsc.copy()), axis=1)
 
     for _ky, _df in _df_ratio.items():
         _df_bsc[f'{_ky}_status'] = 'Normal'
         _df_bsc[f'{_ky}_status'] = _df_bsc[f'{_ky}_status'].mask(_df > 1, 'Warning')
 
     # out
-    _out['ratio'] = _df_ratio
     _out['basic'] = _df_bsc
+    _out['ratio'] = _df_ratio
 
     return _out

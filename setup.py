@@ -5,7 +5,7 @@ with open('requirements.txt') as f:
 
 setup(
     name="AeroViz",
-    version="0.1.9.0",
+    version="0.1.9.1",
     author="alex",
     author_email="alex870521@gmail.com",
     description="Aerosol science",

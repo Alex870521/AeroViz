@@ -74,7 +74,7 @@ def RawDataReader(instrument_name: str,
     if not isinstance(path, Path):
         path = Path(path)
     if not path.exists() or not path.is_dir():
-        raise ValueError(f"The specified path '{path}' does not exist or is not a directory.")
+        raise FileNotFoundError(f"The specified path '{path}' does not exist or is not a directory.")
 
     # Validate the QC frequency
     if qc_freq is not None:

@@ -1,8 +1,6 @@
-#
 
 # MacOX product
 .DS_store
-test/
 temp/
 
 # Byte-compiled / optimized / DLL files

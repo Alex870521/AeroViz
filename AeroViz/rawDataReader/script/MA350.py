@@ -8,7 +8,7 @@ class Reader(AbstractReader):
 
     def _raw_reader(self, file):
         _df = read_csv(file, parse_dates=['Date / time local'], index_col='Date / time local').rename_axis(
-            "Time").apply(to_numeric, errors='coerce')
+            "Time")
 
         _df = _df.rename(columns={
             'UV BCc': 'BC1',
@@ -26,7 +26,8 @@ class Reader(AbstractReader):
         # if self.meta.get('error_state', False):
         #     _df = _df.where(~_df['Status'].isin(self.meta['error_state'])).copy()
 
-        _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BB mass', 'FF mass', 'Delta-C', 'AAE', 'BB']]
+        _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BB mass', 'FF mass', 'Delta-C', 'AAE', 'BB']].apply(to_numeric,
+                                                                                                           errors='coerce')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

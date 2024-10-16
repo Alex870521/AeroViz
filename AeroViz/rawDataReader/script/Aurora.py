@@ -8,7 +8,7 @@ class Reader(AbstractReader):
 
     def _raw_reader(self, file):
         with file.open('r', encoding='utf-8-sig', errors='ignore') as f:
-            _df = read_csv(f, low_memory=False, index_col=0).apply(to_numeric, errors='coerce')
+            _df = read_csv(f, low_memory=False, index_col=0)
 
             _df.index = to_datetime(_df.index, errors='coerce')
             _df.index.name = 'time'
@@ -24,7 +24,7 @@ class Reader(AbstractReader):
                 'RH': 'RH'
             })
 
-            _df = _df[['B', 'G', 'R', 'BB', 'BG', 'BR']]
+            _df = _df[['B', 'G', 'R', 'BB', 'BG', 'BR']].apply(to_numeric, errors='coerce')
 
             return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

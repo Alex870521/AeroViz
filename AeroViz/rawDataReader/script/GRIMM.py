@@ -7,7 +7,6 @@ class Reader(AbstractReader):
     nam = 'GRIMM'
 
     def _raw_reader(self, file):
-
         _df = read_csv(file, header=233, delimiter='\t', index_col=0, parse_dates=[0], encoding='ISO-8859-1',
                        dayfirst=True).rename_axis("Time")
         _df.index = to_datetime(_df.index, format="%d/%m/%Y %H:%M:%S", dayfirst=True)

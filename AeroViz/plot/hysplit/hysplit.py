@@ -7,20 +7,28 @@ import pandas as pd
 
 from AeroViz.plot.utils import set_figure
 
-# TODO: Hybrid Single-Particle Lagrangian Integrated Trajectory (HYSPLIT) model
+# Hybrid Single-Particle Lagrangian Integrated Trajectory (HYSPLIT) model
 
 
 __all__ = ['hysplit']
 
 # 設置默認文件路徑
-DEFAULT_FILE = Path(__file__).parent.parent.parent / 'data' / '240228_00.txt'
+DEFAULT_FILE = Path(__file__).parent.parent.parent / 'data' / 'hysplit_example_data.txt'
 
 
 def read_hysplit_data(file: Path):
     data = pd.read_csv(file, skiprows=8, sep=r'\s+', names=range(0, 12), engine='python')
     data = data.reset_index(drop=False)
-    data.columns = ['category', 'name', 'abc', 'year', 'month', 'hour', 'min', 'cont', 'backward', 'lat', 'lon',
+    data.columns = ['category', 'name', 'year', 'month', 'day', 'hour', 'minute', 'count', 'backward', 'lat', 'lon',
                     'height', 'pressure']
+
+    time_cols = ['year', 'month', 'day', 'hour', 'minute']
+
+    data['time'] = pd.to_datetime(data[time_cols].astype(str).agg(''.join, axis=1), format='%y%m%d%H%M')
+
+    data = data.drop(columns=time_cols)
+
+    data = data[['time'] + [col for col in data.columns if col != 'time']]
 
     return data
 

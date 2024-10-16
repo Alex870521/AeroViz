@@ -1,4 +1,4 @@
-from pandas import to_datetime, read_csv, DataFrame
+from pandas import to_datetime, read_csv, DataFrame, to_numeric
 
 from AeroViz.rawDataReader.core import AbstractReader
 
@@ -42,7 +42,7 @@ class Reader(AbstractReader):
 
                 _df_out.mask(_df_out['status'] != 0)  # 0000 -> numeric to 0
 
-                _df = _df_out[['B', 'G', 'R', 'BB', 'BG', 'BR', 'RH']]
+                _df = _df_out[['B', 'G', 'R', 'BB', 'BG', 'BR', 'RH']].apply(to_numeric, errors='coerce')
 
                 return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

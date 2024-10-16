@@ -7,7 +7,7 @@ class Reader(AbstractReader):
     nam = 'AE43'
 
     def _raw_reader(self, file):
-        _df = read_csv(file, parse_dates={'time': ['StartTime']}, index_col='time').apply(to_numeric, errors='coerce')
+        _df = read_csv(file, parse_dates={'time': ['StartTime']}, index_col='time')
         _df_id = _df['SetupID'].iloc[-1]
 
         # get last SetupID data
@@ -18,7 +18,7 @@ class Reader(AbstractReader):
         if self.meta.get('error_state', False):
             _df = _df.where(~_df['Status'].isin(self.meta['error_state'])).copy()
 
-        _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7']]
+        _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7']].apply(to_numeric, errors='coerce')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

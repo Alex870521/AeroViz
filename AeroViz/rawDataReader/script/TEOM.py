@@ -8,7 +8,7 @@ class Reader(AbstractReader):
 
     def _raw_reader(self, file):
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            _df = read_csv(f, skiprows=3, index_col=False).apply(to_numeric, errors='coerce')
+            _df = read_csv(f, skiprows=3, index_col=False)
 
             _df = _df.rename(columns={'Time Stamp': 'time',
                                       'System status': 'status',
@@ -27,7 +27,7 @@ class Reader(AbstractReader):
 
             _df = _df.where(_df['status'] < 1)
 
-        _df = _df[['PM_NV', 'PM_Total', 'noise']]
+        _df = _df[['PM_NV', 'PM_Total', 'noise']].apply(to_numeric, errors='coerce')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

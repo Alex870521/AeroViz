@@ -121,7 +121,7 @@ This method should be implemented in child classes to read raw data files.
 ```python
 @abstractmethod
 def _QC(self, df: DataFrame) -> DataFrame:
-    return self.n_sigma_QC(df)
+    return df
 ```
 
 This method should be implemented in child classes to perform quality control on the data.

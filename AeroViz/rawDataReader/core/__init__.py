@@ -7,11 +7,12 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from pandas import DataFrame, concat, read_pickle
+from pandas import DataFrame, concat, read_pickle, to_numeric
 from rich.console import Console
 from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn, TaskProgressColumn
 
 from AeroViz.rawDataReader.config.supported_instruments import meta
+from AeroViz.rawDataReader.core.qc import DataQualityControl
 
 __all__ = ['AbstractReader']
 
@@ -75,18 +76,20 @@ class AbstractReader(ABC):
 
     @abstractmethod
     def _QC(self, df: DataFrame) -> DataFrame:
-        return self.n_sigma_QC(df)
+        return df
 
     def _setup_logger(self) -> logging.Logger:
         logger = logging.getLogger(self.nam)
         logger.setLevel(logging.INFO)
 
         for handler in logger.handlers[:]:
+            handler.close()
             logger.removeHandler(handler)
 
         handler = logging.FileHandler(self.path / f'{self.nam}.log')
         handler.setFormatter(logging.Formatter('%(asctime)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
         logger.addHandler(handler)
+
         return logger
 
     def _rate_calculate(self, raw_data, qc_data) -> None:
@@ -94,18 +97,25 @@ class AbstractReader(ABC):
             period_size = len(raw_data.resample('1h').mean().index)
 
             for _nam, _key in self.meta['deter_key'].items():
-                _key, _drop_how = (qc_data.keys(), 'all') if _key is ['all'] else (_key, 'any')
+                _columns_key, _drop_how = (qc_data.keys(), 'all') if _key == ['all'] else (_key, 'any')
 
-                sample_size = len(raw_data[_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
-                qc_size = len(qc_data[_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
+                sample_size = len(raw_data[_columns_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
+                qc_size = len(qc_data[_columns_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
 
                 # validate rate calculation
-                if period_size < sample_size or sample_size < qc_size or period_size == 0 or sample_size == 0:
-                    raise ValueError(f"Invalid sample sizes: period={period_size}, sample={sample_size}, QC={qc_size}")
+                if period_size == 0 or sample_size == 0 or qc_size == 0:
+                    print(f'\t\t\033[91m No data for this period... skipping\033[0m')
+                    continue
 
-                _acq_rate = round((sample_size / period_size) * 100, 1)
-                _yid_rate = round((qc_size / sample_size) * 100, 1)
-                _OEE_rate = round((qc_size / period_size) * 100, 1)
+                if period_size < sample_size or sample_size < qc_size:
+                    print(
+                        f'\t\tInvalid size relationship: period={period_size}, sample={sample_size}, QC={qc_size}... skipping')
+                    continue
+
+                else:
+                    _acq_rate = round((sample_size / period_size) * 100, 1)
+                    _yid_rate = round((qc_size / sample_size) * 100, 1)
+                    _OEE_rate = round((qc_size / period_size) * 100, 1)
 
                 self.logger.info(f'{_nam}:')
                 self.logger.info(f"\tAcquisition rate: {_acq_rate}%")
@@ -114,8 +124,8 @@ class AbstractReader(ABC):
                 self.logger.info(f"{'=' * 60}")
 
                 print(f'\n\t{_nam} : ')
-                print(f'\t\tacquisition rate | yield rate | OEE rate :'
-                      f' \033[91m{_acq_rate}% | {_yid_rate}% -> {_OEE_rate}%\033[0m')
+                print(f'\t\tacquisition rate | yield rate -> OEE rate : '
+                      f'\033[91m{_acq_rate}% | {_yid_rate}% -> {_OEE_rate}%\033[0m')
 
         if self.meta['deter_key'] is not None:
             # use qc_freq to calculate each period rate
@@ -163,9 +173,7 @@ class AbstractReader(ABC):
         new_index = pd.date_range(user_start or df_start, user_end or df_end, freq=freq, name='time')
 
         # Process data: convert to numeric, resample, and reindex
-        return (_df.apply(pd.to_numeric, errors='coerce')
-                .resample(freq).mean()
-                .reindex(new_index))
+        return _df.reindex(new_index)
 
     def _outlier_process(self, _df):
         outlier_file = self.path / 'outlier.json'
@@ -235,8 +243,8 @@ class AbstractReader(ABC):
 
         raw_data = concat(df_list, axis=0).groupby(level=0).first()
 
-        raw_data = self._timeIndex_process(raw_data)
-        qc_data = self._QC(raw_data)
+        raw_data = self._timeIndex_process(raw_data).apply(to_numeric, errors='coerce').copy(deep=True)
+        qc_data = self._QC(raw_data).apply(to_numeric, errors='coerce').copy(deep=True)
 
         return raw_data, qc_data
 
@@ -279,6 +287,8 @@ class AbstractReader(ABC):
         self.logger.info(f"{'-' * 60}")
 
         if self.rate:
+            _f_raw = _f_raw.apply(to_numeric, errors='coerce')
+            _f_qc = _f_qc.apply(to_numeric, errors='coerce')
             self._rate_calculate(_f_raw, _f_qc)
 
         return _f_qc if self.qc else _f_raw
@@ -298,83 +308,5 @@ class AbstractReader(ABC):
         return df[new_order]
 
     @staticmethod
-    def n_sigma_QC(df: pd.DataFrame, std_range: int = 5) -> pd.DataFrame:
-        # 確保輸入是DataFrame
-        df = df.to_frame() if isinstance(df, pd.Series) else df
-
-        df_ave = df.mean()
-        df_std = df.std()
-
-        lower_bound = df < (df_ave - df_std * std_range)
-        upper_bound = df > (df_ave + df_std * std_range)
-
-        return df.mask(lower_bound | upper_bound)
-
-    @staticmethod
-    def IQR_QC(df: pd.DataFrame, log_dist=False) -> pd.DataFrame:
-        # 確保輸入是DataFrame
-        df = df.to_frame() if isinstance(df, pd.Series) else df
-
-        df_transformed = np.log10(df) if log_dist else df
-
-        _df_q1 = df_transformed.quantile(0.25)
-        _df_q3 = df_transformed.quantile(0.75)
-
-        _df_iqr = _df_q3 - _df_q1
-
-        # Calculate lower and upper bounds
-        lower_bound = df_transformed < (_df_q1 - 1.5 * _df_iqr)
-        upper_bound = df_transformed > (_df_q3 + 1.5 * _df_iqr)
-
-        # Apply the filter to the original dataframe
-        return df.mask(lower_bound | upper_bound)
-
-    @staticmethod
-    def rolling_IQR_QC(df: pd.DataFrame, window_size=24, log_dist=False) -> pd.DataFrame:
-        df = df.to_frame() if isinstance(df, pd.Series) else df
-        df_transformed = np.log10(df) if log_dist else df
-
-        def iqr_filter(x):
-            q1, q3 = x.quantile(0.25), x.quantile(0.75)
-            iqr = q3 - q1
-            lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
-            return (x >= lower) & (x <= upper)
-
-        mask = df_transformed.rolling(window=window_size, center=True, min_periods=1).apply(iqr_filter)
-        return df.where(mask, np.nan)
-
-    @staticmethod
     def time_aware_IQR_QC(df: pd.DataFrame, time_window='1D', log_dist=False) -> pd.DataFrame:
-        df = df.to_frame() if isinstance(df, pd.Series) else df
-        df_transformed = np.log10(df) if log_dist else df
-
-        def iqr_filter(group):
-            q1, q3 = group.quantile(0.25), group.quantile(0.75)
-            iqr = q3 - q1
-            lower, upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
-            return (group >= lower) & (group <= upper)
-
-        mask = df_transformed.groupby(pd.Grouper(freq=time_window)).transform(iqr_filter)
-        return df.where(mask, np.nan)
-
-    @staticmethod
-    def mad_iqr_hybrid_QC(df: pd.DataFrame, mad_threshold=3.5, log_dist=False) -> pd.DataFrame:
-        df = df.to_frame() if isinstance(df, pd.Series) else df
-        df_transformed = np.log10(df) if log_dist else df
-
-        # IQR 方法
-        q1, q3 = df_transformed.quantile(0.25), df_transformed.quantile(0.75)
-        iqr = q3 - q1
-        iqr_lower, iqr_upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
-
-        # MAD 方法
-        median = df_transformed.median()
-        mad = (df_transformed - median).abs().median()
-        mad_lower, mad_upper = median - mad_threshold * mad, median + mad_threshold * mad
-
-        # 结合两种方法
-        lower = np.maximum(iqr_lower, mad_lower)
-        upper = np.minimum(iqr_upper, mad_upper)
-
-        mask = (df_transformed >= lower) & (df_transformed <= upper)
-        return df.where(mask, np.nan)
+        return DataQualityControl().time_aware_iqr(df, time_window=time_window, log_dist=log_dist)

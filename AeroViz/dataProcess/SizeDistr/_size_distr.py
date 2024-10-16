@@ -69,7 +69,11 @@ def _basic(df, hybrid, unit, bin_rg, input_type):
 
             df_oth[f'total_{_tp_nam}_{_md_nam}'], df_oth[f'GMD_{_tp_nam}_{_md_nam}'], df_oth[
                 f'GSD_{_tp_nam}_{_md_nam}'] = _geometric_prop(_dia, _dt)
-            df_oth[f'mode_{_tp_nam}_{_md_nam}'] = _dt.idxmax(axis=1)
+
+            mask = _dt.notna().any(axis=1)
+
+            df_oth.loc[mask, f'mode_{_tp_nam}_{_md_nam}'] = _dt.loc[mask].idxmax(axis=1)
+            df_oth.loc[~mask, f'mode_{_tp_nam}_{_md_nam}'] = n.nan
 
     ## out
     out_dic['other'] = df_oth

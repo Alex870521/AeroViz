@@ -8,7 +8,7 @@ class Reader(AbstractReader):
 
     def _raw_reader(self, file):
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            _df = read_csv(f, parse_dates=True, index_col=0).apply(to_numeric, errors='coerce')
+            _df = read_csv(f, parse_dates=True, index_col=0)
 
             _df.columns = _df.columns.str.replace(' ', '')
 
@@ -29,7 +29,8 @@ class Reader(AbstractReader):
             if self.meta.get('error_state', False):
                 _df = _df[~_df['Status'].isin(self.meta.get('error_state'))]
 
-            _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'BC8', 'BC9', 'BC10']]
+            _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'BC8', 'BC9', 'BC10']].apply(to_numeric,
+                                                                                                     errors='coerce')
 
             return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

@@ -75,6 +75,8 @@ meta = {
             "Thermal EC": ["Thermal_EC"],
             "Optical OC": ["Optical_OC"],
             "Optical EC": ["Optical_EC"],
+            "Thermal OC & EC": ["Thermal_OC", "Thermal_EC"],
+            "Optical OC & EC": ["Optical_OC", "Optical_EC"],
         },
     },
 
@@ -93,53 +95,41 @@ meta = {
             "SO42-": ["SO42-"],
             "Main Salt (NH4+, NO3-, SO42-)": ["NO3-", "SO42-", "NH4+"],
         },
+        # https://www.yangyao-env.com/web/product/product_in2.jsp?pd_id=PD1640151884502
+
+        # HF: 0.08, F-: 0.08, PO43-: None is not measured
+        "MDL": {
+            'HF': None, 'HCl': 0.05, 'HNO2': 0.01, 'HNO3': 0.05, 'G-SO2': 0.05, 'NH3': 0.1,
+            'Na+': 0.05, 'NH4+': 0.08, 'K+': 0.08, 'Mg2+': 0.05, 'Ca2+': 0.05,
+            'F-': None, 'Cl-': 0.05, 'NO2-': 0.05, 'NO3-': 0.01, 'PO43-': None, 'SO42-': 0.05,
+        },
+
+        "MR": {
+            'HF': 200, 'HCl': 200, 'HNO2': 200, 'HNO3': 200, 'G-SO2': 200, 'NH3': 300,
+            'Na+': 300, 'NH4+': 300, 'K+': 300, 'Mg2+': 300, 'Ca2+': 300,
+            'F-': 300, 'Cl-': 300, 'NO2-': 300, 'NO3-': 300, 'PO43-': None, 'SO42-': 300,
+        }
     },
 
     "XRF": {
         "pattern": ["*.csv"],
         "freq": "1h",
         "deter_key": {
-            "Al": ["Al"],
-            "Si": ["Si"],
-            "P": ["P"],
-            "S": ["S"],
-            "Cl": ["Cl"],
-            "K": ["K"],
-            "Ca": ["Ca"],
-            "Ti": ["Ti"],
-            "V": ["V"],
-            "Cr": ["Cr"],
-            "Mn": ["Mn"],
-            "Fe": ["Fe"],
-            "Ni": ["Ni"],
-            "Cu": ["Cu"],
-            "Zn": ["Zn"],
-            "As": ["As"],
-            "Se": ["Se"],
-            "Br": ["Br"],
-            "Rb": ["Rb"],
-            "Sr": ["Sr"],
-            "Y": ["Y"],
-            "Zr": ["Zr"],
-            "Mo": ["Mo"],
-            "Ag": ["Ag"],
-            "Cd": ["Cd"],
-            "In": ["In"],
-            "Sn": ["Sn"],
-            "Sb": ["Sb"],
-            "Te": ["Te"],
-            "Cs": ["Cs"],
-            "Ba": ["Ba"],
-            "La": ["La"],
-            "Ce": ["Ce"],
-            "W": ["W"],
-            "Pt": ["Pt"],
-            "Au": ["Au"],
-            "Hg": ["Hg"],
-            "Tl": ["Tl"],
-            "Pb": ["Pb"],
-            "Bi": ["Bi"],
+            "Several trace element (Al, Si, Ti, V, Cr, Mn, Fe)": ["Al", "Si", "Ti", "V", "Cr", "Mn", "Fe"],
+
         },
+        # base on Xact 625i Minimum Decision Limit (MDL) for XRF in ng/m3, 60 min sample time
+        "MDL": {
+            'Al': 100, 'Si': 18, 'P': 5.2, 'S': 3.2, 'Cl': 1.7,
+            'K': 1.2, 'Ca': 0.3, 'Ti': 1.6, 'V': 0.12, 'Cr': 0.12,
+            'Mn': 0.14, 'Fe': 0.17, 'Co': 0.14, 'Ni': 0.096, 'Cu': 0.079,
+            'Zn': 0.067, 'Ga': 0.059, 'Ge': 0.056, 'As': 0.063, 'Se': 0.081,
+            'Br': 0.1, 'Rb': 0.19, 'Sr': 0.22, 'Y': 0.28, 'Zr': 0.33,
+            'Nb': 0.41, 'Mo': 0.48, 'Pd': 2.2, 'Ag': 1.9, 'Cd': 2.5,
+            'In': 3.1, 'Sn': 4.1, 'Sb': 5.2, 'Te': 0.6, 'Cs': 0.37,
+            'Ba': 0.39, 'La': 0.36, 'Ce': 0.3, 'W': 0.0001, 'Pt': 0.12,
+            'Au': 0.1, 'Hg': 0.12, 'Tl': 0.12, 'Pb': 0.13, 'Bi': 0.13
+        }
     },
 
     "VOC": {
@@ -174,7 +164,7 @@ meta = {
         "freq": "1h",
         "deter_key": {
             "Main Salt (Na+, NH4+, Cl-, NO3-, SO42-)": ["Na+", "NH4+", "Cl-", "NO3-", "SO42-"],
-            "XRF (Al, Ti, V, Cr, Mn, Fe)": ["Al", "Ti", "V", "Cr", "Mn", "Fe"],
+            "Several trace element (Al, Ti, V, Cr, Mn, Fe)": ["Al", "Ti", "V", "Cr", "Mn", "Fe"],
         },
     },
 }

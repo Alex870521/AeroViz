@@ -12,10 +12,12 @@ class Reader(AbstractReader):
     def _raw_reader(self, file):
 
         with file.open('r', encoding='utf-8-sig', errors='ignore') as f:
-            _df = read_csv(f, parse_dates=True, index_col=0, na_values='-').apply(to_numeric, errors='coerce')
+            _df = read_csv(f, parse_dates=True, index_col=0, na_values='-')
 
             _df.columns = _df.keys().str.strip(' ')
             _df.index.name = 'time'
+
+            _df = _df.apply(to_numeric, errors='coerce')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

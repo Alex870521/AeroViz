@@ -56,6 +56,10 @@ class Reader(AbstractReader):
             _df_smps.columns = _df_smps.columns.astype(float)
             _df_smps = _df_smps.loc[_df_smps.index.dropna().copy()]
 
+            if _df_smps.columns[0] != 11.8:
+                print(f'file_name: {file.name}')
+                return None
+
             return _df_smps.apply(to_numeric, errors='coerce')
 
     # QC data

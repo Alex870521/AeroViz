@@ -1,0 +1,28 @@
+# .gitHub/workflows/cleanup.yml
+name: Cleanup Deployments
+
+on:
+  workflow_dispatch:  # 允許手動觸發
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    permissions:
+      deployments: write
+      actions: write
+      contents: write
+
+    steps:
+      - name: Delete github-pages deployments
+        uses: strumwolf/delete-deployment-environment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: github-pages
+          onlyRemoveDeployments: true
+
+      - name: Delete pypi deployments
+        uses: strumwolf/delete-deployment-environment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          environment: pypi
+          onlyRemoveDeployments: true

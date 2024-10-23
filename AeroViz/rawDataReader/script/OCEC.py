@@ -87,6 +87,6 @@ class Reader(AbstractReader):
             _df.loc[_df[col] <= threshold, col] = np.nan
 
         # use IQR_QC
-        _df = self.time_aware_IQR_QC(_df, time_window='1h')
+        _df = self.time_aware_IQR_QC(_df)
 
         return _df.dropna(subset=['Thermal_OC', 'Optical_OC']).reindex(_index)

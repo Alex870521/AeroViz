@@ -40,7 +40,7 @@ class Reader(AbstractReader):
 
         # QC data in 1 hr
         # use time_aware_IQR_QC
-        _df = self.time_aware_IQR_QC(_df, time_window='1h')
+        _df = self.time_aware_IQR_QC(_df, time_window='6h')
 
         # remove data where size < 50% in 1-hr
         points_per_hour = Timedelta('1h') / Timedelta(self.meta['freq'])

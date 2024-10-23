@@ -26,7 +26,6 @@
   matrices.
 * Data Processing: Includes multiple data processing tools, such as linear regression and Mie theory calculations.
 
-
 ## <div align="center">Installation</div>
 
 ```bash

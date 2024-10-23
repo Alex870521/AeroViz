@@ -38,7 +38,7 @@ class Reader(AbstractReader):
         _df = _df.loc[(_df['B'] > _df['G']) & (_df['G'] > _df['R'])]
 
         # use IQR_QC
-        _df = self.time_aware_IQR_QC(_df)
+        _df = self.time_aware_IQR_QC(_df, time_window='1h')
 
         # make sure all columns have values, otherwise set to nan
         return _df.dropna(how='any').reindex(_index)

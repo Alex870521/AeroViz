@@ -1,3 +1,5 @@
+from openpyxl.styles.builtins import output
+
 ## <div align="center">AeroViz for Aerosol Science Visualization</div>
 
 <div align="center">
@@ -60,10 +62,24 @@ from pathlib import Path
 from AeroViz import RawDataReader, DataProcess, plot
 
 # Read data from a supported instrument
-data = RawDataReader('NEPH', Path('/path/to/data'), start=datetime(2024, 2, 1), end=datetime(2024, 4, 30))
+data = RawDataReader(
+    'NEPH',
+    Path('/path/to/data'),
+    start=datetime(2024, 2, 1),
+    end=datetime(2024, 4, 30)
+)
+```
 
-# Create a visualization
-plot.timeseries(data, y='scattering_coefficient')
+```pycon
+> Concole output
+╔════════════════════════════════════════════════════════════════════════════════╗
+║     Reading NEPH RAW DATA from 2024-02-01 00:00:00 to 2024-04-30 23:59:59      ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+▶ Reading NEPH files ━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00 file_name.dat
+		▶ Scatter Coe. (550 nm)
+			├─ Sample Rate    :   100.0%
+			├─ Valid  Rate    :   100.0%
+			└─ Total  Rate    :   100.0%
 ```
 
 For more detailed usage instructions, please refer to our [User Guide](docs/guide).
@@ -82,12 +98,3 @@ For detailed documentation, please refer to the `docs` folder, which includes:
 
 ## <div align="center">Contact</div>
 For bug reports and feature requests please visit [GitHub Issues](https://github.com/Alex870521/DataPlot/issues).
-
-<div align="center">
-
-<a href="https://github.com/Alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-github.png?raw=true" width="3%" alt="Alex870521 GitHub"></a>
-<img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
-<a href="https://www.linkedin.com/in/Alex870521/"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-linkedin.png?raw=true" width="3%" alt="Alex870521 LinkedIn"></a>
-<img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
-<a href="https://medium.com/@alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-medium.png?raw=true" width="3%" alt="Alex870521 Medium"></a>
-</div>

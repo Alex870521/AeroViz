@@ -61,14 +61,17 @@ def RawDataReader(
 ```python
 from pathlib import Path
 from datetime import datetime
+from AeroViz import RawDataReader
 
 data = RawDataReader(
-    instrument_name='BC1054',
+    instrument_name='AE33',
     path=Path('/path/to/data'),
     start=datetime(2024, 2, 1),
-    end=datetime(2024, 7, 31, 23)
+    end=datetime(2024, 8, 31, 23)
 )
 ```
+
+[]()
 
 ## AbstractReader Class
 

@@ -25,7 +25,7 @@ meta = {
         "deter_key": {"Bins": ["all"]},
     },
 
-    "APS_3321": {
+    "APS": {
         "pattern": ["*.txt"],
         "freq": "6min",
         "deter_key": {"Bins": ["all"]},

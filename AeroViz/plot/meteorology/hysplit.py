@@ -40,14 +40,17 @@ def hysplit(file: Path = DEFAULT_FILE):
     # 創建地圖
     fig, ax = plt.subplots(figsize=(4, 5), subplot_kw={'projection': ccrs.PlateCarree()})
 
+    ax.set_global()
+    # ax.stock_img()
+
     # 設置地圖範圍
     ax.set_extent([116, 126, 17, 30], crs=ccrs.PlateCarree())
 
     # 添加自然地理特徵
-    ax.add_feature(cfeature.LAND)
-    ax.add_feature(cfeature.OCEAN)
-    ax.add_feature(cfeature.COASTLINE)
-    ax.add_feature(cfeature.BORDERS, linestyle=':')
+    ax.add_feature(cfeature.LAND.with_scale('10m'))
+    ax.add_feature(cfeature.OCEAN.with_scale('10m'))
+    ax.add_feature(cfeature.COASTLINE.with_scale('10m'))
+    ax.add_feature(cfeature.BORDERS.with_scale('10m'), linestyle=':')
 
     # 添加經緯度網格
     ax.gridlines(draw_labels=True, dms=True, x_inline=False, y_inline=False)

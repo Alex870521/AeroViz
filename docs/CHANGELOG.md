@@ -1,12 +1,11 @@
-## v0.1.9.6 (2024-11-07)
+## Unreleased
 
 ### Fix
 
-- set SMPS default size range (11.8, 593.5)
+- SMPS, APS, OCEC and RawDataReader
 
-### Refactor
+## v0.1.11 (2024-11-07)
 
-- **logger**: enhance progress bar visualization and formatting
-- minor syntax improvements
+### BREAKING CHANGE
 
-## v0.1.9.5 (2024-10-24)
+- Complete overhaul from v0.1.9.0 to v0.1.11

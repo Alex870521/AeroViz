@@ -8,7 +8,7 @@ class Reader(AbstractReader):
 
     def _raw_reader(self, file):
         if file.stat().st_size / 1024 < 550:
-            self.logger.info(f'\t {file} may not be a whole daily data. Make sure the file is correct.')
+            self.logger.info(f'\t {file.name} may not be a whole daily data. Make sure the file is correct.')
 
         _df = read_table(file, parse_dates={'time': [0, 1]}, index_col='time',
                          delimiter=r'\s+', skiprows=5, usecols=range(67))

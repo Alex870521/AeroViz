@@ -10,7 +10,7 @@ from AeroViz.rawDataReader.script import *
 __all__ = ['RawDataReader']
 
 SUPPORTED_INSTRUMENTS = [
-    NEPH, Aurora, SMPS, GRIMM, APS_3321, AE33, AE43, BC1054,
+    NEPH, Aurora, SMPS, GRIMM, APS, AE33, AE43, BC1054,
     MA350, TEOM, OCEC, IGAC, VOC, EPA, Minion
 ]
 
@@ -62,7 +62,7 @@ def RawDataReader(instrument_name: str,
     ...     instrument_name='BC1054',
     ...     path=Path('/path/to/data'),
     ...     start=datetime(2024, 2, 1),
-    ...     end=datetime(2024, 7, 31, 23))
+    ...     end=datetime(2024, 7, 31))
     """
     # Mapping of instrument names to their respective classes
     instrument_class_map = {cls.__name__.split('.')[-1]: cls for cls in SUPPORTED_INSTRUMENTS}
@@ -71,7 +71,7 @@ def RawDataReader(instrument_name: str,
     if instrument_name not in meta.keys():
         raise ValueError(f"Instrument name '{instrument_name}' is not valid. \nMust be one of: {list(meta.keys())}")
 
-    # 檢查 path 是否存在且是一個目錄
+    # Check if path exists and is a directory
     if not isinstance(path, Path):
         path = Path(path)
     if not path.exists() or not path.is_dir():
@@ -94,7 +94,7 @@ def RawDataReader(instrument_name: str,
     if end <= start:
         raise ValueError(f"Invalid time range: start {start} is after end {end}")
 
-    # 驗證 mean_freq 的格式是否正確
+    # Verify that mean_freq format
     try:
         Timedelta(mean_freq)
     except ValueError:

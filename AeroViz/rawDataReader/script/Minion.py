@@ -187,6 +187,8 @@ class Reader(AbstractReader):
                                   ['Cl-', 'NO2-', 'NO3-', 'SO42-'],
                                   ['SO42-', 'NO3-', 'NH4+'])
 
+        CA_range = ()  # CA, AC Q3=1.5 * IQR
+
         _df['+_mole'] = _df[_cation].div([23, 18, 39, (24 / 2), (40 / 2)]).sum(axis=1, skipna=True)
         _df['-_mole'] = _df[_anion].div([35.5, 46, 62, (96 / 2)]).sum(axis=1, skipna=True)
 

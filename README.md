@@ -1,5 +1,3 @@
-from openpyxl.styles.builtins import output
-
 ## <div align="center">AeroViz for Aerosol Science Visualization</div>
 
 <div align="center">

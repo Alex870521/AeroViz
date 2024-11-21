@@ -73,8 +73,8 @@ class Reader(AbstractReader):
 
     # QC data
     def _QC(self, _df):
-        MDL = {'Thermal_OC': 0.3,
-               'Optical_OC': 0.3,
+        MDL = {'Thermal_OC': 0.3,  # 0.89
+               'Optical_OC': 0.3,  # 0.08
                'Thermal_EC': 0.015,
                'Optical_EC': 0.015
                }

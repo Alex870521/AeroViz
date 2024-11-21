@@ -2,7 +2,7 @@ __all__ = [
     'NEPH',
     'Aurora',
     'SMPS',
-    'APS_3321',
+    'APS',
     'GRIMM',
     'AE33',
     'AE43',

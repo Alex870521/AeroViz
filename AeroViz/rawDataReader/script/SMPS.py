@@ -64,20 +64,22 @@ class Reader(AbstractReader):
 
     # QC data
     def _QC(self, _df):
-        size_range_mask = (_df.columns.astype(float) >= self.size_range[0]) & (
-                    _df.columns.astype(float) <= self.size_range[1])
-        _df = _df.loc[:, size_range_mask]
+        df = _df.copy()
+
+        size_range_mask = (df.columns.astype(float) >= self.size_range[0]) & (
+                df.columns.astype(float) <= self.size_range[1])
+        df = df.loc[:, size_range_mask]
 
         # mask out the data size lower than 7
-        _df['total'] = _df.sum(axis=1, min_count=1) * (np.diff(np.log(_df.keys().to_numpy(float)))).mean()
-        _df_size = _df['total'].dropna().resample('1h').size().resample(_df.index.freq).ffill()
-        _df = _df.mask(_df_size < 7)
+        df.loc[:, 'total'] = df.sum(axis=1, min_count=1) * (np.diff(np.log(df.columns[:-1].to_numpy(float)))).mean()
+        _df_size = df['total'].dropna().resample('1h').size().resample(df.index.freq).ffill()
+        df = df.mask(_df_size < 7)
 
         # remove total conc. lower than 2000
-        _df = _df.mask(_df['total'] < 2000)
+        df = df.mask(df['total'] < 2000)
 
         # remove the bin over 400 nm which num. conc. larger than 4000
-        _df_remv_ky = _df.keys()[:-1][_df.keys()[:-1] >= 400.]
-        _df[_df_remv_ky] = _df[_df_remv_ky].copy().mask(_df[_df_remv_ky] > 4000.)
+        _df_remv_ky = df.keys()[:-1][df.keys()[:-1] >= 400.]
+        df[_df_remv_ky] = df[_df_remv_ky].copy().mask(df[_df_remv_ky] > 4000.)
 
-        return _df[_df.keys()[:-1]]
+        return df[df.keys()[:-1]]

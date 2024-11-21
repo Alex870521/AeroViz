@@ -143,7 +143,7 @@ class AbstractReader(ABC):
         :return: Processed DataFrame
         """
         # Round timestamps and remove duplicates
-        _df = _df.groupby(_df.index.round('1min')).first()
+        _df = _df.groupby(_df.index.floor('1min')).first()
 
         # Determine frequency
         freq = _df.index.inferred_freq or self.meta['freq']
@@ -161,7 +161,12 @@ class AbstractReader(ABC):
         new_index = pd.date_range(user_start or df_start, user_end or df_end, freq=freq, name='time')
 
         # Process data: convert to numeric, resample, and reindex
-        return _df.reindex(new_index)
+        if freq in ['1min', 'min', 'T']:
+            return _df.reindex(new_index, method='nearest', tolerance='1min')
+        elif freq in ['1h', 'h', 'H']:
+            return _df.reindex(new_index, method='nearest', tolerance='1h')
+        else:
+            return _df.reindex(new_index, method='nearest', tolerance=freq)
 
     def _outlier_process(self, _df):
         outlier_file = self.path / 'outlier.json'

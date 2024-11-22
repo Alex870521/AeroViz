@@ -22,19 +22,23 @@ class Reader(AbstractReader):
     # QC data
     def _QC(self, _df):
         _df = _df.copy()
+        _index = _df.index.copy()
 
         # mask out the data size lower than 7
-        _df['total'] = _df.sum(axis=1, min_count=1) * (np.diff(np.log(_df.keys().to_numpy(float)))).mean()
-        _df_size = _df['total'].dropna().resample('1h').size().resample(_df.index.freq).ffill()
-        _df = _df.mask(_df_size < 7)
+        _df.loc[:, 'total'] = _df.sum(axis=1, min_count=1) * (np.diff(np.log(_df.keys().to_numpy(float)))).mean()
 
-        # remove total conc. lower than 700
-        _df = _df.mask(_df['total'] > 700)
+        hourly_counts = (_df['total']
+                         .dropna()
+                         .resample('h')
+                         .size()
+                         .resample('6min')
+                         .ffill()
+                         .reindex(_df.index, method='ffill', tolerance='6min'))
 
-        # not confirmed
-        # remove the bin over 4000 nm which num. conc. larger than 1
-        # _df_remv_ky = _df.keys()[:-2][_df.keys()[:-2]>=4.]
+        # Remove data with less than 6 data per hour
+        _df = _df.mask(hourly_counts < 6)
 
-        # _df_1hr[_df_remv_ky] = _df_1hr[_df_remv_ky].copy().mask(_df_1hr[_df_remv_ky]>1.)
+        # remove total conc. lower than 700 or lower than 1
+        _df = _df.mask((_df['total'] > 700) | (_df['total'] < 1))
 
         return _df[_df.keys()[:-1]]

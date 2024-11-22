@@ -41,7 +41,7 @@ def _revised(_df_mass, _df_RH):
 
         _df['AS'] = 2.2 * _frhs * _df_mass['S_AS'] + 4.8 * _frhl * _df_mass['L_AS']
         _df['AN'] = 2.4 * _frhs * _df_mass['S_AN'] + 5.1 * _frhl * _df_mass['L_AN']
-        _df['OM'] = 2.8 * _df_mass['S_OM'] + 6.1 * _frhl * _df_mass['L_OM']
+        _df['OM'] = 2.8 * _df_mass['S_OM'] + 6.1 * _df_mass['L_OM']
         _df['Soil'] = _df_mass['Soil']
         _df['SS'] = 1.7 * _frhss * _df_mass['SS']
         _df['EC'] = 10 * _df_mass['EC']

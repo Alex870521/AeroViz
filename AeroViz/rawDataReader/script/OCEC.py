@@ -9,12 +9,12 @@ class Reader(AbstractReader):
 
     def _raw_reader(self, file):
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            _df = read_csv(f, skiprows=3)
+            _df = read_csv(f, skiprows=3, on_bad_lines='skip')
 
             _df['Start Date/Time'] = _df['Start Date/Time'].str.strip()
             _df['time'] = to_datetime(_df['Start Date/Time'], format='%m/%d/%Y %I:%M:%S %p', errors='coerce')
 
-            if _df['time'].isna().any():
+            if _df['time'].isna().all():
                 _df['time'] = to_datetime(_df['Start Date/Time'], format='%m/%d/%Y %H:%M:%S', errors='coerce')
 
             _df = _df.set_index('time')

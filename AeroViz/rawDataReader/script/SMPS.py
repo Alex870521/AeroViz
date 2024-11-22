@@ -59,27 +59,42 @@ class Reader(AbstractReader):
             if _df_smps.columns[0] != self.size_range[0] or _df_smps.columns[-1] != self.size_range[1]:
                 self.logger.info(f'\tSMPS file: {file.name} is not match the default size range {self.size_range}, '
                                  f'it is ({_df_smps.columns[0]}, {_df_smps.columns[-1]})')
+                return None
 
             return _df_smps.apply(to_numeric, errors='coerce')
 
     # QC data
     def _QC(self, _df):
-        df = _df.copy()
+        _df = _df.copy()
+        _index = _df.index.copy()
 
-        size_range_mask = (df.columns.astype(float) >= self.size_range[0]) & (
-                df.columns.astype(float) <= self.size_range[1])
-        df = df.loc[:, size_range_mask]
+        size_range_mask = (_df.columns.astype(float) >= self.size_range[0]) & (
+                _df.columns.astype(float) <= self.size_range[1])
+        _df = _df.loc[:, size_range_mask]
 
         # mask out the data size lower than 7
-        df.loc[:, 'total'] = df.sum(axis=1, min_count=1) * (np.diff(np.log(df.columns[:-1].to_numpy(float)))).mean()
-        _df_size = df['total'].dropna().resample('1h').size().resample(df.index.freq).ffill()
-        df = df.mask(_df_size < 7)
+        _df.loc[:, 'total'] = _df.sum(axis=1, min_count=1) * (np.diff(np.log(_df.columns[:-1].to_numpy(float)))).mean()
 
-        # remove total conc. lower than 2000
-        df = df.mask(df['total'] < 2000)
+        hourly_counts = (_df['total']
+                         .dropna()
+                         .resample('h')
+                         .size()
+                         .resample('6min')
+                         .ffill()
+                         .reindex(_df.index, method='ffill', tolerance='6min'))
+
+        # Remove data with less than 6 data per hour
+        _df = _df.mask(hourly_counts < 6)
+
+        # remove total conc. (dN) lower than 2000
+        _df = _df.mask(_df['total'] < 2000)
+        _df = _df.drop('total', axis=1)
+
+        # remove single bin conc. (dN/dlogdp) larger than 1e6
+        _df = _df.mask((_df > 1e6).any(axis=1))
 
         # remove the bin over 400 nm which num. conc. larger than 4000
-        _df_remv_ky = df.keys()[:-1][df.keys()[:-1] >= 400.]
-        df[_df_remv_ky] = df[_df_remv_ky].copy().mask(df[_df_remv_ky] > 4000.)
+        large_bins = _df.columns[_df.columns.astype(float) >= 400]
+        _df = _df.mask((_df[large_bins] > 4000).any(axis=1))
 
-        return df[df.keys()[:-1]]
+        return _df

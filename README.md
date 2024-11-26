@@ -29,7 +29,8 @@ pip install AeroViz
 
 Built-in `RawDataReader` supporting multiple aerosol instruments:
 - **Particle Sizers**: SMPS, APS, GRIMM, OPC
-- **Mass & Optical**: TEOM, NEPH, Aurora, AE33/43, BC1054
+- **Mass**: TEOM, BAM1020
+- **Optical**: NEPH, Aurora, AE33/43, BC1054
 - **Chemical Analysis**: OCEC, IGAC, XRF, VOC
 
 > Features include quality control, data filtering, flexible resampling, and CSV export. For detailed instrument support
@@ -39,7 +40,7 @@ Built-in `RawDataReader` supporting multiple aerosol instruments:
 
 Built-in `DataProcess` provides advanced aerosol analysis:
 - **Size Distribution**: Mode Fitting, Log-Normal Analysis
-- **Optical Properties**: Mie Theory, SOAP Calculation
+- **Optical Properties**: Mie Theory, IMPROVE
 - **Chemical**: Mass Closure, Source Apportionment
 - **VOC**: OFP, SOAP
 
@@ -61,8 +62,8 @@ from AeroViz import RawDataReader, DataProcess, plot
 
 # Read data from a supported instrument
 data = RawDataReader(
-    'NEPH',
-    Path('/path/to/data'),
+    instrument='Neph',
+    path=Path('/path/to/data'),
     start=datetime(2024, 2, 1),
     end=datetime(2024, 4, 30)
 )

@@ -58,6 +58,13 @@ meta = {
         "deter_key": {"BC Mass Conc. (880 nm)": ["BC5"]},
     },
 
+    "BAM1020": {
+        "pattern": ["*.csv"],
+        "freq": "1h",
+        "deter_key": {
+            "Mass Conc.": ["Conc"]},
+    },
+
     "TEOM": {
         "pattern": ["*.csv"],
         "freq": "6min",
@@ -71,10 +78,6 @@ meta = {
         "pattern": ["*LCRes.csv"],
         "freq": "1h",
         "deter_key": {
-            "Thermal OC": ["Thermal_OC"],
-            "Thermal EC": ["Thermal_EC"],
-            "Optical OC": ["Optical_OC"],
-            "Optical EC": ["Optical_EC"],
             "Thermal OC & EC": ["Thermal_OC", "Thermal_EC"],
             "Optical OC & EC": ["Optical_OC", "Optical_EC"],
         },

@@ -3,17 +3,16 @@ from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Generator
+from typing import Generator
 
 import numpy as np
 import pandas as pd
-from pandas import DataFrame, concat, read_pickle, to_numeric
 from rich.console import Console
 from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn, TaskProgressColumn
 
 from AeroViz.rawDataReader.config.supported_instruments import meta
 from AeroViz.rawDataReader.core.logger import ReaderLogger
-from AeroViz.rawDataReader.core.qc import DataQualityControl
+from AeroViz.rawDataReader.core.qc import QualityControl
 
 __all__ = ['AbstractReader']
 
@@ -32,45 +31,43 @@ class AbstractReader(ABC):
 
     def __init__(self,
                  path: Path | str,
-                 reset: bool = False,
-                 qc: bool = True,
-                 qc_freq: Optional[str] = None,
-                 rate: bool = True,
-                 append_data: bool = False,
+                 reset: bool | str = False,
+                 qc: bool | str = True,
                  **kwargs):
 
         self.path = Path(path)
         self.meta = meta[self.nam]
-        self.logger = ReaderLogger(self.nam, self.path)
+        output_folder = self.path / f'{self.nam.lower()}_outputs'
+        output_folder.mkdir(parents=True, exist_ok=True)
 
-        self.reset = reset
-        self.qc = qc
-        self.qc_freq = qc_freq
-        self.rate = rate
-        self.append = append_data and reset
+        self.logger = ReaderLogger(
+            self.nam, output_folder,
+            kwargs.get('log_level').upper() if not kwargs.get('suppress_warnings') else 'ERROR')
 
-        self.pkl_nam = self.path / f'_read_{self.nam.lower()}.pkl'
-        self.csv_nam = self.path / f'_read_{self.nam.lower()}.csv'
-        self.pkl_nam_raw = self.path / f'_read_{self.nam.lower()}_raw.pkl'
-        self.csv_nam_raw = self.path / f'_read_{self.nam.lower()}_raw.csv'
-        self.csv_out = self.path / f'output_{self.nam.lower()}.csv'
+        self.reset = reset is True
+        self.append = reset == 'append'
+        self.qc = qc  # if qc, then calculate rate
+        self.qc_freq = qc if isinstance(qc, str) else None
+        self.kwargs = kwargs
 
-        self.size_range = kwargs.get('size_range', (11.8, 593.5))
+        self.pkl_nam = output_folder / f'_read_{self.nam.lower()}.pkl'
+        self.csv_nam = output_folder / f'_read_{self.nam.lower()}.csv'
+        self.pkl_nam_raw = output_folder / f'_read_{self.nam.lower()}_raw.pkl'
+        self.csv_nam_raw = output_folder / f'_read_{self.nam.lower()}_raw.csv'
+        self.csv_out = output_folder / f'output_{self.nam.lower()}.csv'
 
     def __call__(self,
                  start: datetime,
                  end: datetime,
                  mean_freq: str = '1h',
-                 csv_out: bool = True,
-                 ) -> DataFrame:
+                 ) -> pd.DataFrame:
 
         data = self._run(start, end)
 
         if data is not None:
-            if mean_freq:
-                data = data.resample(mean_freq).mean()
-            if csv_out:
-                data.to_csv(self.csv_out)
+            data = data.resample(mean_freq).mean()
+
+        data.to_csv(self.csv_out)
 
         return data
 
@@ -79,7 +76,7 @@ class AbstractReader(ABC):
         pass
 
     @abstractmethod
-    def _QC(self, df: DataFrame) -> DataFrame:
+    def _QC(self, df: pd.DataFrame) -> pd.DataFrame:
         return df
 
     def _rate_calculate(self, raw_data, qc_data) -> None:
@@ -182,7 +179,7 @@ class AbstractReader(ABC):
 
         return _df
 
-    def _save_data(self, raw_data: DataFrame, qc_data: DataFrame) -> None:
+    def _save_data(self, raw_data: pd.DataFrame, qc_data: pd.DataFrame) -> None:
         try:
             raw_data.to_pickle(self.pkl_nam_raw)
             raw_data.to_csv(self.csv_nam_raw)
@@ -222,7 +219,7 @@ class AbstractReader(ABC):
                 for msg in msgs:
                     original[level](msg)
 
-    def _read_raw_files(self) -> tuple[DataFrame | None, DataFrame | None]:
+    def _read_raw_files(self) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
         files = [f
                  for file_pattern in self.meta['pattern']
                  for pattern in {file_pattern.lower(), file_pattern.upper(), file_pattern}
@@ -242,7 +239,7 @@ class AbstractReader(ABC):
                     if (df := self._raw_reader(file)) is not None and not df.empty:
                         df_list.append(df)
                     else:
-                        self.logger.warning(f"\tFile {file.name} produced an empty DataFrame or None.")
+                        self.logger.debug(f"\tFile {file.name} produced an empty DataFrame or None.")
 
                 except Exception as e:
                     self.logger.error(f"Error reading {file.name}: {e}")
@@ -250,13 +247,15 @@ class AbstractReader(ABC):
         if not df_list:
             raise ValueError(f"\033[41m\033[97mAll files were either empty or failed to read.\033[0m")
 
-        raw_data = concat(df_list, axis=0).groupby(level=0).first()
+        raw_data = pd.concat(df_list, axis=0).groupby(level=0).first()
 
-        if self.nam == 'SMPS':
+        if self.nam in ['SMPS', 'APS', 'GRIMM']:
             raw_data = raw_data.sort_index(axis=1, key=lambda x: x.astype(float))
 
-        raw_data = self._timeIndex_process(raw_data).apply(to_numeric, errors='coerce').copy(deep=True)
-        qc_data = self._QC(raw_data).apply(to_numeric, errors='coerce').copy(deep=True)
+        raw_data = self._timeIndex_process(raw_data)
+
+        raw_data = raw_data.apply(pd.to_numeric, errors='coerce').copy(deep=True)
+        qc_data = self._QC(raw_data).apply(pd.to_numeric, errors='coerce').copy(deep=True)
 
         return raw_data, qc_data
 
@@ -265,7 +264,7 @@ class AbstractReader(ABC):
         if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and not self.reset:
             self.logger.info_box(f"Reading {self.nam} PICKLE from {user_start} to {user_end}", color_part="PICKLE")
 
-            _f_raw_done, _f_qc_done = read_pickle(self.pkl_nam_raw), read_pickle(self.pkl_nam)
+            _f_raw_done, _f_qc_done = pd.read_pickle(self.pkl_nam_raw), pd.read_pickle(self.pkl_nam)
 
             if self.append:
                 self.logger.info_box(f"Appending New data from {user_start} to {user_end}", color_part="New data")
@@ -292,25 +291,26 @@ class AbstractReader(ABC):
         # save
         self._save_data(_f_raw, _f_qc)
 
-        if self.rate:
-            self._rate_calculate(_f_raw.apply(to_numeric, errors='coerce'), _f_qc.apply(to_numeric, errors='coerce'))
+        if self.qc:
+            self._rate_calculate(_f_raw.apply(pd.to_numeric, errors='coerce'),
+                                 _f_qc.apply(pd.to_numeric, errors='coerce'))
 
         return _f_qc if self.qc else _f_raw
 
     @staticmethod
-    def reorder_dataframe_columns(df, order_lists, others_col=False):
+    def reorder_dataframe_columns(df, order_lists: list[list], keep_others: bool = False):
         new_order = []
 
         for order in order_lists:
-            # 只添加存在於DataFrame中的欄位，且不重複添加
+            # Only add column that exist in the DataFrame and do not add them repeatedly
             new_order.extend([col for col in order if col in df.columns and col not in new_order])
 
-        if others_col:
-            # 添加所有不在新順序列表中的原始欄位，保持它們的原始順序
+        if keep_others:
+            # Add all original fields not in the new order list, keeping their original order
             new_order.extend([col for col in df.columns if col not in new_order])
 
         return df[new_order]
 
     @staticmethod
     def time_aware_IQR_QC(df: pd.DataFrame, time_window='1D', log_dist=False) -> pd.DataFrame:
-        return DataQualityControl().time_aware_iqr(df, time_window=time_window, log_dist=log_dist)
+        return QualityControl().time_aware_iqr(df, time_window=time_window, log_dist=log_dist)

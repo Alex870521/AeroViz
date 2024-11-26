@@ -18,19 +18,20 @@ Here are several scenarios showcasing different ways to use `RawDataReader`:
 ### Scenario 1: Basic Usage with NEPH Instrument
 
 #### Code Example
+
 ```python
 from pathlib import Path
 from datetime import datetime
 from AeroViz import RawDataReader
 
 # Common parameters
-data_path = Path('/path/to/your/data')
+data_path = Path('/path/to/your/data/folder')
 start_time = datetime(2024, 2, 1)
 end_time = datetime(2024, 4, 30)
 
 neph_data = RawDataReader(
-    instrument_name='NEPH',
-    path=data_path / 'NEPH',
+  instrument='NEPH',
+  path=data_path,
     reset=True,
     start=start_time,
     end=end_time,
@@ -58,27 +59,25 @@ neph_data = RawDataReader(
 ### Scenario 2: AE33 with Quality Control and Rate Calculation
 
 #### Code Example
+
 ```python
 from pathlib import Path
 from datetime import datetime
 from AeroViz import RawDataReader
 
 # Common parameters
-data_path = Path('/path/to/your/data')
+data_path = Path('/path/to/your/data/folder')
 start_time = datetime(2024, 1, 1)
 end_time = datetime(2024, 8, 31)
 
 ae33_data = RawDataReader(
-    instrument_name='AE33',
-    path=data_path / 'AE33',
+  instrument='AE33',
+  path=data_path,
     reset=True,
-    qc=True,
-    qc_freq='1MS',  # print qc each month
-    rate=True,
+  qc='1MS',  # print qc each month
     start=start_time,
     end=end_time,
     mean_freq='1h',
-    csv_out=True
 )
 ```
 
@@ -121,23 +120,23 @@ ae33_data = RawDataReader(
 ### Scenario 3: SMPS with Specific Time Range
 
 #### Code Example
+
 ```python
 from pathlib import Path
 from datetime import datetime
 from AeroViz import RawDataReader
 
 # Common parameters
-data_path = Path('/path/to/your/data')
+data_path = Path('/path/to/your/data/folder')
 start_time = datetime(2024, 1, 1)
 end_time = datetime(2024, 12, 31)
 
 smps_data = RawDataReader(
-    instrument_name='SMPS',
-    path=data_path / 'SMPS',
+  instrument='SMPS',
+  path=data_path,
     start=datetime(2024, 6, 1),
     end=datetime(2024, 8, 31, 23, 59, 59),
     mean_freq='30min',
-    csv_out=True,
     size_range=(11.8, 593.5)  # user input size range
 )
 ```
@@ -161,13 +160,12 @@ smps_data = RawDataReader(
 - SMPS data for the summer months (June to August).
 - 30-minute averaged data points.
 - Includes particle size distribution information.
-- No CSV file will be generated.
 
 ---
 
 ## Output Files
 
-After processing, six files will be generated in the user's data directory:
+After processing, six files will be generated in the user's data directory `{instrument}_outputs`:
 
 ### Raw Data Files
 
@@ -195,7 +193,7 @@ After processing, six files will be generated in the user's data directory:
 
 ### Final Output and Log
 
-5. `**Output_{instrument}**`
+5. `Output_{instrument}`
 
 - Final processed data file
 - Time resolution based on user settings (`mean_freq`)
@@ -224,16 +222,21 @@ This will display the first few rows of the processed data, including timestamps
 
 ---
 ## Parameter Explanation
-- `instrument_name`: Name of the instrument (e.g., 'NEPH', 'AE33', 'SMPS', 'Minion')
+
+- `instrument`: Name of the instrument (e.g., 'NEPH', 'AE33', 'SMPS', 'Minion'). Also See ***supported instrument***
+  below
 - `path`: Directory path where raw data files are stored
-- `reset`: If True, reprocess data from scratch
-- `qc`: If True, apply quality control
-- `qc_freq`: Frequency of quality control ('1M' for monthly, '1W' for weekly, etc.)
-- `rate`: If True, calculate rates from the data
-- `append_data`: If True, append new data to existing dataset
+- `reset` - Data processing control mode:
+  - `True`: Force reprocess all data from raw files
+  - `False` (default): Use existing processed data if available
+  - `append`: Add new data to existing processed data
+
+- `qc` - Quality control settings:
+  - `True` (default): Apply default quality control
+  - `False`: Skip QC and return raw data only
+  - `str`: QC frequency, e.g. '1M' (monthly), '1W' (weekly)
 - `start` and `end`: Date range for data processing
 - `mean_freq`: Frequency for data averaging ('1h' for hourly, '30min' for half-hourly, etc.)
-- `csv_out`: If True, output processed data as CSV
 
 ---
 
@@ -251,6 +254,7 @@ This will display the first few rows of the processed data, including timestamps
 | AE43 (Aethalometer Model 43)                           |      1min       | .dat        | BC6                                                   |   default   |
 | BC1054 (Black Carbon Monitor 1054)                     |      1min       | .csv        | BC9                                                   |   default   |
 | MA350 (MicroAeth MA350)                                |      1min       | .csv        | BC5                                                   |   default   |
+| BAN1020 (Beta Attenuation Mass Monitor)                |       1h        | .csv        | Conc                                                  |   default   |
 | TEOM (Continuous Ambient Particulate Monitor)          |      6min       | .csv        | PM_Total, PM_NV                                       |   default   |
 | OCEC (Sunset Organic Carbon Elemental Carbon Analyzer) |       1h        | *LCRes.csv  | Thermal_OC, Thermal_EC, Optical_OC, Optical_EC        |   default   |
 | IGAC (In-situ Gas and Aerosol Compositions monitor)    |       1h        | .csv        | Na+, NH4+, K+, Mg2+, Ca2+, Cl-, NO2-, NO3-, SO42-     |   default   |

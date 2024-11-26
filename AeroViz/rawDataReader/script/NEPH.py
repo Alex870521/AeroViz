@@ -1,4 +1,4 @@
-from pandas import to_datetime, read_csv, DataFrame, to_numeric
+from pandas import to_datetime, read_csv, to_numeric
 
 from AeroViz.rawDataReader.core import AbstractReader
 
@@ -46,17 +46,13 @@ class Reader(AbstractReader):
 
                 return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
-            except ValueError:
-                # Define valid groups and find invalid indices
+            except ValueError:  # Define valid groups and find invalid indices
                 invalid_indices = _df[~_df[0].isin({'B', 'G', 'R', 'D', 'T', 'Y', 'Z'})].index
-                print("Invalid values and their indices:")
-                print("\n".join([f"Index: {idx}, Value: {_df.at[idx, 0]}" for idx in invalid_indices]))
+                self.logger.warning(
+                    f"\tInvalid values in {file.name}: {', '.join(f'{_}:{_df.at[_, 0]}' for _ in invalid_indices)}."
+                    f" Skipping file.")
 
-                # Return an empty DataFrame with specified columns if there's a length mismatch
-                _df_out = DataFrame(index=_idx_tm, columns=['B', 'G', 'R', 'BB', 'BG', 'BR', 'RH'])
-                _df_out.index.name = 'Time'
-                print(f'\n\t\t\t Length mismatch in {file} data. Returning an empty DataFrame.')
-                return _df_out
+                return None
 
     def _QC(self, _df):
         MDL_sensitivity = {'B': .1, 'G': .1, 'R': .3}

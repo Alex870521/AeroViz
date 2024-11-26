@@ -64,7 +64,7 @@ from datetime import datetime
 from AeroViz import RawDataReader
 
 data = RawDataReader(
-    instrument_name='AE33',
+  instrument='AE33',
     path=Path('/path/to/data'),
     start=datetime(2024, 2, 1),
     end=datetime(2024, 8, 31, 23)

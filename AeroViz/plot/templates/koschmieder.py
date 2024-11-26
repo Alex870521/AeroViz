@@ -89,7 +89,7 @@ def koschmieder(df: pd.DataFrame,
            )
 
     plt.xticks(ticks=np.array(range(0, 31, 5)), labels=np.array(range(0, 31, 5)))
-
+    fig.savefig('koschmieder.png', dpi=600)
     plt.show()
 
     return fig, ax

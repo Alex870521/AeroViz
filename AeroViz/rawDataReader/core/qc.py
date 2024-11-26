@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-class DataQualityControl:
+class QualityControl:
     """A class providing various methods for data quality control and outlier detection"""
 
     @staticmethod

@@ -8,9 +8,10 @@ from pathlib import Path
 
 
 class ReaderLogger:
-    def __init__(self, name: str, log_path: Path):
+    def __init__(self, name: str, log_path: Path, log_level: str = 'WARNING'):
         self.name = name
         self.log_path = log_path
+        self._log_level = getattr(logging, log_level)
 
         # 檢查是否支持顏色輸出
         self.color_support = self._check_color_support()
@@ -92,7 +93,7 @@ class ReaderLogger:
     def _setup_logger(self) -> logging.Logger:
         """設置logger"""
         logger = logging.getLogger(self.name)
-        logger.setLevel(logging.INFO)
+        logger.setLevel(self._log_level)
 
         # 移除現有的 handlers
         for handler in logger.handlers[:]:
@@ -134,6 +135,9 @@ class ReaderLogger:
         if not self.unicode_support:
             text = text.encode('ascii', 'replace').decode('ascii')
         return text
+
+    def debug(self, msg: str):
+        self.logger.debug(self._safe_print(msg))
 
     def info(self, msg: str):
         self.logger.info(self._safe_print(msg))

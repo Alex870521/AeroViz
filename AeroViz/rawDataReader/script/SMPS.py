@@ -36,7 +36,7 @@ class Reader(AbstractReader):
             skip = find_header_row(f, delimiter)
             f.seek(0)
 
-            _df = read_csv(f, sep=delimiter, skiprows=skip)
+            _df = read_csv(f, sep=delimiter, skiprows=skip, low_memory=False)
 
             for date_format in date_formats:
                 _time_index = parse_date(_df, date_format)
@@ -56,9 +56,12 @@ class Reader(AbstractReader):
             _df_smps.columns = _df_smps.columns.astype(float)
             _df_smps = _df_smps.loc[_df_smps.index.dropna().copy()]
 
-            if _df_smps.columns[0] != self.size_range[0] or _df_smps.columns[-1] != self.size_range[1]:
-                self.logger.info(f'\tSMPS file: {file.name} is not match the default size range {self.size_range}, '
-                                 f'it is ({_df_smps.columns[0]}, {_df_smps.columns[-1]})')
+            size_range = self.kwargs.get('size_range') or (11.8, 593.5)
+
+            if _df_smps.columns[0] != size_range[0] or _df_smps.columns[-1] != size_range[1]:
+                self.logger.warning(f'\tSMPS file: {file.name} is not match the setting size range {size_range}, '
+                                    f'it is ({_df_smps.columns[0]}, {_df_smps.columns[-1]}). '
+                                    f'Please run by another RawDataReader instance, and set the correct size range')
                 return None
 
             return _df_smps.apply(to_numeric, errors='coerce')
@@ -68,8 +71,10 @@ class Reader(AbstractReader):
         _df = _df.copy()
         _index = _df.index.copy()
 
-        size_range_mask = (_df.columns.astype(float) >= self.size_range[0]) & (
-                _df.columns.astype(float) <= self.size_range[1])
+        size_range = self.kwargs.get('size_range') or (11.8, 593.5)
+
+        size_range_mask = (_df.columns.astype(float) >= size_range[0]) & (
+                _df.columns.astype(float) <= size_range[1])
         _df = _df.loc[:, size_range_mask]
 
         # mask out the data size lower than 7

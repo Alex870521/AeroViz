@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Literal
 
 from pandas import Grouper, Timedelta
 
@@ -10,66 +10,111 @@ from AeroViz.rawDataReader.script import *
 __all__ = ['RawDataReader']
 
 SUPPORTED_INSTRUMENTS = [
-    NEPH, Aurora, SMPS, GRIMM, APS, AE33, AE43, BC1054,
-    MA350, TEOM, OCEC, IGAC, VOC, EPA, Minion
+    NEPH, Aurora, SMPS, APS, GRIMM, AE33, AE43, BC1054,
+    MA350, BAM1020, TEOM, OCEC, IGAC, VOC, EPA, Minion
 ]
 
+SIZE_RANGE_INSTRUMENTS = ['SMPS', 'APS', 'GRIMM']
 
-def RawDataReader(instrument_name: str,
+
+def RawDataReader(instrument: str,
                   path: Path | str,
                   reset: bool = False,
                   qc: bool | str = True,
-                  qc_freq: str | None = None,
-                  rate: bool = True,
-                  append_data: bool = False,
                   start: datetime = None,
                   end: datetime = None,
                   mean_freq: str = '1h',
-                  csv_out: bool = True,
-                  **kwargs: Any):
+                  size_range: tuple[float, float] | None = None,
+                  suppress_warnings: bool = False,
+                  log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'] = 'INFO',
+                  **kwargs):
     """
     Factory function to instantiate the appropriate reader module for a given instrument and
     return the processed data over the specified time range.
 
-    :param instrument_name: The name of the instrument for which to read data. Must be a valid key in the `meta` dictionary.
-    :param path: The directory where raw data files for the instrument are stored.
-    :param reset: If True, reset the state and reprocess the data from scratch.
-    :param qc: If True, apply quality control (QC) to the raw data.
-    :param qc_freq: Frequency at which to perform QC. Must be one of 'W', 'M', 'Q', 'Y' for weekly, monthly, quarterly, or yearly.
-    :param rate: If True, calculate rates from the data.
-    :param append_data: If True, append new data to the existing dataset instead of overwriting it.
-    :param start: Start time for filtering the data. If None, no start time filtering will be applied.
-    :param end: End time for filtering the data. If None, no end time filtering will be applied.
-    :param mean_freq: Resampling frequency for averaging the data. Example: '1h' for hourly mean.
-    :param csv_out: If True, output the processed data as a CSV file.
+    Parameters
+    ----------
+    instrument : str
+       The instrument name for which to read data, must be a valid key in the meta dictionary
 
-    :return: An instance of the reader module corresponding to the specified instrument, which processes the data and returns it in a usable format.
+    path : Path or str
+       The directory where raw data files for the instrument are stored
 
-    :raises ValueError: If the `instrument_name` provided is not a valid key in the `meta` dictionary.
-    :raises ValueError: If the specified path does not exist or is not a directory.
-    :raises ValueError: If the QC frequency is invalid.
-    :raises ValueError: If start and end times are not both provided or are invalid.
-    :raises ValueError: If the mean_freq is not a valid frequency string.
+    reset : bool or str
+       Data processing control mode:
+       False (default) - Use existing processed data if available
+       True - Force reprocess all data from raw files
+       'append' - Add new data to existing processed data
 
-    :Example:
+    qc : bool or str
+       Quality control and rate calculation mode:
+       True (default) - Apply QC and calculate overall rates
+       False - Skip QC and return raw data only
+       str - Calculate rates at specified intervals:
+             'W' - Weekly rates
+             'MS' - Month start rates
+             'QS' - Quarter start rates
+             'YS' - Year start rates
+             Can add number prefix (e.g., '2MS' for bi-monthly)
 
-    To read and process data for the BC1054 instrument:
+    start : datetime
+       Start time for filtering the data
 
+    end : datetime
+       End time for filtering the data
+
+    mean_freq : str
+       Resampling frequency for averaging the data (e.g., '1h' for hourly mean)
+
+    size_range : tuple[float, float], optional
+       Size range in nanometers (min_size, max_size) for SMPS/APS data filtering
+
+    suppress_warnings : bool, optional
+       Whether to suppress warning messages (default: False)
+
+    log_level : {'DEBUG', 'INFO', 'WARNING', 'ERROR'}
+       Logging level (default: 'INFO')
+
+    **kwargs
+       Additional arguments to pass to the reader module
+
+    Returns
+    -------
+    pd.DataFrame
+       Processed data with specified QC and time range
+
+    Raises
+    ------
+    ValueError
+       If instrument name is invalid
+       If path does not exist
+       If QC frequency is invalid
+       If time range is invalid
+       If mean_freq format is invalid
+
+    Examples
+    --------
     >>> from pathlib import Path
     >>> from datetime import datetime
+    >>> from AeroViz import RawDataReader
     >>>
-    >>> data = RawDataReader(
-    ...     instrument_name='BC1054',
-    ...     path=Path('/path/to/data'),
-    ...     start=datetime(2024, 2, 1),
-    ...     end=datetime(2024, 7, 31))
+    >>> df_ae33 = RawDataReader(
+    ...     instrument='AE33',
+    ...     path=Path('/path/to/your/data/folder'),
+    ...     reset=True,
+    ...     qc='1MS',
+    ...     start=datetime(2024, 1, 1),
+    ...     end=datetime(2024, 6, 30),
+    ...     mean_freq='1h',
+    ... )
     """
+
     # Mapping of instrument names to their respective classes
     instrument_class_map = {cls.__name__.split('.')[-1]: cls for cls in SUPPORTED_INSTRUMENTS}
 
     # Check if the instrument name is in the map
-    if instrument_name not in meta.keys():
-        raise ValueError(f"Instrument name '{instrument_name}' is not valid. \nMust be one of: {list(meta.keys())}")
+    if instrument not in meta.keys():
+        raise ValueError(f"Instrument name '{instrument}' is not valid. \nMust be one of: {list(meta.keys())}")
 
     # Check if path exists and is a directory
     if not isinstance(path, Path):
@@ -78,21 +123,20 @@ def RawDataReader(instrument_name: str,
         raise FileNotFoundError(f"The specified path '{path}' does not exist or is not a directory.")
 
     # Validate the QC frequency
-    if qc_freq is not None:
+    if isinstance(qc, str):
         try:
-            Grouper(freq=qc_freq)
-        except ValueError as e:
-            raise ValueError(f"Invalid frequency: {qc_freq}. Error: {str(e)}")
-        except TypeError as e:
-            raise ValueError(f"Invalid frequency type: {qc_freq}. Frequency should be a string.")
+            Grouper(freq=qc)
+        except (ValueError, TypeError):
+            raise ValueError(f"Invalid frequency: {qc}. Must be one of: "
+                             f"W (week), MS (month start), QS (quarter start), YS (year start)")
 
-    if start and end:
-        if end.hour == 0 and end.minute == 0 and end.second == 0:
-            end = end.replace(hour=23, minute=59, second=59)
-    else:
+    # Verify input times
+    if not (start and end):
         raise ValueError("Both start and end times must be provided.")
     if end <= start:
         raise ValueError(f"Invalid time range: start {start} is after end {end}")
+
+    end = end.replace(hour=23, minute=59, second=59) if end.hour == 0 and end.minute == 0 else end
 
     # Verify that mean_freq format
     try:
@@ -101,19 +145,40 @@ def RawDataReader(instrument_name: str,
         raise ValueError(
             f"Invalid mean_freq: '{mean_freq}'. It should be a valid frequency string (e.g., '1h', '30min', '1D').")
 
+    # Validate size range
+    if size_range is not None:
+        if instrument not in SIZE_RANGE_INSTRUMENTS:
+            raise ValueError(f"Size range filtering is only supported for {SIZE_RANGE_INSTRUMENTS}")
+
+        min_size, max_size = size_range
+        if not isinstance(min_size, (int, float)) or not isinstance(max_size, (int, float)):
+            raise ValueError("Size range values must be numeric")
+        if min_size >= max_size:
+            raise ValueError("Minimum size must be less than maximum size")
+
+        if instrument == 'SMPS':
+            if not (1 <= min_size <= 1000) or not (1 <= max_size <= 1000):
+                raise ValueError("SMPS size range must be between 1 and 1000 nm")
+        elif instrument == 'APS':
+            if not (500 <= min_size <= 20000) or not (500 <= max_size <= 20000):
+                raise ValueError("APS size range must be between 500 and 20000 nm")
+
+        kwargs.update({'size_range': size_range})
+
+    kwargs.update({
+        'suppress_warnings': suppress_warnings,
+        'log_level': log_level
+    })
+
     # Instantiate the class and return the instance
-    reader_module = instrument_class_map[instrument_name].Reader(
+    reader_module = instrument_class_map[instrument].Reader(
         path=path,
         reset=reset,
         qc=qc,
-        qc_freq=qc_freq,
-        rate=rate,
-        append_data=append_data,
         **kwargs
     )
     return reader_module(
         start=start,
         end=end,
         mean_freq=mean_freq,
-        csv_out=csv_out,
     )

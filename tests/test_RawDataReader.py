@@ -19,67 +19,67 @@ class TestRawDataReader(unittest.TestCase):
 
     def test_nz_aurora(self):
         path_raw = self.base_path / 'NZ' / 'data' / 'Aurora'
-        reader = RawDataReader('Aurora', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+        reader = RawDataReader('Aurora', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
         self.assertIsNotNone(reader)
         self.validate_data(reader)
 
     def test_nz_bc1054(self):
         path_raw = self.base_path / 'NZ' / 'data' / 'BC1054'
-        reader = RawDataReader('BC1054', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+        reader = RawDataReader('BC1054', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
         self.assertIsNotNone(reader)
         self.validate_data(reader)
 
     def test_fs_neph(self):
         path_raw = self.base_path / 'FS' / 'data' / 'Neph'
-        reader = RawDataReader('NEPH', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+        reader = RawDataReader('NEPH', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
         self.assertIsNotNone(reader)
         self.validate_data(reader)
 
     def test_fs_ae33(self):
         path_raw = self.base_path / 'FS' / 'data' / 'AE33'
-        reader = RawDataReader('AE33', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+        reader = RawDataReader('AE33', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
         self.assertIsNotNone(reader)
         self.validate_data(reader)
 
     def test_nz_teom(self):
         path_raw = self.base_path / 'NZ' / 'data' / 'Teom'
-        reader = RawDataReader('TEOM', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+        reader = RawDataReader('TEOM', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
         self.assertIsNotNone(reader)
         self.validate_data(reader)
 
     def test_nz_ocec(self):
         path_raw = self.base_path / 'NZ' / 'data' / 'OCEC_Rawdata'
-        reader = RawDataReader('OCEC', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+        reader = RawDataReader('OCEC', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
         self.assertIsNotNone(reader)
         self.validate_data(reader)
 
     # def test_fs_ocec(self):
     #     path_raw = self.base_path / 'FS' / 'data' / 'OCEC'
-    #     reader = RawDataReader('OCEC', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+    #     reader = RawDataReader('OCEC', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
     #     self.assertIsNotNone(reader)
     #     self.validate_data(reader)
 
     def test_smps(self):
         path_raw = self.base_path / 'NZ' / 'data' / 'SMPS'
-        reader = RawDataReader('SMPS', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+        reader = RawDataReader('SMPS', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
         self.assertIsNotNone(reader)
         self.validate_data(reader)
 
     # def test_aps(self):
     #     path_raw = self.base_path / 'NZ' / 'data' / 'APS'
-    #     reader = RawDataReader('APS', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+    #     reader = RawDataReader('APS', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
     #     self.assertIsNotNone(reader)
     #     self.validate_data(reader)
 
     def test_nz_minion(self):
         path_raw = self.base_path / 'NZ' / 'data' / 'Minion'
-        reader = RawDataReader('Minion', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+        reader = RawDataReader('Minion', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
         self.assertIsNotNone(reader)
         self.validate_data(reader)
 
     def test_fs_minion(self):
         path_raw = self.base_path / 'FS' / 'data' / 'Minion'
-        reader = RawDataReader('Minion', path_raw, reset=True, qc_freq='1MS', start=self.start, end=self.end)
+        reader = RawDataReader('Minion', path_raw, reset=True, qc='1MS', start=self.start, end=self.end)
         self.assertIsNotNone(reader)
         self.validate_data(reader)
 

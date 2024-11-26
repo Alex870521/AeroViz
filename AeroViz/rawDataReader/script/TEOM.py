@@ -1,3 +1,4 @@
+import pandas as pd
 from pandas import to_datetime, read_csv, Timedelta, to_numeric
 
 from AeroViz.rawDataReader.core import AbstractReader
@@ -7,9 +8,9 @@ class Reader(AbstractReader):
     nam = 'TEOM'
 
     def _raw_reader(self, file):
-        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            _df = read_csv(f, skiprows=3, index_col=False)
+        _df = read_csv(file, skiprows=3, index_col=False)
 
+        if 'Time Stamp' in _df.columns:  # remote download
             _df = _df.rename(columns={'Time Stamp': 'time',
                                       'System status': 'status',
                                       'PM-2.5 base MC': 'PM_NV',
@@ -25,8 +26,19 @@ class Reader(AbstractReader):
 
             _df = _df.set_index(to_datetime(_tm_idx, errors='coerce', format='%d - %m - %Y %X'))
 
-            _df = _df.where(_df['status'] < 1)
+        elif 'tmoStatusCondition_0' in _df.columns:  # usb download
+            _df['time'] = pd.to_datetime(_df['Date'] + ' ' + _df['Time'], errors='coerce', format='%Y-%m-%d %H:%M:%S')
+            _df.drop(columns=['Date', 'Time'], inplace=True)
+            _df.set_index('time', inplace=True)
 
+            _df = _df.rename(columns={'tmoStatusCondition_0': 'status',
+                                      'tmoTEOMABaseMC_0': 'PM_NV',
+                                      'tmoTEOMAMC_0': 'PM_Total',
+                                      'tmoTEOMANoise_0': 'noise', })
+        else:
+            raise NotImplementedError
+
+        _df = _df.where(_df['status'] < 1)
         _df = _df[['PM_NV', 'PM_Total', 'noise']].apply(to_numeric, errors='coerce')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]

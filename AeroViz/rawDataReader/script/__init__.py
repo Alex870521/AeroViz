@@ -8,6 +8,7 @@ __all__ = [
     'AE43',
     'BC1054',
     'MA350',
+    'BAM1020',
     'TEOM',
     'OCEC',
     'IGAC',

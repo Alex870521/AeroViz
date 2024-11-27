@@ -62,7 +62,7 @@ from AeroViz import RawDataReader, DataProcess, plot
 
 # Read data from a supported instrument
 data = RawDataReader(
-    instrument='Neph',
+    instrument='NEPH',
     path=Path('/path/to/data'),
     start=datetime(2024, 2, 1),
     end=datetime(2024, 4, 30)

@@ -21,7 +21,7 @@ dependencies = [
     "pandas>=2.2.0",
     "numpy>=1.26.4",
     "matplotlib==3.8.4",
-    "scipy==1.14.0",
+    "scipy>=1.14.0",
     "seaborn==0.13.2",
     "scikit-learn==1.5.1",
     "windrose==1.9.2",

@@ -195,17 +195,6 @@ Notes:
 ```
 
 ---
-## Data Sample
-
-To view a sample of the processed data, you can use:
-
-```python
-print(data.head())
-```
-
-This will display the first few rows of the processed data, including timestamps and instrument-specific measurements.
-
----
 ## Parameter Explanation
 
 - `instrument`: Name of the instrument (e.g., 'NEPH', 'AE33', 'SMPS', 'Minion'). Also See ***supported instrument***
@@ -214,7 +203,7 @@ This will display the first few rows of the processed data, including timestamps
 - `reset` - Data processing control mode:
   - `True`: Force reprocess all data from raw files
   - `False` (default): Use existing processed data if available
-  - `'append'`: Add new data to existing processed data
+  - `str`: If 'append', add new data to existing processed data
 
 - `qc` - Quality control settings:
   - `True` (default): Apply default quality control

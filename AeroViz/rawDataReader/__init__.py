@@ -19,7 +19,7 @@ SIZE_RANGE_INSTRUMENTS = ['SMPS', 'APS', 'GRIMM']
 
 def RawDataReader(instrument: str,
                   path: Path | str,
-                  reset: bool = False,
+                  reset: bool | str = False,
                   qc: bool | str = True,
                   start: datetime = None,
                   end: datetime = None,

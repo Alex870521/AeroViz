@@ -24,17 +24,12 @@ from pathlib import Path
 from datetime import datetime
 from AeroViz import RawDataReader
 
-# Common parameters
-data_path = Path('/path/to/your/data/folder')
-start_time = datetime(2024, 2, 1)
-end_time = datetime(2024, 4, 30)
-
 neph_data = RawDataReader(
-  instrument='NEPH',
-  path=data_path,
+    instrument='NEPH',
+    path=Path('/path/to/your/data/folder'),
     reset=True,
-    start=start_time,
-    end=end_time,
+    start=datetime(2024, 2, 1),
+    end=datetime(2024, 4, 30),
     mean_freq='1h'
 )
 ```
@@ -65,18 +60,13 @@ from pathlib import Path
 from datetime import datetime
 from AeroViz import RawDataReader
 
-# Common parameters
-data_path = Path('/path/to/your/data/folder')
-start_time = datetime(2024, 1, 1)
-end_time = datetime(2024, 8, 31)
-
 ae33_data = RawDataReader(
-  instrument='AE33',
-  path=data_path,
+    instrument='AE33',
+    path=Path('/path/to/your/data/folder'),
     reset=True,
-  qc='1MS',  # print qc each month
-    start=start_time,
-    end=end_time,
+    qc='1MS',  # print qc each month
+    start=datetime(2024, 1, 1),
+    end=datetime(2024, 8, 31),
     mean_freq='1h',
 )
 ```
@@ -126,16 +116,11 @@ from pathlib import Path
 from datetime import datetime
 from AeroViz import RawDataReader
 
-# Common parameters
-data_path = Path('/path/to/your/data/folder')
-start_time = datetime(2024, 1, 1)
-end_time = datetime(2024, 12, 31)
-
 smps_data = RawDataReader(
-  instrument='SMPS',
-  path=data_path,
-    start=datetime(2024, 6, 1),
-    end=datetime(2024, 8, 31, 23, 59, 59),
+    instrument='SMPS',
+    path=Path('/path/to/your/data/folder'),
+    start=datetime(2024, 2, 1),
+    end=datetime(2024, 8, 31),
     mean_freq='30min',
     size_range=(11.8, 593.5)  # user input size range
 )
@@ -229,7 +214,7 @@ This will display the first few rows of the processed data, including timestamps
 - `reset` - Data processing control mode:
   - `True`: Force reprocess all data from raw files
   - `False` (default): Use existing processed data if available
-  - `append`: Add new data to existing processed data
+  - `'append'`: Add new data to existing processed data
 
 - `qc` - Quality control settings:
   - `True` (default): Apply default quality control

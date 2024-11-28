@@ -1,29 +1,46 @@
-# RawDataReader Usage Guide
+# RawDataReader Documentation
 
-This guide demonstrates various usage scenarios for the `RawDataReader` function from the AeroViz package. Each scenario
-shows different configurations and explains the expected outputs.
+## Table of Contents
+
+- [Overview](#overview)
+- [Installation](#installation)
+- [Basic Usage](#basic-usage)
+- [Examples](#examples)
+- [Output Files](#output-files)
+- [Function Signature](#function-signature)
+- [Supported Instruments](#supported-instruments)
+- [API Reference](#api-reference)
+
+## Overview
+
+RawDataReader is a factory function that instantiates the appropriate reader module for a given instrument and returns
+the processed data over a specified time range.
 
 ## Installation
 
-Before using `RawDataReader`, ensure you have the AeroViz package installed:
-
-```bash
-pip install AeroViz
+```python
+from pathlib import Path
+from datetime import datetime
+from AeroViz import RawDataReader
 ```
 
 ## Basic Usage
 
 Here are several scenarios showcasing different ways to use `RawDataReader`:
 
-### Scenario 1: Basic Usage with NEPH Instrument
-
-#### Code Example
-
 ```python
-from pathlib import Path
-from datetime import datetime
-from AeroViz import RawDataReader
+data = RawDataReader(
+  instrument='AE33',
+  path=Path('/path/to/data'),
+  start=datetime(2024, 2, 1),
+  end=datetime(2024, 8, 31),
+  mean_freq='1h'
+)
+```
 
+## Examples
+### Scenario 1: Basic Usage with NEPH Instrument
+```python
 neph_data = RawDataReader(
     instrument='NEPH',
     path=Path('/path/to/your/data/folder'),
@@ -52,14 +69,7 @@ neph_data = RawDataReader(
 - Will include scattering coefficients and other NEPH-related metrics.
 
 ### Scenario 2: AE33 with Quality Control and Rate Calculation
-
-#### Code Example
-
 ```python
-from pathlib import Path
-from datetime import datetime
-from AeroViz import RawDataReader
-
 ae33_data = RawDataReader(
     instrument='AE33',
     path=Path('/path/to/your/data/folder'),
@@ -108,14 +118,7 @@ ae33_data = RawDataReader(
 - Will generate a CSV file with the processed data.
 
 ### Scenario 3: SMPS with Specific Time Range
-
-#### Code Example
-
 ```python
-from pathlib import Path
-from datetime import datetime
-from AeroViz import RawDataReader
-
 smps_data = RawDataReader(
     instrument='SMPS',
     path=Path('/path/to/your/data/folder'),
@@ -147,74 +150,65 @@ smps_data = RawDataReader(
 - Includes particle size distribution information.
 
 ---
-
 ## Output Files
 
-After processing, six files will be generated in the user's data directory `{instrument}_outputs`:
+After processing, six files will be generated in the `{instrument}_outputs` directory:
 
-### Raw Data Files
+1. `_read_{instrument}_raw.csv`: Merged raw data with original time resolution
+2. `_read_{instrument}_raw.pkl`: Raw data in pickle format
+3. `_read_{instrument}.csv`: Quality controlled data
+4. `_read_{instrument}.pkl`: QC data in pickle format
+5. `Output_{instrument}`: Final processed data file
+6. `{instrument}.log`: Processing log file
 
-1. `_read_{instrument}_raw.csv`
+---
 
-- Merged raw data with original time resolution
-- No quality control applied
+## Function Signature
 
-2. `_read_{instrument}_raw.pkl`
-
-- Identical content as raw CSV file
-- Pickle format for faster data loading
-
-### Quality Controlled Data
-
-3. `_read_{instrument}.csv`
-
-- Quality controlled data with original time resolution
-- Contains filtered and validated measurements
-
-4. `_read_{instrument}.pkl`
-
-- Identical content as QC CSV file
-- Pickle format for faster data loading
-
-### Final Output and Log
-
-5. `Output_{instrument}`
-
-- Final processed data file
-- Time resolution based on user settings (`mean_freq`)
-- Main file for analysis and visualization
-
-6. `{instrument}.log`
-
-- Processing log file
-- Records any warnings, errors, and processing steps
-
-```{note
-Notes:
-1. {instrument} will be replaced with the actual instrument name (e.g., 'AE33', 'NEPH', etc.) in the same directory as the input data. 
+```python
+def RawDataReader(
+        instrument: str,
+        path: Path | str,
+        reset: bool | str = False,
+        qc: bool | str = True,
+        start: datetime = None,
+        end: datetime = None,
+        mean_freq: str = '1h',
+) -> DataFrame:
 ```
 
+### Parameters
+
+- `instrument` (str): Name of the instrument (e.g., 'NEPH', 'AE33', 'SMPS')
+- `path` (Path | str): Directory path where raw data files are stored
+- `reset` (bool | str, default=False):
+  - `True`: Force reprocess all data
+  - `False`: Use existing processed data if available
+  - `'append'`: Add new data to existing processed data
+- `qc` (bool | str, default=True):
+  - `True`: Apply default quality control
+  - `False`: Skip QC
+  - `str`: QC frequency (e.g., '1M', '1W')
+- `start` (datetime): Start date for processing
+- `end` (datetime): End date for processing
+- `mean_freq` (str, default='1h'): Frequency for data averaging
+
+### Raises
+
+- ValueError: If instrument is invalid
+- ValueError: If path doesn't exist
+- ValueError: If QC frequency is invalid
+- ValueError: If start/end times are invalid
+- ValueError: If mean_freq is invalid
+
+### Returns
+
+- DataFrame: An instance of the reader module corresponding to the specified instrument, which processes the data and
+  returns it in a usable format.
+
 ---
-## Parameter Explanation
 
-- `instrument`: Name of the instrument (e.g., 'NEPH', 'AE33', 'SMPS', 'Minion'). Also See ***supported instrument***
-  below
-- `path`: Directory path where raw data files are stored
-- `reset` - Data processing control mode:
-  - `True`: Force reprocess all data from raw files
-  - `False` (default): Use existing processed data if available
-  - `str`: If 'append', add new data to existing processed data
-
-- `qc` - Quality control settings:
-  - `True` (default): Apply default quality control
-  - `False`: Skip QC and return raw data only
-  - `str`: QC frequency, e.g. '1M' (monthly), '1W' (weekly)
-- `start` and `end`: Date range for data processing
-- `mean_freq`: Frequency for data averaging ('1h' for hourly, '30min' for half-hourly, etc.)
-
----
-
-## Supported Instruments: Default Time Resolutions and File Types
+## Supported Instruments
 ### The AeroViz project currently supports data from the following instruments:
 
 | Instrument                                             | Time Resolution | File Type   | Display Columns                                       | QAQC method |
@@ -228,7 +222,7 @@ Notes:
 | AE43 (Aethalometer Model 43)                           |      1min       | .dat        | BC6                                                   |   default   |
 | BC1054 (Black Carbon Monitor 1054)                     |      1min       | .csv        | BC9                                                   |   default   |
 | MA350 (MicroAeth MA350)                                |      1min       | .csv        | BC5                                                   |   default   |
-| BAN1020 (Beta Attenuation Mass Monitor)                |       1h        | .csv        | Conc                                                  |   default   |
+| BAM1020 (Beta Attenuation Mass Monitor)                |       1h        | .csv        | Conc                                                  |   default   |
 | TEOM (Continuous Ambient Particulate Monitor)          |      6min       | .csv        | PM_Total, PM_NV                                       |   default   |
 | OCEC (Sunset Organic Carbon Elemental Carbon Analyzer) |       1h        | *LCRes.csv  | Thermal_OC, Thermal_EC, Optical_OC, Optical_EC        |   default   |
 | IGAC (In-situ Gas and Aerosol Compositions monitor)    |       1h        | .csv        | Na+, NH4+, K+, Mg2+, Ca2+, Cl-, NO2-, NO3-, SO42-     |   default   |
@@ -244,3 +238,49 @@ Notes:
 3. The display columns for XRF include a large number of element names, all of which are listed.
 4. The file types for AE33 and AE43 actually have more specific patterns, but are simplified to ".dat" in this table.
 ```
+
+---
+
+## API Reference
+
+### AbstractReader Class
+
+Base class for reading raw data from different instruments.
+
+```python
+class AbstractReader(ABC):
+  def __init__(self,
+               path: Path | str,
+               reset: bool | str = False,
+               qc: bool | str = True):
+    pass
+```
+
+#### Abstract Methods
+
+- `_raw_reader(self, file)`: Implement in child classes to read raw data files
+- `_QC(self, df: DataFrame) -> DataFrame`: Implement in child classes for quality control
+
+#### Key Methods
+
+- `__call__(self, start: datetime, end: datetime, mean_freq: str = '1h') -> DataFrame`: Process data for specified time
+  range
+
+```python
+def __call__(self,
+             start: datetime,
+             end: datetime,
+             mean_freq: str = '1h',
+             ) -> DataFrame:
+```
+
+- `_timeIndex_process(self, _df, user_start=None, user_end=None, append_df=None)`: Process time index and resampling
+- `_outlier_process(self, _df)`: Process outliers
+- `_save_data(self, raw_data: DataFrame, qc_data: DataFrame) -> None`: Save data to files
+- `_read_raw_files(self) -> tuple[DataFrame | None, DataFrame | None]`: Read and process raw files
+
+#### Static Methods
+
+- `reorder_dataframe_columns(df, order_lists, others_col=False)`: Reorder DataFrame columns
+- `n_sigma_QC(df: DataFrame, std_range: int = 5) -> DataFrame`: Perform n-sigma quality control
+- `IQR_QC(df: DataFrame, log_dist=False) -> tuple[DataFrame, DataFrame]`: Perform IQR quality control

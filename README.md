@@ -10,13 +10,11 @@
 </div>
 
 <div align="center">
-
-<a href="https://github.com/Alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-github.png?raw=true" width="3%" alt="Alex870521 GitHub"></a>
-<img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
-<a href="https://www.linkedin.com/in/Alex870521/"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-linkedin.png?raw=true" width="3%" alt="Alex870521 LinkedIn"></a>
-<img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-transparent.png?raw=true" width="3%">
-<a href="https://medium.com/@alex870521"><img src="https://github.com/Alex870521/AeroViz/blob/main/assets/media/logo-social-medium.png?raw=true" width="3%" alt="Alex870521 Medium"></a>
-</div>
+<a href="https://github.com/Alex870521"><img src="https://cdn.simpleicons.org/github/0A66C2" width="3%" alt="GitHub"></a>
+<span style="margin: 0 1%"></span>
+<a href="https://www.linkedin.com/in/Alex870521/"><img src="https://cdn.simpleicons.org/linkedin/0A66C2" width="3%" alt="LinkedIn"></a>
+<span style="margin: 0 1%"></span>
+<a href="https://medium.com/@alex870521"><img src="https://cdn.simpleicons.org/medium/0A66C2" width="3%" alt="Medium"></a></div>
 
 ## <div align="center">Installation</div>
 ```bash

@@ -21,8 +21,8 @@ def RawDataReader(instrument: str,
                   path: Path | str,
                   reset: bool | str = False,
                   qc: bool | str = True,
-                  start: datetime = None,
-                  end: datetime = None,
+                  start: datetime | str = None,
+                  end: datetime | str = None,
                   mean_freq: str = '1h',
                   size_range: tuple[float, float] | None = None,
                   suppress_warnings: bool = False,
@@ -94,10 +94,22 @@ def RawDataReader(instrument: str,
 
     Examples
     --------
-    >>> from pathlib import Path
-    >>> from datetime import datetime
     >>> from AeroViz import RawDataReader
     >>>
+    >>> # Using string inputs
+    >>> df_ae33 = RawDataReader(
+    ...     instrument='AE33',
+    ...     path='/path/to/your/data/folder',
+    ...     reset=True,
+    ...     qc='1MS',
+    ...     start='2024-01-01',
+    ...     end='2024-06-30',
+    ...     mean_freq='1h',
+    ... )
+
+    >>> # Using Path and datetime objects
+    >>> from pathlib import Path
+    >>> from datetime import datetime
     >>> df_ae33 = RawDataReader(
     ...     instrument='AE33',
     ...     path=Path('/path/to/your/data/folder'),
@@ -130,9 +142,26 @@ def RawDataReader(instrument: str,
             raise ValueError(f"Invalid frequency: {qc}. Must be one of: "
                              f"W (week), MS (month start), QS (quarter start), YS (year start)")
 
-    # Verify input times
+    # Convert and verify input times
     if not (start and end):
         raise ValueError("Both start and end times must be provided.")
+
+    # Convert start time if it's a string
+    if isinstance(start, str):
+        try:
+            start = datetime.fromisoformat(start.replace('Z', '+00:00'))
+        except ValueError as e:
+            raise ValueError(
+                f"Invalid start time format. Please use ISO format (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS): {e}")
+
+    # Convert end time if it's a string
+    if isinstance(end, str):
+        try:
+            end = datetime.fromisoformat(end.replace('Z', '+00:00'))
+        except ValueError as e:
+            raise ValueError(
+                f"Invalid end time format. Please use ISO format (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS): {e}")
+
     if end <= start:
         raise ValueError(f"Invalid time range: start {start} is after end {end}")
 

@@ -117,11 +117,11 @@ def normalize_and_split(df, df2):
     return df, df2
 
 
-@set_figure(figsize=(12, 3), fs=6)
+@set_figure(figsize=(6, 3), fs=8, fw='normal')
 def metal_heatmaps(df,
                    process=True,
-                   major_freq='24h',
-                   minor_freq='12h',
+                   major_freq='10d',
+                   minor_freq='1d',
                    cmap='jet',
                    ax: Axes | None = None,
                    **kwargs
@@ -131,7 +131,7 @@ def metal_heatmaps(df,
 
     fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
 
-    sns.heatmap(df.T, vmin=None, vmax=3, cmap=cmap, xticklabels=False, yticklabels=True,
+    sns.heatmap(df.T, vmin=None, vmax=3, cmap=cmap, xticklabels=True, yticklabels=True,
                 cbar_kws={'label': 'Z score', "pad": 0.02})
     ax.grid(color='gray', linestyle='-', linewidth=0.3)
 
@@ -142,14 +142,23 @@ def metal_heatmaps(df,
     # Set the major and minor ticks
     ax.set_xticks(ticks=[df.index.get_loc(t) for t in major_tick])
     ax.set_xticks(ticks=[df.index.get_loc(t) for t in minor_tick], minor=True)
-    ax.set_xticklabels(major_tick.strftime('%F'))
+    ax.set_xticklabels(major_tick.strftime('%F'), rotation=0)
     ax.tick_params(axis='y', rotation=0)
 
     ax.set(xlabel='',
-           ylabel='',
+           ylabel='Trace metals',
            title=kwargs.get('title', None)
            )
+
+    if kwargs.get('savefig'):
+        plt.savefig(kwargs.get('savefig'), dpi=600)
 
     plt.show()
 
     return fig, ax
+
+
+if __name__ == '__main__':
+    fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+    plt.title('text', font={'weight': 'bold'})
+    plt.show()

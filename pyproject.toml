@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "AeroViz"
-version = "0.1.14"
+version = "0.1.15"
 description = "Aerosol science"
 authors = [{ name = "alex", email = "alex870521@gmail.com" }]
 license = { text = "MIT" }

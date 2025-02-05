@@ -1,14 +1,14 @@
 import json
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Generator
 
 import numpy as np
 import pandas as pd
 from rich.console import Console
-from rich.progress import Progress, TextColumn, BarColumn, TimeRemainingColumn, TaskProgressColumn
+from rich.progress import Progress, TextColumn, BarColumn, SpinnerColumn, TaskProgressColumn
 
 from AeroViz.rawDataReader.config.supported_instruments import meta
 from AeroViz.rawDataReader.core.logger import ReaderLogger
@@ -55,6 +55,7 @@ class AbstractReader(ABC):
         self.pkl_nam_raw = output_folder / f'_read_{self.nam.lower()}_raw.pkl'
         self.csv_nam_raw = output_folder / f'_read_{self.nam.lower()}_raw.csv'
         self.csv_out = output_folder / f'output_{self.nam.lower()}.csv'
+        self.report_out = output_folder / 'report.json'
 
     def __call__(self,
                  start: datetime,
@@ -79,55 +80,144 @@ class AbstractReader(ABC):
     def _QC(self, df: pd.DataFrame) -> pd.DataFrame:
         return df
 
-    def _rate_calculate(self, raw_data, qc_data) -> None:
-        def __base_rate(raw_data, qc_data):
+    def __calculate_rates(self, raw_data, qc_data, all_keys=False, with_log=False):
+        """計算獲取率、良率和總比率
+
+        Args:
+            raw_data: 原始數據
+            qc_data: QC後的數據
+            all_keys: 是否計算所有 deter_key
+            with_log: 是否輸出計算日誌
+        """
+        if raw_data.empty or qc_data.empty:
+            return {'acquisition_rate': 0, 'yield_rate': 0, 'total_rate': 0}
+
+        def _calculate_single_key(key_name, key_columns):
+            columns, drop_how = (qc_data.keys(), 'all') if key_columns == ['all'] else (key_columns, 'any')
+
+            # 重採樣並計算有效數據量
             period_size = len(raw_data.resample('1h').mean().index)
+            sample_size = len(raw_data[columns].resample('1h').mean().dropna(how=drop_how).index)
+            qc_size = len(qc_data[columns].resample('1h').mean().dropna(how=drop_how).index)
 
-            for _nam, _key in self.meta['deter_key'].items():
-                _columns_key, _drop_how = (qc_data.keys(), 'all') if _key == ['all'] else (_key, 'any')
-
-                sample_size = len(raw_data[_columns_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
-                qc_size = len(qc_data[_columns_key].resample('1h').mean().copy().dropna(how=_drop_how).index)
-
-                # validate rate calculation
-                if period_size == 0 or sample_size == 0 or qc_size == 0:
+            # 驗證計算
+            if any([
+                period_size == 0 or sample_size == 0 or qc_size == 0,
+                period_size < sample_size,
+                sample_size < qc_size
+            ]):
+                if with_log:
                     self.logger.warning(f'\t\t No data for this period... skip')
-                    continue
-                if period_size < sample_size:
-                    self.logger.warning(f'\t\tError: Sample({sample_size}) > Period({period_size})... skip')
-                    continue
-                if sample_size < qc_size:
-                    self.logger.warning(f'\t\tError: QC({qc_size}) > Sample({sample_size})... skip')
-                    continue
+                return None
 
-                else:
-                    _sample_rate = round((sample_size / period_size) * 100, 1)
-                    _valid_rate = round((qc_size / sample_size) * 100, 1)
-                    _total_rate = round((qc_size / period_size) * 100, 1)
+            # 計算比率
+            sample_rate = round((sample_size / period_size) * 100, 1)
+            valid_rate = round((qc_size / sample_size) * 100, 1)
+            total_rate = round((qc_size / period_size) * 100, 1)
 
-                self.logger.info(f"\t\t{self.logger.CYAN}{self.logger.ARROW} {_nam}{self.logger.RESET}")
+            if with_log:
+                self.logger.info(f"\t\t> {key_name}")
                 self.logger.info(
-                    f"\t\t\t├─ {'Sample Rate':15}: {self.logger.BLUE}{_sample_rate:>6.1f}%{self.logger.RESET}")
+                    f"\t\t\t> {'Sample Rate':13}: {self.logger.BLUE}{sample_rate:>6.1f}%{self.logger.RESET}")
                 self.logger.info(
-                    f"\t\t\t├─ {'Valid  Rate':15}: {self.logger.BLUE}{_valid_rate:>6.1f}%{self.logger.RESET}")
+                    f"\t\t\t> {'Valid  Rate':13}: {self.logger.BLUE}{valid_rate:>6.1f}%{self.logger.RESET}")
                 self.logger.info(
-                    f"\t\t\t└─ {'Total  Rate':15}: {self.logger.BLUE}{_total_rate:>6.1f}%{self.logger.RESET}")
+                    f"\t\t\t> {'Total  Rate':13}: {self.logger.BLUE}{total_rate:>6.1f}%{self.logger.RESET}")
 
+            return {
+                'acquisition_rate': sample_rate,
+                'yield_rate': valid_rate,
+                'total_rate': total_rate
+            }
+
+        if all_keys:
+            # 計算所有 key 並回傳所有結果（用於日誌輸出）
+            all_results = []
+            for name, columns in self.meta['deter_key'].items():
+                result = _calculate_single_key(name, columns)
+                if result:
+                    all_results.append(result)
+
+            if not all_results:
+                return {'acquisition_rate': 0, 'yield_rate': 0, 'total_rate': 0}
+
+            # 回傳所有結果中比率最低的
+            return {
+                'acquisition_rate': min(r['acquisition_rate'] for r in all_results),
+                'yield_rate': min(r['yield_rate'] for r in all_results),
+                'total_rate': min(r['total_rate'] for r in all_results)
+            }
+        else:
+            # 計算所有 key 但只回傳最低的比率
+            min_rates = {'acquisition_rate': 200, 'yield_rate': 200, 'total_rate': 200}
+
+            for name, columns in self.meta['deter_key'].items():
+                result = _calculate_single_key(name, columns)
+                if result:
+                    min_rates['acquisition_rate'] = min(min_rates['acquisition_rate'], result['acquisition_rate'])
+                    min_rates['yield_rate'] = min(min_rates['yield_rate'], result['yield_rate'])
+                    min_rates['total_rate'] = min(min_rates['total_rate'], result['total_rate'])
+
+            # 如果沒有任何有效結果，回傳 0
+            if min_rates['acquisition_rate'] == 200 and min_rates['yield_rate'] == 200:
+                return {'acquisition_rate': 0, 'yield_rate': 0, 'total_rate': 0}
+
+            return min_rates
+
+    def _rate_calculate(self, raw_data, qc_data) -> None:
         if self.meta['deter_key'] is not None:
-            # use qc_freq to calculate each period rate
             if self.qc_freq is not None:
                 raw_data_grouped = raw_data.groupby(pd.Grouper(freq=self.qc_freq))
                 qc_data_grouped = qc_data.groupby(pd.Grouper(freq=self.qc_freq))
 
                 for (month, _sub_raw_data), (_, _sub_qc_data) in zip(raw_data_grouped, qc_data_grouped):
                     self.logger.info(
-                        f"\t{self.logger.BLUE}{self.logger.ARROW} Processing: {_sub_raw_data.index[0].strftime('%F')}"
+                        f"\t{self.logger.BLUE}> Processing: {_sub_raw_data.index[0].strftime('%F')}"
                         f" to {_sub_raw_data.index[-1].strftime('%F')}{self.logger.RESET}")
 
-                    __base_rate(_sub_raw_data, _sub_qc_data)
-
+                    self.__calculate_rates(_sub_raw_data, _sub_qc_data, all_keys=True, with_log=True)
             else:
-                __base_rate(raw_data, qc_data)
+                self.__calculate_rates(raw_data, qc_data, all_keys=True, with_log=True)
+
+            # 計算週和月的數據
+            current_time = datetime.now()
+            week_mask = raw_data.index >= current_time - timedelta(days=7)
+            month_mask = raw_data.index >= current_time - timedelta(days=30)
+
+            # 生成報告
+            self.__generate_report(
+                current_time,
+                raw_data[week_mask], qc_data[week_mask],
+                raw_data[month_mask], qc_data[month_mask]
+            )
+
+    def __generate_report(self, current_time, week_raw_data, week_qc_data, month_raw_data, month_qc_data):
+        """生成獲取率和良率的報告"""
+        report = {
+            "report_time": current_time.strftime('%Y-%m-%d %H:%M:%S'),
+            "instrument_info": {
+                "station": self.path.name[:2],
+                "instrument": self.nam
+            },
+            "rates": {
+                "weekly": self.__calculate_rates(week_raw_data, week_qc_data),
+                "monthly": self.__calculate_rates(month_raw_data, month_qc_data),
+            },
+            "details": {
+                "weekly": {
+                    "start_time": (current_time - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S'),
+                    "end_time": current_time.strftime('%Y-%m-%d %H:%M:%S')
+                },
+                "monthly": {
+                    "start_time": (current_time - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),
+                    "end_time": current_time.strftime('%Y-%m-%d %H:%M:%S')
+                }
+            }
+        }
+
+        # 寫入報告
+        with open(self.report_out, 'w') as f:
+            json.dump(report, f, indent=4)
 
     def _timeIndex_process(self, _df, user_start=None, user_end=None, append_df=None):
         """
@@ -202,15 +292,15 @@ class AbstractReader(ABC):
 
         try:
             with Progress(
-                    TextColumn("[bold blue]{task.description}", style="bold blue"),
+                    SpinnerColumn(finished_text="✓"),
                     BarColumn(bar_width=25, complete_style="green", finished_style="bright_green"),
-                    TaskProgressColumn(),
-                    TimeRemainingColumn(),
-                    TextColumn("{task.fields[filename]}", style="yellow"),
+                    TaskProgressColumn(style="bold", text_format="[bright_green]{task.percentage:>3.0f}%"),
+                    TextColumn("{task.description}", style="bold blue"),
+                    TextColumn("{task.fields[filename]}", style="bold blue"),
                     console=Console(force_terminal=True, color_system="auto", width=120),
                     expand=False
             ) as progress:
-                task = progress.add_task(f"{self.logger.ARROW} Reading {self.nam} files", total=len(files), filename="")
+                task = progress.add_task(f"Reading {self.nam} files:", total=len(files), filename="")
                 yield progress, task
         finally:
             # Restore logger method and output message
@@ -262,12 +352,12 @@ class AbstractReader(ABC):
     def _run(self, user_start, user_end):
         # read pickle if pickle file exists and 'reset=False' or process raw data or append new data
         if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and not self.reset:
-            self.logger.info_box(f"Reading {self.nam} PICKLE from {user_start} to {user_end}", color_part="PICKLE")
+            self.logger.info_box(f"Reading {self.nam} PICKLE from {user_start} to {user_end}")
 
             _f_raw_done, _f_qc_done = pd.read_pickle(self.pkl_nam_raw), pd.read_pickle(self.pkl_nam)
 
             if self.append:
-                self.logger.info_box(f"Appending New data from {user_start} to {user_end}", color_part="New data")
+                self.logger.info_box(f"Appending New data from {user_start} to {user_end}")
 
                 _f_raw_new, _f_qc_new = self._read_raw_files()
                 _f_raw = self._timeIndex_process(_f_raw_done, append_df=_f_raw_new)
@@ -279,7 +369,7 @@ class AbstractReader(ABC):
                 return _f_qc if self.qc else _f_raw
 
         else:
-            self.logger.info_box(f"Reading {self.nam} RAW DATA from {user_start} to {user_end}", color_part="RAW DATA")
+            self.logger.info_box(f"Reading {self.nam} RAW DATA from {user_start} to {user_end}")
 
             _f_raw, _f_qc = self._read_raw_files()
 

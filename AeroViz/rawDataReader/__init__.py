@@ -110,6 +110,7 @@ def RawDataReader(instrument: str,
     >>> # Using Path and datetime objects
     >>> from pathlib import Path
     >>> from datetime import datetime
+    >>>
     >>> df_ae33 = RawDataReader(
     ...     instrument='AE33',
     ...     path=Path('/path/to/your/data/folder'),

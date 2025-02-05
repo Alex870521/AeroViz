@@ -2,6 +2,7 @@ from typing import Literal
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from matplotlib.cm import ScalarMappable
 from matplotlib.pyplot import Figure, Axes
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -11,7 +12,6 @@ from pandas import DataFrame, date_range, Timedelta
 from AeroViz.plot.utils import *
 
 __all__ = ['timeseries', 'timeseries_stacked']
-
 
 default_bar_kws = dict(
     width=0.0417,
@@ -105,12 +105,20 @@ def _wind_arrow(ax, df, y, c, scatter_kws, cbar_kws, inset_kws):
     # ax.set_xlim(df.index.min() - datetime.timedelta(days=1), df.index.max())
 
 
-def process_timeseries_data(df, rolling=None, interpolate_limit=None):
-    # apply rolling window if specified
-    df = df.rolling(window=rolling, min_periods=1).mean(numeric_only=True) if rolling is not None else df
+def process_timeseries_data(df, rolling=None, interpolate_limit=None, full_time_index=None):
+    # 1. 先建立完整的時間索引
+    if full_time_index is None:
+        full_time_index = pd.date_range(start=df.index.min(), end=df.index.max(), freq='h')  # 或其他適合的頻率
+
+    # 2. 重新索引，這會產生缺失值而不是丟棄時間點
+    df = df.reindex(full_time_index)
 
     # apply interpolation if specified
     df = df.interpolate(method='time', limit=interpolate_limit) if interpolate_limit is not None else df
+
+    # apply rolling window if specified
+    df = df.rolling(window=rolling, min_periods=1).mean(numeric_only=True) if rolling is not None else df
+
     return df
 
 
@@ -313,17 +321,18 @@ def timeseries(df: DataFrame,
     return fig, ax
 
 
-@set_figure(autolayout=False)
+@set_figure(figsize=(6, 3), fs=6, autolayout=False)
 def timeseries_stacked(df,
                        y: list[str] | str,
                        yi: list[str] | str,
                        label: list[str] | str,
-                       rolling: int | str | None = 6,
-                       interpolate_limit: int | None = 6,
-                       major_freq: str = '1MS',
-                       minor_freq: str = '10d',
+                       plot_type: Literal["absolute", "percentage", "both"] | str = 'both',
+                       rolling: int | str | None = 4,
+                       interpolate_limit: int | None = 4,
+                       major_freq: str = '10d',
+                       minor_freq: str = '1d',
+                       support_df: DataFrame | None = None,
                        ax: Axes | None = None,
-                       legend_ncol: int = 1,
                        **kwargs
                        ) -> tuple[Figure, Axes]:
     try:
@@ -331,17 +340,30 @@ def timeseries_stacked(df,
     except IndexError:
         raise IndexError("The DataFrame is empty. Please provide a valid DataFrame.")
 
+    if plot_type not in ['absolute', 'percentage', 'both']:
+        raise ValueError("plot_type must be one of 'absolute', 'percentage', or 'both'")
+
     # calculate the percentage of each component
+    df = df.dropna()
     df_pct = df[yi].div(df[yi].sum(axis=1), axis=0) * 100
+
     mean = [f"{_label} : {df[comp].mean():.2f}" for _label, comp in zip(label, yi)]
     pct = [f"{_label} : {df_pct[comp].mean():.2f}%" for _label, comp in zip(label, yi)]
 
+    full_time_index = pd.date_range(start=st_tm, end=fn_tm, freq='h')
+
     # process data
-    df = process_timeseries_data(df, rolling, interpolate_limit)
-    df_pct = process_timeseries_data(df_pct, rolling, interpolate_limit)
+    df = process_timeseries_data(df, rolling, interpolate_limit, full_time_index)
+    df_pct = process_timeseries_data(df_pct, rolling, interpolate_limit, full_time_index)
 
-    fig, (ax1, ax2) = plt.subplots(2, 1, **{**{'figsize': (12, 3)}, **kwargs.get('fig_kws', {})})
+    # Set figure size based on plot_type
+    figsize = (7, 6) if plot_type == 'both' else (7, 3)
+    if plot_type == 'both':
+        fig, (ax1, ax2) = plt.subplots(2, 1, **{**{'figsize': figsize, 'dpi': 600}, **kwargs.get('fig_kws', {})})
+    else:
+        fig, ax1 = plt.subplots(1, 1, **{**{'figsize': figsize, 'dpi': 600}, **kwargs.get('fig_kws', {})})
 
+    plt.subplots_adjust(right=0.95)
     width = 0.0417
     color = Color.colors1
 
@@ -349,54 +371,76 @@ def timeseries_stacked(df,
         if len(lst) != len(yi):
             raise ValueError(f"The length of {name} must match the combined length of y and y2")
 
-    bottom = None  # 初始化堆疊位置
-    for i, (_column, _color, _label) in enumerate(zip(yi, color, mean)):
-        if i == 0:
-            bottom = df[_column] * 0  # 第一個堆疊底部為零
-        ax1.bar(df.index, df[_column], color=_color, width=width, bottom=bottom, label=_label)
-        bottom += df[_column]  # 更新堆疊底部位置
+    def plot_stacked_bars(ax, data, labels, is_percentage=False):
+        bottom = None
+        for i, (_column, _color, _label) in enumerate(zip(yi, color, labels)):
+            if i == 0:
+                bottom = data[_column] * 0
+            ax.bar(data.index, data[_column], color=_color, width=width, bottom=bottom, label=_label)
+            bottom += data[_column]
 
-    ax1.legend(loc='upper left', ncol=legend_ncol, prop={'weight': 'bold'}, bbox_to_anchor=(1, 0, 1.2, 1))
+        # Set axis properties
+        if kwargs.get('legend', True):
+            ax.legend(loc='upper left', ncol=2, prop={'weight': 'bold'}, bbox_to_anchor=(0.75, 0, 0.2, 1))
 
-    ax1.axes.xaxis.set_visible(False)
+        ylim = (0, 100) if is_percentage else kwargs.get('ylim', (None, None))
+        ylabel = 'Percentage (%)' if is_percentage else (
+            kwargs.get('ylabel', Unit(y) if isinstance(y, str) else Unit(y[0])))
 
-    ax1.set(xlabel=kwargs.get('xlabel', ''),
-            ylabel=kwargs.get('ylabel', Unit(y) if isinstance(y, str) else Unit(y[0])),
-            xlim=kwargs.get('xlim', (st_tm, fn_tm)),
-            ylim=kwargs.get('ylim', (None, None)),
-            title=kwargs.get('title', ''),
-            )
+        ax.set(xlabel=kwargs.get('xlabel', ''),
+               xlim=kwargs.get('xlim', (st_tm, fn_tm)),
+               ylim=ylim,
+               title=kwargs.get('title', ''))
 
-    xticks = kwargs.get('xticks', date_range(start=st_tm, end=fn_tm, freq=major_freq))
-    yticks = kwargs.get('yticks', np.linspace(*ax1.get_ylim(), num=6))
-    minor_xticks = kwargs.get('minor_xticks', date_range(start=st_tm, end=fn_tm, freq=minor_freq))
+        ax.set_ylabel(ylabel, fontsize=12)
 
-    ax1.set_xticks(ticks=xticks, labels=xticks.strftime("%F"))
-    ax1.set_yticks(ticks=yticks, labels=[f'{tick:.0f}' for tick in yticks])
-    ax1.set_xticks(minor_xticks, minor=True)
+        # Set ticks
+        xticks = kwargs.get('xticks', date_range(start=st_tm, end=fn_tm, freq=major_freq))
+        yticks = kwargs.get('yticks', np.linspace(*ax.get_ylim(), num=6))
+        minor_xticks = kwargs.get('minor_xticks', date_range(start=st_tm, end=fn_tm, freq=minor_freq))
 
-    # ax2
-    bottom = None  # 初始化堆疊位置
-    for i, (_column, _color, _label) in enumerate(zip(yi, color, pct)):
-        if i == 0:
-            bottom = df_pct[_column] * 0  # 第一個堆疊底部為零
-        ax2.bar(df_pct.index, df_pct[_column], color=_color, width=width, bottom=bottom, label=_label)
-        bottom += df_pct[_column]  # 更新堆疊底部位置
+        ax.set_xticks(ticks=xticks, labels=xticks.strftime("%F"))
+        ax.set_yticks(ticks=yticks, labels=[f'{tick:.0f}' for tick in yticks])
+        ax.set_xticks(minor_xticks, minor=True)
 
-    ax2.legend(loc='upper left', ncol=legend_ncol, prop={'weight': 'bold'}, bbox_to_anchor=(1, 0, 1.2, 1))
+    # Plot based on plot_type
+    if plot_type in ['absolute', 'both']:
+        plot_stacked_bars(ax1, df, mean, is_percentage=False)
+        if plot_type == 'absolute':
+            ax1.axes.xaxis.set_visible(True)
 
-    ax2.set(xlabel=kwargs.get('xlabel', ''),
-            ylabel=kwargs.get('ylabel', 'Percentage (%)'),
-            xlim=kwargs.get('xlim', (st_tm, fn_tm)),
-            ylim=(0, 100),
-            )
+        if support_df is not None:  # 確保support_df存在
+            # 創建次要Y軸
+            ax_right = ax1.twinx()
 
-    xticks = kwargs.get('xticks', date_range(start=st_tm, end=fn_tm, freq=major_freq))
-    yticks = kwargs.get('yticks', np.linspace(*ax2.get_ylim(), num=6))
-    minor_xticks = kwargs.get('minor_xticks', date_range(start=st_tm, end=fn_tm, freq=minor_freq))
+            support_df = process_timeseries_data(support_df, rolling, interpolate_limit, full_time_index)
 
-    ax2.set_xticks(ticks=xticks, labels=xticks.strftime("%F"))
-    ax2.set_yticks(ticks=yticks, labels=[f'{tick:.0f}' for tick in yticks])
-    ax2.set_xticks(minor_xticks, minor=True)
+            # 繪製線圖在次要Y軸上
+            ax_right.plot(support_df.index, support_df['PM2.5'],
+                          color='black', linewidth=1.5,
+                          label=f'Measured $PM_{{2.5}}$')
 
+            # ax_right.plot(support_df.index, support_df['PM10'],
+            #               color='gray', linewidth=1.5,
+            #               label=f'Measured $PM_{{10}}$')
+
+            # 設置次要Y軸的標籤和格式
+            # ax_right.set_ylabel(Unit('PM2.5'), fontsize=12)
+            ax_right.set_ylim(0, 120)
+            ax_right.axes.yaxis.set_visible(False)
+
+            # ax_right.tick_params(axis='y', colors='black')
+            # ax_right.legend(loc='upper right', prop={'size': 12})
+
+    if plot_type in ['percentage', 'both']:
+        ax_pct = ax2 if plot_type == 'both' else ax1
+        plot_stacked_bars(ax_pct, df_pct, pct, is_percentage=True)
+
+    if plot_type == 'both':
+        pass
+        # ax1.axes.xaxis.set_visible(False)
+
+    plt.savefig('/Users/chanchihyu/Desktop/times_stacked.png', transparent=True)
+
+    plt.show()
     return fig, ax1

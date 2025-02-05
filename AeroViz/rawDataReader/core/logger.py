@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 class ReaderLogger:
-    def __init__(self, name: str, log_path: Path, log_level: str = 'WARNING'):
+    def __init__(self, name: str, log_path: Path, log_level: str = 'INFO'):
         self.name = name
         self.log_path = log_path
         self._log_level = getattr(logging, log_level)
@@ -33,16 +33,16 @@ class ReaderLogger:
             self.RESET = ''
 
         # 檢查 Unicode 支持
-        self.unicode_support = self._setup_unicode()
+        self.unicode_support = self._check_unicode_support()
 
         # 設置框架字符
         if self.unicode_support:
-            self.BOX_TOP_LEFT = "╔"
-            self.BOX_TOP_RIGHT = "╗"
-            self.BOX_BOTTOM_LEFT = "╚"
-            self.BOX_BOTTOM_RIGHT = "╝"
-            self.BOX_HORIZONTAL = "═"
-            self.BOX_VERTICAL = "║"
+            self.BOX_TOP_LEFT = "╭"
+            self.BOX_TOP_RIGHT = "╮"
+            self.BOX_BOTTOM_LEFT = "╰"
+            self.BOX_BOTTOM_RIGHT = "╯"
+            self.BOX_HORIZONTAL = "─"
+            self.BOX_VERTICAL = "│"
             self.ARROW = "▶"
         else:
             self.BOX_TOP_LEFT = "+"
@@ -75,7 +75,7 @@ class ReaderLogger:
         # 其他系統檢查
         return hasattr(sys.stdout, 'isatty') and sys.stdout.isatty()
 
-    def _setup_unicode(self) -> bool:
+    def _check_unicode_support(self) -> bool:
         """設置 Unicode 支持"""
         if platform.system().lower() == 'windows':
             try:

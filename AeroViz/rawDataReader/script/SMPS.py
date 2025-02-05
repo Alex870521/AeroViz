@@ -38,6 +38,15 @@ class Reader(AbstractReader):
 
             _df = read_csv(f, sep=delimiter, skiprows=skip, low_memory=False)
 
+            if 'Date' not in _df.columns:  # 資料需要轉置
+                try:
+                    _df = _df.T  # 轉置
+                    _df.columns = _df.iloc[0]  # 使用第一列作為欄位名稱
+                    _df = _df.iloc[1:]  # 移除第一列（因為已經變成欄位名稱）
+                    _df = _df.reset_index(drop=True)  # 重設索引
+                except:
+                    raise NotImplementedError('Not supported date format')
+
             for date_format in date_formats:
                 _time_index = parse_date(_df, date_format)
                 if not _time_index.isna().all():

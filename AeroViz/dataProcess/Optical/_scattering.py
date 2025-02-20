@@ -14,7 +14,7 @@ def _scaCoe(df, instru, specified_band: list):
     df_sca = df.copy().dropna()
 
     if instru == 'Neph':
-        df_out = df_sca[['B']].copy()
+        df_out = df_sca[['G']].copy()
         df_out.columns = [f'sca_{_band}' for _band in specified_band]
     else:
         df_out = df_sca.apply(get_species_wavelength, axis=1, result_type='expand', args=(specified_band,))

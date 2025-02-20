@@ -1,7 +1,7 @@
 import json
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
 from typing import Generator
 
@@ -179,20 +179,27 @@ class AbstractReader(ABC):
             else:
                 self.__calculate_rates(raw_data, qc_data, all_keys=True, with_log=True)
 
-            # 計算週和月的數據
+            # 使用 Grouper 對數據按週和月進行分組
             current_time = datetime.now()
-            week_mask = raw_data.index >= current_time - timedelta(days=7)
-            month_mask = raw_data.index >= current_time - timedelta(days=30)
+
+            # 按週分組 (使用星期一作為每週的開始)
+            weekly_raw_groups = raw_data.groupby(pd.Grouper(freq='W-MON'))
+            weekly_qc_groups = qc_data.groupby(pd.Grouper(freq='W-MON'))
+
+            # 按月分組 (使用月初作為每月的開始)
+            monthly_raw_groups = raw_data.groupby(pd.Grouper(freq='MS'))
+            monthly_qc_groups = qc_data.groupby(pd.Grouper(freq='MS'))
 
             # 生成報告
-            self.__generate_report(
+            self.__generate_grouped_report(
                 current_time,
-                raw_data[week_mask], qc_data[week_mask],
-                raw_data[month_mask], qc_data[month_mask]
+                weekly_raw_groups, weekly_qc_groups,
+                monthly_raw_groups, monthly_qc_groups
             )
 
-    def __generate_report(self, current_time, week_raw_data, week_qc_data, month_raw_data, month_qc_data):
-        """生成獲取率和良率的報告"""
+    def __generate_grouped_report(self, current_time, weekly_raw_groups, weekly_qc_groups,
+                                  monthly_raw_groups, monthly_qc_groups):
+        """生成基於分組數據的獲取率和良率報告"""
         report = {
             "report_time": current_time.strftime('%Y-%m-%d %H:%M:%S'),
             "instrument_info": {
@@ -200,20 +207,49 @@ class AbstractReader(ABC):
                 "instrument": self.nam
             },
             "rates": {
-                "weekly": self.__calculate_rates(week_raw_data, week_qc_data),
-                "monthly": self.__calculate_rates(month_raw_data, month_qc_data),
-            },
-            "details": {
-                "weekly": {
-                    "start_time": (current_time - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S'),
-                    "end_time": current_time.strftime('%Y-%m-%d %H:%M:%S')
-                },
-                "monthly": {
-                    "start_time": (current_time - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'),
-                    "end_time": current_time.strftime('%Y-%m-%d %H:%M:%S')
-                }
+                "weekly": {},
+                "monthly": {}
             }
         }
+
+        # 處理週數據 - 使用標準週時間範圍
+        for week_start, week_raw_data in weekly_raw_groups:
+            # 獲取對應的QC數據
+            week_qc_data = weekly_qc_groups.get_group(
+                week_start) if week_start in weekly_qc_groups.groups else pd.DataFrame()
+
+            if not week_raw_data.empty:
+                # 計算標準週結束時間（週日23:59:59）
+                week_end = week_start + pd.Timedelta(days=6, hours=23, minutes=59, seconds=59)
+
+                # 使用週的開始日期作為鍵
+                period_key = week_start.strftime('%Y-%m-%d')
+
+                report["rates"]["weekly"][period_key] = {
+                    "start_time": week_start.strftime('%Y-%m-%d %H:%M:%S'),
+                    "end_time": week_end.strftime('%Y-%m-%d %H:%M:%S'),
+                    "rates": self.__calculate_rates(week_raw_data, week_qc_data)
+                }
+
+        # 處理月數據 - 使用標準月時間範圍
+        for month_start, month_raw_data in monthly_raw_groups:
+            # 獲取對應的QC數據
+            month_qc_data = monthly_qc_groups.get_group(
+                month_start) if month_start in monthly_qc_groups.groups else pd.DataFrame()
+
+            if not month_raw_data.empty:
+                # 計算標準月結束時間（月末23:59:59）
+                next_month_start = (month_start + pd.Timedelta(days=32)).replace(day=1)
+                month_end = next_month_start - pd.Timedelta(seconds=1)
+
+                # 使用月份作為鍵
+                period_key = month_start.strftime('%Y-%m')
+
+                report["rates"]["monthly"][period_key] = {
+                    "start_time": month_start.strftime('%Y-%m-%d %H:%M:%S'),
+                    "end_time": month_end.strftime('%Y-%m-%d %H:%M:%S'),
+                    "rates": self.__calculate_rates(month_raw_data, month_qc_data)
+                }
 
         # 寫入報告
         with open(self.report_out, 'w') as f:
@@ -247,13 +283,28 @@ class AbstractReader(ABC):
         # Create new time index
         new_index = pd.date_range(user_start or df_start, user_end or df_end, freq=freq, name='time')
 
-        # Process data: convert to numeric, resample, and reindex
+        # Process data: convert to numeric, resample, and reindex with controlled tolerance
         if freq in ['1min', 'min', 'T']:
-            return _df.reindex(new_index, method='nearest', tolerance='1min')
+            # 對於分鐘級數據，使用較小的tolerance，例如30秒
+            return _df.reindex(new_index, method='nearest', tolerance='30s')
         elif freq in ['1h', 'h', 'H']:
-            return _df.reindex(new_index, method='nearest', tolerance='1h')
+            # 對於小時級數據，使用30分鐘作為tolerance
+            # 這樣08:20會匹配到08:00，但不會匹配到09:00
+            return _df.reindex(new_index, method='nearest', tolerance='30min')
         else:
-            return _df.reindex(new_index, method='nearest', tolerance=freq)
+            # 對於其他頻率，tolerance設置為頻率的一半
+            if isinstance(freq, str) and freq[-1].isalpha():
+                # 如果freq格式為'數字+單位'，例如'2h'，'3min'
+                try:
+                    num = int(freq[:-1])
+                    unit = freq[-1]
+                    half_freq = f"{num // 2}{unit}" if num > 1 else f"30{'min' if unit == 'h' else 's'}"
+                    return _df.reindex(new_index, method='nearest', tolerance=half_freq)
+                except ValueError:
+                    # 無法解析freq，使用默認值
+                    return _df.reindex(new_index, method='nearest', tolerance=freq)
+            else:
+                return _df.reindex(new_index, method='nearest', tolerance=freq)
 
     def _outlier_process(self, _df):
         outlier_file = self.path / 'outlier.json'

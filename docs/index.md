@@ -23,7 +23,7 @@ data = RawDataReader(
 )
 ```
 
-[Learn more about RawDataReader](/guide/RawDataReader.md)
+[Learn more about RawDataReader](guide/RawDataReader.md)
 
 ### 2. DataProcess
 
@@ -37,7 +37,7 @@ processor = DataProcess(data)
 processed_data = processor.process()
 ```
 
-[Learn more about DataProcess](/guide/DataProcess.md)
+[Learn more about DataProcess](guide/DataProcess.md)
 
 ### 3. Plot
 
@@ -50,19 +50,19 @@ from AeroViz import plot
 plot.time_series(data, 'BC')
 ```
 
-[Learn more about Plot](/guide/plot.md)
+[Learn more about Plot](guide/plot.md)
 
 ## Supported Instruments
 
 AeroViz supports a wide range of aerosol instruments through the RawDataReader API:
 
-- [AE33 Aethalometer](/instruments/AE33.md)
-- [AE43 Aethalometer](/instruments/AE43.md)
-- [BC1054 Black Carbon Monitor](/instruments/BC1054.md)
-- [MA350 MicroAeth](/instruments/MA350.md)
-- [SMPS](/instruments/SMPS.md)
-- [NEPH](/instruments/NEPH.md)
-- [And more...](/instruments/index.md)
+- [AE33 Aethalometer](instruments/AE33.md)
+- [AE43 Aethalometer](instruments/AE43.md)
+- [BC1054 Black Carbon Monitor](instruments/BC1054.md)
+- [MA350 MicroAeth](instruments/MA350.md)
+- [SMPS](instruments/SMPS.md)
+- [NEPH](instruments/NEPH.md)
+- [And more...](instruments/index.md)
 
 ## Quick Start
 
@@ -95,45 +95,45 @@ pip install AeroViz
 
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](/contributing.md) for details.
+We welcome contributions! Please see our [Contributing Guide](contributing.md) for details.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](/LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ```{toctree}
 :maxdepth: 2
 :caption: Contents
 
-/guide/RawDataReader
-/guide/DataProcess
-/guide/plot
+guide/RawDataReader
+guide/DataProcess
+guide/plot
 ```
 
 ```{toctree}
 :maxdepth: 2
 :caption: Instruments
 
-/instruments/index
-/instruments/AE33
-/instruments/AE43
-/instruments/BC1054
-/instruments/MA350
-/instruments/SMPS
-/instruments/NEPH
-/instruments/OCEC
-/instruments/VOC
-/instruments/XRF
-/instruments/IGAC
-/instruments/APS
-/instruments/GRIMM
-/instruments/Aurora
-/instruments/TEOM
+instruments/index
+instruments/AE33
+instruments/AE43
+instruments/BC1054
+instruments/MA350
+instruments/SMPS
+instruments/NEPH
+instruments/OCEC
+instruments/VOC
+instruments/XRF
+instruments/IGAC
+instruments/APS
+instruments/GRIMM
+instruments/Aurora
+instruments/TEOM
 ```
 
 ```{toctree}
 :maxdepth: 2
 :caption: API Reference
 
-/api/index
+api/index
 ``` 

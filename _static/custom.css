@@ -1,0 +1,15 @@
+.wy-nav-content {
+    max-width: 100vw !important;
+}
+
+/* 确保内容不会太靠近边缘 */
+.wy-nav-content-wrap {
+    margin-left: 300px;
+}
+
+/* 在小屏幕上保持良好的阅读体验 */
+@media screen and (max-width: 768px) {
+    .wy-nav-content-wrap {
+        margin-left: 0;
+    }
+} 

@@ -1,14 +1,31 @@
-# VOC Species Support and Usage Guide
+# Volatile Organic Compounds Analyzer (VOC)
 
-## Introduction
+The VOC analyzer measures concentrations of various volatile organic compounds in air.
 
-This document provides information on the Volatile Organic Compound (VOC) species supported by our analysis package,
-along with basic usage instructions. Our package is designed to assist researchers and environmental scientists in
-effectively analyzing and processing VOC-related data.
+## Data Format
+
+- File format: CSV file
+- Sampling frequency: Variable
+- File naming pattern: `*.csv`
+- Data structure:
+    - Datetime index
+    - VOC species columns
+    - Special values:
+        - '-' treated as NA
+        - 'N.D.' (Not Detected) treated as NA
+
+## Measurement Parameters
+
+The VOC analyzer provides:
+
+- Multiple VOC species measurements
+- Concentration data for each compound
+- Supported species list required
+- Species-specific detection limits
 
 ## Supported VOC Species
 
-### Our package currently supports the following VOC species:
+The analyzer supports the following VOC species:
 
 |  class   |        Species         |  MIR  |   MW   | SOAP  |  KOH  |
 |:--------:|:----------------------:|:-----:|:------:|:-----:|:-----:|
@@ -84,17 +101,44 @@ effectively analyzing and processing VOC-related data.
 |  ClVOC   |          TCE           | 0.64  | 131.4  | null  |  1.9  |
 |  ClVOC   |          VCM           | 2.83  |  62.5  | null  | null  |
 
-### Notes:
+### Species Parameters:
 
-1. MIR: Maximum Incremental Reactivity
-2. MW: Molecular Weight
-3. SOAP: Secondary Organic Aerosol Potential
-4. KOH: Rate constant for the reaction with OH radicals
-5. Some data appears as "null", indicating that the value was not provided in the original data
+- MIR: Maximum Incremental Reactivity
+- MW: Molecular Weight
+- SOAP: Secondary Organic Aerosol Potential
+- KOH: Rate constant for the reaction with OH radicals
 
-## Usage Instructions
+## Data Processing
 
-### Example Code
+### Data Reading
+
+- Processes CSV files with datetime index
+- Handles special values as NA
+- Standardizes column names
+- Filters based on supported species list
+- Warns about unsupported species
+- Removes duplicate timestamps
+
+### Quality Control
+
+- Basic file validation
+- No additional QC currently implemented
+- Future QC possibilities:
+    - Minimum detection limit filtering
+    - Value range checks
+    - Time-based outlier detection
+    - Correlation checks between species
+
+## Output Data
+
+The processed data contains:
+
+- Time index: Data acquisition time
+- VOC species: Concentrations of supported compounds
+- All measurements in standard units
+- Validated species names
+
+## Usage Example
 
 ```python
 from datetime import datetime as dtm
@@ -117,9 +161,12 @@ voc_prcs = DataProcess('VOC', path_out=path_prcs, excel=False, csv=True)
 df = voc_prcs.VOC_basic(dt_VOC)
 ```
 
-## Important Notes
+## Notes
 
-1. Ensure your data file is in the correct format, typically CSV.
-2. Species names in your data file should match those in the supported species list above.
-3. The package will ignore or warn about species not in the supported list.
-4. Analysis results include concentration, MIR value, SOAP value, and KOH reaction rate for each VOC.
+- Critical for air quality assessment
+- Important for photochemical reaction studies
+- Helps identify secondary organic aerosol sources
+- Requires predefined species list
+- Species name standardization essential
+- Some species may have missing parameters (marked as "null")
+- Analysis includes concentration, MIR, SOAP, and KOH values

@@ -1,13 +1,152 @@
-## <div align="center">AeroViz.plot Usage</div>
+# Plot Documentation
 
-### <div align="center">WindRose and Conditional Bivariate Probability Function (CBPF)</div>
+## Overview
+
+The plot module provides visualization tools for creating publication-quality plots of aerosol data. It includes various
+plot types commonly used in aerosol science.
+
+## Basic Usage
+
+```python
+from AeroViz import plot
+
+# Create a time series plot
+plot.time_series(data, 'BC')
+
+# Create a scatter plot
+plot.scatter(data, 'BC', 'PM2.5')
+```
+
+## Available Plot Types
+
+### time_series()
+
+Create a time series plot of specified variables.
+
+```python
+plot.time_series(
+    data,
+    variables=['BC', 'PM2.5'],
+    start='2024-01-01',
+    end='2024-12-31',
+    title='Time Series of BC and PM2.5'
+)
+```
+
+### scatter()
+
+Create a scatter plot of two variables.
+
+```python
+plot.scatter(
+    data,
+    x='BC',
+    y='PM2.5',
+    color='PM2.5',
+    size='BC'
+)
+```
+
+### box()
+
+Create a box plot of specified variables.
+
+```python
+plot.box(
+    data,
+    variables=['BC', 'PM2.5'],
+    by='month'
+)
+```
+
+### histogram()
+
+Create a histogram of specified variables.
+
+```python
+plot.histogram(
+    data,
+    variables=['BC'],
+    bins=50
+)
+```
+
+## Parameters
+
+### Common Parameters
+
+- `data` (DataFrame): Input data
+- `variables` (list): Variables to plot
+- `title` (str): Plot title
+- `figsize` (tuple): Figure size
+- `style` (str): Plot style
+
+### Time Series Parameters
+
+- `start` (str): Start date
+- `end` (str): End date
+- `freq` (str): Time frequency
+
+### Scatter Parameters
+
+- `x` (str): X-axis variable
+- `y` (str): Y-axis variable
+- `color` (str): Color variable
+- `size` (str): Size variable
+
+## Examples
+
+### Time Series with Multiple Variables
+
+```python
+plot.time_series(
+    data,
+    variables=['BC', 'PM2.5', 'PM10'],
+    start='2024-01-01',
+    end='2024-12-31',
+    title='Aerosol Components Time Series'
+)
+```
+
+### Scatter Plot with Color and Size
+
+```python
+plot.scatter(
+    data,
+    x='BC',
+    y='PM2.5',
+    color='PM10',
+    size='PM1',
+    title='BC vs PM2.5'
+)
+```
+
+### Box Plot by Month
+
+```python
+plot.box(
+    data,
+    variables=['BC'],
+    by='month',
+    title='Monthly BC Distribution'
+)
+```
+
+## Notes
+
+- All plots are customizable with various parameters
+- Plots can be saved in multiple formats (PNG, PDF, etc.)
+- The plot module uses matplotlib and seaborn under the hood
+- Publication-quality settings are applied by default
+
+## <div align="center">WindRose and Conditional Bivariate Probability Function (CBPF)</div>
 
 ![WindRose](https://github.com/Alex870521/AeroViz/blob/main/assets/figure/windrose_CBPF.png?raw=true)
 
 ```python
 from AeroViz import plot, DataBase
 
-df = DataBase() # build default data, uers can use their own data
+df = DataBase()  # build default data, uers can use their own data
 
 # wind rose
 plot.meteorology.wind_rose(df, 'WS', 'WD', typ='bar')
@@ -21,7 +160,8 @@ plot.meteorology.CBPF(df, 'WS', 'WD', 'PM2.5', percentile=[75, 100])
 
 ```python
 from AeroViz import plot, DataBase
-df = DataBase() # build default data, uers can use their own data
+
+df = DataBase()  # build default data, uers can use their own data
 
 # regression
 plot.linear_regression(df, x='PM25', y='Extinction')

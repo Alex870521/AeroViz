@@ -1,0 +1,74 @@
+site_name: AeroViz
+site_url: https://alex870521.github.io/AeroViz/
+repo_url: https://github.com/alex870521/AeroViz
+repo_name: alex870521/AeroViz
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - toc.follow
+    - search.suggest
+    - search.highlight
+  palette:
+    - scheme: default
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+nav:
+  - Home: index.md
+  - User Guide:
+      - Getting Started: guide/getting-started.md
+      - RawDataReader: guide/RawDataReader.md
+      - DataProcess: guide/DataProcess.md
+      - Plot: guide/plot.md
+  - Instruments:
+      - Overview: instruments/index.md
+      - AE33: instruments/AE33.md
+      - AE43: instruments/AE43.md
+      - BC1054: instruments/BC1054.md
+      - MA350: instruments/MA350.md
+      - SMPS: instruments/SMPS.md
+      - NEPH: instruments/NEPH.md
+      - OCEC: instruments/OCEC.md
+      - VOC: instruments/VOC.md
+      - XRF: instruments/XRF.md
+      - IGAC: instruments/IGAC.md
+      - APS: instruments/APS.md
+      - GRIMM: instruments/GRIMM.md
+      - Aurora: instruments/Aurora.md
+      - TEOM: instruments/TEOM.md
+  - API Reference:
+      - Overview: api/index.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - footnotes
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+plugins:
+  - search
+  - tags 

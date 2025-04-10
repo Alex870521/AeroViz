@@ -39,7 +39,9 @@ data = RawDataReader(
 ```
 
 ## Examples
+
 ### Scenario 1: Basic Usage with NEPH Instrument
+
 ```python
 neph_data = RawDataReader(
     instrument='NEPH',
@@ -63,12 +65,14 @@ neph_data = RawDataReader(
 			├─ Valid  Rate    :   100.0%
 			└─ Total  Rate    :   100.0%
 ```
+
 **Expected Output:**
 
 - Hourly averaged NEPH data for the entire year.
 - Will include scattering coefficients and other NEPH-related metrics.
 
 ### Scenario 2: AE33 with Quality Control and Rate Calculation
+
 ```python
 ae33_data = RawDataReader(
     instrument='AE33',
@@ -111,6 +115,7 @@ ae33_data = RawDataReader(
 			├─ Valid  Rate    :  100.0%
 			└─ Total  Rate    :  100.0%
 ```
+
 **Expected Output:**
 
 - Hourly AE33 data with quality control applied monthly.
@@ -118,6 +123,7 @@ ae33_data = RawDataReader(
 - Will generate a CSV file with the processed data.
 
 ### Scenario 3: SMPS with Specific Time Range
+
 ```python
 smps_data = RawDataReader(
     instrument='SMPS',
@@ -143,6 +149,7 @@ smps_data = RawDataReader(
 			└─ Total  Rate    :    1.6%
 
 ```
+
 **Expected Output:**
 
 - SMPS data for the summer months (June to August).
@@ -150,6 +157,7 @@ smps_data = RawDataReader(
 - Includes particle size distribution information.
 
 ---
+
 ## Output Files
 
 After processing, six files will be generated in the `{instrument}_outputs` directory:
@@ -182,13 +190,13 @@ def RawDataReader(
 - `instrument` (str): Name of the instrument (e.g., 'NEPH', 'AE33', 'SMPS')
 - `path` (Path | str): Directory path where raw data files are stored
 - `reset` (bool | str, default=False):
-  - `True`: Force reprocess all data
-  - `False`: Use existing processed data if available
-  - `'append'`: Add new data to existing processed data
+    - `True`: Force reprocess all data
+    - `False`: Use existing processed data if available
+    - `'append'`: Add new data to existing processed data
 - `qc` (bool | str, default=True):
-  - `True`: Apply default quality control
-  - `False`: Skip QC
-  - `str`: QC frequency (e.g., '1M', '1W')
+    - `True`: Apply default quality control
+    - `False`: Skip QC
+    - `str`: QC frequency (e.g., '1M', '1W')
 - `start` (datetime): Start date for processing
 - `end` (datetime): End date for processing
 - `mean_freq` (str, default='1h'): Frequency for data averaging
@@ -209,6 +217,7 @@ def RawDataReader(
 ---
 
 ## Supported Instruments
+
 ### The AeroViz project currently supports data from the following instruments:
 
 | Instrument                                             | Time Resolution | File Type   | Display Columns                                       | QAQC method |

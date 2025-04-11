@@ -28,14 +28,14 @@ theme:
         name: Switch to light mode
 
 nav:
-  - Home: index.md
+  - Home: home.md
   - User Guide:
       - Getting Started: guide/getting-started.md
       - RawDataReader: guide/RawDataReader.md
       - DataProcess: guide/DataProcess.md
       - Plot: guide/plot.md
   - Instruments:
-      - Overview: instruments/index.md
+      - Overview: instruments/instrument_overview.md
       - AE33: instruments/AE33.md
       - AE43: instruments/AE43.md
       - BC1054: instruments/BC1054.md

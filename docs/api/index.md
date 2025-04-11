@@ -1,23 +1,43 @@
-# API Reference
+# API 參考
 
-## Core APIs
+本節提供 AeroViz 的 API 參考文檔。
+
+## 核心模塊
 
 ### RawDataReader
 
-Factory function for reading and processing raw data from various aerosol instruments.
+用於讀取原始數據的模塊。
+
+- [RawDataReader 指南](../guide/RawDataReader.md)
+- [數據處理指南](../guide/DataProcess.md)
+- [繪圖指南](../guide/plot.md)
+
+### 儀器支持
+
+AeroViz 支持多種儀器的數據讀取：
+
+- [AE33](../instruments/AE33.md)
+- [AE43](../instruments/AE43.md)
+- [BC1054](../instruments/BC1054.md)
+- [MA350](../instruments/MA350.md)
+
+## 使用示例
 
 ```python
-from AeroViz import RawDataReader
+from AeroViz.rawDataReader import RawDataReader
 
-data = RawDataReader(
-    instrument='AE33',
-    path='path/to/data',
-    start=datetime(2024, 1, 1),
-    end=datetime(2024, 12, 31)
-)
+# 創建讀取器實例
+reader = RawDataReader()
+
+# 讀取數據
+data = reader.read("path/to/data.txt")
 ```
 
-[View RawDataReader Documentation](guide/RawDataReader.md)
+## 注意事項
+
+- 所有時間序列數據都使用 pandas 的 DatetimeIndex
+- 數據質量控制參數可以在配置文件中設置
+- 支持自定義數據處理流程
 
 ### DataProcess
 
@@ -30,7 +50,7 @@ processor = DataProcess(data)
 processed_data = processor.process()
 ```
 
-[View DataProcess Documentation](guide/DataProcess.md)
+[View DataProcess Documentation](../guide/DataProcess.md)
 
 ### plot
 
@@ -43,25 +63,7 @@ plot.time_series(data, 'BC')
 plot.scatter(data, 'BC', 'PM2.5')
 ```
 
-[View Plot Documentation](guide/plot.md)
-
-## Supported Instruments
-
-### AE33 Aethalometer
-
-[View AE33 Documentation](instruments/AE33.md)
-
-### AE43 Aethalometer
-
-[View AE43 Documentation](instruments/AE43.md)
-
-### BC1054 Black Carbon Monitor
-
-[View BC1054 Documentation](instruments/BC1054.md)
-
-### MA350 MicroAeth
-
-[View MA350 Documentation](instruments/MA350.md)
+[View Plot Documentation](../guide/plot.md)
 
 ## Common Parameters
 

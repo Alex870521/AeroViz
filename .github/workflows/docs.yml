@@ -3,9 +3,9 @@ name: Deploy Documentation
 on:
   push:
     branches:
-      - main  # 或者您的默认分支名称
+      - main
     paths:
-      - 'docs/**'  # 只有当 docs 目录下的文件改变时才触发
+      - 'docs/**'
       - 'mkdocs.yml'
 
 permissions:
@@ -26,7 +26,11 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install mkdocs-material
+        run: |
+          pip install mkdocs-material
+          pip install pymdown-extensions
+          pip install mkdocs-minify-plugin
+          pip install mkdocs-git-revision-date-localized-plugin
 
       - name: Configure Git
         run: |
@@ -34,4 +38,4 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Deploy documentation
-        run: mkdocs gh-deploy --force 
+        run: mkdocs gh-deploy --force

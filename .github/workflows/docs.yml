@@ -7,6 +7,7 @@ on:
     paths:
       - 'docs/**'
       - 'mkdocs.yml'
+      - '.github/workflows/docs.yml'
 
 permissions:
   contents: write
@@ -38,4 +39,6 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Deploy documentation
-        run: mkdocs gh-deploy --force
+        run: |
+          mkdocs gh-deploy --force
+          git config --global --add safe.directory /github/workspace

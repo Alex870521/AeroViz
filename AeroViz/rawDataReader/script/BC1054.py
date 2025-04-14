@@ -9,7 +9,7 @@ class Reader(AbstractReader):
     A specialized reader for BC1054 data files, which measure black carbon
     concentrations using light absorption.
 
-    See full documentation at docs/instruments/BC1054.md for detailed information
+    See full documentation at docs/source/instruments/BC1054.md for detailed information
     on supported formats and QC procedures.
     """
     nam = 'BC1054'

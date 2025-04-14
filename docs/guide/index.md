@@ -35,7 +35,7 @@ plot.time_series(processed_data, 'BC')
 
 ## Next Steps
 
-- Learn more about [RawDataReader](RawDataReader.md)
-- Explore [DataProcess](DataProcess.md) functionality
+- Learn more about [RawDataReader](RawDataReader/index.md)
+- Explore [DataProcess](DataProcess/index.md) functionality
 - Check out [Plot](plot.md) capabilities
-- Browse supported [instruments](../instruments/instrument_overview.md) 
+- Browse supported [instruments](instruments/index.md) 

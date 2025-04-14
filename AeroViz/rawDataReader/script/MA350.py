@@ -9,7 +9,7 @@ class Reader(AbstractReader):
     A specialized reader for MA350 Aethalometer data files, which measure 
     black carbon at multiple wavelengths and provide source apportionment.
     
-    See full documentation at docs/instruments/MA350.md for detailed information
+    See full documentation at docs/source/instruments/MA350.md for detailed information
     on supported formats and QC procedures.
     """
     nam = 'MA350'

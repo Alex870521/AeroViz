@@ -34,7 +34,20 @@ class AbstractReader(ABC):
                  reset: bool | str = False,
                  qc: bool | str = True,
                  **kwargs):
+        """A core initialized method for reading raw data from different instruments.
 
+        Parameters
+        ----------
+        path : str | Path
+            The path of the raw data file.
+        reset : bool | str
+            Whether to reset the raw data before reading.
+        qc : bool | str
+            Whether to read QC data before reading.
+        **kwargs : dict
+            Additional keyword arguments passed to the reader.
+
+        """
         self.path = Path(path)
         self.meta = meta[self.nam]
         output_folder = self.path / f'{self.nam.lower()}_outputs'
@@ -62,6 +75,7 @@ class AbstractReader(ABC):
                  end: datetime,
                  mean_freq: str = '1h',
                  ) -> pd.DataFrame:
+        """Process data for specified time range."""
 
         data = self._run(start, end)
 
@@ -74,20 +88,32 @@ class AbstractReader(ABC):
 
     @abstractmethod
     def _raw_reader(self, file):
+        """Implement in child classes to read raw data files."""
         pass
 
     @abstractmethod
     def _QC(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Implement in child classes for quality control."""
         return df
 
     def __calculate_rates(self, raw_data, qc_data, all_keys=False, with_log=False):
-        """計算獲取率、良率和總比率
+        """Calculate acquisition rate, yield rate, and total rate.
 
-        Args:
-            raw_data: 原始數據
-            qc_data: QC後的數據
-            all_keys: 是否計算所有 deter_key
-            with_log: 是否輸出計算日誌
+        Parameters
+        ----------
+        raw_data : DataFrame
+            Raw data before quality control
+        qc_data : DataFrame
+            Data after quality control
+        all_keys : bool, default=False
+            Whether to calculate rates for all deterministic keys
+        with_log : bool, default=False
+            Whether to output calculation logs
+
+        Returns
+        -------
+        dict
+            Dictionary containing calculated rates
         """
         if raw_data.empty or qc_data.empty:
             return {'acquisition_rate': 0, 'yield_rate': 0, 'total_rate': 0}
@@ -107,7 +133,7 @@ class AbstractReader(ABC):
                 sample_size < qc_size
             ]):
                 if with_log:
-                    self.logger.warning(f'\t\t No data for this period... skip')
+                    self.logger.warning(f"\t\t No data for this period... skip")
                 return None
 
             # 計算比率
@@ -183,8 +209,12 @@ class AbstractReader(ABC):
             current_time = datetime.now()
 
             # 按週分組 (使用星期一作為每週的開始)
-            weekly_raw_groups = raw_data.groupby(pd.Grouper(freq='W-MON'))
-            weekly_qc_groups = qc_data.groupby(pd.Grouper(freq='W-MON'))
+            weekly_raw_groups = raw_data.groupby(pd.Grouper(freq='W-MON', label="left", closed="left"))
+            weekly_qc_groups = qc_data.groupby(pd.Grouper(freq='W-MON', label="left", closed="left"))
+
+            # for name, sub_df in weekly_raw_groups:
+            #     print(f"\n週次開始日期: {name}")
+            #     print(f"該週資料範圍: {sub_df.index.min()} to {sub_df.index.max()}")
 
             # 按月分組 (使用月初作為每月的開始)
             monthly_raw_groups = raw_data.groupby(pd.Grouper(freq='MS'))
@@ -199,7 +229,7 @@ class AbstractReader(ABC):
 
     def __generate_grouped_report(self, current_time, weekly_raw_groups, weekly_qc_groups,
                                   monthly_raw_groups, monthly_qc_groups):
-        """生成基於分組數據的獲取率和良率報告"""
+        """Generate acquisition and yield reports based on grouped data"""
         report = {
             "report_time": current_time.strftime('%Y-%m-%d %H:%M:%S'),
             "instrument_info": {
@@ -256,14 +286,23 @@ class AbstractReader(ABC):
             json.dump(report, f, indent=4)
 
     def _timeIndex_process(self, _df, user_start=None, user_end=None, append_df=None):
-        """
-        Process time index, resample data, extract specified time range, and optionally append new data.
+        """Process time index, resample data, extract specified time range, and optionally append new data.
 
-        :param _df: Input DataFrame with time index
-        :param user_start: Start of user-specified time range (optional)
-        :param user_end: End of user-specified time range (optional)
-        :param append_df: DataFrame to append (optional)
-        :return: Processed DataFrame
+        Parameters
+        ----------
+        _df : pandas.DataFrame
+            Input DataFrame with time index
+        user_start : datetime or str, optional
+            Start of user-specified time range
+        user_end : datetime or str, optional
+            End of user-specified time range
+        append_df : pandas.DataFrame, optional
+            DataFrame to append to the result
+
+        Returns
+        -------
+        pandas.DataFrame
+            Processed DataFrame with properly formatted time index
         """
         # Round timestamps and remove duplicates
         _df = _df.groupby(_df.index.floor('1min')).first()
@@ -307,6 +346,7 @@ class AbstractReader(ABC):
                 return _df.reindex(new_index, method='nearest', tolerance=freq)
 
     def _outlier_process(self, _df):
+        """Process outliers."""
         outlier_file = self.path / 'outlier.json'
 
         if not outlier_file.exists():
@@ -321,6 +361,7 @@ class AbstractReader(ABC):
         return _df
 
     def _save_data(self, raw_data: pd.DataFrame, qc_data: pd.DataFrame) -> None:
+        """Save data to files."""
         try:
             raw_data.to_pickle(self.pkl_nam_raw)
             raw_data.to_csv(self.csv_nam_raw)
@@ -361,6 +402,7 @@ class AbstractReader(ABC):
                     original[level](msg)
 
     def _read_raw_files(self) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
+        """ **Read and process raw files.** """
         files = [f
                  for file_pattern in self.meta['pattern']
                  for pattern in {file_pattern.lower(), file_pattern.upper(), file_pattern}
@@ -440,6 +482,7 @@ class AbstractReader(ABC):
 
     @staticmethod
     def reorder_dataframe_columns(df, order_lists: list[list], keep_others: bool = False):
+        """Reorder DataFrame columns."""
         new_order = []
 
         for order in order_lists:
@@ -455,3 +498,45 @@ class AbstractReader(ABC):
     @staticmethod
     def time_aware_IQR_QC(df: pd.DataFrame, time_window='1D', log_dist=False) -> pd.DataFrame:
         return QualityControl().time_aware_iqr(df, time_window=time_window, log_dist=log_dist)
+
+    @staticmethod
+    def filter_error_status(_df, error_codes, special_codes=None):
+        """Filter data containing specified error status codes and specially handle certain specific codes.
+
+        Parameters
+        ----------
+        _df : pandas.DataFrame
+            A DataFrame containing a 'Status' column
+        error_codes : list
+            A List of status codes for bitwise testing
+        special_codes : list, optional
+            List of special status codes for exact matching
+
+        Returns
+        -------
+        pandas.DataFrame
+            Filtered DataFrame
+
+        Notes
+        -----
+        This function performs two types of filtering:
+        1. Bitwise filtering that checks if any error_codes are present in the Status
+        2. Exact matching for special_codes
+        """
+        # Create an empty mask
+        error_mask = pd.Series(False, index=_df.index)
+
+        # Convert Status to integer (if it's not already)
+        status_values = pd.to_numeric(_df['Status'], errors='coerce').fillna(0).astype(int)
+
+        # Bitwise test normal error codes
+        for code in error_codes:
+            # Use bitwise operation on the integer-converted status_values
+            error_mask = error_mask | ((status_values & code) != 0)
+
+        # Exact matching for special codes
+        if special_codes:
+            error_mask = error_mask | status_values.isin(special_codes)
+
+        # Mask rows containing any errors
+        return _df.mask(error_mask)

@@ -5,53 +5,82 @@ repo_name: alex870521/AeroViz
 
 theme:
   name: material
+  language: en
+  font:
+    text: Segoe UI
+    code: JetBrains Mono
+  custom_dir: docs/overrides
+  logo: assets/icon.svg
+  favicon: assets/icon.svg
   features:
     - navigation.tabs
     - navigation.sections
     - navigation.expand
     - navigation.top
+    - navigation.footer
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.indexes
+    - navigation.tracking
     - toc.follow
+    - search.share
     - search.suggest
     - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - announce.dismiss
   palette:
     - scheme: default
-      primary: blue
-      accent: indigo
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - scheme: slate
-      primary: blue
-      accent: indigo
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
 
 nav:
-  - Home: home.md
+  - Home:
+      - Overview: index.md
+      - Changelog: CHANGELOG.md
+
   - User Guide:
-      - Getting Started: guide/getting-started.md
-      - RawDataReader: guide/RawDataReader.md
-      - DataProcess: guide/DataProcess.md
-      - Plot: guide/plot.md
-  - Instruments:
-      - Overview: instruments/instrument_overview.md
-      - AE33: instruments/AE33.md
-      - AE43: instruments/AE43.md
-      - BC1054: instruments/BC1054.md
-      - MA350: instruments/MA350.md
-      - SMPS: instruments/SMPS.md
-      - NEPH: instruments/NEPH.md
-      - OCEC: instruments/OCEC.md
-      - VOC: instruments/VOC.md
-      - XRF: instruments/XRF.md
-      - IGAC: instruments/IGAC.md
-      - APS: instruments/APS.md
-      - GRIMM: instruments/GRIMM.md
-      - Aurora: instruments/Aurora.md
-      - TEOM: instruments/TEOM.md
+      - Overview: guide/index.md
+      - RawDataReader:
+          - Overview: guide/RawDataReader/index.md
+          - Supported Instrument:
+              - Overview: guide/instruments/index.md
+              - AE33: guide/instruments/AE33.md
+              - AE43: guide/instruments/AE43.md
+              - BC1054: guide/instruments/BC1054.md
+              - MA350: guide/instruments/MA350.md
+              - Aurora: guide/instruments/Aurora.md
+              - NEPH: guide/instruments/NEPH.md
+              - SMPS: guide/instruments/SMPS.md
+              - APS: guide/instruments/APS.md
+              - GRIMM: guide/instruments/GRIMM.md
+              - IGAC: guide/instruments/IGAC.md
+              - OCEC: guide/instruments/OCEC.md
+              - TEOM: guide/instruments/TEOM.md
+              - VOC: guide/instruments/VOC.md
+              - XRF: guide/instruments/XRF.md
+
+      - DataProcess:
+          - Overview: guide/DataProcess/index.md
+
+      - Plot:
+          - Overview: guide/plot.md
+
   - API Reference:
       - Overview: api/index.md
+      - Core API:
+          - RawDataReader:
+              - api/RawDataReader.md
+              - Quality Control: api/QualityControl.md
+
+          - DataProcess: api/DataProcess.md
+
+  - Web Site: https://aeroviz.org/
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -61,14 +90,43 @@ markdown_extensions:
   - pymdownx.superfences
   - admonition
   - pymdownx.details
+  - attr_list
+  - md_in_html
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      options:
+        custom_icons:
+          - overrides/.icons
   - pymdownx.tabbed:
       alternate_style: true
   - tables
   - footnotes
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra_css:
+  - stylesheets/extra.css
+  - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/alex870521/AeroViz
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/AeroViz
 
 plugins:
   - search
-  - tags 
+  - tags
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: numpy  # 或 numpy, sphinx
+            show_source: true
+            show_root_heading: true
+            show_object_full_path: false
+            heading_level: 2
+  - git-revision-date-localized:
+      enable_creation_date: true
+      type: date

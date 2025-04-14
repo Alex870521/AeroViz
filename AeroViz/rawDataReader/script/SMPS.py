@@ -6,27 +6,48 @@ from pandas import to_datetime, to_numeric, read_csv
 from AeroViz.rawDataReader.core import AbstractReader
 
 
-def find_header_row(file_obj, delimiter):
-    csv_reader = csv.reader(file_obj, delimiter=delimiter)
-    for skip, row in enumerate(csv_reader):
-        if row and (row[0] in ['Sample #', 'Scan Number']):
-            return skip
-    raise ValueError("Header row not found")
-
-
-def parse_date(df, date_format):
-    if 'Date' in df.columns and 'Start Time' in df.columns:
-        return to_datetime(df['Date'] + ' ' + df['Start Time'], format=date_format, errors='coerce')
-    elif 'DateTime Sample Start' in df.columns:
-        return to_datetime(df['DateTime Sample Start'], format=date_format, errors='coerce')
-    else:
-        raise ValueError("Expected date columns not found")
-
-
 class Reader(AbstractReader):
+    """ SMPS (Scanning Mobility Particle Sizer) Data Reader
+
+    A specialized reader for SMPS data files, which measure particle size distributions
+    in the range of 11.8-593.5 nm.
+
+    See full documentation at docs/source/instruments/SMPS.md for detailed information
+    on supported formats and QC procedures.
+    """
     nam = 'SMPS'
 
     def _raw_reader(self, file):
+        """
+        Read and parse raw SMPS data files.
+
+        Parameters
+        ----------
+        file : Path or str
+            Path to the SMPS data file.
+
+        Returns
+        -------
+        pandas.DataFrame or None
+            Processed raw SMPS data with datetime index and particle sizes as columns.
+            Returns None if the file's size range doesn't match the expected range.
+        """
+
+        def find_header_row(file_obj, delimiter):
+            csv_reader = csv.reader(file_obj, delimiter=delimiter)
+            for skip, row in enumerate(csv_reader):
+                if row and (row[0] in ['Sample #', 'Scan Number']):
+                    return skip
+            raise ValueError("Header row not found")
+
+        def parse_date(df, date_format):
+            if 'Date' in df.columns and 'Start Time' in df.columns:
+                return to_datetime(df['Date'] + ' ' + df['Start Time'], format=date_format, errors='coerce')
+            elif 'DateTime Sample Start' in df.columns:
+                return to_datetime(df['DateTime Sample Start'], format=date_format, errors='coerce')
+            else:
+                raise ValueError("Expected date columns not found")
+
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             if file.suffix.lower() == '.txt':
                 delimiter, date_formats = '\t', ['%m/%d/%y %X', '%m/%d/%Y %X']
@@ -75,8 +96,30 @@ class Reader(AbstractReader):
 
             return _df_smps.apply(to_numeric, errors='coerce')
 
-    # QC data
     def _QC(self, _df):
+        """
+        Perform quality control on SMPS particle size distribution data.
+
+        Parameters
+        ----------
+        _df : pandas.DataFrame
+            Raw SMPS data with datetime index and particle diameters as columns.
+            Column names should be numeric values representing particle diameters in nm.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Quality-controlled SMPS data with invalid measurements masked.
+
+        Notes
+        -----
+        Applies the following QC filters:
+        1. Size range filter: Retains only data within the specified particle size range
+        2. Hourly data completeness: Requires minimum 5 measurements per hour
+        3. Total concentration threshold: Minimum 2000 particles/cm³
+        4. Upper concentration limit: Maximum 1×10⁶ dN/dlogDp per bin
+        5. Large particle filter: Maximum 4000 dN/dlogDp for particles >400 nm
+        """
         _df = _df.copy()
         _index = _df.index.copy()
 
@@ -97,8 +140,8 @@ class Reader(AbstractReader):
                          .ffill()
                          .reindex(_df.index, method='ffill', tolerance='6min'))
 
-        # Remove data with less than 6 data per hour
-        _df = _df.mask(hourly_counts < 6)
+        # Remove data with less than 5 data per hour
+        _df = _df.mask(hourly_counts < 5)
 
         # remove total conc. (dN) lower than 2000
         _df = _df.mask(_df['total'] < 2000)

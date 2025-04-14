@@ -9,7 +9,7 @@ class Reader(AbstractReader):
     A specialized reader for AE43 Aethalometer data files, which measure black carbon
     concentrations at multiple wavelengths.
 
-    See full documentation at docs/instruments/AE43.md for detailed information
+    See full documentation at docs/source/instruments/AE43.md for detailed information
     on supported formats and QC procedures.
     """
     nam = 'AE43'

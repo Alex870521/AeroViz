@@ -35,21 +35,18 @@ meta = {
         "pattern": ["[!ST|!CT|!FV]*[!log]_AE33*.dat"],
         "freq": "1min",
         "deter_key": {"BC Mass Conc. (880 nm)": ["BC6"]},
-        "error_state": [],
     },
 
     "AE43": {
         "pattern": ["[!ST|!CT|!FV]*[!log]_AE43*.dat"],
         "freq": "1min",
         "deter_key": {"BC Mass Conc. (880 nm)": ["BC6"]},
-        "error_state": [],
     },
 
     "BC1054": {
         "pattern": ["*.csv"],
         "freq": "1min",
         "deter_key": {"BC Mass Conc. (880 nm)": ["BC9"]},
-        "error_state": [1, 2, 4, 8, 16, 32, 65536],
     },
 
     "MA350": {

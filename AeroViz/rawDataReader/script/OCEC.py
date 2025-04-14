@@ -5,9 +5,30 @@ from AeroViz.rawDataReader.core import AbstractReader
 
 
 class Reader(AbstractReader):
+    """ OC/EC (Organic Carbon/Elemental Carbon) Analyzer Data Reader
+
+    A specialized reader for OC/EC analyzer data files, which measure carbonaceous
+    aerosol composition using thermal and optical methods.
+
+    See full documentation at docs/source/instruments/OCEC.md for detailed information
+    on supported formats and QC procedures.
+    """
     nam = 'OCEC'
 
     def _raw_reader(self, file):
+        """
+        Read and parse raw OC/EC data files.
+
+        Parameters
+        ----------
+        file : Path or str
+            Path to the OC/EC data file.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Processed OC/EC data with datetime index and carbon fraction columns.
+        """
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             _df = read_csv(f, skiprows=3, on_bad_lines='skip')
 
@@ -71,8 +92,32 @@ class Reader(AbstractReader):
 
             return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
-    # QC data
     def _QC(self, _df):
+        """
+        Perform quality control on OC/EC data.
+
+        Parameters
+        ----------
+        _df : pandas.DataFrame
+            Raw OC/EC data with datetime index and carbon fraction columns.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Quality-controlled OC/EC data with invalid measurements masked.
+
+        Notes
+        -----
+        Applies the following QC filters:
+        1. Value range: Valid carbon measurements between -5 and 100 μgC/m³
+        2. Detection limits:
+           - Thermal_OC: 0.3 μgC/m³
+           - Optical_OC: 0.3 μgC/m³
+           - Thermal_EC: 0.015 μgC/m³
+           - Optical_EC: 0.015 μgC/m³
+        3. Time-based outlier detection: Using IQR-based filtering
+        4. Requires valid OC measurements (Thermal and Optical)
+        """
         MDL = {'Thermal_OC': 0.3,  # 0.89
                'Optical_OC': 0.3,  # 0.08
                'Thermal_EC': 0.015,

@@ -1,43 +1,34 @@
-# API 參考
+# API Reference
 
-本節提供 AeroViz 的 API 參考文檔。
+This section provides the API reference documentation for AeroViz.
 
-## 核心模塊
+## Core Modules
 
 ### RawDataReader
 
-用於讀取原始數據的模塊。
+Module for reading raw data.
 
-- [RawDataReader 指南](../guide/RawDataReader.md)
-- [數據處理指南](../guide/DataProcess.md)
-- [繪圖指南](../guide/plot.md)
+- [RawDataReader Guide](../guide/RawDataReader/index.md)
+- [Data Processing Guide](../guide/DataProcess/index.md)
+- [Plotting Guide](../guide/plot.md)
 
-### 儀器支持
-
-AeroViz 支持多種儀器的數據讀取：
-
-- [AE33](../instruments/AE33.md)
-- [AE43](../instruments/AE43.md)
-- [BC1054](../instruments/BC1054.md)
-- [MA350](../instruments/MA350.md)
-
-## 使用示例
+## Usage Examples
 
 ```python
 from AeroViz.rawDataReader import RawDataReader
 
-# 創建讀取器實例
+# Create reader instance
 reader = RawDataReader()
 
-# 讀取數據
+# Read data
 data = reader.read("path/to/data.txt")
 ```
 
-## 注意事項
+## Important Notes
 
-- 所有時間序列數據都使用 pandas 的 DatetimeIndex
-- 數據質量控制參數可以在配置文件中設置
-- 支持自定義數據處理流程
+- All time series data use pandas DatetimeIndex
+- Data quality control parameters can be set in configuration files
+- Support for custom data processing workflows
 
 ### DataProcess
 
@@ -50,7 +41,7 @@ processor = DataProcess(data)
 processed_data = processor.process()
 ```
 
-[View DataProcess Documentation](../guide/DataProcess.md)
+[View DataProcess Documentation](../guide/DataProcess/index.md)
 
 ### plot
 
@@ -111,4 +102,4 @@ Returns matplotlib figure objects that can be:
 
 - Displayed directly
 - Saved to files
-- Further customized 
+- Further customized

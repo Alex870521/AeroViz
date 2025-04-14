@@ -31,6 +31,8 @@ jobs:
           pip install mkdocs-material
           pip install pymdown-extensions
           pip install mkdocs-minify-plugin
+          pip install mkdocstrings
+          pip install mkdocstrings-python
           pip install mkdocs-git-revision-date-localized-plugin
 
       - name: Configure Git

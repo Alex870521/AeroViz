@@ -1,6 +1,6 @@
 ## <div align="center">AeroViz for Aerosol Science Visualization</div>
 
-<div align="center">
+<div style="text-align: center;">
 
 ![Python](https://img.shields.io/pypi/pyversions/aeroviz?logo=python)
 ![PyPI](https://img.shields.io/pypi/v/aeroviz?logo=pypi)
@@ -9,7 +9,7 @@
 
 </div>
 
-<div align="center">
+<div style="text-align: center;">
 <a href="https://github.com/Alex870521"><img src="https://cdn.simpleicons.org/github/0A66C2" width="3%" alt="GitHub"></a>
 <span style="margin: 0 1%"></span>
 <a href="https://www.linkedin.com/in/Alex870521/"><img src="https://cdn.simpleicons.org/linkedin/0A66C2" width="3%" alt="LinkedIn"></a>
@@ -17,6 +17,7 @@
 <a href="https://medium.com/@alex870521"><img src="https://cdn.simpleicons.org/medium/0A66C2" width="3%" alt="Medium"></a></div>
 
 ## <div align="center">Installation</div>
+
 ```bash
 pip install AeroViz
 ```
@@ -26,6 +27,7 @@ pip install AeroViz
 ### 📊 Data Reading ▶ RawDataReader
 
 Built-in `RawDataReader` supporting multiple aerosol instruments:
+
 - **Particle Sizers**: SMPS, APS, GRIMM, OPC
 - **Mass**: TEOM, BAM1020
 - **Optical**: NEPH, Aurora, AE33/43, BC1054
@@ -37,6 +39,7 @@ Built-in `RawDataReader` supporting multiple aerosol instruments:
 ### 🔬 Data Processing ▶ DataProcess
 
 Built-in `DataProcess` provides advanced aerosol analysis:
+
 - **Size Distribution**: Mode Fitting, Log-Normal Analysis
 - **Optical Properties**: Mie Theory, IMPROVE
 - **Chemical**: Mass Closure, Source Apportionment
@@ -45,6 +48,7 @@ Built-in `DataProcess` provides advanced aerosol analysis:
 ### 📈 Data Visualization ▶ plot
 
 Comprehensive visualization tools `plot`:
+
 - **Time Analysis**: Trends, Diurnal Patterns
 - **Statistical**: Distributions, Correlations
 - **Specialized**: Size Contours, Wind Rose, Polar Plots, Hysplit, CBPF
@@ -81,17 +85,19 @@ data = RawDataReader(
 
 For more detailed usage instructions, please refer to our [User Guide](docs/guide).
 
-
 ## <div align="center">Documentation</div>
+
 For detailed documentation, please refer to the `docs` folder, which includes:
 
-<div align="center">
+<div style="text-align: center;">
 
 | Documentation                  | Description              |
 |--------------------------------|--------------------------|
 | [User Guide](docs/guide)       | Basic usage instructions |
 | [Changelog](docs/CHANGELOG.md) | List of changes          |
+
 </div>
 
 ## <div align="center">Contact</div>
-For bug reports and feature requests please visit [GitHub Issues](https://github.com/Alex870521/DataPlot/issues).
+
+For bug reports and feature requests please visit [GitHub Issues](https://github.com/Alex870521/AeroViz/issues).

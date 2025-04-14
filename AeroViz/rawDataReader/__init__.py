@@ -35,62 +35,64 @@ def RawDataReader(instrument: str,
     Parameters
     ----------
     instrument : str
-       The instrument name for which to read data, must be a valid key in the meta dictionary
+        The instrument name for which to read data, must be a valid key in the meta dictionary
 
     path : Path or str
-       The directory where raw data files for the instrument are stored
+        The directory where raw data files for the instrument are stored
 
     reset : bool or str
-       Data processing control mode:
-       False (default) - Use existing processed data if available
-       True - Force reprocess all data from raw files
-       'append' - Add new data to existing processed data
+        Data processing control mode:
+        False (default) - Use existing processed data if available
+        True - Force reprocess all data from raw files
+        'append' - Add new data to existing processed data
 
     qc : bool or str
-       Quality control and rate calculation mode:
-       True (default) - Apply QC and calculate overall rates
-       False - Skip QC and return raw data only
-       str - Calculate rates at specified intervals:
-             'W' - Weekly rates
-             'MS' - Month start rates
-             'QS' - Quarter start rates
-             'YS' - Year start rates
-             Can add number prefix (e.g., '2MS' for bi-monthly)
+        Quality control and rate calculation mode:
+        True (default) - Apply QC and calculate overall rates
+        False - Skip QC and return raw data only
+        str - Calculate rates at specified intervals:
+            'W' - Weekly rates
+            'MS' - Month start rates
+            'QS' - Quarter start rates
+            'YS' - Year start rates
+            Can add number prefix (e.g., '2MS' for bi-monthly)
 
     start : datetime
-       Start time for filtering the data
+        Start time for filtering the data
 
     end : datetime
-       End time for filtering the data
+        End time for filtering the data
 
     mean_freq : str
-       Resampling frequency for averaging the data (e.g., '1h' for hourly mean)
+        Resampling frequency for averaging the data (e.g., '1h' for hourly mean)
 
     size_range : tuple[float, float], optional
-       Size range in nanometers (min_size, max_size) for SMPS/APS data filtering
+        Size range in nanometers (min_size, max_size) for SMPS/APS data filtering
 
     suppress_warnings : bool, optional
-       Whether to suppress warning messages (default: False)
+        Whether to suppress warning messages (default: False)
 
     log_level : {'DEBUG', 'INFO', 'WARNING', 'ERROR'}
-       Logging level (default: 'INFO')
+        Logging level (default: 'INFO')
 
     **kwargs
-       Additional arguments to pass to the reader module
+        Additional arguments to pass to the reader module
 
     Returns
     -------
     pd.DataFrame
-       Processed data with specified QC and time range
+        Processed data with specified QC and time range
 
     Raises
     ------
     ValueError
-       If instrument name is invalid
-       If path does not exist
-       If QC frequency is invalid
-       If time range is invalid
-       If mean_freq format is invalid
+        If QC mode or mean_freq format is invalid
+    TypeError
+        If parameters are of incorrect type
+    KeyError
+        If instrument name is not found in the supported instruments list
+    FileNotFoundError
+        If path does not exist or cannot be accessed
 
     Examples
     --------
@@ -127,7 +129,7 @@ def RawDataReader(instrument: str,
 
     # Check if the instrument name is in the map
     if instrument not in meta.keys():
-        raise ValueError(f"Instrument name '{instrument}' is not valid. \nMust be one of: {list(meta.keys())}")
+        raise KeyError(f"Instrument name '{instrument}' is not valid. \nMust be one of: {list(meta.keys())}")
 
     # Check if path exists and is a directory
     if not isinstance(path, Path):

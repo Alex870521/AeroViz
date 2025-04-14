@@ -27,7 +27,11 @@ This module supports three types of TEOM data output formats:
 
 ## Data Processing Workflow
 
-![TEOM Data Processing Workflow](../images/TEOM_flowchart.png)
+The data processing workflow consists of the following steps:
+
+1. Data Standardization
+2. Quality Control Procedures
+3. Output Data Generation
 
 ### Data Standardization
 

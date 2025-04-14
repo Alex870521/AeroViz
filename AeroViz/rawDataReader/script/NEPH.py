@@ -4,57 +4,99 @@ from AeroViz.rawDataReader.core import AbstractReader
 
 
 class Reader(AbstractReader):
+    """ Nephelometer (NEPH) Data Reader
+
+    A specialized reader for integrating nephelometer data files, which measure
+    light scattering properties of aerosols at multiple wavelengths.
+
+    See full documentation at docs/source/instruments/NEPH.md for detailed information
+    on supported formats and QC procedures.
+    """
     nam = 'NEPH'
 
     def _raw_reader(self, file):
-        with file.open('r', encoding='utf-8', errors='ignore') as f:
-            _df = read_csv(f, header=None, names=range(11))
+        """
+        Read and parse raw Nephelometer data files.
 
-            _df_grp = _df.groupby(0)
+        Parameters
+        ----------
+        file : Path or str
+            Path to the Nephelometer data file.
 
-            # T : time
-            _idx_tm = to_datetime(
-                _df_grp.get_group('T')[[1, 2, 3, 4, 5, 6]]
-                .map(lambda x: f"{int(x):02d}")
-                .agg(''.join, axis=1),
-                format='%Y%m%d%H%M%S'
-            )
+        Returns
+        -------
+        pandas.DataFrame
+            Processed Nephelometer data with datetime index and scattering coefficient columns.
+        """
+        _df = read_csv(file, header=None, names=range(11))
 
-            # D : data
-            # col : 3~8 B G R BB BG BR
-            # 1e6
+        _df_grp = _df.groupby(0)
+
+        # T : time
+        _idx_tm = to_datetime(
+            _df_grp.get_group('T')[[1, 2, 3, 4, 5, 6]]
+            .map(lambda x: f"{int(x):02d}")
+            .agg(''.join, axis=1),
+            format='%Y%m%d%H%M%S'
+        )
+
+        # D : data
+        # col : 3~8 B G R BB BG BR
+        # 1e6
+        try:
+            _df_dt = _df_grp.get_group('D')[[1, 2, 3, 4, 5, 6, 7, 8]].set_index(_idx_tm)
+
             try:
-                _df_dt = _df_grp.get_group('D')[[1, 2, 3, 4, 5, 6, 7, 8]].set_index(_idx_tm)
+                _df_out = (_df_dt.groupby(1).get_group('NBXX')[[3, 4, 5, 6, 7, 8]] * 1e6).reindex(_idx_tm)
+            except KeyError:
+                _df_out = (_df_dt.groupby(1).get_group('NTXX')[[3, 4, 5, 6, 7, 8]] * 1e6).reindex(_idx_tm)
 
-                try:
-                    _df_out = (_df_dt.groupby(1).get_group('NBXX')[[3, 4, 5, 6, 7, 8]] * 1e6).reindex(_idx_tm)
-                except KeyError:
-                    _df_out = (_df_dt.groupby(1).get_group('NTXX')[[3, 4, 5, 6, 7, 8]] * 1e6).reindex(_idx_tm)
+            _df_out.columns = ['B', 'G', 'R', 'BB', 'BG', 'BR']
+            _df_out.index.name = 'Time'
 
-                _df_out.columns = ['B', 'G', 'R', 'BB', 'BG', 'BR']
-                _df_out.index.name = 'Time'
+            # Y : state
+            # col : 5 RH
+            _df_st = _df_grp.get_group('Y')
+            _df_out['RH'] = _df_st[5].values
+            _df_out['status'] = _df_st[9].values
 
-                # Y : state
-                # col : 5 RH
-                _df_st = _df_grp.get_group('Y')
-                _df_out['RH'] = _df_st[5].values
-                _df_out['status'] = _df_st[9].values
+            _df_out.mask(_df_out['status'] != 0)  # 0000 -> numeric to 0
 
-                _df_out.mask(_df_out['status'] != 0)  # 0000 -> numeric to 0
+            _df = _df_out[['B', 'G', 'R', 'BB', 'BG', 'BR', 'RH']].apply(to_numeric, errors='coerce')
 
-                _df = _df_out[['B', 'G', 'R', 'BB', 'BG', 'BR', 'RH']].apply(to_numeric, errors='coerce')
+            return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
-                return _df.loc[~_df.index.duplicated() & _df.index.notna()]
+        except ValueError:  # Define valid groups and find invalid indices
+            invalid_indices = _df[~_df[0].isin({'B', 'G', 'R', 'D', 'T', 'Y', 'Z'})].index
+            self.logger.warning(
+                f"\tInvalid values in {file.name}: {', '.join(f'{_}:{_df.at[_, 0]}' for _ in invalid_indices)}."
+                f" Skipping file.")
 
-            except ValueError:  # Define valid groups and find invalid indices
-                invalid_indices = _df[~_df[0].isin({'B', 'G', 'R', 'D', 'T', 'Y', 'Z'})].index
-                self.logger.warning(
-                    f"\tInvalid values in {file.name}: {', '.join(f'{_}:{_df.at[_, 0]}' for _ in invalid_indices)}."
-                    f" Skipping file.")
-
-                return None
+            return None
 
     def _QC(self, _df):
+        """
+        Perform quality control on Nephelometer data.
+
+        Parameters
+        ----------
+        _df : pandas.DataFrame
+            Raw Nephelometer data with datetime index and scattering coefficient columns.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Quality-controlled Nephelometer data with invalid measurements masked.
+
+        Notes
+        -----
+        Applies the following QC filters:
+        1. Value range: Valid scattering coefficients between 0-2000 Mm^-1
+        2. Physics consistency: Back-scattering must be less than total scattering
+        3. Wavelength dependence: Blue > Green > Red (where applicable)
+        4. Time-based outlier detection: Uses 1-hour window for IQR-based filtering
+        5. Complete record requirement: Requires values across all channels
+        """
         MDL_sensitivity = {'B': .1, 'G': .1, 'R': .3}
 
         _index = _df.index.copy()

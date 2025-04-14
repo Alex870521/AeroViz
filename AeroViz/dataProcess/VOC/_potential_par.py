@@ -14,7 +14,7 @@ def _basic(_df_voc):
 
     if invalid_keys:
         raise KeyError(f'\n\t\t{invalid_keys} are not supported keys.'
-                       f'\n\t\tPlease check the\033[91m support_voc.md\033[0m file to use the correct name.')
+                       f'\n\t\tPlease check the\033[91m AeroViz/docs/instruments/voc.md\033[0m file to use the correct name.')
 
     _MW, _MIR, _SOAP, _KOH = _par.loc['MW', :], _par.loc['MIR', :], _par.loc['SOAP', :], _par.loc['KOH', :]
 

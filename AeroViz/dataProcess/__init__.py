@@ -13,6 +13,39 @@ def DataProcess(method: str,
                 excel: bool = False,
                 csv: bool = True,
                 ):
+    """Factory function to create appropriate data processing module based on method type.
+
+    This function serves as an entry point for different data processing methods in AeroViz.
+    It returns an instance of the appropriate processor class based on the specified method.
+
+    Parameters
+    ----------
+    method : str
+        The processing method to use. Must be one of: 'Chemistry', 'Optical',
+        'SizeDistr', or 'VOC'.
+    path_out : Path
+        Path where processed output files will be saved.
+    excel : bool, default=False
+        Whether to save output in Excel format.
+    csv : bool, default=True
+        Whether to save output in CSV format.
+
+    Returns
+    -------
+    object
+        Instance of the selected processing class initialized with the provided parameters.
+
+    Raises
+    ------
+    ValueError
+        If the specified method name is not in the supported methods list.
+
+    Examples
+    --------
+    >>> from AeroViz import DataProcess
+    >>> from pathlib import Path
+    >>> processor = DataProcess(method='Optical', path_out=Path('./results'))
+    """
     # Mapping of method names to their respective classes
     method_class_map = {
         'Chemistry': Chemistry,

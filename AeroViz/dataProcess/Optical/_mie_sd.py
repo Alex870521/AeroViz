@@ -35,13 +35,13 @@ def Mie_ab(m, x, nmax, df_n):
     mx = m.reshape(-1, 1) * x
     nmx = np.round(np.max(np.hstack([[nmax] * m.size, np.abs(mx)]).reshape(m.size, 2, -1), axis=1) + 16)
 
-    df_qext = DataFrame(columns=m, index=df_n.index)
-    df_qsca = DataFrame(columns=m, index=df_n.index)
+    df_qext = DataFrame(columns=m.flatten(), index=df_n.index)
+    df_qsca = DataFrame(columns=m.flatten(), index=df_n.index)
 
     df_n /= x.reshape(-1, 1)
     for _bin_idx, (_nmx_ary, _mx, _nmax) in enumerate(zip(nmx.T, mx.T, nmax)):
 
-        df_D = DataFrame(np.nan, index=np.arange(m.size), columns=df_n.keys())
+        df_D = DataFrame(np.nan, index=np.arange(m.size), columns=df_n.keys(), dtype=complex)
 
         Dn_lst = []
         for _nmx, _uni_idx in DataFrame(_nmx_ary).groupby(0).groups.items():
@@ -102,7 +102,6 @@ def MieQ(m_ary, wavelength, diameter):
 
 
 def Mie_SD(m_ary, wavelength, psd, multp_m_in1psd=False, dt_chunk_size=10, q_table=False):
-    m_ary = coerceDType(m_ary)
     if type(psd) is not DataFrame:
         psd = DataFrame(psd).T
 
@@ -111,6 +110,7 @@ def Mie_SD(m_ary, wavelength, psd, multp_m_in1psd=False, dt_chunk_size=10, q_tab
 
     dp = psd.keys().values
     ndp = psd.values
+
     aSDn = np.pi * ((dp / 2) ** 2) * ndp * 1e-6
 
     if q_table:

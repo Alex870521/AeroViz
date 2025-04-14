@@ -5,34 +5,39 @@ from AeroViz.rawDataReader.core import AbstractReader
 
 
 class Reader(AbstractReader):
+    """ TEOM Output Data Formats Reader
+
+    A specialized reader for TEOM (Tapered Element Oscillating Microbalance)
+    particulate matter data files with support for multiple file formats and
+    comprehensive quality control.
+
+    See full documentation at docs/source/instruments/TEOM.md for detailed information
+    on supported formats and QC procedures.
+    """
     nam = 'TEOM'
 
-    # TEOM Output Data Formats
-    # There are three data formats from TEOM instrument output:
-    #
-    # 1. Remote download format
-    #    - Identified by 'Time Stamp' column
-    #    - Date format: 'DD - MM - YYYY HH:MM:SS'
-    #    - May contain Chinese month names requiring conversion
-    #    - Maps columns: Time Stamp → time, System status → status,
-    #      PM-2.5 base MC → PM_NV, PM-2.5 MC → PM_Total, PM-2.5 TEOM noise → noise
-    #
-    # 2. USB download or auto export format
-    #    - Identified by 'tmoStatusCondition_0' column
-    #    - Two possible time formats:
-    #      a) Standard: 'Date' and 'Time' columns (YYYY-MM-DD HH:MM:SS)
-    #      b) Alternative: 'time_stamp' column (similar to remote format)
-    #    - Maps columns: tmoStatusCondition_0 → status, tmoTEOMABaseMC_0 → PM_NV,
-    #      tmoTEOMAMC_0 → PM_Total, tmoTEOMANoise_0 → noise
-    #
-    # 3. Other formats
-    #    - Not implemented, raises NotImplementedError
-    #
-    # All formats are standardized to the same column names with timestamp as index
-
     def _raw_reader(self, file):
-        # TEOM Data Format Handler
-        # Standardizes different TEOM data formats (remote download and USB/auto export)
+        """
+        Read and parse raw TEOM data files in various formats.
+
+        Handles multiple TEOM data formats and standardizes them to a consistent
+        structure with uniform column names and datetime index.
+
+        Parameters
+        ----------
+        file : Path or str
+            Path to the TEOM data file.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Processed raw TEOM data with datetime index and standardized columns.
+
+        Raises
+        ------
+        NotImplementedError
+            If the file format is not recognized as a supported TEOM data format.
+        """
         _df = read_csv(file, skiprows=3, index_col=False)
 
         # Chinese month name conversion dictionary
@@ -73,19 +78,49 @@ class Reader(AbstractReader):
         else:
             raise NotImplementedError("Unsupported TEOM data format")
 
-        # Filter and clean data
-        _df = _df.where(_df['status'] < 1)
-        _df = _df[['PM_NV', 'PM_Total', 'noise']].apply(to_numeric, errors='coerce')
+        _df = _df[['PM_NV', 'PM_Total', 'noise', 'status']].apply(to_numeric, errors='coerce')
 
         # Remove duplicates and NaN indices
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
-    # QC data
     def _QC(self, _df):
+        """
+        Perform quality control on TEOM particulate matter data.
+
+        This method applies a series of filters to identify and mask invalid or
+        unreliable data points based on established criteria for continuous
+        PM2.5 measurements.
+
+        Parameters
+        ----------
+        _df : pandas.DataFrame
+            Raw TEOM data with datetime index and standardized columns:
+            PM_NV, PM_Total, noise and status.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Quality-controlled TEOM data with invalid measurements masked.
+
+        Notes
+        -----
+        Applies the following QC filters:
+        1. Noise threshold: Accepts only data with noise < 0.01
+        2. Value range: Removes negative or zero concentration values
+        3. Time-aware outlier detection: Uses 6-hour window for IQR-based filtering
+        4. Hourly data completeness: Requires minimum 50% of expected measurements per hour
+        5. Complete record requirement: Requires values in all columns (PM_NV and PM_Total)
+        """
         _index = _df.index.copy()
 
+        # remove status not equal 0
+        # _df = _df.where(_df.status < 1)
+
+        # remove noise greater than 0.01
+        _df = _df.where(_df.noise < 0.01)
+
         # remove negative value
-        _df = _df.where(_df.noise < 0.01)[['PM_NV', 'PM_Total']].mask((_df <= 0))
+        _df = _df[['PM_NV', 'PM_Total']].mask((_df <= 0))
 
         # QC data in 1 hr
         # use time_aware_IQR_QC

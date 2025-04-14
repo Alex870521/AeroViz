@@ -9,28 +9,28 @@
       
       
       
-        <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/DataProcess/">
+        <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/instruments/VOC/">
       
       
-        <link rel="prev" href="../instruments/XRF/">
+        <link rel="prev" href="../TEOM/">
       
       
-        <link rel="next" href="../plot/">
+        <link rel="next" href="../XRF/">
       
       
-      <link rel="icon" href="../../assets/icon.svg">
+      <link rel="icon" href="../../../assets/icon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
     
     
       
-        <title>Overview - AeroViz</title>
+        <title>VOC - AeroViz</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.4af4bdda.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -49,13 +49,13 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -81,7 +81,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#dataprocess-documentation" class="md-skip">
+        <a href="#volatile-organic-compounds-analyzer-voc" class="md-skip">
           Skip to content
         </a>
       
@@ -138,9 +138,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="AeroViz" class="md-header__button md-logo" aria-label="AeroViz" data-md-component="logo">
+    <a href="../../.." title="AeroViz" class="md-header__button md-logo" aria-label="AeroViz" data-md-component="logo">
       
-  <img src="../../assets/icon.svg" alt="logo">
+  <img src="../../../assets/icon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -157,7 +157,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Overview
+              VOC
             
           </span>
         </div>
@@ -277,7 +277,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../.." class="md-tabs__link">
+        <a href="../../.." class="md-tabs__link">
           
   
   
@@ -301,7 +301,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="../" class="md-tabs__link">
+        <a href="../../" class="md-tabs__link">
           
   
   
@@ -323,7 +323,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../api/" class="md-tabs__link">
+        <a href="../../../api/" class="md-tabs__link">
           
   
   
@@ -378,9 +378,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="AeroViz" class="md-nav__button md-logo" aria-label="AeroViz" data-md-component="logo">
+    <a href="../../.." title="AeroViz" class="md-nav__button md-logo" aria-label="AeroViz" data-md-component="logo">
       
-  <img src="../../assets/icon.svg" alt="logo">
+  <img src="../../../assets/icon.svg" alt="logo">
 
     </a>
     AeroViz
@@ -434,7 +434,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../.." class="md-nav__link ">
+            <a href="../../.." class="md-nav__link ">
               
   
   
@@ -469,7 +469,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../CHANGELOG/" class="md-nav__link">
+      <a href="../../../CHANGELOG/" class="md-nav__link">
         
   
   
@@ -533,7 +533,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../" class="md-nav__link ">
               
   
   
@@ -565,8 +565,10 @@
                 
   
   
+    
   
   
+  
     
     
       
@@ -588,17 +590,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../RawDataReader/" class="md-nav__link ">
+            <a href="../../RawDataReader/" class="md-nav__link ">
               
   
   
@@ -617,7 +617,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_2">
             <span class="md-nav__icon md-icon"></span>
             RawDataReader
@@ -630,6 +630,8 @@
                 
   
   
+    
+  
   
   
     
@@ -676,17 +678,15 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_2_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2_2" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../instruments/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -705,7 +705,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_2_2">
             <span class="md-nav__icon md-icon"></span>
             Supported Instrument
@@ -721,7 +721,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/AE33/" class="md-nav__link">
+      <a href="../AE33/" class="md-nav__link">
         
   
   
@@ -744,7 +744,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/AE43/" class="md-nav__link">
+      <a href="../AE43/" class="md-nav__link">
         
   
   
@@ -767,7 +767,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/BC1054/" class="md-nav__link">
+      <a href="../BC1054/" class="md-nav__link">
         
   
   
@@ -790,7 +790,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/MA350/" class="md-nav__link">
+      <a href="../MA350/" class="md-nav__link">
         
   
   
@@ -813,7 +813,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/Aurora/" class="md-nav__link">
+      <a href="../Aurora/" class="md-nav__link">
         
   
   
@@ -836,7 +836,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/NEPH/" class="md-nav__link">
+      <a href="../NEPH/" class="md-nav__link">
         
   
   
@@ -859,7 +859,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/SMPS/" class="md-nav__link">
+      <a href="../SMPS/" class="md-nav__link">
         
   
   
@@ -882,7 +882,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/APS/" class="md-nav__link">
+      <a href="../APS/" class="md-nav__link">
         
   
   
@@ -905,7 +905,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/GRIMM/" class="md-nav__link">
+      <a href="../GRIMM/" class="md-nav__link">
         
   
   
@@ -928,7 +928,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/IGAC/" class="md-nav__link">
+      <a href="../IGAC/" class="md-nav__link">
         
   
   
@@ -951,7 +951,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/OCEC/" class="md-nav__link">
+      <a href="../OCEC/" class="md-nav__link">
         
   
   
@@ -974,7 +974,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/TEOM/" class="md-nav__link">
+      <a href="../TEOM/" class="md-nav__link">
         
   
   
@@ -994,10 +994,32 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../instruments/VOC/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    VOC
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1008,6 +1030,128 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#data-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Format
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#measurement-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Measurement Parameters
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supported-voc-species" class="md-nav__link">
+    <span class="md-ellipsis">
+      Supported VOC Species
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Supported VOC Species">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#species-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Species Parameters:
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Processing
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data Processing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#data-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      Data Reading
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quality-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quality Control
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output Data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Notes
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1020,7 +1164,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/XRF/" class="md-nav__link">
+      <a href="../XRF/" class="md-nav__link">
         
   
   
@@ -1056,8 +1200,6 @@
                 
   
   
-    
-  
   
   
     
@@ -1079,15 +1221,17 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_3" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="./" class="md-nav__link md-nav__link--active">
+            <a href="../../DataProcess/" class="md-nav__link ">
               
   
   
@@ -1101,7 +1245,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2_3">
             <span class="md-nav__icon md-icon"></span>
             DataProcess
@@ -1177,7 +1321,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../plot/" class="md-nav__link">
+      <a href="../../plot/" class="md-nav__link">
         
   
   
@@ -1242,7 +1386,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../api/" class="md-nav__link ">
+            <a href="../../../api/" class="md-nav__link ">
               
   
   
@@ -1379,7 +1523,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/RawDataReader/" class="md-nav__link">
+      <a href="../../../api/RawDataReader/" class="md-nav__link">
         
   
   
@@ -1402,7 +1546,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/QualityControl/" class="md-nav__link">
+      <a href="../../../api/QualityControl/" class="md-nav__link">
         
   
   
@@ -1433,7 +1577,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/DataProcess/" class="md-nav__link">
+      <a href="../../../api/DataProcess/" class="md-nav__link">
         
   
   
@@ -1513,64 +1657,37 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" class="md-nav__link">
+  <a href="#data-format" class="md-nav__link">
     <span class="md-ellipsis">
-      Overview
+      Data Format
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#basic-usage" class="md-nav__link">
+  <a href="#measurement-parameters" class="md-nav__link">
     <span class="md-ellipsis">
-      Basic Usage
+      Measurement Parameters
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#methods" class="md-nav__link">
+  <a href="#supported-voc-species" class="md-nav__link">
     <span class="md-ellipsis">
-      Methods
+      Supported VOC Species
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Methods">
+    <nav class="md-nav" aria-label="Supported VOC Species">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#process" class="md-nav__link">
+  <a href="#species-parameters" class="md-nav__link">
     <span class="md-ellipsis">
-      process()
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#clean_data" class="md-nav__link">
-    <span class="md-ellipsis">
-      clean_data()
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#transform" class="md-nav__link">
-    <span class="md-ellipsis">
-      transform()
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#analyze" class="md-nav__link">
-    <span class="md-ellipsis">
-      analyze()
+      Species Parameters:
     </span>
   </a>
   
@@ -1582,46 +1699,28 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#parameters" class="md-nav__link">
+  <a href="#data-processing" class="md-nav__link">
     <span class="md-ellipsis">
-      Parameters
+      Data Processing
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#returns" class="md-nav__link">
-    <span class="md-ellipsis">
-      Returns
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#examples" class="md-nav__link">
-    <span class="md-ellipsis">
-      Examples
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Examples">
+    <nav class="md-nav" aria-label="Data Processing">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#basic-processing" class="md-nav__link">
+  <a href="#data-reading" class="md-nav__link">
     <span class="md-ellipsis">
-      Basic Processing
+      Data Reading
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#custom-processing" class="md-nav__link">
+  <a href="#quality-control" class="md-nav__link">
     <span class="md-ellipsis">
-      Custom Processing
+      Quality Control
     </span>
   </a>
   
@@ -1629,6 +1728,24 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#output-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Output Data
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Example
+    </span>
+  </a>
   
 </li>
       
@@ -1660,70 +1777,682 @@
   
 
 
-<h1 id="dataprocess-documentation">DataProcess Documentation</h1>
-<h2 id="overview">Overview</h2>
-<p>DataProcess is a class for advanced data processing and analysis of aerosol data. It provides methods for data cleaning,
-transformation, and statistical analysis.</p>
-<h2 id="basic-usage">Basic Usage</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataProcess</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Initialize with data from RawDataReader</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">processor</span> <span class="o">=</span> <span class="n">DataProcess</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Process the data</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">processed_data</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-</code></pre></div>
-<h2 id="methods">Methods</h2>
-<h3 id="process">process()</h3>
-<p>Process the input data with default settings.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">processed_data</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-</code></pre></div>
-<h3 id="clean_data">clean_data()</h3>
-<p>Clean the data by removing outliers and filling missing values.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">cleaned_data</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">clean_data</span><span class="p">()</span>
-</code></pre></div>
-<h3 id="transform">transform()</h3>
-<p>Transform the data (e.g., log transformation).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">transformed_data</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">transform</span><span class="p">()</span>
-</code></pre></div>
-<h3 id="analyze">analyze()</h3>
-<p>Perform statistical analysis on the data.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">analysis_results</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">analyze</span><span class="p">()</span>
-</code></pre></div>
-<h2 id="parameters">Parameters</h2>
+<h1 id="volatile-organic-compounds-analyzer-voc">Volatile Organic Compounds Analyzer (VOC)</h1>
+<p>The VOC analyzer measures concentrations of various volatile organic compounds in air.</p>
+<h2 id="data-format">Data Format</h2>
 <ul>
-<li><code>data</code> (DataFrame): Input data from RawDataReader</li>
-<li><code>methods</code> (list): List of processing methods to apply</li>
-<li><code>params</code> (dict): Parameters for each processing method</li>
+<li>File format: CSV file</li>
+<li>Sampling frequency: Variable</li>
+<li>File naming pattern: <code>*.csv</code></li>
+<li>Data structure:<ul>
+<li>Datetime index</li>
+<li>VOC species columns</li>
+<li>Special values:<ul>
+<li>'-' treated as NA</li>
+<li>'N.D.' (Not Detected) treated as NA</li>
 </ul>
-<h2 id="returns">Returns</h2>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="measurement-parameters">Measurement Parameters</h2>
+<p>The VOC analyzer provides:</p>
 <ul>
-<li>DataFrame: Processed data with applied transformations and cleaning</li>
+<li>Multiple VOC species measurements</li>
+<li>Concentration data for each compound</li>
+<li>Supported species list required</li>
+<li>Species-specific detection limits</li>
 </ul>
-<h2 id="examples">Examples</h2>
-<h3 id="basic-processing">Basic Processing</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataProcess</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">processor</span> <span class="o">=</span> <span class="n">DataProcess</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">processed_data</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
-</code></pre></div>
-<h3 id="custom-processing">Custom Processing</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">processor</span> <span class="o">=</span> <span class="n">DataProcess</span><span class="p">(</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">data</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;clean&#39;</span><span class="p">,</span> <span class="s1">&#39;transform&#39;</span><span class="p">,</span> <span class="s1">&#39;analyze&#39;</span><span class="p">],</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">params</span><span class="o">=</span><span class="p">{</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>        <span class="s1">&#39;clean&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;threshold&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>        <span class="s1">&#39;transform&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="s1">&#39;log&#39;</span><span class="p">},</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>        <span class="s1">&#39;analyze&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;window&#39;</span><span class="p">:</span> <span class="s1">&#39;1D&#39;</span><span class="p">}</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="p">}</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="p">)</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="n">processed_data</span> <span class="o">=</span> <span class="n">processor</span><span class="o">.</span><span class="n">process</span><span class="p">()</span>
+<h2 id="supported-voc-species">Supported VOC Species</h2>
+<p>The analyzer supports the following VOC species:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">class</th>
+<th style="text-align: center;">Species</th>
+<th style="text-align: center;">MIR</th>
+<th style="text-align: center;">MW</th>
+<th style="text-align: center;">SOAP</th>
+<th style="text-align: center;">KOH</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">aromatic</td>
+<td style="text-align: center;">Benzene</td>
+<td style="text-align: center;">0.72</td>
+<td style="text-align: center;">78.11</td>
+<td style="text-align: center;">92.9</td>
+<td style="text-align: center;">1.22</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Toluene</td>
+<td style="text-align: center;">4.0</td>
+<td style="text-align: center;">92.14</td>
+<td style="text-align: center;">100.0</td>
+<td style="text-align: center;">5.63</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Ethylbenzene</td>
+<td style="text-align: center;">3.04</td>
+<td style="text-align: center;">106.17</td>
+<td style="text-align: center;">111.6</td>
+<td style="text-align: center;">7.0</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">m/p-Xylene</td>
+<td style="text-align: center;">7.8</td>
+<td style="text-align: center;">106.2</td>
+<td style="text-align: center;">75.8</td>
+<td style="text-align: center;">18.95</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">o-Xylene</td>
+<td style="text-align: center;">7.64</td>
+<td style="text-align: center;">106.16</td>
+<td style="text-align: center;">95.5</td>
+<td style="text-align: center;">13.6</td>
+</tr>
+<tr>
+<td style="text-align: center;">alkane</td>
+<td style="text-align: center;">Ethane</td>
+<td style="text-align: center;">0.28</td>
+<td style="text-align: center;">30.07</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.248</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Propane</td>
+<td style="text-align: center;">0.49</td>
+<td style="text-align: center;">44.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">1.09</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Isobutane</td>
+<td style="text-align: center;">1.23</td>
+<td style="text-align: center;">58.12</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">2.12</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Butane</td>
+<td style="text-align: center;">1.15</td>
+<td style="text-align: center;">58.12</td>
+<td style="text-align: center;">0.3</td>
+<td style="text-align: center;">2.36</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Isopentane</td>
+<td style="text-align: center;">1.45</td>
+<td style="text-align: center;">72.15</td>
+<td style="text-align: center;">0.2</td>
+<td style="text-align: center;">3.6</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Pentane</td>
+<td style="text-align: center;">1.31</td>
+<td style="text-align: center;">72.15</td>
+<td style="text-align: center;">0.3</td>
+<td style="text-align: center;">3.8</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Hexane</td>
+<td style="text-align: center;">1.24</td>
+<td style="text-align: center;">86.18</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">5.2</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Heptane</td>
+<td style="text-align: center;">1.07</td>
+<td style="text-align: center;">100.21</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">6.76</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Octane</td>
+<td style="text-align: center;">0.9</td>
+<td style="text-align: center;">114.23</td>
+<td style="text-align: center;">0.8</td>
+<td style="text-align: center;">8.11</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Nonane</td>
+<td style="text-align: center;">0.78</td>
+<td style="text-align: center;">128.2</td>
+<td style="text-align: center;">1.9</td>
+<td style="text-align: center;">9.7</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Decane</td>
+<td style="text-align: center;">0.68</td>
+<td style="text-align: center;">142.29</td>
+<td style="text-align: center;">7.0</td>
+<td style="text-align: center;">11.0</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Undecane</td>
+<td style="text-align: center;">0.61</td>
+<td style="text-align: center;">156.31</td>
+<td style="text-align: center;">16.2</td>
+<td style="text-align: center;">12.3</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Dodecane</td>
+<td style="text-align: center;">0.55</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">null</td>
+</tr>
+<tr>
+<td style="text-align: center;">alkene</td>
+<td style="text-align: center;">Ethylene</td>
+<td style="text-align: center;">9.0</td>
+<td style="text-align: center;">28.05</td>
+<td style="text-align: center;">1.3</td>
+<td style="text-align: center;">8.52</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Propylene (Propene)</td>
+<td style="text-align: center;">11.66</td>
+<td style="text-align: center;">42.08</td>
+<td style="text-align: center;">1.6</td>
+<td style="text-align: center;">26.3</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">1-Butene</td>
+<td style="text-align: center;">9.73</td>
+<td style="text-align: center;">56.1</td>
+<td style="text-align: center;">1.2</td>
+<td style="text-align: center;">31.4</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">t-2-Butene</td>
+<td style="text-align: center;">15.16</td>
+<td style="text-align: center;">56.1</td>
+<td style="text-align: center;">3.1</td>
+<td style="text-align: center;">56.4</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">cis-2-Butene</td>
+<td style="text-align: center;">14.24</td>
+<td style="text-align: center;">56.1</td>
+<td style="text-align: center;">3.6</td>
+<td style="text-align: center;">64.0</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">1-Pentene</td>
+<td style="text-align: center;">7.21</td>
+<td style="text-align: center;">70.13</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">31.4</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">t-2-Pentene</td>
+<td style="text-align: center;">10.56</td>
+<td style="text-align: center;">70.13</td>
+<td style="text-align: center;">4.0</td>
+<td style="text-align: center;">67.0</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">cis-2-Pentene</td>
+<td style="text-align: center;">10.38</td>
+<td style="text-align: center;">70.13</td>
+<td style="text-align: center;">3.6</td>
+<td style="text-align: center;">65.0</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">1-Hexene</td>
+<td style="text-align: center;">5.49</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">null</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Isoprene</td>
+<td style="text-align: center;">10.61</td>
+<td style="text-align: center;">68.1</td>
+<td style="text-align: center;">1.9</td>
+<td style="text-align: center;">100.0</td>
+</tr>
+<tr>
+<td style="text-align: center;">alkyne</td>
+<td style="text-align: center;">Acetylene</td>
+<td style="text-align: center;">0.95</td>
+<td style="text-align: center;">26.04</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">0.85</td>
+</tr>
+<tr>
+<td style="text-align: center;">alkane</td>
+<td style="text-align: center;">Cyclopentane</td>
+<td style="text-align: center;">2.39</td>
+<td style="text-align: center;">70.1</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">4.97</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Methylcyclopentane</td>
+<td style="text-align: center;">2.19</td>
+<td style="text-align: center;">84.16</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">5.2</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Cyclohexane</td>
+<td style="text-align: center;">1.25</td>
+<td style="text-align: center;">84.16</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">6.97</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Methylcyclohexane</td>
+<td style="text-align: center;">1.7</td>
+<td style="text-align: center;">98.19</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">4.97</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2,2-Dimethylbutane</td>
+<td style="text-align: center;">1.17</td>
+<td style="text-align: center;">86.17</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">2.23</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2,3-Dimethylbutane</td>
+<td style="text-align: center;">0.97</td>
+<td style="text-align: center;">86.18</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">5.78</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2-Methylpentane</td>
+<td style="text-align: center;">1.5</td>
+<td style="text-align: center;">86.18</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">5.4</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">3-Methylpentane</td>
+<td style="text-align: center;">1.8</td>
+<td style="text-align: center;">86.18</td>
+<td style="text-align: center;">0.2</td>
+<td style="text-align: center;">5.2</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2,3-Dimethylpentane</td>
+<td style="text-align: center;">1.34</td>
+<td style="text-align: center;">100.2</td>
+<td style="text-align: center;">0.4</td>
+<td style="text-align: center;">1.5</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2,4-Dimethylpentane</td>
+<td style="text-align: center;">1.55</td>
+<td style="text-align: center;">100.2</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">4.77</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2-Methylhexane</td>
+<td style="text-align: center;">1.19</td>
+<td style="text-align: center;">100.2</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">5.65</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">3-Methylheptane</td>
+<td style="text-align: center;">1.24</td>
+<td style="text-align: center;">114.23</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">5.6</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2,2,4-Trimethylpentane</td>
+<td style="text-align: center;">1.26</td>
+<td style="text-align: center;">114.23</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">3.34</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2,3,4-Trimethylpentane</td>
+<td style="text-align: center;">1.03</td>
+<td style="text-align: center;">114.23</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">6.6</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2-Methylheptane</td>
+<td style="text-align: center;">1.07</td>
+<td style="text-align: center;">114.23</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">7.0</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">3-Methylhexane</td>
+<td style="text-align: center;">1.61</td>
+<td style="text-align: center;">100.2</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">7.0</td>
+</tr>
+<tr>
+<td style="text-align: center;">aromatic</td>
+<td style="text-align: center;">Styrene</td>
+<td style="text-align: center;">1.73</td>
+<td style="text-align: center;">104.15</td>
+<td style="text-align: center;">212.3</td>
+<td style="text-align: center;">58.0</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">Isopropylbenzene</td>
+<td style="text-align: center;">2.52</td>
+<td style="text-align: center;">120.19</td>
+<td style="text-align: center;">95.5</td>
+<td style="text-align: center;">6.3</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">n-Propylbenzene</td>
+<td style="text-align: center;">2.03</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">null</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">m-Ethyltoluene</td>
+<td style="text-align: center;">7.39</td>
+<td style="text-align: center;">120.19</td>
+<td style="text-align: center;">100.6</td>
+<td style="text-align: center;">11.8</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">p-Ethyltoluene</td>
+<td style="text-align: center;">4.44</td>
+<td style="text-align: center;">120.19</td>
+<td style="text-align: center;">69.7</td>
+<td style="text-align: center;">18.6</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">o-Ethyltoluene</td>
+<td style="text-align: center;">5.59</td>
+<td style="text-align: center;">120.19</td>
+<td style="text-align: center;">94.8</td>
+<td style="text-align: center;">11.9</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">m-Diethylbenzene</td>
+<td style="text-align: center;">7.1</td>
+<td style="text-align: center;">134.22</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">32.5</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">p-Diethylbenzene</td>
+<td style="text-align: center;">4.43</td>
+<td style="text-align: center;">134.22</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">32.7</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">1,3,5-Trimethylbenzene</td>
+<td style="text-align: center;">11.76</td>
+<td style="text-align: center;">120.19</td>
+<td style="text-align: center;">13.5</td>
+<td style="text-align: center;">56.7</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">1,2,4-Trimethylbenzene</td>
+<td style="text-align: center;">8.87</td>
+<td style="text-align: center;">120.19</td>
+<td style="text-align: center;">20.6</td>
+<td style="text-align: center;">32.5</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">1,2,3-Trimethylbenzene</td>
+<td style="text-align: center;">11.97</td>
+<td style="text-align: center;">120.19</td>
+<td style="text-align: center;">43.9</td>
+<td style="text-align: center;">32.7</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">1,3-Butadiene</td>
+<td style="text-align: center;">12.61</td>
+<td style="text-align: center;">54.1</td>
+<td style="text-align: center;">1.8</td>
+<td style="text-align: center;">66.6</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">1-Octene</td>
+<td style="text-align: center;">3.25</td>
+<td style="text-align: center;">112.2</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">30.0</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">2-Ethyltoluene</td>
+<td style="text-align: center;">5.59</td>
+<td style="text-align: center;">120.2</td>
+<td style="text-align: center;">94.8</td>
+<td style="text-align: center;">11.9</td>
+</tr>
+<tr>
+<td style="text-align: center;"></td>
+<td style="text-align: center;">3,4-Ethyltoluene</td>
+<td style="text-align: center;">5.92</td>
+<td style="text-align: center;">120.2</td>
+<td style="text-align: center;">85.2</td>
+<td style="text-align: center;">15.2</td>
+</tr>
+<tr>
+<td style="text-align: center;">OVOC</td>
+<td style="text-align: center;">Acetaldehyde</td>
+<td style="text-align: center;">6.54</td>
+<td style="text-align: center;">44.1</td>
+<td style="text-align: center;">0.6</td>
+<td style="text-align: center;">15.0</td>
+</tr>
+<tr>
+<td style="text-align: center;">OVOC</td>
+<td style="text-align: center;">Acetone</td>
+<td style="text-align: center;">0.36</td>
+<td style="text-align: center;">58.1</td>
+<td style="text-align: center;">0.3</td>
+<td style="text-align: center;">0.17</td>
+</tr>
+<tr>
+<td style="text-align: center;">OVOC</td>
+<td style="text-align: center;">Butyl Acetate</td>
+<td style="text-align: center;">0.83</td>
+<td style="text-align: center;">116.2</td>
+<td style="text-align: center;">0.0</td>
+<td style="text-align: center;">null</td>
+</tr>
+<tr>
+<td style="text-align: center;">OVOC</td>
+<td style="text-align: center;">Ethanol</td>
+<td style="text-align: center;">1.53</td>
+<td style="text-align: center;">46.1</td>
+<td style="text-align: center;">0.6</td>
+<td style="text-align: center;">3.2</td>
+</tr>
+<tr>
+<td style="text-align: center;">OVOC</td>
+<td style="text-align: center;">Ethyl Acetate</td>
+<td style="text-align: center;">0.63</td>
+<td style="text-align: center;">88.1</td>
+<td style="text-align: center;">0.1</td>
+<td style="text-align: center;">null</td>
+</tr>
+<tr>
+<td style="text-align: center;">OVOC</td>
+<td style="text-align: center;">IPA</td>
+<td style="text-align: center;">0.61</td>
+<td style="text-align: center;">60.1</td>
+<td style="text-align: center;">0.4</td>
+<td style="text-align: center;">5.1</td>
+</tr>
+<tr>
+<td style="text-align: center;">ClVOC</td>
+<td style="text-align: center;">1,2-DCB</td>
+<td style="text-align: center;">0.18</td>
+<td style="text-align: center;">147.0</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">null</td>
+</tr>
+<tr>
+<td style="text-align: center;">ClVOC</td>
+<td style="text-align: center;">1,4-DCB</td>
+<td style="text-align: center;">0.18</td>
+<td style="text-align: center;">147.0</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">null</td>
+</tr>
+<tr>
+<td style="text-align: center;">ClVOC</td>
+<td style="text-align: center;">PCE</td>
+<td style="text-align: center;">0.03</td>
+<td style="text-align: center;">165.8</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">0.16</td>
+</tr>
+<tr>
+<td style="text-align: center;">ClVOC</td>
+<td style="text-align: center;">TCE</td>
+<td style="text-align: center;">0.64</td>
+<td style="text-align: center;">131.4</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">1.9</td>
+</tr>
+<tr>
+<td style="text-align: center;">ClVOC</td>
+<td style="text-align: center;">VCM</td>
+<td style="text-align: center;">2.83</td>
+<td style="text-align: center;">62.5</td>
+<td style="text-align: center;">null</td>
+<td style="text-align: center;">null</td>
+</tr>
+</tbody>
+</table>
+<h3 id="species-parameters">Species Parameters:</h3>
+<ul>
+<li>MIR: Maximum Incremental Reactivity</li>
+<li>MW: Molecular Weight</li>
+<li>SOAP: Secondary Organic Aerosol Potential</li>
+<li>KOH: Rate constant for the reaction with OH radicals</li>
+</ul>
+<h2 id="data-processing">Data Processing</h2>
+<h3 id="data-reading">Data Reading</h3>
+<ul>
+<li>Processes CSV files with datetime index</li>
+<li>Handles special values as NA</li>
+<li>Standardizes column names</li>
+<li>Filters based on supported species list</li>
+<li>Warns about unsupported species</li>
+<li>Removes duplicate timestamps</li>
+</ul>
+<h3 id="quality-control">Quality Control</h3>
+<ul>
+<li>Basic file validation</li>
+<li>No additional QC currently implemented</li>
+<li>Future QC possibilities:<ul>
+<li>Minimum detection limit filtering</li>
+<li>Value range checks</li>
+<li>Time-based outlier detection</li>
+<li>Correlation checks between species</li>
+</ul>
+</li>
+</ul>
+<h2 id="output-data">Output Data</h2>
+<p>The processed data contains:</p>
+<ul>
+<li>Time index: Data acquisition time</li>
+<li>VOC species: Concentrations of supported compounds</li>
+<li>All measurements in standard units</li>
+<li>Validated species names</li>
+</ul>
+<h2 id="usage-example">Usage Example</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dtm</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.rawDataReader</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">dtm</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtm</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">path_raw</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">path_prcs</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;prcs&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># read data</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">dt_VOC</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;VOC&#39;</span><span class="p">,</span> <span class="n">path_raw</span> <span class="o">/</span> <span class="s1">&#39;VOC&#39;</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">dt_VOC</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;isoprene&#39;</span><span class="p">:</span> <span class="s1">&#39;Isoprene&#39;</span><span class="p">,</span> <span class="s1">&#39;m,p-Xylene&#39;</span><span class="p">:</span> <span class="s1">&#39;m/p-Xylene&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">voc_prcs</span> <span class="o">=</span> <span class="n">DataProcess</span><span class="p">(</span><span class="s1">&#39;VOC&#39;</span><span class="p">,</span> <span class="n">path_out</span><span class="o">=</span><span class="n">path_prcs</span><span class="p">,</span> <span class="n">excel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">csv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="n">df</span> <span class="o">=</span> <span class="n">voc_prcs</span><span class="o">.</span><span class="n">VOC_basic</span><span class="p">(</span><span class="n">dt_VOC</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="notes">Notes</h2>
 <ul>
-<li>The DataProcess class is designed to work seamlessly with data from RawDataReader</li>
-<li>All processing methods are configurable through parameters</li>
-<li>Results can be saved to various formats (CSV, Excel, etc.)</li>
+<li>Critical for air quality assessment</li>
+<li>Important for photochemical reaction studies</li>
+<li>Helps identify secondary organic aerosol sources</li>
+<li>Requires predefined species list</li>
+<li>Species name standardization essential</li>
+<li>Some species may have missing parameters (marked as "null")</li>
+<li>Analysis includes concentration, MIR, SOAP, and KOH values</li>
 </ul>
 
 
@@ -1792,7 +2521,7 @@ transformation, and statistical analysis.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../instruments/XRF/" class="md-footer__link md-footer__link--prev" aria-label="Previous: XRF">
+          <a href="../TEOM/" class="md-footer__link md-footer__link--prev" aria-label="Previous: TEOM">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1802,20 +2531,20 @@ transformation, and statistical analysis.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                XRF
+                TEOM
               </div>
             </div>
           </a>
         
         
           
-          <a href="../plot/" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
+          <a href="../XRF/" class="md-footer__link md-footer__link--next" aria-label="Next: XRF">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Overview
+                XRF
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1879,10 +2608,10 @@ transformation, and statistical analysis.</p>
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.c8b220af.min.js"></script>
       
     
   </body>

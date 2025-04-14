@@ -2125,7 +2125,7 @@ plot types commonly used in aerosol science.</p>
 <li>Publication-quality settings are applied by default</li>
 </ul>
 <h2 id="windrose-and-conditional-bivariate-probability-function-cbpf"><div align="center">WindRose and Conditional Bivariate Probability Function (CBPF)</div></h2>
-<p><img alt="WindRose" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/windrose_CBPF.png?raw=true" /></p>
+<p><img alt="WindRose" src="../../docs/assets/windrose_CBPF.png" /></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot</span><span class="p">,</span> <span class="n">DataBase</span>
 <a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="n">df</span> <span class="o">=</span> <span class="n">DataBase</span><span class="p">()</span>  <span class="c1"># build default data, uers can use their own data</span>
@@ -2175,12 +2175,12 @@ The provided code of distribution suitable for SMPS and APS data in "dX/dlogdp" 
 It can be converted into surface area and volume distribution. At the same time,
 chemical composition data can also be used to calculate particle extinction through Mie theory.</p>
 </blockquote>
-<p><img alt="PNSD" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/OverPSD.png?raw=true" /></p>
+<p><img alt="PNSD" src="../../docs/assets/OverPSD.png" /></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.tools</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataBase</span>
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">DataBase</span><span class="p">()</span> <span class="c1"># build default data, uers can use their own data</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">DataBase</span><span class="p">()</span>  <span class="c1"># build default data, uers can use their own data</span>
 <a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>
 <a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="n">PNSD</span> <span class="o">=</span> <span class="n">DataBase</span><span class="p">(</span><span class="s1">&#39;DEFAULT_PNSD_DATA.csv&#39;</span><span class="p">)</span>
 <a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>
@@ -2198,9 +2198,9 @@ chemical composition data can also be used to calculate particle extinction thro
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;"><img alt="PSD 3D" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/psd_3D.png?raw=true" /></td>
-<td style="text-align: center;"><img alt="Correlation Matrix" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/corr_matrix.png?raw=true" /></td>
-<td style="text-align: center;"><img alt="IMPROVE MLR" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/IMPROVE_MLR.png?raw=true" /></td>
+<td style="text-align: center;"><img alt="PSD 3D" src="../../docs/assets/psd_3D.png" /></td>
+<td style="text-align: center;"><img alt="Correlation Matrix" src="../../docs/assets/corr_matrix.png" /></td>
+<td style="text-align: center;"><img alt="IMPROVE MLR" src="../../docs/assets/IMPROVE_MLR.png" /></td>
 </tr>
 <tr>
 <td style="text-align: center;"><strong>Pie &amp; Donut</strong></td>
@@ -2208,9 +2208,9 @@ chemical composition data can also be used to calculate particle extinction thro
 <td style="text-align: center;"><strong>Scatter</strong></td>
 </tr>
 <tr>
-<td style="text-align: center;"><img alt="IMPROVE donuts" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/IMPROVE_donut.png?raw=true" /></td>
-<td style="text-align: center;"><img alt="IMPROVE bar" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/IMPROVE_donuts.png?raw=true" /></td>
-<td style="text-align: center;"><img alt="scatter" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/scatter.png?raw=true" /></td>
+<td style="text-align: center;"><img alt="IMPROVE donuts" src="../../docs/assets/IMPROVE_donut.png" /></td>
+<td style="text-align: center;"><img alt="IMPROVE bar" src="../../docs/assets/IMPROVE_donuts.png" /></td>
+<td style="text-align: center;"><img alt="scatter" src="../../docs/assets/scatter.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -2224,8 +2224,8 @@ chemical composition data can also be used to calculate particle extinction thro
 </thead>
 <tbody>
 <tr>
-<td style="text-align: center;"><img alt="Mie Q" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/Mie_Q.png?raw=true" /></td>
-<td style="text-align: center;"><img alt="Mie MEE" src="https://github.com/Alex870521/AeroViz/blob/main/assets/figure/Mie_MEE.png?raw=true" /></td>
+<td style="text-align: center;"><img alt="Mie Q" src="../../docs/assets/Mie_Q.png" /></td>
+<td style="text-align: center;"><img alt="Mie MEE" src="../../docs/assets/Mie_MEE.png" /></td>
 </tr>
 </tbody>
 </table>
@@ -2251,7 +2251,7 @@ chemical composition data can also be used to calculate particle extinction thro
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 10, 2025 19:48:23">April 10, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 14, 2025 06:24:53">April 14, 2025</span>
   </span>
 
     

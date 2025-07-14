@@ -1,20 +1,13 @@
 ## <div align="center">AeroViz for Aerosol Science Visualization</div>
 
-<div style="text-align: center;">
+<div align="center">
 
 ![Python](https://img.shields.io/pypi/pyversions/aeroviz?logo=python)
 ![PyPI](https://img.shields.io/pypi/v/aeroviz?logo=pypi)
 ![Pytest](https://img.shields.io/github/actions/workflow/status/Alex870521/aeroviz/pytest.yml?logo=pytest&label=pytest)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Alex870521/aeroviz?logo=github)
-
+[![Material for MkDocs](https://img.shields.io/badge/Material%20for%20MkDocs-deployed-blue?logo=materialformkdocs)](https://alex870521.github.io/AeroViz/)
 </div>
-
-<div style="text-align: center;">
-<a href="https://github.com/Alex870521"><img src="https://cdn.simpleicons.org/github/0A66C2" width="3%" alt="GitHub"></a>
-<span style="margin: 0 1%"></span>
-<a href="https://www.linkedin.com/in/Alex870521/"><img src="https://cdn.simpleicons.org/linkedin/0A66C2" width="3%" alt="LinkedIn"></a>
-<span style="margin: 0 1%"></span>
-<a href="https://medium.com/@alex870521"><img src="https://cdn.simpleicons.org/medium/0A66C2" width="3%" alt="Medium"></a></div>
 
 ## <div align="center">Installation</div>
 
@@ -34,7 +27,7 @@ Built-in `RawDataReader` supporting multiple aerosol instruments:
 - **Chemical Analysis**: OCEC, IGAC, XRF, VOC
 
 > Features include quality control, data filtering, flexible resampling, and CSV export. For detailed instrument support
-> and usage, check our [RawDataReader Guide](docs/guide/RawDataReader.md).
+> and usage, check our [RawDataReader Guide](https://alex870521.github.io/AeroViz/guide/RawDataReader/).
 
 ### 🔬 Data Processing ▶ DataProcess
 
@@ -87,15 +80,31 @@ For more detailed usage instructions, please refer to our [User Guide](docs/guid
 
 ## <div align="center">Documentation</div>
 
-For detailed documentation, please refer to the `docs` folder, which includes:
+For detailed documentation, please refer to the `docs` folder, or
+*[GitHub Pages](https://alex870521.github.io/AeroViz/).*
 
-<div style="text-align: center;">
+
+<div align="center">
 
 | Documentation                  | Description              |
 |--------------------------------|--------------------------|
 | [User Guide](docs/guide)       | Basic usage instructions |
 | [Changelog](docs/CHANGELOG.md) | List of changes          |
 
+</div>
+
+## <div align="center">Contributors</div>
+
+<div align="center">
+    <a href="https://github.com/Alex870521">
+        <img src="https://github.com/Alex870521.png" width="40" height="40" alt="Alex870521" style="border-radius: 50%; object-fit: cover; margin: 0 5px;">
+    </a>
+    <a href="https://github.com/yrr-Su">
+        <img src="https://github.com/yrr-Su.png" width="40" height="40" alt="yrr-Su" style="border-radius: 50%; object-fit: cover; margin: 0 5px;">
+    </a>
+    <a href="https://github.com/Masbear">
+        <img src="https://github.com/Masbear.png" width="40" height="40" alt="Masbear" style="border-radius: 50%; object-fit: cover; margin: 0 5px;">
+    </a>
 </div>
 
 ## <div align="center">Contact</div>

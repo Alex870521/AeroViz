@@ -12,14 +12,14 @@
         <link rel="canonical" href="https://alex870521.github.io/AeroViz/api/QualityControl/">
       
       
-        <link rel="prev" href="../RawDataReader/">
+        <link rel="prev" href="../AbstractReader/">
       
       
-        <link rel="next" href="../DataProcess/">
+        <link rel="next" href="../instruments/">
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.15">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.342714a4.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -44,14 +44,16 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Segoe+UI:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Segoe UI";--md-code-font:"JetBrains Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=-apple-system,"BlinkMacSystemFont","Segoe+UI","Helvetica+Neue","Arial",sans-serif,"Apple+Color+Emoji","Segoe+UI+Emoji","Segoe+UI+Symbol":300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"-apple-system,"BlinkMacSystemFont","Segoe UI","Helvetica Neue","Arial",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"";--md-code-font:"JetBrains Mono"}</style>
       
     
     
       <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
       <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/claude-code-navigation.css">
     
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -81,7 +83,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#qualitycontrol-api" class="md-skip">
+        <a href="#quality-control" class="md-skip">
           Skip to content
         </a>
       
@@ -305,7 +307,7 @@
   
     
   
-  User Guide
+  Guide
 
         </a>
       </li>
@@ -349,7 +351,7 @@
   
     
   
-  Web Site
+  About
 
       </a>
     </li>
@@ -428,9 +430,7 @@
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -524,9 +524,7 @@
       
         
         
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -535,7 +533,7 @@
   
   
   <span class="md-ellipsis">
-    User Guide
+    Guide
     
   </span>
   
@@ -552,157 +550,7 @@
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            User Guide
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_2" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../guide/RawDataReader/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    RawDataReader
-    
-  </span>
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_2">
-            <span class="md-nav__icon md-icon"></span>
-            RawDataReader
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_2_2" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../guide/instruments/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    Supported Instrument
-    
-  </span>
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_2_2_2" id="__nav_2_2_2_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_2_2_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_2_2">
-            <span class="md-nav__icon md-icon"></span>
-            Supported Instrument
+            Guide
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
@@ -715,12 +563,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/instruments/AE33/" class="md-nav__link">
+      <a href="../../guide/data/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    AE33
+    Working with Data
     
   </span>
   
@@ -738,12 +586,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/instruments/AE43/" class="md-nav__link">
+      <a href="../../guide/visualization/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    AE43
+    Visualization
     
   </span>
   
@@ -761,429 +609,17 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/instruments/BC1054/" class="md-nav__link">
+      <a href="../../guide/examples/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    BC1054
+    Examples
     
   </span>
   
 
       </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/MA350/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    MA350
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/Aurora/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Aurora
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/NEPH/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    NEPH
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/SMPS/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    SMPS
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/APS/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    APS
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/GRIMM/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    GRIMM
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/IGAC/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    IGAC
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/OCEC/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    OCEC
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/TEOM/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    TEOM
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/VOC/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    VOC
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/instruments/XRF/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    XRF
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_3" >
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../guide/DataProcess/" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    DataProcess
-    
-  </span>
-  
-
-            </a>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_3">
-            <span class="md-nav__icon md-icon"></span>
-            DataProcess
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    Plot
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_4">
-            <span class="md-nav__icon md-icon"></span>
-            Plot
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../guide/plot/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    Overview
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -1209,6 +645,10 @@
       
         
           
+        
+      
+        
+      
         
       
         
@@ -1273,6 +713,12 @@
     
       
         
+          
+        
+      
+        
+      
+        
       
         
       
@@ -1295,59 +741,9 @@
         <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
-    Core API
-    
-  </span>
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_2">
-            <span class="md-nav__icon md-icon"></span>
-            Core API
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
+          <div class="md-nav__link md-nav__container">
+            <a href="../RawDataReader/" class="md-nav__link ">
               
-                
-  
-  
-    
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_1" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3_2_1" id="__nav_3_2_1_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
@@ -1356,15 +752,23 @@
   </span>
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_1_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3_2_1">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
             <span class="md-nav__icon md-icon"></span>
             RawDataReader
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
             
               
                 
@@ -1373,12 +777,12 @@
   
   
     <li class="md-nav__item">
-      <a href="../RawDataReader/" class="md-nav__link">
+      <a href="../AbstractReader/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
-    RawDataReader API
+    AbstractReader
     
   </span>
   
@@ -1401,6 +805,8 @@
       
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
+      
+        
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
@@ -1434,6 +840,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1442,9 +850,168 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#qualitycontrol-api" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
-      QualityControl API
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statistical-outlier-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical Outlier Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistical Outlier Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#n-sigma-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      N-Sigma Method
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interquartile-range-iqr-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interquartile Range (IQR) Method
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#time-aware-rolling-iqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      Time-Aware Rolling IQR
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-quality-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Quality Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Quality Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bidirectional-trend-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bidirectional Trend Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-code-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status Code Filtering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completeness-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Completeness Validation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-outlier-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Outlier Removal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-time-aware-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Time-Aware Processing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instrument-specific-qc" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instrument-Specific QC
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Reference
     </span>
   </a>
   
@@ -1461,18 +1028,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.core.qc.QualityControl.iqr" class="md-nav__link">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl-functions" class="md-nav__link">
     <span class="md-ellipsis">
-      iqr
+      Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl._ensure_dataframe" class="md-nav__link">
+    <span class="md-ellipsis">
+      _ensure_dataframe
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.core.qc.QualityControl.mad_iqr_hybrid" class="md-nav__link">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl._transform_if_log" class="md-nav__link">
     <span class="md-ellipsis">
-      mad_iqr_hybrid
+      _transform_if_log
     </span>
   </a>
   
@@ -1482,6 +1059,15 @@
   <a href="#AeroViz.rawDataReader.core.qc.QualityControl.n_sigma" class="md-nav__link">
     <span class="md-ellipsis">
       n_sigma
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl.iqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      iqr
     </span>
   </a>
   
@@ -1505,14 +1091,453 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl.mad_iqr_hybrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      mad_iqr_hybrid
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Documentation
+    </span>
+  </a>
   
 </li>
       
     </ul>
   
 </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../instruments/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Supported Instruments
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_2_4" id="__nav_3_2_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            Supported Instruments
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/aethalometers/AE33/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AE33
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/aethalometers/AE43/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    AE43
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/aethalometers/BC1054.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    BC1054
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/aethalometers/MA350/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MA350
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/nephelometers/Aurora/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Aurora
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/nephelometers/NEPH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    NEPH
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/particle-sizers/SMPS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    SMPS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/particle-sizers/APS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    APS
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/particle-sizers/GRIMM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    GRIMM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/chemical/IGAC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    IGAC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/chemical/OCEC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    OCEC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/chemical/VOC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    VOC
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/chemical/XRF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    XRF
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instruments/chemical/TEOM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    TEOM
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
       
     </li>
   
@@ -1533,9 +1558,37 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../DataProcess/" class="md-nav__link">
+    
+    
+      
         
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../DataProcess/" class="md-nav__link ">
+              
   
   
   <span class="md-ellipsis">
@@ -1544,7 +1597,316 @@
   </span>
   
 
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            DataProcess
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../DataProcess/basic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Basic Process
+    
+  </span>
+  
+
       </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../plot/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Plotting
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3_4" id="__nav_3_4_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4">
+            <span class="md-nav__icon md-icon"></span>
+            Plotting
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_4_2" id="__nav_3_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Basic Plots
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            Basic Plots
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plot/basic/scatter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    scatter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plot/basic/regression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    regression
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plot/basic/box/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    box
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plot/basic/bar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    bar
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plot/basic/violin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    violin
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../plot/basic/pie/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    pie
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1577,7 +1939,7 @@
   
   
   <span class="md-ellipsis">
-    Web Site
+    About
     
   </span>
   
@@ -1604,6 +1966,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1612,9 +1976,168 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#qualitycontrol-api" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
-      QualityControl API
+      Overview
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Features
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Methods
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Methods">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#statistical-outlier-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      Statistical Outlier Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Statistical Outlier Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#n-sigma-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      N-Sigma Method
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#interquartile-range-iqr-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interquartile Range (IQR) Method
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#time-aware-rolling-iqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      Time-Aware Rolling IQR
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-quality-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Quality Control
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Advanced Quality Control">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bidirectional-trend-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      Bidirectional Trend Analysis
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-code-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      Status Code Filtering
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#completeness-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Completeness Validation
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#usage-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Usage Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Usage Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-outlier-removal" class="md-nav__link">
+    <span class="md-ellipsis">
+      Basic Outlier Removal
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-time-aware-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Advanced Time-Aware Processing
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instrument-specific-qc" class="md-nav__link">
+    <span class="md-ellipsis">
+      Instrument-Specific QC
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Reference
     </span>
   </a>
   
@@ -1631,18 +2154,28 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.core.qc.QualityControl.iqr" class="md-nav__link">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl-functions" class="md-nav__link">
     <span class="md-ellipsis">
-      iqr
+      Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl._ensure_dataframe" class="md-nav__link">
+    <span class="md-ellipsis">
+      _ensure_dataframe
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.core.qc.QualityControl.mad_iqr_hybrid" class="md-nav__link">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl._transform_if_log" class="md-nav__link">
     <span class="md-ellipsis">
-      mad_iqr_hybrid
+      _transform_if_log
     </span>
   </a>
   
@@ -1652,6 +2185,15 @@
   <a href="#AeroViz.rawDataReader.core.qc.QualityControl.n_sigma" class="md-nav__link">
     <span class="md-ellipsis">
       n_sigma
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl.iqr" class="md-nav__link">
+    <span class="md-ellipsis">
+      iqr
     </span>
   </a>
   
@@ -1675,8 +2217,31 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.qc.QualityControl.mad_iqr_hybrid" class="md-nav__link">
+    <span class="md-ellipsis">
+      mad_iqr_hybrid
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#related-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Documentation
+    </span>
+  </a>
   
 </li>
       
@@ -1699,9 +2264,117 @@
   
 
 
-  <h1>Quality Control</h1>
-
-<h2 id="qualitycontrol-api">QualityControl API</h2>
+<h1 id="quality-control">Quality Control</h1>
+<p>The <code>QualityControl</code> class provides comprehensive data quality assessment and outlier detection methods for aerosol
+instrument data.</p>
+<h2 id="overview">Overview</h2>
+<p>Quality control is essential for ensuring data reliability in aerosol measurements. The QualityControl class offers
+various statistical methods to identify and handle outliers, invalid measurements, and data quality issues.</p>
+<h2 id="key-features">Key Features</h2>
+<ul>
+<li><strong>Multiple Outlier Detection Methods</strong> - N-sigma, IQR, time-aware rolling methods</li>
+<li><strong>Flexible Thresholds</strong> - Configurable parameters for different data types</li>
+<li><strong>Time-Aware Processing</strong> - Considers temporal patterns in data</li>
+<li><strong>Status Code Filtering</strong> - Handles instrument-specific error codes</li>
+<li><strong>Data Completeness Checks</strong> - Validates temporal coverage requirements</li>
+</ul>
+<h2 id="methods">Methods</h2>
+<h3 id="statistical-outlier-detection">Statistical Outlier Detection</h3>
+<h4 id="n-sigma-method">N-Sigma Method</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.rawDataReader.core.qc</span><span class="w"> </span><span class="kn">import</span> <span class="n">QualityControl</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">qc</span> <span class="o">=</span> <span class="n">QualityControl</span><span class="p">()</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">cleaned_data</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">n_sigma</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">std_range</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="interquartile-range-iqr-method">Interquartile Range (IQR) Method</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Basic IQR</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">cleaned_data</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># With log transformation</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">cleaned_data</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">iqr</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="time-aware-rolling-iqr">Time-Aware Rolling IQR</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Rolling IQR with time awareness</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">cleaned_data</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">time_aware_rolling_iqr</span><span class="p">(</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">df</span><span class="p">,</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">window_size</span><span class="o">=</span><span class="s1">&#39;24h&#39;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">iqr_factor</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">min_periods</span><span class="o">=</span><span class="mi">5</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">)</span>
+</code></pre></div>
+<h3 id="advanced-quality-control">Advanced Quality Control</h3>
+<h4 id="bidirectional-trend-analysis">Bidirectional Trend Analysis</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Detect outliers while considering data trends</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">outlier_mask</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">bidirectional_trend_std_QC</span><span class="p">(</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">df</span><span class="p">,</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">window_size</span><span class="o">=</span><span class="s1">&#39;6h&#39;</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">std_factor</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">trend_window</span><span class="o">=</span><span class="s1">&#39;30min&#39;</span><span class="p">,</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">trend_factor</span><span class="o">=</span><span class="mf">2.0</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">)</span>
+</code></pre></div>
+<h4 id="status-code-filtering">Status Code Filtering</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Filter based on instrument status codes</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">error_mask</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">filter_error_status</span><span class="p">(</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">df</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">error_codes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">],</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="n">special_codes</span><span class="o">=</span><span class="p">[</span><span class="mi">384</span><span class="p">,</span> <span class="mi">1024</span><span class="p">]</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="p">)</span>
+</code></pre></div>
+<h4 id="completeness-validation">Completeness Validation</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Check hourly data completeness</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">completeness_mask</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">hourly_completeness_QC</span><span class="p">(</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">df</span><span class="p">,</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">freq</span><span class="o">=</span><span class="s1">&#39;6min&#39;</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">threshold</span><span class="o">=</span><span class="mf">0.75</span>  <span class="c1"># Require 75% data availability</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="p">)</span>
+</code></pre></div>
+<h2 id="usage-examples">Usage Examples</h2>
+<h3 id="basic-outlier-removal">Basic Outlier Removal</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.rawDataReader.core.qc</span><span class="w"> </span><span class="kn">import</span> <span class="n">QualityControl</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Load your data</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;instrument_data.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># Initialize QC</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">qc</span> <span class="o">=</span> <span class="n">QualityControl</span><span class="p">()</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># Apply basic outlier detection</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="n">cleaned_df</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">n_sigma</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">std_range</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="advanced-time-aware-processing">Advanced Time-Aware Processing</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># For time series with trends</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">cleaned_df</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">time_aware_rolling_iqr</span><span class="p">(</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">df</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">window_size</span><span class="o">=</span><span class="s1">&#39;12h&#39;</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">iqr_factor</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">min_periods</span><span class="o">=</span><span class="mi">10</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="p">)</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="c1"># With bidirectional trend consideration</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="n">outlier_mask</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">bidirectional_trend_std_QC</span><span class="p">(</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="n">df</span><span class="p">,</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>    <span class="n">window_size</span><span class="o">=</span><span class="s1">&#39;6h&#39;</span><span class="p">,</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>    <span class="n">std_factor</span><span class="o">=</span><span class="mf">3.0</span><span class="p">,</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>    <span class="n">trend_window</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="p">)</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="c1"># Apply the mask</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="n">final_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">outlier_mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="instrument-specific-qc">Instrument-Specific QC</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># For instruments with status codes (e.g., AE33)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">error_mask</span> <span class="o">=</span> <span class="n">qc</span><span class="o">.</span><span class="n">filter_error_status</span><span class="p">(</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">df</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">error_codes</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">],</span>  <span class="c1"># Common error codes</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">special_codes</span><span class="o">=</span><span class="p">[</span><span class="mi">384</span><span class="p">,</span> <span class="mi">1024</span><span class="p">,</span> <span class="mi">2048</span><span class="p">]</span>  <span class="c1"># Specific error conditions</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">)</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="c1"># Remove error data</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">qc_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="o">~</span><span class="n">error_mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="api-reference">API Reference</h2>
 
 
 <div class="doc doc-object doc-class">
@@ -1709,7 +2382,7 @@
 
 
 <h2 id="AeroViz.rawDataReader.core.qc.QualityControl" class="doc doc-heading">
-            <code>AeroViz.rawDataReader.core.qc.QualityControl</code>
+            <span class="doc doc-object-name doc-class-name">AeroViz.rawDataReader.core.qc.QualityControl</span>
 
 
 </h2>
@@ -1726,369 +2399,6 @@
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>AeroViz/rawDataReader/core/qc.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-5">  5</a></span>
-<span class="normal"><a href="#__codelineno-0-6">  6</a></span>
-<span class="normal"><a href="#__codelineno-0-7">  7</a></span>
-<span class="normal"><a href="#__codelineno-0-8">  8</a></span>
-<span class="normal"><a href="#__codelineno-0-9">  9</a></span>
-<span class="normal"><a href="#__codelineno-0-10"> 10</a></span>
-<span class="normal"><a href="#__codelineno-0-11"> 11</a></span>
-<span class="normal"><a href="#__codelineno-0-12"> 12</a></span>
-<span class="normal"><a href="#__codelineno-0-13"> 13</a></span>
-<span class="normal"><a href="#__codelineno-0-14"> 14</a></span>
-<span class="normal"><a href="#__codelineno-0-15"> 15</a></span>
-<span class="normal"><a href="#__codelineno-0-16"> 16</a></span>
-<span class="normal"><a href="#__codelineno-0-17"> 17</a></span>
-<span class="normal"><a href="#__codelineno-0-18"> 18</a></span>
-<span class="normal"><a href="#__codelineno-0-19"> 19</a></span>
-<span class="normal"><a href="#__codelineno-0-20"> 20</a></span>
-<span class="normal"><a href="#__codelineno-0-21"> 21</a></span>
-<span class="normal"><a href="#__codelineno-0-22"> 22</a></span>
-<span class="normal"><a href="#__codelineno-0-23"> 23</a></span>
-<span class="normal"><a href="#__codelineno-0-24"> 24</a></span>
-<span class="normal"><a href="#__codelineno-0-25"> 25</a></span>
-<span class="normal"><a href="#__codelineno-0-26"> 26</a></span>
-<span class="normal"><a href="#__codelineno-0-27"> 27</a></span>
-<span class="normal"><a href="#__codelineno-0-28"> 28</a></span>
-<span class="normal"><a href="#__codelineno-0-29"> 29</a></span>
-<span class="normal"><a href="#__codelineno-0-30"> 30</a></span>
-<span class="normal"><a href="#__codelineno-0-31"> 31</a></span>
-<span class="normal"><a href="#__codelineno-0-32"> 32</a></span>
-<span class="normal"><a href="#__codelineno-0-33"> 33</a></span>
-<span class="normal"><a href="#__codelineno-0-34"> 34</a></span>
-<span class="normal"><a href="#__codelineno-0-35"> 35</a></span>
-<span class="normal"><a href="#__codelineno-0-36"> 36</a></span>
-<span class="normal"><a href="#__codelineno-0-37"> 37</a></span>
-<span class="normal"><a href="#__codelineno-0-38"> 38</a></span>
-<span class="normal"><a href="#__codelineno-0-39"> 39</a></span>
-<span class="normal"><a href="#__codelineno-0-40"> 40</a></span>
-<span class="normal"><a href="#__codelineno-0-41"> 41</a></span>
-<span class="normal"><a href="#__codelineno-0-42"> 42</a></span>
-<span class="normal"><a href="#__codelineno-0-43"> 43</a></span>
-<span class="normal"><a href="#__codelineno-0-44"> 44</a></span>
-<span class="normal"><a href="#__codelineno-0-45"> 45</a></span>
-<span class="normal"><a href="#__codelineno-0-46"> 46</a></span>
-<span class="normal"><a href="#__codelineno-0-47"> 47</a></span>
-<span class="normal"><a href="#__codelineno-0-48"> 48</a></span>
-<span class="normal"><a href="#__codelineno-0-49"> 49</a></span>
-<span class="normal"><a href="#__codelineno-0-50"> 50</a></span>
-<span class="normal"><a href="#__codelineno-0-51"> 51</a></span>
-<span class="normal"><a href="#__codelineno-0-52"> 52</a></span>
-<span class="normal"><a href="#__codelineno-0-53"> 53</a></span>
-<span class="normal"><a href="#__codelineno-0-54"> 54</a></span>
-<span class="normal"><a href="#__codelineno-0-55"> 55</a></span>
-<span class="normal"><a href="#__codelineno-0-56"> 56</a></span>
-<span class="normal"><a href="#__codelineno-0-57"> 57</a></span>
-<span class="normal"><a href="#__codelineno-0-58"> 58</a></span>
-<span class="normal"><a href="#__codelineno-0-59"> 59</a></span>
-<span class="normal"><a href="#__codelineno-0-60"> 60</a></span>
-<span class="normal"><a href="#__codelineno-0-61"> 61</a></span>
-<span class="normal"><a href="#__codelineno-0-62"> 62</a></span>
-<span class="normal"><a href="#__codelineno-0-63"> 63</a></span>
-<span class="normal"><a href="#__codelineno-0-64"> 64</a></span>
-<span class="normal"><a href="#__codelineno-0-65"> 65</a></span>
-<span class="normal"><a href="#__codelineno-0-66"> 66</a></span>
-<span class="normal"><a href="#__codelineno-0-67"> 67</a></span>
-<span class="normal"><a href="#__codelineno-0-68"> 68</a></span>
-<span class="normal"><a href="#__codelineno-0-69"> 69</a></span>
-<span class="normal"><a href="#__codelineno-0-70"> 70</a></span>
-<span class="normal"><a href="#__codelineno-0-71"> 71</a></span>
-<span class="normal"><a href="#__codelineno-0-72"> 72</a></span>
-<span class="normal"><a href="#__codelineno-0-73"> 73</a></span>
-<span class="normal"><a href="#__codelineno-0-74"> 74</a></span>
-<span class="normal"><a href="#__codelineno-0-75"> 75</a></span>
-<span class="normal"><a href="#__codelineno-0-76"> 76</a></span>
-<span class="normal"><a href="#__codelineno-0-77"> 77</a></span>
-<span class="normal"><a href="#__codelineno-0-78"> 78</a></span>
-<span class="normal"><a href="#__codelineno-0-79"> 79</a></span>
-<span class="normal"><a href="#__codelineno-0-80"> 80</a></span>
-<span class="normal"><a href="#__codelineno-0-81"> 81</a></span>
-<span class="normal"><a href="#__codelineno-0-82"> 82</a></span>
-<span class="normal"><a href="#__codelineno-0-83"> 83</a></span>
-<span class="normal"><a href="#__codelineno-0-84"> 84</a></span>
-<span class="normal"><a href="#__codelineno-0-85"> 85</a></span>
-<span class="normal"><a href="#__codelineno-0-86"> 86</a></span>
-<span class="normal"><a href="#__codelineno-0-87"> 87</a></span>
-<span class="normal"><a href="#__codelineno-0-88"> 88</a></span>
-<span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
-<span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
-<span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
-<span class="normal"><a href="#__codelineno-0-92"> 92</a></span>
-<span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
-<span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
-<span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
-<span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
-<span class="normal"><a href="#__codelineno-0-97"> 97</a></span>
-<span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
-<span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
-<span class="normal"><a href="#__codelineno-0-100">100</a></span>
-<span class="normal"><a href="#__codelineno-0-101">101</a></span>
-<span class="normal"><a href="#__codelineno-0-102">102</a></span>
-<span class="normal"><a href="#__codelineno-0-103">103</a></span>
-<span class="normal"><a href="#__codelineno-0-104">104</a></span>
-<span class="normal"><a href="#__codelineno-0-105">105</a></span>
-<span class="normal"><a href="#__codelineno-0-106">106</a></span>
-<span class="normal"><a href="#__codelineno-0-107">107</a></span>
-<span class="normal"><a href="#__codelineno-0-108">108</a></span>
-<span class="normal"><a href="#__codelineno-0-109">109</a></span>
-<span class="normal"><a href="#__codelineno-0-110">110</a></span>
-<span class="normal"><a href="#__codelineno-0-111">111</a></span>
-<span class="normal"><a href="#__codelineno-0-112">112</a></span>
-<span class="normal"><a href="#__codelineno-0-113">113</a></span>
-<span class="normal"><a href="#__codelineno-0-114">114</a></span>
-<span class="normal"><a href="#__codelineno-0-115">115</a></span>
-<span class="normal"><a href="#__codelineno-0-116">116</a></span>
-<span class="normal"><a href="#__codelineno-0-117">117</a></span>
-<span class="normal"><a href="#__codelineno-0-118">118</a></span>
-<span class="normal"><a href="#__codelineno-0-119">119</a></span>
-<span class="normal"><a href="#__codelineno-0-120">120</a></span>
-<span class="normal"><a href="#__codelineno-0-121">121</a></span>
-<span class="normal"><a href="#__codelineno-0-122">122</a></span>
-<span class="normal"><a href="#__codelineno-0-123">123</a></span>
-<span class="normal"><a href="#__codelineno-0-124">124</a></span>
-<span class="normal"><a href="#__codelineno-0-125">125</a></span>
-<span class="normal"><a href="#__codelineno-0-126">126</a></span>
-<span class="normal"><a href="#__codelineno-0-127">127</a></span>
-<span class="normal"><a href="#__codelineno-0-128">128</a></span>
-<span class="normal"><a href="#__codelineno-0-129">129</a></span>
-<span class="normal"><a href="#__codelineno-0-130">130</a></span>
-<span class="normal"><a href="#__codelineno-0-131">131</a></span>
-<span class="normal"><a href="#__codelineno-0-132">132</a></span>
-<span class="normal"><a href="#__codelineno-0-133">133</a></span>
-<span class="normal"><a href="#__codelineno-0-134">134</a></span>
-<span class="normal"><a href="#__codelineno-0-135">135</a></span>
-<span class="normal"><a href="#__codelineno-0-136">136</a></span>
-<span class="normal"><a href="#__codelineno-0-137">137</a></span>
-<span class="normal"><a href="#__codelineno-0-138">138</a></span>
-<span class="normal"><a href="#__codelineno-0-139">139</a></span>
-<span class="normal"><a href="#__codelineno-0-140">140</a></span>
-<span class="normal"><a href="#__codelineno-0-141">141</a></span>
-<span class="normal"><a href="#__codelineno-0-142">142</a></span>
-<span class="normal"><a href="#__codelineno-0-143">143</a></span>
-<span class="normal"><a href="#__codelineno-0-144">144</a></span>
-<span class="normal"><a href="#__codelineno-0-145">145</a></span>
-<span class="normal"><a href="#__codelineno-0-146">146</a></span>
-<span class="normal"><a href="#__codelineno-0-147">147</a></span>
-<span class="normal"><a href="#__codelineno-0-148">148</a></span>
-<span class="normal"><a href="#__codelineno-0-149">149</a></span>
-<span class="normal"><a href="#__codelineno-0-150">150</a></span>
-<span class="normal"><a href="#__codelineno-0-151">151</a></span>
-<span class="normal"><a href="#__codelineno-0-152">152</a></span>
-<span class="normal"><a href="#__codelineno-0-153">153</a></span>
-<span class="normal"><a href="#__codelineno-0-154">154</a></span>
-<span class="normal"><a href="#__codelineno-0-155">155</a></span>
-<span class="normal"><a href="#__codelineno-0-156">156</a></span>
-<span class="normal"><a href="#__codelineno-0-157">157</a></span>
-<span class="normal"><a href="#__codelineno-0-158">158</a></span>
-<span class="normal"><a href="#__codelineno-0-159">159</a></span>
-<span class="normal"><a href="#__codelineno-0-160">160</a></span>
-<span class="normal"><a href="#__codelineno-0-161">161</a></span>
-<span class="normal"><a href="#__codelineno-0-162">162</a></span>
-<span class="normal"><a href="#__codelineno-0-163">163</a></span>
-<span class="normal"><a href="#__codelineno-0-164">164</a></span>
-<span class="normal"><a href="#__codelineno-0-165">165</a></span>
-<span class="normal"><a href="#__codelineno-0-166">166</a></span>
-<span class="normal"><a href="#__codelineno-0-167">167</a></span>
-<span class="normal"><a href="#__codelineno-0-168">168</a></span>
-<span class="normal"><a href="#__codelineno-0-169">169</a></span>
-<span class="normal"><a href="#__codelineno-0-170">170</a></span>
-<span class="normal"><a href="#__codelineno-0-171">171</a></span>
-<span class="normal"><a href="#__codelineno-0-172">172</a></span>
-<span class="normal"><a href="#__codelineno-0-173">173</a></span>
-<span class="normal"><a href="#__codelineno-0-174">174</a></span>
-<span class="normal"><a href="#__codelineno-0-175">175</a></span>
-<span class="normal"><a href="#__codelineno-0-176">176</a></span>
-<span class="normal"><a href="#__codelineno-0-177">177</a></span>
-<span class="normal"><a href="#__codelineno-0-178">178</a></span>
-<span class="normal"><a href="#__codelineno-0-179">179</a></span>
-<span class="normal"><a href="#__codelineno-0-180">180</a></span>
-<span class="normal"><a href="#__codelineno-0-181">181</a></span>
-<span class="normal"><a href="#__codelineno-0-182">182</a></span>
-<span class="normal"><a href="#__codelineno-0-183">183</a></span>
-<span class="normal"><a href="#__codelineno-0-184">184</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">QualityControl</span><span class="p">:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A class providing various methods for data quality control and outlier detection&quot;&quot;&quot;</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7"></a>
-<a id="__codelineno-0-8" name="__codelineno-0-8"></a>    <span class="nd">@staticmethod</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure input data is in DataFrame format&quot;&quot;&quot;</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11"></a>        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="k">else</span> <span class="n">df</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13"></a>    <span class="nd">@staticmethod</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform data to log scale if required&quot;&quot;&quot;</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16"></a>        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="k">if</span> <span class="n">log_dist</span> <span class="k">else</span> <span class="n">df</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a>    <span class="nd">@classmethod</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">n_sigma</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">std_range</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">        Detect outliers using n-sigma method</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="sd">        Parameters</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="sd">        ----------</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="sd">        df : pd.DataFrame</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="sd">            Input data</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">        std_range : int, default=5</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="sd">            Number of standard deviations to use as threshold</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">        Returns</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">        -------</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">        pd.DataFrame</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">            Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35"></a>        <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="n">df_ave</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>        <span class="n">df_std</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>        <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">df</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">df_ave</span> <span class="o">-</span> <span class="n">df_std</span> <span class="o">*</span> <span class="n">std_range</span><span class="p">)</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>        <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">df</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">df_ave</span> <span class="o">+</span> <span class="n">df_std</span> <span class="o">*</span> <span class="n">std_range</span><span class="p">)</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a>        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">lower_bound</span> <span class="o">|</span> <span class="n">upper_bound</span><span class="p">)</span>
-<a id="__codelineno-0-43" name="__codelineno-0-43"></a>
-<a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="nd">@classmethod</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">iqr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">        Detect outliers using Interquartile Range (IQR) method</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">        Parameters</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">        ----------</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="sd">        df : pd.DataFrame</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="sd">            Input data</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">        log_dist : bool, default=False</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">            Whether to apply log transformation to data</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55"></a>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">        Returns</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">        -------</span>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">        pd.DataFrame</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">            Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-61" name="__codelineno-0-61"></a>        <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-62" name="__codelineno-0-62"></a>        <span class="n">df_transformed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">)</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63"></a>
-<a id="__codelineno-0-64" name="__codelineno-0-64"></a>        <span class="n">q1</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a>        <span class="n">q3</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a>        <span class="n">iqr</span> <span class="o">=</span> <span class="n">q3</span> <span class="o">-</span> <span class="n">q1</span>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a>        <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">df_transformed</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">q1</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">)</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a>        <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">df_transformed</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">q3</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">)</span>
-<a id="__codelineno-0-70" name="__codelineno-0-70"></a>
-<a id="__codelineno-0-71" name="__codelineno-0-71"></a>        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">lower_bound</span> <span class="o">|</span> <span class="n">upper_bound</span><span class="p">)</span>
-<a id="__codelineno-0-72" name="__codelineno-0-72"></a>
-<a id="__codelineno-0-73" name="__codelineno-0-73"></a>    <span class="nd">@classmethod</span>
-<a id="__codelineno-0-74" name="__codelineno-0-74"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">rolling_iqr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span>
-<a id="__codelineno-0-75" name="__codelineno-0-75"></a>                    <span class="n">log_dist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">        Detect outliers using rolling window IQR method</span>
-<a id="__codelineno-0-78" name="__codelineno-0-78"></a>
-<a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">        Parameters</span>
-<a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">        ----------</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">        df : pd.DataFrame</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">            Input data</span>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">        window_size : int, default=24</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">            Size of the rolling window</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a><span class="sd">        log_dist : bool, default=False</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">            Whether to apply log transformation to data</span>
-<a id="__codelineno-0-87" name="__codelineno-0-87"></a>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="sd">        Returns</span>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a><span class="sd">        -------</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="sd">        pd.DataFrame</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="sd">            Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a>        <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>        <span class="n">df_transformed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">)</span>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">iqr_filter</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>            <span class="n">q1</span><span class="p">,</span> <span class="n">q3</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a>            <span class="n">iqr</span> <span class="o">=</span> <span class="n">q3</span> <span class="o">-</span> <span class="n">q1</span>
-<a id="__codelineno-0-99" name="__codelineno-0-99"></a>            <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">,</span> <span class="n">q3</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span>
-<a id="__codelineno-0-100" name="__codelineno-0-100"></a>            <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">lower</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">)</span>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a>        <span class="n">mask</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span>
-<a id="__codelineno-0-103" name="__codelineno-0-103"></a>            <span class="n">window</span><span class="o">=</span><span class="n">window_size</span><span class="p">,</span>
-<a id="__codelineno-0-104" name="__codelineno-0-104"></a>            <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-0-105" name="__codelineno-0-105"></a>            <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span>
-<a id="__codelineno-0-106" name="__codelineno-0-106"></a>        <span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">iqr_filter</span><span class="p">)</span>
-<a id="__codelineno-0-107" name="__codelineno-0-107"></a>
-<a id="__codelineno-0-108" name="__codelineno-0-108"></a>        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-<a id="__codelineno-0-109" name="__codelineno-0-109"></a>
-<a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="nd">@classmethod</span>
-<a id="__codelineno-0-111" name="__codelineno-0-111"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">time_aware_iqr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">time_window</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;1D&#39;</span><span class="p">,</span>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a>                       <span class="n">log_dist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="sd">        Detect outliers using time-aware IQR method</span>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">        Parameters</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="sd">        ----------</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="sd">        df : pd.DataFrame</span>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a><span class="sd">            Input data</span>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">        time_window : str, default=&#39;1D&#39;</span>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">            Time window size (e.g., &#39;1D&#39; for one day)</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="sd">        log_dist : bool, default=False</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a><span class="sd">            Whether to apply log transformation to data</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a><span class="sd">        Returns</span>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a><span class="sd">        -------</span>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a><span class="sd">        pd.DataFrame</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a><span class="sd">            Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-130" name="__codelineno-0-130"></a>        <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a>        <span class="n">df_transformed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">)</span>
-<a id="__codelineno-0-132" name="__codelineno-0-132"></a>
-<a id="__codelineno-0-133" name="__codelineno-0-133"></a>        <span class="k">def</span><span class="w"> </span><span class="nf">iqr_filter</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
-<a id="__codelineno-0-134" name="__codelineno-0-134"></a>            <span class="n">q1</span><span class="p">,</span> <span class="n">q3</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">),</span> <span class="n">group</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
-<a id="__codelineno-0-135" name="__codelineno-0-135"></a>            <span class="n">iqr</span> <span class="o">=</span> <span class="n">q3</span> <span class="o">-</span> <span class="n">q1</span>
-<a id="__codelineno-0-136" name="__codelineno-0-136"></a>            <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">,</span> <span class="n">q3</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span>
-<a id="__codelineno-0-137" name="__codelineno-0-137"></a>            <span class="k">return</span> <span class="p">(</span><span class="n">group</span> <span class="o">&gt;=</span> <span class="n">lower</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">group</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">)</span>
-<a id="__codelineno-0-138" name="__codelineno-0-138"></a>
-<a id="__codelineno-0-139" name="__codelineno-0-139"></a>        <span class="n">mask</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-<a id="__codelineno-0-140" name="__codelineno-0-140"></a>            <span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">time_window</span><span class="p">)</span>
-<a id="__codelineno-0-141" name="__codelineno-0-141"></a>        <span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">iqr_filter</span><span class="p">)</span>
-<a id="__codelineno-0-142" name="__codelineno-0-142"></a>
-<a id="__codelineno-0-143" name="__codelineno-0-143"></a>        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-<a id="__codelineno-0-144" name="__codelineno-0-144"></a>
-<a id="__codelineno-0-145" name="__codelineno-0-145"></a>    <span class="nd">@classmethod</span>
-<a id="__codelineno-0-146" name="__codelineno-0-146"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">mad_iqr_hybrid</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">mad_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.5</span><span class="p">,</span>
-<a id="__codelineno-0-147" name="__codelineno-0-147"></a>                       <span class="n">log_dist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-148" name="__codelineno-0-148"></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-149" name="__codelineno-0-149"></a><span class="sd">        Detect outliers using a hybrid of MAD and IQR methods</span>
-<a id="__codelineno-0-150" name="__codelineno-0-150"></a>
-<a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="sd">        Parameters</span>
-<a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="sd">        ----------</span>
-<a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="sd">        df : pd.DataFrame</span>
-<a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="sd">            Input data</span>
-<a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="sd">        mad_threshold : float, default=3.5</span>
-<a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="sd">            Threshold for MAD method</span>
-<a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">        log_dist : bool, default=False</span>
-<a id="__codelineno-0-158" name="__codelineno-0-158"></a><span class="sd">            Whether to apply log transformation to data</span>
-<a id="__codelineno-0-159" name="__codelineno-0-159"></a>
-<a id="__codelineno-0-160" name="__codelineno-0-160"></a><span class="sd">        Returns</span>
-<a id="__codelineno-0-161" name="__codelineno-0-161"></a><span class="sd">        -------</span>
-<a id="__codelineno-0-162" name="__codelineno-0-162"></a><span class="sd">        pd.DataFrame</span>
-<a id="__codelineno-0-163" name="__codelineno-0-163"></a><span class="sd">            Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-164" name="__codelineno-0-164"></a><span class="sd">        &quot;&quot;&quot;</span>
-<a id="__codelineno-0-165" name="__codelineno-0-165"></a>        <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-166" name="__codelineno-0-166"></a>        <span class="n">df_transformed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">)</span>
-<a id="__codelineno-0-167" name="__codelineno-0-167"></a>
-<a id="__codelineno-0-168" name="__codelineno-0-168"></a>        <span class="c1"># IQR method</span>
-<a id="__codelineno-0-169" name="__codelineno-0-169"></a>        <span class="n">q1</span><span class="p">,</span> <span class="n">q3</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">),</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
-<a id="__codelineno-0-170" name="__codelineno-0-170"></a>        <span class="n">iqr</span> <span class="o">=</span> <span class="n">q3</span> <span class="o">-</span> <span class="n">q1</span>
-<a id="__codelineno-0-171" name="__codelineno-0-171"></a>        <span class="n">iqr_lower</span><span class="p">,</span> <span class="n">iqr_upper</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">,</span> <span class="n">q3</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span>
-<a id="__codelineno-0-172" name="__codelineno-0-172"></a>
-<a id="__codelineno-0-173" name="__codelineno-0-173"></a>        <span class="c1"># MAD method</span>
-<a id="__codelineno-0-174" name="__codelineno-0-174"></a>        <span class="n">median</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-<a id="__codelineno-0-175" name="__codelineno-0-175"></a>        <span class="n">mad</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_transformed</span> <span class="o">-</span> <span class="n">median</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-<a id="__codelineno-0-176" name="__codelineno-0-176"></a>        <span class="n">mad_lower</span> <span class="o">=</span> <span class="n">median</span> <span class="o">-</span> <span class="n">mad_threshold</span> <span class="o">*</span> <span class="n">mad</span>
-<a id="__codelineno-0-177" name="__codelineno-0-177"></a>        <span class="n">mad_upper</span> <span class="o">=</span> <span class="n">median</span> <span class="o">+</span> <span class="n">mad_threshold</span> <span class="o">*</span> <span class="n">mad</span>
-<a id="__codelineno-0-178" name="__codelineno-0-178"></a>
-<a id="__codelineno-0-179" name="__codelineno-0-179"></a>        <span class="c1"># Combine both methods</span>
-<a id="__codelineno-0-180" name="__codelineno-0-180"></a>        <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">iqr_lower</span><span class="p">,</span> <span class="n">mad_lower</span><span class="p">)</span>
-<a id="__codelineno-0-181" name="__codelineno-0-181"></a>        <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">iqr_upper</span><span class="p">,</span> <span class="n">mad_upper</span><span class="p">)</span>
-<a id="__codelineno-0-182" name="__codelineno-0-182"></a>
-<a id="__codelineno-0-183" name="__codelineno-0-183"></a>        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_transformed</span> <span class="o">&gt;=</span> <span class="n">lower</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_transformed</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">)</span>
-<a id="__codelineno-0-184" name="__codelineno-0-184"></a>        <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-              </details>
 
 
 
@@ -2100,155 +2410,28 @@
 
 
 
-
+<h3 id="AeroViz.rawDataReader.core.qc.QualityControl-functions">Functions</h3>
 
 <div class="doc doc-object doc-function">
 
 
-<h3 id="AeroViz.rawDataReader.core.qc.QualityControl.iqr" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">iqr</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<h4 id="AeroViz.rawDataReader.core.qc.QualityControl._ensure_dataframe" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_ensure_dataframe</span>
+
 
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
-</h3>
-
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span> <span class="o">|</span> <span class="n"><span title="pandas.Series">Series</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Detect outliers using Interquartile Range (IQR) method</p>
+        <p>Ensure input data is in DataFrame format</p>
 
 
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>df</code>
-            </td>
-            <td>
-                  <code><span title="pandas.DataFrame">DataFrame</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Input data</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>log_dist</code>
-            </td>
-            <td>
-                  <code><span title="bool">bool</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Whether to apply log transformation to data</p>
-              </div>
-            </td>
-            <td>
-                  <code>False</code>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="pandas.DataFrame">DataFrame</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Cleaned DataFrame with outliers masked as NaN</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-            <details class="quote">
-              <summary>Source code in <code>AeroViz/rawDataReader/core/qc.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-44">44</a></span>
-<span class="normal"><a href="#__codelineno-0-45">45</a></span>
-<span class="normal"><a href="#__codelineno-0-46">46</a></span>
-<span class="normal"><a href="#__codelineno-0-47">47</a></span>
-<span class="normal"><a href="#__codelineno-0-48">48</a></span>
-<span class="normal"><a href="#__codelineno-0-49">49</a></span>
-<span class="normal"><a href="#__codelineno-0-50">50</a></span>
-<span class="normal"><a href="#__codelineno-0-51">51</a></span>
-<span class="normal"><a href="#__codelineno-0-52">52</a></span>
-<span class="normal"><a href="#__codelineno-0-53">53</a></span>
-<span class="normal"><a href="#__codelineno-0-54">54</a></span>
-<span class="normal"><a href="#__codelineno-0-55">55</a></span>
-<span class="normal"><a href="#__codelineno-0-56">56</a></span>
-<span class="normal"><a href="#__codelineno-0-57">57</a></span>
-<span class="normal"><a href="#__codelineno-0-58">58</a></span>
-<span class="normal"><a href="#__codelineno-0-59">59</a></span>
-<span class="normal"><a href="#__codelineno-0-60">60</a></span>
-<span class="normal"><a href="#__codelineno-0-61">61</a></span>
-<span class="normal"><a href="#__codelineno-0-62">62</a></span>
-<span class="normal"><a href="#__codelineno-0-63">63</a></span>
-<span class="normal"><a href="#__codelineno-0-64">64</a></span>
-<span class="normal"><a href="#__codelineno-0-65">65</a></span>
-<span class="normal"><a href="#__codelineno-0-66">66</a></span>
-<span class="normal"><a href="#__codelineno-0-67">67</a></span>
-<span class="normal"><a href="#__codelineno-0-68">68</a></span>
-<span class="normal"><a href="#__codelineno-0-69">69</a></span>
-<span class="normal"><a href="#__codelineno-0-70">70</a></span>
-<span class="normal"><a href="#__codelineno-0-71">71</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="nd">@classmethod</span>
-<a id="__codelineno-0-45" name="__codelineno-0-45"></a><span class="k">def</span><span class="w"> </span><span class="nf">iqr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-46" name="__codelineno-0-46"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-47" name="__codelineno-0-47"></a><span class="sd">    Detect outliers using Interquartile Range (IQR) method</span>
-<a id="__codelineno-0-48" name="__codelineno-0-48"></a>
-<a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="sd">    Parameters</span>
-<a id="__codelineno-0-50" name="__codelineno-0-50"></a><span class="sd">    ----------</span>
-<a id="__codelineno-0-51" name="__codelineno-0-51"></a><span class="sd">    df : pd.DataFrame</span>
-<a id="__codelineno-0-52" name="__codelineno-0-52"></a><span class="sd">        Input data</span>
-<a id="__codelineno-0-53" name="__codelineno-0-53"></a><span class="sd">    log_dist : bool, default=False</span>
-<a id="__codelineno-0-54" name="__codelineno-0-54"></a><span class="sd">        Whether to apply log transformation to data</span>
-<a id="__codelineno-0-55" name="__codelineno-0-55"></a>
-<a id="__codelineno-0-56" name="__codelineno-0-56"></a><span class="sd">    Returns</span>
-<a id="__codelineno-0-57" name="__codelineno-0-57"></a><span class="sd">    -------</span>
-<a id="__codelineno-0-58" name="__codelineno-0-58"></a><span class="sd">    pd.DataFrame</span>
-<a id="__codelineno-0-59" name="__codelineno-0-59"></a><span class="sd">        Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-61" name="__codelineno-0-61"></a>    <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-62" name="__codelineno-0-62"></a>    <span class="n">df_transformed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">)</span>
-<a id="__codelineno-0-63" name="__codelineno-0-63"></a>
-<a id="__codelineno-0-64" name="__codelineno-0-64"></a>    <span class="n">q1</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">)</span>
-<a id="__codelineno-0-65" name="__codelineno-0-65"></a>    <span class="n">q3</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
-<a id="__codelineno-0-66" name="__codelineno-0-66"></a>    <span class="n">iqr</span> <span class="o">=</span> <span class="n">q3</span> <span class="o">-</span> <span class="n">q1</span>
-<a id="__codelineno-0-67" name="__codelineno-0-67"></a>
-<a id="__codelineno-0-68" name="__codelineno-0-68"></a>    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">df_transformed</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">q1</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">)</span>
-<a id="__codelineno-0-69" name="__codelineno-0-69"></a>    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">df_transformed</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">q3</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">)</span>
-<a id="__codelineno-0-70" name="__codelineno-0-70"></a>
-<a id="__codelineno-0-71" name="__codelineno-0-71"></a>    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">lower_bound</span> <span class="o">|</span> <span class="n">upper_bound</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
     </div>
 
 </div>
@@ -2256,190 +2439,23 @@
 <div class="doc doc-object doc-function">
 
 
-<h3 id="AeroViz.rawDataReader.core.qc.QualityControl.mad_iqr_hybrid" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">mad_iqr_hybrid</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">mad_threshold</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span> <span class="n">log_dist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<h4 id="AeroViz.rawDataReader.core.qc.QualityControl._transform_if_log" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_transform_if_log</span>
+
 
   <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
   </span>
 
-</h3>
-
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">log_dist</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Detect outliers using a hybrid of MAD and IQR methods</p>
+        <p>Transform data to log scale if required</p>
 
 
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>df</code>
-            </td>
-            <td>
-                  <code><span title="pandas.DataFrame">DataFrame</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Input data</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>mad_threshold</code>
-            </td>
-            <td>
-                  <code><span title="float">float</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Threshold for MAD method</p>
-              </div>
-            </td>
-            <td>
-                  <code>3.5</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>log_dist</code>
-            </td>
-            <td>
-                  <code><span title="bool">bool</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Whether to apply log transformation to data</p>
-              </div>
-            </td>
-            <td>
-                  <code>False</code>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="pandas.DataFrame">DataFrame</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Cleaned DataFrame with outliers masked as NaN</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-            <details class="quote">
-              <summary>Source code in <code>AeroViz/rawDataReader/core/qc.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-145">145</a></span>
-<span class="normal"><a href="#__codelineno-0-146">146</a></span>
-<span class="normal"><a href="#__codelineno-0-147">147</a></span>
-<span class="normal"><a href="#__codelineno-0-148">148</a></span>
-<span class="normal"><a href="#__codelineno-0-149">149</a></span>
-<span class="normal"><a href="#__codelineno-0-150">150</a></span>
-<span class="normal"><a href="#__codelineno-0-151">151</a></span>
-<span class="normal"><a href="#__codelineno-0-152">152</a></span>
-<span class="normal"><a href="#__codelineno-0-153">153</a></span>
-<span class="normal"><a href="#__codelineno-0-154">154</a></span>
-<span class="normal"><a href="#__codelineno-0-155">155</a></span>
-<span class="normal"><a href="#__codelineno-0-156">156</a></span>
-<span class="normal"><a href="#__codelineno-0-157">157</a></span>
-<span class="normal"><a href="#__codelineno-0-158">158</a></span>
-<span class="normal"><a href="#__codelineno-0-159">159</a></span>
-<span class="normal"><a href="#__codelineno-0-160">160</a></span>
-<span class="normal"><a href="#__codelineno-0-161">161</a></span>
-<span class="normal"><a href="#__codelineno-0-162">162</a></span>
-<span class="normal"><a href="#__codelineno-0-163">163</a></span>
-<span class="normal"><a href="#__codelineno-0-164">164</a></span>
-<span class="normal"><a href="#__codelineno-0-165">165</a></span>
-<span class="normal"><a href="#__codelineno-0-166">166</a></span>
-<span class="normal"><a href="#__codelineno-0-167">167</a></span>
-<span class="normal"><a href="#__codelineno-0-168">168</a></span>
-<span class="normal"><a href="#__codelineno-0-169">169</a></span>
-<span class="normal"><a href="#__codelineno-0-170">170</a></span>
-<span class="normal"><a href="#__codelineno-0-171">171</a></span>
-<span class="normal"><a href="#__codelineno-0-172">172</a></span>
-<span class="normal"><a href="#__codelineno-0-173">173</a></span>
-<span class="normal"><a href="#__codelineno-0-174">174</a></span>
-<span class="normal"><a href="#__codelineno-0-175">175</a></span>
-<span class="normal"><a href="#__codelineno-0-176">176</a></span>
-<span class="normal"><a href="#__codelineno-0-177">177</a></span>
-<span class="normal"><a href="#__codelineno-0-178">178</a></span>
-<span class="normal"><a href="#__codelineno-0-179">179</a></span>
-<span class="normal"><a href="#__codelineno-0-180">180</a></span>
-<span class="normal"><a href="#__codelineno-0-181">181</a></span>
-<span class="normal"><a href="#__codelineno-0-182">182</a></span>
-<span class="normal"><a href="#__codelineno-0-183">183</a></span>
-<span class="normal"><a href="#__codelineno-0-184">184</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-145" name="__codelineno-0-145"></a><span class="nd">@classmethod</span>
-<a id="__codelineno-0-146" name="__codelineno-0-146"></a><span class="k">def</span><span class="w"> </span><span class="nf">mad_iqr_hybrid</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">mad_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.5</span><span class="p">,</span>
-<a id="__codelineno-0-147" name="__codelineno-0-147"></a>                   <span class="n">log_dist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-148" name="__codelineno-0-148"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-149" name="__codelineno-0-149"></a><span class="sd">    Detect outliers using a hybrid of MAD and IQR methods</span>
-<a id="__codelineno-0-150" name="__codelineno-0-150"></a>
-<a id="__codelineno-0-151" name="__codelineno-0-151"></a><span class="sd">    Parameters</span>
-<a id="__codelineno-0-152" name="__codelineno-0-152"></a><span class="sd">    ----------</span>
-<a id="__codelineno-0-153" name="__codelineno-0-153"></a><span class="sd">    df : pd.DataFrame</span>
-<a id="__codelineno-0-154" name="__codelineno-0-154"></a><span class="sd">        Input data</span>
-<a id="__codelineno-0-155" name="__codelineno-0-155"></a><span class="sd">    mad_threshold : float, default=3.5</span>
-<a id="__codelineno-0-156" name="__codelineno-0-156"></a><span class="sd">        Threshold for MAD method</span>
-<a id="__codelineno-0-157" name="__codelineno-0-157"></a><span class="sd">    log_dist : bool, default=False</span>
-<a id="__codelineno-0-158" name="__codelineno-0-158"></a><span class="sd">        Whether to apply log transformation to data</span>
-<a id="__codelineno-0-159" name="__codelineno-0-159"></a>
-<a id="__codelineno-0-160" name="__codelineno-0-160"></a><span class="sd">    Returns</span>
-<a id="__codelineno-0-161" name="__codelineno-0-161"></a><span class="sd">    -------</span>
-<a id="__codelineno-0-162" name="__codelineno-0-162"></a><span class="sd">    pd.DataFrame</span>
-<a id="__codelineno-0-163" name="__codelineno-0-163"></a><span class="sd">        Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-164" name="__codelineno-0-164"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-165" name="__codelineno-0-165"></a>    <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-166" name="__codelineno-0-166"></a>    <span class="n">df_transformed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">)</span>
-<a id="__codelineno-0-167" name="__codelineno-0-167"></a>
-<a id="__codelineno-0-168" name="__codelineno-0-168"></a>    <span class="c1"># IQR method</span>
-<a id="__codelineno-0-169" name="__codelineno-0-169"></a>    <span class="n">q1</span><span class="p">,</span> <span class="n">q3</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">),</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
-<a id="__codelineno-0-170" name="__codelineno-0-170"></a>    <span class="n">iqr</span> <span class="o">=</span> <span class="n">q3</span> <span class="o">-</span> <span class="n">q1</span>
-<a id="__codelineno-0-171" name="__codelineno-0-171"></a>    <span class="n">iqr_lower</span><span class="p">,</span> <span class="n">iqr_upper</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">,</span> <span class="n">q3</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span>
-<a id="__codelineno-0-172" name="__codelineno-0-172"></a>
-<a id="__codelineno-0-173" name="__codelineno-0-173"></a>    <span class="c1"># MAD method</span>
-<a id="__codelineno-0-174" name="__codelineno-0-174"></a>    <span class="n">median</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-<a id="__codelineno-0-175" name="__codelineno-0-175"></a>    <span class="n">mad</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_transformed</span> <span class="o">-</span> <span class="n">median</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-<a id="__codelineno-0-176" name="__codelineno-0-176"></a>    <span class="n">mad_lower</span> <span class="o">=</span> <span class="n">median</span> <span class="o">-</span> <span class="n">mad_threshold</span> <span class="o">*</span> <span class="n">mad</span>
-<a id="__codelineno-0-177" name="__codelineno-0-177"></a>    <span class="n">mad_upper</span> <span class="o">=</span> <span class="n">median</span> <span class="o">+</span> <span class="n">mad_threshold</span> <span class="o">*</span> <span class="n">mad</span>
-<a id="__codelineno-0-178" name="__codelineno-0-178"></a>
-<a id="__codelineno-0-179" name="__codelineno-0-179"></a>    <span class="c1"># Combine both methods</span>
-<a id="__codelineno-0-180" name="__codelineno-0-180"></a>    <span class="n">lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">iqr_lower</span><span class="p">,</span> <span class="n">mad_lower</span><span class="p">)</span>
-<a id="__codelineno-0-181" name="__codelineno-0-181"></a>    <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">iqr_upper</span><span class="p">,</span> <span class="n">mad_upper</span><span class="p">)</span>
-<a id="__codelineno-0-182" name="__codelineno-0-182"></a>
-<a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_transformed</span> <span class="o">&gt;=</span> <span class="n">lower</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df_transformed</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">)</span>
-<a id="__codelineno-0-184" name="__codelineno-0-184"></a>    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
     </div>
 
 </div>
@@ -2447,15 +2463,17 @@
 <div class="doc doc-object doc-function">
 
 
-<h3 id="AeroViz.rawDataReader.core.qc.QualityControl.n_sigma" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">n_sigma</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">std_range</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span></code>
+<h4 id="AeroViz.rawDataReader.core.qc.QualityControl.n_sigma" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">n_sigma</span>
+
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
-</h3>
-
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">n_sigma</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">std_range</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
 
     <div class="doc doc-contents ">
 
@@ -2532,59 +2550,6 @@
     </table>
 
 
-            <details class="quote">
-              <summary>Source code in <code>AeroViz/rawDataReader/core/qc.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-18">18</a></span>
-<span class="normal"><a href="#__codelineno-0-19">19</a></span>
-<span class="normal"><a href="#__codelineno-0-20">20</a></span>
-<span class="normal"><a href="#__codelineno-0-21">21</a></span>
-<span class="normal"><a href="#__codelineno-0-22">22</a></span>
-<span class="normal"><a href="#__codelineno-0-23">23</a></span>
-<span class="normal"><a href="#__codelineno-0-24">24</a></span>
-<span class="normal"><a href="#__codelineno-0-25">25</a></span>
-<span class="normal"><a href="#__codelineno-0-26">26</a></span>
-<span class="normal"><a href="#__codelineno-0-27">27</a></span>
-<span class="normal"><a href="#__codelineno-0-28">28</a></span>
-<span class="normal"><a href="#__codelineno-0-29">29</a></span>
-<span class="normal"><a href="#__codelineno-0-30">30</a></span>
-<span class="normal"><a href="#__codelineno-0-31">31</a></span>
-<span class="normal"><a href="#__codelineno-0-32">32</a></span>
-<span class="normal"><a href="#__codelineno-0-33">33</a></span>
-<span class="normal"><a href="#__codelineno-0-34">34</a></span>
-<span class="normal"><a href="#__codelineno-0-35">35</a></span>
-<span class="normal"><a href="#__codelineno-0-36">36</a></span>
-<span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span>
-<span class="normal"><a href="#__codelineno-0-39">39</a></span>
-<span class="normal"><a href="#__codelineno-0-40">40</a></span>
-<span class="normal"><a href="#__codelineno-0-41">41</a></span>
-<span class="normal"><a href="#__codelineno-0-42">42</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="nd">@classmethod</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="k">def</span><span class="w"> </span><span class="nf">n_sigma</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">std_range</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="sd">    Detect outliers using n-sigma method</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22"></a>
-<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="sd">    Parameters</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="sd">    ----------</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25"></a><span class="sd">    df : pd.DataFrame</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="sd">        Input data</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="sd">    std_range : int, default=5</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="sd">        Number of standard deviations to use as threshold</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29"></a>
-<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="sd">    Returns</span>
-<a id="__codelineno-0-31" name="__codelineno-0-31"></a><span class="sd">    -------</span>
-<a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="sd">    pd.DataFrame</span>
-<a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="sd">        Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-36" name="__codelineno-0-36"></a>    <span class="n">df_ave</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">df_std</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
-<a id="__codelineno-0-38" name="__codelineno-0-38"></a>
-<a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">df</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">df_ave</span> <span class="o">-</span> <span class="n">df_std</span> <span class="o">*</span> <span class="n">std_range</span><span class="p">)</span>
-<a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">df</span> <span class="o">&gt;</span> <span class="p">(</span><span class="n">df_ave</span> <span class="o">+</span> <span class="n">df_std</span> <span class="o">*</span> <span class="n">std_range</span><span class="p">)</span>
-<a id="__codelineno-0-41" name="__codelineno-0-41"></a>
-<a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">mask</span><span class="p">(</span><span class="n">lower_bound</span> <span class="o">|</span> <span class="n">upper_bound</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
     </div>
 
 </div>
@@ -2592,15 +2557,111 @@
 <div class="doc doc-object doc-function">
 
 
-<h3 id="AeroViz.rawDataReader.core.qc.QualityControl.rolling_iqr" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">rolling_iqr</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">24</span><span class="p">,</span> <span class="n">log_dist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<h4 id="AeroViz.rawDataReader.core.qc.QualityControl.iqr" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">iqr</span>
+
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
-</h3>
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">iqr</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">log_dist</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
 
+    <div class="doc doc-contents ">
+
+        <p>Detect outliers using Interquartile Range (IQR) method</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>df</code>
+            </td>
+            <td>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Input data</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>log_dist</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to apply log transformation to data</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Cleaned DataFrame with outliers masked as NaN</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="AeroViz.rawDataReader.core.qc.QualityControl.rolling_iqr" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">rolling_iqr</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">rolling_iqr</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">window_size</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
 
     <div class="doc doc-contents ">
 
@@ -2693,81 +2754,6 @@
     </table>
 
 
-            <details class="quote">
-              <summary>Source code in <code>AeroViz/rawDataReader/core/qc.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-73"> 73</a></span>
-<span class="normal"><a href="#__codelineno-0-74"> 74</a></span>
-<span class="normal"><a href="#__codelineno-0-75"> 75</a></span>
-<span class="normal"><a href="#__codelineno-0-76"> 76</a></span>
-<span class="normal"><a href="#__codelineno-0-77"> 77</a></span>
-<span class="normal"><a href="#__codelineno-0-78"> 78</a></span>
-<span class="normal"><a href="#__codelineno-0-79"> 79</a></span>
-<span class="normal"><a href="#__codelineno-0-80"> 80</a></span>
-<span class="normal"><a href="#__codelineno-0-81"> 81</a></span>
-<span class="normal"><a href="#__codelineno-0-82"> 82</a></span>
-<span class="normal"><a href="#__codelineno-0-83"> 83</a></span>
-<span class="normal"><a href="#__codelineno-0-84"> 84</a></span>
-<span class="normal"><a href="#__codelineno-0-85"> 85</a></span>
-<span class="normal"><a href="#__codelineno-0-86"> 86</a></span>
-<span class="normal"><a href="#__codelineno-0-87"> 87</a></span>
-<span class="normal"><a href="#__codelineno-0-88"> 88</a></span>
-<span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
-<span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
-<span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
-<span class="normal"><a href="#__codelineno-0-92"> 92</a></span>
-<span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
-<span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
-<span class="normal"><a href="#__codelineno-0-95"> 95</a></span>
-<span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
-<span class="normal"><a href="#__codelineno-0-97"> 97</a></span>
-<span class="normal"><a href="#__codelineno-0-98"> 98</a></span>
-<span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
-<span class="normal"><a href="#__codelineno-0-100">100</a></span>
-<span class="normal"><a href="#__codelineno-0-101">101</a></span>
-<span class="normal"><a href="#__codelineno-0-102">102</a></span>
-<span class="normal"><a href="#__codelineno-0-103">103</a></span>
-<span class="normal"><a href="#__codelineno-0-104">104</a></span>
-<span class="normal"><a href="#__codelineno-0-105">105</a></span>
-<span class="normal"><a href="#__codelineno-0-106">106</a></span>
-<span class="normal"><a href="#__codelineno-0-107">107</a></span>
-<span class="normal"><a href="#__codelineno-0-108">108</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-73" name="__codelineno-0-73"></a><span class="nd">@classmethod</span>
-<a id="__codelineno-0-74" name="__codelineno-0-74"></a><span class="k">def</span><span class="w"> </span><span class="nf">rolling_iqr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">24</span><span class="p">,</span>
-<a id="__codelineno-0-75" name="__codelineno-0-75"></a>                <span class="n">log_dist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="sd">    Detect outliers using rolling window IQR method</span>
-<a id="__codelineno-0-78" name="__codelineno-0-78"></a>
-<a id="__codelineno-0-79" name="__codelineno-0-79"></a><span class="sd">    Parameters</span>
-<a id="__codelineno-0-80" name="__codelineno-0-80"></a><span class="sd">    ----------</span>
-<a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="sd">    df : pd.DataFrame</span>
-<a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="sd">        Input data</span>
-<a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="sd">    window_size : int, default=24</span>
-<a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="sd">        Size of the rolling window</span>
-<a id="__codelineno-0-85" name="__codelineno-0-85"></a><span class="sd">    log_dist : bool, default=False</span>
-<a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="sd">        Whether to apply log transformation to data</span>
-<a id="__codelineno-0-87" name="__codelineno-0-87"></a>
-<a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="sd">    Returns</span>
-<a id="__codelineno-0-89" name="__codelineno-0-89"></a><span class="sd">    -------</span>
-<a id="__codelineno-0-90" name="__codelineno-0-90"></a><span class="sd">    pd.DataFrame</span>
-<a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="sd">        Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-93" name="__codelineno-0-93"></a>    <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="n">df_transformed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">)</span>
-<a id="__codelineno-0-95" name="__codelineno-0-95"></a>
-<a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">iqr_filter</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
-<a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="n">q1</span><span class="p">,</span> <span class="n">q3</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">),</span> <span class="n">x</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
-<a id="__codelineno-0-98" name="__codelineno-0-98"></a>        <span class="n">iqr</span> <span class="o">=</span> <span class="n">q3</span> <span class="o">-</span> <span class="n">q1</span>
-<a id="__codelineno-0-99" name="__codelineno-0-99"></a>        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">,</span> <span class="n">q3</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span>
-<a id="__codelineno-0-100" name="__codelineno-0-100"></a>        <span class="k">return</span> <span class="p">(</span><span class="n">x</span> <span class="o">&gt;=</span> <span class="n">lower</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">)</span>
-<a id="__codelineno-0-101" name="__codelineno-0-101"></a>
-<a id="__codelineno-0-102" name="__codelineno-0-102"></a>    <span class="n">mask</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span>
-<a id="__codelineno-0-103" name="__codelineno-0-103"></a>        <span class="n">window</span><span class="o">=</span><span class="n">window_size</span><span class="p">,</span>
-<a id="__codelineno-0-104" name="__codelineno-0-104"></a>        <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-0-105" name="__codelineno-0-105"></a>        <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span>
-<a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">iqr_filter</span><span class="p">)</span>
-<a id="__codelineno-0-107" name="__codelineno-0-107"></a>
-<a id="__codelineno-0-108" name="__codelineno-0-108"></a>    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
     </div>
 
 </div>
@@ -2775,15 +2761,17 @@
 <div class="doc doc-object doc-function">
 
 
-<h3 id="AeroViz.rawDataReader.core.qc.QualityControl.time_aware_iqr" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">time_aware_iqr</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time_window</span><span class="o">=</span><span class="s1">&#39;1D&#39;</span><span class="p">,</span> <span class="n">log_dist</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span></code>
+<h4 id="AeroViz.rawDataReader.core.qc.QualityControl.time_aware_iqr" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">time_aware_iqr</span>
+
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
   </span>
 
-</h3>
-
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">time_aware_iqr</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">time_window</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;1D&#39;</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
 
     <div class="doc doc-contents ">
 
@@ -2876,77 +2864,116 @@
     </table>
 
 
-            <details class="quote">
-              <summary>Source code in <code>AeroViz/rawDataReader/core/qc.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-110">110</a></span>
-<span class="normal"><a href="#__codelineno-0-111">111</a></span>
-<span class="normal"><a href="#__codelineno-0-112">112</a></span>
-<span class="normal"><a href="#__codelineno-0-113">113</a></span>
-<span class="normal"><a href="#__codelineno-0-114">114</a></span>
-<span class="normal"><a href="#__codelineno-0-115">115</a></span>
-<span class="normal"><a href="#__codelineno-0-116">116</a></span>
-<span class="normal"><a href="#__codelineno-0-117">117</a></span>
-<span class="normal"><a href="#__codelineno-0-118">118</a></span>
-<span class="normal"><a href="#__codelineno-0-119">119</a></span>
-<span class="normal"><a href="#__codelineno-0-120">120</a></span>
-<span class="normal"><a href="#__codelineno-0-121">121</a></span>
-<span class="normal"><a href="#__codelineno-0-122">122</a></span>
-<span class="normal"><a href="#__codelineno-0-123">123</a></span>
-<span class="normal"><a href="#__codelineno-0-124">124</a></span>
-<span class="normal"><a href="#__codelineno-0-125">125</a></span>
-<span class="normal"><a href="#__codelineno-0-126">126</a></span>
-<span class="normal"><a href="#__codelineno-0-127">127</a></span>
-<span class="normal"><a href="#__codelineno-0-128">128</a></span>
-<span class="normal"><a href="#__codelineno-0-129">129</a></span>
-<span class="normal"><a href="#__codelineno-0-130">130</a></span>
-<span class="normal"><a href="#__codelineno-0-131">131</a></span>
-<span class="normal"><a href="#__codelineno-0-132">132</a></span>
-<span class="normal"><a href="#__codelineno-0-133">133</a></span>
-<span class="normal"><a href="#__codelineno-0-134">134</a></span>
-<span class="normal"><a href="#__codelineno-0-135">135</a></span>
-<span class="normal"><a href="#__codelineno-0-136">136</a></span>
-<span class="normal"><a href="#__codelineno-0-137">137</a></span>
-<span class="normal"><a href="#__codelineno-0-138">138</a></span>
-<span class="normal"><a href="#__codelineno-0-139">139</a></span>
-<span class="normal"><a href="#__codelineno-0-140">140</a></span>
-<span class="normal"><a href="#__codelineno-0-141">141</a></span>
-<span class="normal"><a href="#__codelineno-0-142">142</a></span>
-<span class="normal"><a href="#__codelineno-0-143">143</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-110" name="__codelineno-0-110"></a><span class="nd">@classmethod</span>
-<a id="__codelineno-0-111" name="__codelineno-0-111"></a><span class="k">def</span><span class="w"> </span><span class="nf">time_aware_iqr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">time_window</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;1D&#39;</span><span class="p">,</span>
-<a id="__codelineno-0-112" name="__codelineno-0-112"></a>                   <span class="n">log_dist</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<a id="__codelineno-0-114" name="__codelineno-0-114"></a><span class="sd">    Detect outliers using time-aware IQR method</span>
-<a id="__codelineno-0-115" name="__codelineno-0-115"></a>
-<a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="sd">    Parameters</span>
-<a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="sd">    ----------</span>
-<a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="sd">    df : pd.DataFrame</span>
-<a id="__codelineno-0-119" name="__codelineno-0-119"></a><span class="sd">        Input data</span>
-<a id="__codelineno-0-120" name="__codelineno-0-120"></a><span class="sd">    time_window : str, default=&#39;1D&#39;</span>
-<a id="__codelineno-0-121" name="__codelineno-0-121"></a><span class="sd">        Time window size (e.g., &#39;1D&#39; for one day)</span>
-<a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="sd">    log_dist : bool, default=False</span>
-<a id="__codelineno-0-123" name="__codelineno-0-123"></a><span class="sd">        Whether to apply log transformation to data</span>
-<a id="__codelineno-0-124" name="__codelineno-0-124"></a>
-<a id="__codelineno-0-125" name="__codelineno-0-125"></a><span class="sd">    Returns</span>
-<a id="__codelineno-0-126" name="__codelineno-0-126"></a><span class="sd">    -------</span>
-<a id="__codelineno-0-127" name="__codelineno-0-127"></a><span class="sd">    pd.DataFrame</span>
-<a id="__codelineno-0-128" name="__codelineno-0-128"></a><span class="sd">        Cleaned DataFrame with outliers masked as NaN</span>
-<a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="sd">    &quot;&quot;&quot;</span>
-<a id="__codelineno-0-130" name="__codelineno-0-130"></a>    <span class="n">df</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_ensure_dataframe</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<a id="__codelineno-0-131" name="__codelineno-0-131"></a>    <span class="n">df_transformed</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_transform_if_log</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">)</span>
-<a id="__codelineno-0-132" name="__codelineno-0-132"></a>
-<a id="__codelineno-0-133" name="__codelineno-0-133"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">iqr_filter</span><span class="p">(</span><span class="n">group</span><span class="p">):</span>
-<a id="__codelineno-0-134" name="__codelineno-0-134"></a>        <span class="n">q1</span><span class="p">,</span> <span class="n">q3</span> <span class="o">=</span> <span class="n">group</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.25</span><span class="p">),</span> <span class="n">group</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.75</span><span class="p">)</span>
-<a id="__codelineno-0-135" name="__codelineno-0-135"></a>        <span class="n">iqr</span> <span class="o">=</span> <span class="n">q3</span> <span class="o">-</span> <span class="n">q1</span>
-<a id="__codelineno-0-136" name="__codelineno-0-136"></a>        <span class="n">lower</span><span class="p">,</span> <span class="n">upper</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">-</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span><span class="p">,</span> <span class="n">q3</span> <span class="o">+</span> <span class="mf">1.5</span> <span class="o">*</span> <span class="n">iqr</span>
-<a id="__codelineno-0-137" name="__codelineno-0-137"></a>        <span class="k">return</span> <span class="p">(</span><span class="n">group</span> <span class="o">&gt;=</span> <span class="n">lower</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">group</span> <span class="o">&lt;=</span> <span class="n">upper</span><span class="p">)</span>
-<a id="__codelineno-0-138" name="__codelineno-0-138"></a>
-<a id="__codelineno-0-139" name="__codelineno-0-139"></a>    <span class="n">mask</span> <span class="o">=</span> <span class="n">df_transformed</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span>
-<a id="__codelineno-0-140" name="__codelineno-0-140"></a>        <span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">time_window</span><span class="p">)</span>
-<a id="__codelineno-0-141" name="__codelineno-0-141"></a>    <span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">iqr_filter</span><span class="p">)</span>
-<a id="__codelineno-0-142" name="__codelineno-0-142"></a>
-<a id="__codelineno-0-143" name="__codelineno-0-143"></a>    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
-            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="AeroViz.rawDataReader.core.qc.QualityControl.mad_iqr_hybrid" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">mad_iqr_hybrid</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">mad_iqr_hybrid</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">mad_threshold</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">3.5</span><span class="p">,</span> <span class="n">log_dist</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Detect outliers using a hybrid of MAD and IQR methods</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>df</code>
+            </td>
+            <td>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Input data</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mad_threshold</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Threshold for MAD method</p>
+              </div>
+            </td>
+            <td>
+                  <code>3.5</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>log_dist</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Whether to apply log transformation to data</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Cleaned DataFrame with outliers masked as NaN</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
     </div>
 
 </div>
@@ -2957,7 +2984,28 @@
 
     </div>
 
-</div>
+</div><p>options:
+show_source: false
+show_bases: false
+show_inheritance_diagram: false
+members_order: source
+show_if_no_docstring: false
+filters:</p>
+<ul>
+<li>"!^_"
+  docstring_section_style: table
+  heading_level: 3
+  show_signature_annotations: true
+  separate_signature: true
+  group_by_category: true
+  show_category_heading: true</li>
+</ul>
+<h2 id="related-documentation">Related Documentation</h2>
+<ul>
+<li><strong><a href="../AbstractReader/">AbstractReader</a></strong> - Base class that uses QualityControl methods</li>
+<li><strong><a href="../RawDataReader/">RawDataReader</a></strong> - Factory function with built-in QC options</li>
+<li><strong><a href="../instruments/">Instrument Documentation</a></strong> - Instrument-specific QC procedures</li>
+</ul>
 
 
 
@@ -2980,7 +3028,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 14, 2025 06:10:37">April 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 16, 2025 17:26:17 UTC">July 16, 2025</span>
   </span>
 
     
@@ -2990,7 +3038,7 @@
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 14, 2025 06:10:37">April 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 14, 2025 06:10:37 UTC">April 14, 2025</span>
   </span>
 
     
@@ -3025,7 +3073,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../RawDataReader/" class="md-footer__link md-footer__link--prev" aria-label="Previous: RawDataReader API">
+          <a href="../AbstractReader/" class="md-footer__link md-footer__link--prev" aria-label="Previous: AbstractReader">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3035,20 +3083,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                RawDataReader API
+                AbstractReader
               </div>
             </div>
           </a>
         
         
           
-          <a href="../DataProcess/" class="md-footer__link md-footer__link--next" aria-label="Next: DataProcess">
+          <a href="../instruments/" class="md-footer__link md-footer__link--next" aria-label="Next: Overview">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                DataProcess
+                Overview
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -3112,10 +3160,10 @@
     
     
       
-      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.d50fe291.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      <script src="../../assets/javascripts/bundle.56ea9cef.min.js"></script>
       
     
   </body>

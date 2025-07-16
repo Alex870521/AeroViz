@@ -2,102 +2,146 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://alex870521.github.io/AeroViz/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://alex870521.github.io/AeroViz/CHANGELOG/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://alex870521.github.io/AeroViz/api/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
-         <loc>https://alex870521.github.io/AeroViz/api/DataProcess/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <loc>https://alex870521.github.io/AeroViz/api/AbstractReader/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://alex870521.github.io/AeroViz/api/QualityControl/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/DataProcess/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/DataProcess/basic/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://alex870521.github.io/AeroViz/api/RawDataReader/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/aethalometers/AE33/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/aethalometers/AE43/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/aethalometers/MA350/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/chemical/BAM1020/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/chemical/IGAC/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/chemical/OCEC/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/chemical/TEOM/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/chemical/VOC/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/chemical/XRF/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/nephelometers/Aurora/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/nephelometers/NEPH/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/particle-sizers/APS/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/particle-sizers/GRIMM/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/instruments/particle-sizers/SMPS/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/plot/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/plot/basic/bar/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/plot/basic/box/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/plot/basic/pie/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/plot/basic/regression/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/plot/basic/scatter/</loc>
+         <lastmod>2025-07-16</lastmod>
+    </url>
+    <url>
+         <loc>https://alex870521.github.io/AeroViz/api/plot/basic/violin/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://alex870521.github.io/AeroViz/guide/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/plot/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <loc>https://alex870521.github.io/AeroViz/guide/data/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/DataProcess/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <loc>https://alex870521.github.io/AeroViz/guide/examples/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/RawDataReader/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <loc>https://alex870521.github.io/AeroViz/guide/getting-started/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/AE33/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/AE43/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/APS/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/Aurora/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <loc>https://alex870521.github.io/AeroViz/guide/visualization/</loc>
+         <lastmod>2025-07-16</lastmod>
     </url>
     <url>
          <loc>https://alex870521.github.io/AeroViz/guide/instruments/BC1054/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/GRIMM/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/IGAC/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/MA350/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/NEPH/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/OCEC/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/SMPS/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/TEOM/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/VOC/</loc>
-         <lastmod>2025-04-14</lastmod>
-    </url>
-    <url>
-         <loc>https://alex870521.github.io/AeroViz/guide/instruments/XRF/</loc>
-         <lastmod>2025-04-14</lastmod>
+         <lastmod>2025-07-16</lastmod>
     </url>
 </urlset>

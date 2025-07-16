@@ -1,105 +1,105 @@
 # API Reference
 
-This section provides the API reference documentation for AeroViz.
+Complete technical reference documentation for AeroViz, a comprehensive Python package for aerosol data processing,
+analysis, and visualization.
 
-## Core Modules
+!!! info "About AeroViz API"
 
-### RawDataReader
+    AeroViz provides a unified interface for working with aerosol measurement data from multiple instrument types. The API is designed for scientific research applications with emphasis on data quality, reproducibility, and ease of use.
 
-Module for reading raw data.
+## Core Components
 
-- [RawDataReader Guide](../guide/RawDataReader/index.md)
-- [Data Processing Guide](../guide/DataProcess/index.md)
-- [Plotting Guide](../guide/plot.md)
+### Data Input and Processing
 
-## Usage Examples
+**[RawDataReader](RawDataReader/)**  
+Primary interface for reading and standardizing aerosol instrument data with automatic format detection.
 
-```python
-from AeroViz.rawDataReader import RawDataReader
+- [AbstractReader](AbstractReader.md) - Base class architecture and extension points
+- [Quality Control](QualityControl.md) - Data validation, filtering, and quality assurance
+- [Supported Instruments](instruments/index.md) - Complete instrument compatibility matrix
 
-# Create reader instance
-reader = RawDataReader()
+### Measurement Instrument Support
 
-# Read data
-data = reader.read("path/to/data.txt")
-```
+AeroViz provides native support for the following categories of aerosol instruments:
 
-## Important Notes
+**Black Carbon and Light Absorption**
 
-- All time series data use pandas DatetimeIndex
-- Data quality control parameters can be set in configuration files
-- Support for custom data processing workflows
+- [AE33](instruments/aethalometers/AE33.md) - Magee Scientific AE33 7-wavelength aethalometer
+- [AE43](instruments/aethalometers/AE43.md) - Magee Scientific AE43 real-time measurements
+- [BC1054](instruments/aethalometers/BC1054.md) - MetOne BC1054 high-resolution absorption
+- [MA350](instruments/aethalometers/MA350.md) - AethLabs MA350 multi-angle photometer
 
-### DataProcess
+**Light Scattering Measurements**
 
-Class for advanced data processing and analysis.
+- [Aurora](instruments/nephelometers/Aurora.md) - Ecotech Aurora 3-wavelength nephelometer
+- [NEPH](instruments/nephelometers/NEPH.md) - TSI nephelometer standard processing
 
-```python
-from AeroViz import DataProcess
+**Particle Size Distribution**
 
-processor = DataProcess(data)
-processed_data = processor.process()
-```
+- [SMPS](instruments/particle-sizers/SMPS.md) - Scanning Mobility Particle Sizer (10-600 nm)
+- [APS](instruments/particle-sizers/APS.md) - Aerodynamic Particle Sizer (0.5-20 μm)
+- [GRIMM](instruments/particle-sizers/GRIMM.md) - GRIMM Aerosol Spectrometer optical sizing
 
-[View DataProcess Documentation](../guide/DataProcess/index.md)
+**Chemical Composition Analysis**
 
-### plot
+- [IGAC](instruments/chemical/IGAC.md) - Ion chromatography for water-soluble species
+- [OCEC](instruments/chemical/OCEC.md) - Organic and elemental carbon analysis
+- [VOC](instruments/chemical/VOC.md) - Volatile organic compounds monitoring
+- [XRF](instruments/chemical/XRF.md) - X-ray fluorescence elemental analysis
+- [TEOM](instruments/chemical/TEOM.md) - Tapered Element Oscillating Microbalance
 
-Module for creating publication-quality visualizations.
+### Data Processing and Analysis
 
-```python
-from AeroViz import plot
+**[DataProcess](DataProcess.md)**  
+Advanced data processing engine providing statistical analysis, time series operations, and data transformation
+capabilities.
 
-plot.time_series(data, 'BC')
-plot.scatter(data, 'BC', 'PM2.5')
-```
+## Visualization and Plotting
 
-[View Plot Documentation](../guide/plot.md)
+**[Plot API](plot/index.md)**  
+Professional-grade plotting interface optimized for scientific publications with publication-ready defaults.
 
-## Common Parameters
+### Available Plot Types
 
-### Time Range Parameters
+- **[Scatter Plots](plot/basic/scatter.md)** - Correlation analysis with statistical regression
+- **[Regression Analysis](plot/basic/regression.md)** - Statistical relationship modeling and fitting
+- **[Box Plots](plot/basic/box.md)** - Statistical distribution summaries and outlier detection
+- **[Bar Charts](plot/basic/bar.md)** - Categorical data visualization and comparison
+- **[Violin Plots](plot/basic/violin.md)** - Distribution shape analysis and comparison
+- **[Pie Charts](plot/basic/pie.md)** - Proportional data representation
 
-- `start` (datetime): Start time for data processing
-- `end` (datetime): End time for data processing
-- `mean_freq` (str): Time frequency for averaging (e.g., '1h', '1D')
+## Getting Started
 
-### Data Processing Parameters
+### New Users
 
-- `qc` (str): Quality control level ('1MS', '1D', '1W')
-- `reset` (bool): Whether to reset previous processing
+Begin with the [RawDataReader](RawDataReader/) for data input, understand [Quality Control](QualityControl.md)
+procedures, then explore [basic plotting](plot/basic/scatter.md) capabilities.
 
-### Plot Parameters
+### Advanced Users
 
-- `variables` (list): Variables to plot
-- `title` (str): Plot title
-- `figsize` (tuple): Figure size
-- `style` (str): Plot style
+Leverage [DataProcess](DataProcess.md) for complex workflows,
+consult [instrument-specific documentation](instruments/index.md) for detailed configurations, and utilize
+advanced [plotting features](plot/index.md) for publication-quality figures.
 
-## Return Values
+### Developers
 
-### RawDataReader
+Review the [AbstractReader](AbstractReader.md) architecture for understanding the framework design, examine existing
+instrument implementations as templates, and study plotting modules for extending visualization capabilities.
 
-Returns a pandas DataFrame containing:
+## Documentation Standards
 
-- Timestamp index
-- Instrument-specific measurements
-- Quality control flags
-- Metadata
+!!! note "API Documentation Convention"
 
-### DataProcess
+    All AeroViz API documentation follows NumPy docstring standards and includes:
 
-Returns a processed DataFrame with:
+    - **Parameters** - Complete parameter descriptions with data types
+    - **Returns** - Detailed return value specifications and formats  
+    - **Examples** - Working code examples with expected outputs
+    - **Notes** - Implementation details, limitations, and best practices
+    - **References** - Scientific literature and technical specifications
 
-- Cleaned data
-- Transformed values
-- Statistical summaries
-- Quality metrics
+## Related Resources
 
-### plot
-
-Returns matplotlib figure objects that can be:
-
-- Displayed directly
-- Saved to files
-- Further customized
+- **[User Guide](../guide/)** - Step-by-step tutorials and workflow examples
+- **[Examples Gallery](../guide/examples.md)** - Real-world usage scenarios and case studies
+- **[Installation Guide](../guide/)** - Setup instructions and system requirements

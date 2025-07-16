@@ -141,7 +141,7 @@ plot.box(
 
 ## <div align="center">WindRose and Conditional Bivariate Probability Function (CBPF)</div>
 
-![WindRose](../../docs/assets/windrose_CBPF.png)
+![WindRose](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/windrose_CBPF.png?raw=true)
 
 ```python
 from AeroViz import plot, DataBase
@@ -202,7 +202,7 @@ plot.timeseries.timeseries_template(df.loc['2021-02-01', '2021-03-31'])
 > It can be converted into surface area and volume distribution. At the same time,
 > chemical composition data can also be used to calculate particle extinction through Mie theory.
 
-![PNSD](../../docs/assets/OverPSD.png)
+![PNSD](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/OverPSD.png?raw=true)
 
 ```python
 from pathlib import Path
@@ -219,14 +219,14 @@ plot.distribution.distribution.heatmap_tms(PNSD, unit='Number', freq='60d')
 
 ### <div align="center">For some basic plot</div>
 
-|                  **Three_dimension**                   |                  **Correlation Matrix**                  |           **Mutiply Linear Regression**           |
-|:------------------------------------------------------:|:--------------------------------------------------------:|:-------------------------------------------------:|
-|        ![PSD 3D](../../docs/assets/psd_3D.png)         | ![Correlation Matrix](../../docs/assets/corr_matrix.png) | ![IMPROVE MLR](../../docs/assets/IMPROVE_MLR.png) |
-|                    **Pie & Donut**                     |                        **Dounts**                        |                    **Scatter**                    |
-| ![IMPROVE donuts](../../docs/assets/IMPROVE_donut.png) |   ![IMPROVE bar](../../docs/assets/IMPROVE_donuts.png)   |     ![scatter](../../docs/assets/scatter.png)     |
+|                                            **Three_dimension**                                            |                                           **Correlation Matrix**                                            |                                    **Mutiply Linear Regression**                                     |
+|:---------------------------------------------------------------------------------------------------------:|:-----------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------:|
+|        ![PSD 3D](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/psd_3D.png?raw=true)         | ![Correlation Matrix](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/corr_matrix.png?raw=true) | ![IMPROVE MLR](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/IMPROVE_MLR.png?raw=true) |
+|                                              **Pie & Donut**                                              |                                                 **Dounts**                                                  |                                             **Scatter**                                              |
+| ![IMPROVE donuts](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/IMPROVE_donut.png?raw=true) |   ![IMPROVE bar](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/IMPROVE_donuts.png?raw=true)   |     ![scatter](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/scatter.png?raw=true)     |
 
 ### <div align="center">PyMieScatt</div>
 
-|               **Mie_Q**               |                **Mie_MEE**                |
-|:-------------------------------------:|:-----------------------------------------:|
-| ![Mie Q](../../docs/assets/Mie_Q.png) | ![Mie MEE](../../docs/assets/Mie_MEE.png) |
+|                                        **Mie_Q**                                         |                                         **Mie_MEE**                                          |
+|:----------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------:|
+| ![Mie Q](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/Mie_Q.png?raw=true) | ![Mie MEE](https://github.com/Alex870521/AeroViz/blob/main/docs/assets/Mie_MEE.png?raw=true) |

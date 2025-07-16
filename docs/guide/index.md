@@ -20,7 +20,7 @@ from AeroViz import RawDataReader, DataProcess, plot
 # Read data from a supported instrument
 data = RawDataReader(
     instrument='AE33',
-    path=Path('/path/to/data'),
+    path=Path('/path/to/folder'),
     start=datetime(2024, 1, 1),
     end=datetime(2024, 12, 31)
 )
@@ -35,7 +35,7 @@ plot.time_series(processed_data, 'BC')
 
 ## Next Steps
 
-- Learn more about [RawDataReader](RawDataReader/index.md)
-- Explore [DataProcess](DataProcess/index.md) functionality
-- Check out [Plot](plot.md) capabilities
-- Browse supported [instruments](instruments/index.md) 
+- Learn more about [RawDataReader](../api/RawDataReader.md)
+- Explore [DataProcess](../api/DataProcess.md) functionality
+- Check out [Plot](../api/plot/index.md) capabilities
+- Browse supported [instruments](../api/instruments/index.md) 

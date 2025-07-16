@@ -2,7 +2,21 @@
 
 The Nephelometer is an instrument used for measuring light scattering properties of aerosols at multiple wavelengths.
 
+::: AeroViz.rawDataReader.script.NEPH.Reader
+
 ## Data Format
+
+| Time Record Format | T | YYYY | MM | DD | HH | NN | SS |
+|:------------------:|:-:|:----:|:--:|:--:|:--:|:--:|:--:|
+|      Example       | T | 2022 | 05 | 08 | 13 | 29 | 22 |
+
+| Data Record Format | D | mode | time |    B     |    G     |    R     |    BB    |    GB    |    RB    |
+|:------------------:|:-:|:----:|:----:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
+|      Example       | D | NBXX | 2258 | 7.527e-5 | 6.984e-5 | 4.275e-5 | 6.821e-6 | 1.070e-5 | 5.130e-6 |
+
+| Auxiliary Record Format | Y |  x  | pressure | Sample Temp | Inlet Temp |  RH  | lamp voltage | lamp current | BNC voltage | Status |
+|:-----------------------:|:-:|:---:|:--------:|:-----------:|:----------:|:----:|:------------:|:------------:|:-----------:|:------:|
+|         Example         | Y | 348 |   973    |    302.8    |    300     | 91.2 |     12.5     |     5.7      |      2      |  0000  |
 
 - File format: Raw data file (.dat)
 - Sampling frequency: 5 minutes

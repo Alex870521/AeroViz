@@ -7,7 +7,7 @@ theme:
   name: material
   language: en
   font:
-    text: Segoe UI
+    text: -apple-system,"BlinkMacSystemFont","Segoe UI","Helvetica Neue","Arial",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"
     code: JetBrains Mono
   custom_dir: docs/overrides
   logo: assets/icon.svg
@@ -15,13 +15,14 @@ theme:
   features:
     - navigation.tabs
     - navigation.sections
-    - navigation.expand
     - navigation.top
     - navigation.footer
     - navigation.instant
     - navigation.instant.progress
     - navigation.indexes
     - navigation.tracking
+    #    - navigation.expand   # 自動展開所有導航項目
+    #    - navigation.path     # 顯示導航路徑
     - toc.follow
     - search.share
     - search.suggest
@@ -44,43 +45,48 @@ nav:
       - Overview: index.md
       - Changelog: CHANGELOG.md
 
-  - User Guide:
-      - Overview: guide/index.md
-      - RawDataReader:
-          - Overview: guide/RawDataReader/index.md
-          - Supported Instrument:
-              - Overview: guide/instruments/index.md
-              - AE33: guide/instruments/AE33.md
-              - AE43: guide/instruments/AE43.md
-              - BC1054: guide/instruments/BC1054.md
-              - MA350: guide/instruments/MA350.md
-              - Aurora: guide/instruments/Aurora.md
-              - NEPH: guide/instruments/NEPH.md
-              - SMPS: guide/instruments/SMPS.md
-              - APS: guide/instruments/APS.md
-              - GRIMM: guide/instruments/GRIMM.md
-              - IGAC: guide/instruments/IGAC.md
-              - OCEC: guide/instruments/OCEC.md
-              - TEOM: guide/instruments/TEOM.md
-              - VOC: guide/instruments/VOC.md
-              - XRF: guide/instruments/XRF.md
-
-      - DataProcess:
-          - Overview: guide/DataProcess/index.md
-
-      - Plot:
-          - Overview: guide/plot.md
+  - Guide:
+      - Getting Started: guide/index.md
+      - Working with Data: guide/data.md
+      - Visualization: guide/visualization.md
+      - Examples: guide/examples.md
 
   - API Reference:
       - Overview: api/index.md
-      - Core API:
-          - RawDataReader:
-              - api/RawDataReader.md
-              - Quality Control: api/QualityControl.md
+      - RawDataReader:
+          - Overview: api/RawDataReader/index.md
+          - AbstractReader: api/AbstractReader.md
+          - Quality Control: api/QualityControl.md
+          - Supported Instruments:
+              - Overview: api/instruments/index.md
+              - AE33: api/instruments/aethalometers/AE33.md
+              - AE43: api/instruments/aethalometers/AE43.md
+              - BC1054: api/instruments/aethalometers/BC1054.md
+              - MA350: api/instruments/aethalometers/MA350.md
+              - Aurora: api/instruments/nephelometers/Aurora.md
+              - NEPH: api/instruments/nephelometers/NEPH.md
+              - SMPS: api/instruments/particle-sizers/SMPS.md
+              - APS: api/instruments/particle-sizers/APS.md
+              - GRIMM: api/instruments/particle-sizers/GRIMM.md
+              - IGAC: api/instruments/chemical/IGAC.md
+              - OCEC: api/instruments/chemical/OCEC.md
+              - VOC: api/instruments/chemical/VOC.md
+              - XRF: api/instruments/chemical/XRF.md
+              - TEOM: api/instruments/chemical/TEOM.md
+      - DataProcess:
+          - Overview: api/DataProcess/index.md  # 新增主頁面
+          - Basic Process: api/DataProcess/basic.md   # 改為子項目
+      - Plotting:
+          - Overview: api/plot/index.md
+          - Basic Plots:
+              - scatter: api/plot/basic/scatter.md
+              - regression: api/plot/basic/regression.md
+              - box: api/plot/basic/box.md
+              - bar: api/plot/basic/bar.md
+              - violin: api/plot/basic/violin.md
+              - pie: api/plot/basic/pie.md
 
-          - DataProcess: api/DataProcess.md
-
-  - Web Site: https://aeroviz.org/
+  - About: https://aeroviz.org/
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -105,6 +111,7 @@ markdown_extensions:
 
 extra_css:
   - stylesheets/extra.css
+  - stylesheets/claude-code-navigation.css
   - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css
 
 extra:
@@ -122,11 +129,39 @@ plugins:
       handlers:
         python:
           options:
-            docstring_style: numpy  # 或 numpy, sphinx
-            show_source: true
-            show_root_heading: true
-            show_object_full_path: false
-            heading_level: 2
+            # 文檔字符串格式
+            docstring_style: numpy
+            
+            # 顯示選項
+            show_source: false               # 不顯示原始碼（通常太長）
+            show_root_heading: true          # 顯示根標題
+            show_object_full_path: false     # 不顯示完整路徑
+            show_signature_annotations: true # 顯示類型註解
+            show_bases: true                 # 顯示基類
+            show_inheritance_diagram: false  # 不顯示繼承圖
+            
+            # 標題和結構
+            heading_level: 2                # 標題層級
+            show_category_heading: true     # 顯示分類標題
+            group_by_category: true         # 按分類分組
+            
+            # 成員顯示
+            members: true                  # 顯示成員
+            members_order: source          # 成員排序：source, alphabetical
+            filters: # 過濾器
+              - "!^_"                      # 排除私有成員
+              - "!^__"                     # 排除魔術方法
+            show_submodules: true          # 顯示子模組
+            
+            # 簽名顯示
+            separate_signature: true       # 分離簽名
+            show_signature: true           # 顯示簽名
+            signature_crossrefs: true      # 簽名交叉引用
+            
+            # 其他選項
+            docstring_section_style: table # 文檔字符串部分樣式：table, list, spacy
+            merge_init_into_class: true    # 將 __init__ 合併到類中
+            show_if_no_docstring: false    # 沒有文檔字符串時不顯示
   - git-revision-date-localized:
       enable_creation_date: true
       type: date

@@ -1,33 +1,23 @@
-# RawDataReader Documentation
+# RawDataReader
 
-## Table of Contents
-
-- [Overview](#overview)
-- [Installation](#installation)
-- [Basic Usage](#basic-usage)
-- [Examples](#examples)
-- [Output Files](#output-files)
-- [Supported Instruments](#supported-instruments)
-- [API Reference](../../api/RawDataReader.md)
+Factory function for reading and processing instrument data in AeroViz.
 
 ## Overview
 
-RawDataReader is a factory function that instantiates the appropriate reader module for a given instrument and returns
-the processed data over a specified time range.
+RawDataReader is a factory function that provides a unified interface for reading and processing data from various
+scientific instruments. It automatically handles data loading, quality control, and time series processing.
 
-## Installation
+## Function Signature
+
+::: AeroViz.rawDataReader.RawDataReader
+
+## Basic Usage
 
 ```python
 from pathlib import Path
 from datetime import datetime
 from AeroViz import RawDataReader
-```
 
-## Basic Usage
-
-Here are several scenarios showcasing different ways to use `RawDataReader`:
-
-```python
 data = RawDataReader(
     instrument='AE33',
     path=Path('/path/to/data'),
@@ -37,7 +27,7 @@ data = RawDataReader(
 )
 ```
 
-## Examples
+## More Examples
 
 ### Scenario 1: Basic Usage with NEPH Instrument
 
@@ -155,11 +145,48 @@ smps_data = RawDataReader(
 - 30-minute averaged data points.
 - Includes particle size distribution information.
 
----
+## Advanced Features
+
+### Size Range Filtering
+
+For size-resolved instruments (SMPS, APS, GRIMM):
+
+```python
+data = RawDataReader(
+    instrument="SMPS",
+    path="data/",
+    start="2024-01-01",
+    end="2024-01-31",
+    size_range=(10, 500)  # nm
+)
+```
+
+### Quality Control and Rate Calculation
+
+```python
+data = RawDataReader(
+    instrument='AE33',
+    path=Path('/path/to/data'),
+    reset=True,
+    qc='1MS',  # Calculate and print QC rates monthly
+    start=datetime(2024, 1, 1),
+    end=datetime(2024, 12, 31),
+)
+```
+
+Example console output:
+
+```pycon
+▶ Processing: 2024-02-01 to 2024-02-29
+    ▶ BC Mass Conc. (880 nm)
+        ├─ Sample Rate    :   26.3%
+        ├─ Valid  Rate    :   99.5%
+        └─ Total  Rate    :   26.1%
+```
 
 ## Output Files
 
-After processing, six files will be generated in the `{instrument}_outputs` directory:
+After processing, the following files are generated in the `{instrument}_outputs` directory:
 
 1. `_read_{instrument}_raw.csv`: Merged raw data with original time resolution
 2. `_read_{instrument}_raw.pkl`: Raw data in pickle format
@@ -168,8 +195,11 @@ After processing, six files will be generated in the `{instrument}_outputs` dire
 5. `Output_{instrument}`: Final processed data file
 6. `{instrument}.log`: Processing log file
 
----
-
 ## Supported Instruments
 
-The AeroViz project currently supports data from the following [instruments](../../guide/instruments/index.md)
+For detailed specifications of supported instruments, see [Instruments API Reference](instruments/index.md).
+
+## See Also
+
+- [Base Class API](AbstractReader.md) - Documentation for the abstract base class
+- [Quality Control API](QualityControl.md) - Details about quality control implementation

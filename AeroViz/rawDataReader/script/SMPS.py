@@ -58,8 +58,7 @@ class Reader(AbstractReader):
             f.seek(0)
 
             _df = read_csv(f, sep=delimiter, skiprows=skip, low_memory=False)
-
-            if 'Date' not in _df.columns:  # 資料需要轉置
+            if 'Date' not in _df.columns and 'DateTime Sample Start' not in _df.columns:  # 資料需要轉置
                 try:
                     _df = _df.T  # 轉置
                     _df.columns = _df.iloc[0]  # 使用第一列作為欄位名稱
@@ -75,15 +74,27 @@ class Reader(AbstractReader):
             else:
                 raise ValueError("Unable to parse dates with given formats")
 
-            # sequence the data
-            numeric_cols = [col for col in _df.columns if col.strip().replace('.', '').isdigit()]
+            # Check if there are columns using comma as decimal separator
+            comma_decimal_cols = [col for col in _df.columns if ',' in col.strip()]
+            if comma_decimal_cols:
+                print(f"⚠️ Warning: Detected {len(comma_decimal_cols)} columns using comma as decimal separator")
+                print(f"Examples: {comma_decimal_cols[:5]}")  # Show first 5
+
+                # Replace comma with dot in column names
+                _df.columns = _df.columns.str.replace(',', '.')
+                print("✓ Converted commas to dots in column names")
+
+            # Filter numeric columns
+            numeric_cols = [col for col in _df.columns
+                            if col.strip().replace('.', '').isdigit()]
+
+            # Sort by numerical value
             numeric_cols.sort(key=lambda x: float(x.strip()))
 
             _df.index = _time_index
             _df.index.name = 'time'
 
             _df_smps = _df[numeric_cols]
-            _df_smps.columns = _df_smps.columns.astype(float)
             _df_smps = _df_smps.loc[_df_smps.index.dropna().copy()]
 
             size_range = self.kwargs.get('size_range') or (11.8, 593.5)

@@ -1,115 +1,151 @@
-from pandas import read_csv, to_numeric, Timedelta
+from pandas import read_csv, to_numeric, concat
 
-from AeroViz.rawDataReader.core import AbstractReader
+from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
+from AeroViz.rawDataReader.core.pre_process import _absCoe
 
 
 class Reader(AbstractReader):
-    """ AE43 Aethalometer Data Reader
+    """AE43 Aethalometer Data Reader
 
     A specialized reader for AE43 Aethalometer data files, which measure black carbon
-    concentrations at multiple wavelengths.
+    concentrations at seven wavelengths.
 
     See full documentation at docs/source/instruments/AE43.md for detailed information
     on supported formats and QC procedures.
     """
     nam = 'AE43'
 
+    # =========================================================================
+    # Column Definitions
+    # =========================================================================
+    BC_COLUMNS = ['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7']
+    ABS_COLUMNS = ['abs_370', 'abs_470', 'abs_520', 'abs_590', 'abs_660', 'abs_880', 'abs_950']
+    CAL_COLUMNS = ['abs_550', 'AAE', 'eBC']
+
+    # =========================================================================
+    # QC Thresholds
+    # =========================================================================
+    MIN_BC = 0           # Minimum BC concentration (ng/m³)
+    MAX_BC = 20000       # Maximum BC concentration (ng/m³)
+    MIN_AAE = 0.7        # Minimum valid AAE (absolute value)
+    MAX_AAE = 2.0        # Maximum valid AAE (absolute value)
+
+    # =========================================================================
+    # Status Error Codes (bitwise flags) - Same as AE33
+    # =========================================================================
+    ERROR_STATES = [
+        1,     # Tape advance (tape advance, fast calibration, warm-up)
+        2,     # First measurement – obtaining ATN0
+        3,     # Stopped
+        4,     # Flow low/high by more than 0.5 LPM
+        16,    # Calibrating LED
+        32,    # Calibration error (at least one channel OK)
+        384,   # Tape error (tape not moving, end of tape)
+        1024,  # Stability test
+        2048,  # Clean air test
+        4096,  # Optical test
+    ]
+
     def _raw_reader(self, file):
-        """
-        Read and parse raw AE43 Aethalometer data files.
-
-        Parameters
-        ----------
-        file : Path or str
-            Path to the AE43 data file.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Processed AE43 data with datetime index and black carbon
-            concentration columns.
-        """
+        """Read and parse raw AE43 Aethalometer data files."""
         _df = read_csv(file, parse_dates={'time': ['StartTime']}, index_col='time')
         _df_id = _df['SetupID'].iloc[-1]
 
-        # get last SetupID data
-        _df = _df.groupby('SetupID').get_group(_df_id)[
-            ['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'Status']].copy()
-
-        _df = _df[['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7']].apply(to_numeric, errors='coerce')
+        # Get last SetupID data (including Status column)
+        _df = _df.groupby('SetupID').get_group(_df_id)[self.BC_COLUMNS + ['Status']].copy()
+        _df = _df.apply(to_numeric, errors='coerce')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
     def _QC(self, _df):
         """
-        Perform quality control on AE43 Aethalometer data.
-        
-        Parameters
-        ----------
-        _df : pandas.DataFrame
-            Raw AE43 data with datetime index and black carbon concentration columns.
-        
-        Returns
-        -------
-        pandas.DataFrame
-            Quality-controlled AE43 data with invalid measurements masked.
-            
-        Notes
-        -----
-        Applies the following QC filters in sequence:
+        Perform quality control on AE43 Aethalometer raw data.
 
-        1. Instrument status check:
-           Filters out data points with invalid status codes
-           (indicating filter tape issues or other instrument problems)
+        QC Rules Applied (raw data only)
+        ---------------------------------
+        1. Status Error   : Invalid instrument status codes
+        2. Invalid BC     : BC concentration outside 0-20000 ng/m³
+        3. Insufficient   : Less than 50% hourly data completeness
 
-        2. Value range:
-           Valid black carbon concentrations between 0-20000 ng/m³
+        Note: AAE validation is done in _process() after calculation.
+        """
+        _index = _df.index.copy()
+        df_qc = _df.copy()
 
-        3. Data representativeness:
-           - Requires at least 50% of expected data points in each 1-hour window
-           - Time-based outlier detection using 1-hour window for IQR-based filtering
-           - Ensures data quality and temporal consistency
+        # Build QC rules declaratively
+        qc = QCFlagBuilder()
+        qc.add_rules([
+            QCRule(
+                name='Status Error',
+                condition=lambda df: self.QC_control().filter_error_status(df, self.ERROR_STATES),
+                description='Invalid instrument status code detected'
+            ),
+            QCRule(
+                name='Invalid BC',
+                condition=lambda df: ((df[self.BC_COLUMNS] <= self.MIN_BC) |
+                                      (df[self.BC_COLUMNS] > self.MAX_BC)).any(axis=1),
+                description=f'BC concentration outside valid range {self.MIN_BC}-{self.MAX_BC} ng/m³'
+            ),
+            QCRule(
+                name='Insufficient',
+                condition=lambda df: self.QC_control().hourly_completeness_QC(
+                    df[self.BC_COLUMNS], freq=self.meta['freq']
+                ),
+                description='Less than 50% hourly data completeness'
+            ),
+        ])
 
-        4. Complete record requirement:
-           Requires values across all wavelengths to ensure data completeness
-           and measurement reliability
+        # Apply all QC rules and get flagged DataFrame
+        df_qc = qc.apply(df_qc)
+
+        # Store QC summary for combined output in _process()
+        self._qc_summary = qc.get_summary(df_qc)
+
+        return df_qc.reindex(_index)
+
+    def _process(self, _df):
+        """
+        Calculate absorption coefficients and validate derived parameters.
+
+        Processing Steps
+        ----------------
+        1. Calculate absorption coefficients at each wavelength
+        2. Calculate AAE (Absorption Ångström Exponent)
+        3. Calculate eBC (equivalent Black Carbon)
+        4. Validate AAE range and update QC_Flag
+
+        Note: AE43 uses AE33 coefficients for absorption calculation.
         """
         _index = _df.index.copy()
 
-        # assume AE43 Status is same as AE33
-        error_states = [
-            1,  # Tape advance (tape advance, fast calibration, warm-up)
-            2,  # First measurement – obtaining ATN0
-            3,  # Stopped
-            4,  # Flow low/high by more than 0.5 LPM or F1 < 0 or F2/F1 outside 0.2 – 0.75 range
-            16,  # Calibrating LED
-            32,  # Calibration error (at least one channel OK)
-            384,  # Tape error (tape not moving, end of tape)
-            1024,  # Stability test
-            2048,  # Clean air test
-            4096,  # Optical test
-            # 8192,  # Connection Error (??)
-        ]
+        # Calculate absorption coefficients, AAE, and eBC
+        # Note: AE43 uses AE33 coefficients
+        _df_cal = _absCoe(_df[self.BC_COLUMNS], instru='AE33', specified_band=[550])
 
-        # remove data without error status
-        _df = self.filter_error_status(_df, error_states)
+        # Combine with Status and QC_Flag
+        df_out = concat([_df_cal, _df[['Status', 'QC_Flag']]], axis=1)
 
-        _df = _df.drop(columns=['Status'])
+        # Validate AAE and update QC_Flag
+        invalid_aae = (-df_out['AAE'] < self.MIN_AAE) | (-df_out['AAE'] > self.MAX_AAE)
+        df_out = self.update_qc_flag(df_out, invalid_aae, 'Invalid AAE')
 
-        bc_columns = ['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7']
+        # Log combined QC summary with calculated info
+        if hasattr(self, '_qc_summary') and self._qc_summary is not None:
+            import pandas as pd
+            # Add Invalid AAE row before Valid row
+            total = len(df_out)
+            invalid_aae_row = pd.DataFrame([{
+                'Rule': 'Invalid AAE',
+                'Count': invalid_aae.sum(),
+                'Percentage': f'{invalid_aae.sum() / total * 100:.1f}%',
+                'Description': f'AAE outside valid range {self.MIN_AAE}-{self.MAX_AAE}'
+            }])
+            # Insert before Valid row (last row)
+            summary = pd.concat([self._qc_summary.iloc[:-1], invalid_aae_row, self._qc_summary.iloc[-1:]], ignore_index=True)
+            self.logger.info(f"{self.nam} QC Summary:")
+            for _, row in summary.iterrows():
+                self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
 
-        # remove negative value
-        _df[bc_columns] = _df[bc_columns].mask(
-            (_df[bc_columns] <= 0) | (_df[bc_columns] > 20000)
-        )
-        # Check data representativeness (at least 50% data points per hour)
-        points_per_hour = Timedelta('1h') / Timedelta(self.meta['freq'])
-        for col in bc_columns:
-            _size = _df[col].dropna().resample('1h').size().reindex(_index).ffill()
-            _df[col] = _df[col].mask(_size < points_per_hour * 0.5)
-
-        # use IQR_QC for outlier detection
-        _df = self.time_aware_IQR_QC(_df, time_window='1h')
-
-        # make sure all columns have values, otherwise set to nan
-        return _df.dropna(how='any').reindex(_index)
+        # Reorder columns
+        all_data_cols = self.BC_COLUMNS + self.ABS_COLUMNS + self.CAL_COLUMNS
+        return df_out[all_data_cols + ['QC_Flag']].reindex(_index)

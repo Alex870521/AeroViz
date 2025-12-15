@@ -77,7 +77,7 @@ class Reader(AbstractReader):
         _df = _df.mask(_df == MDL_NUMBER, np.nan)
 
         col = [col for col in desired_order1 if col != 'WD']
-        _df[col] = self.time_aware_IQR_QC(_df[col])
+        _df[col] = self.QC_control().time_aware_rolling_iqr(_df[col])
 
         # Calculate the mass and ion balance
         # mass tolerance = ± 1, ions balance tolerance = ± 1
@@ -149,7 +149,8 @@ class Reader(AbstractReader):
             columns_to_convert = [col for col in MDL.keys() if col in df.columns]
             df[columns_to_convert] = df[columns_to_convert].div(1000)
 
-        self.logger.info(f"\t{'XRF QAQC summary':21}: transform values below MDL to {MDL_replace}")
+        self.logger.info("")
+        self.logger.info(f"XRF QAQC: values below MDL -> {MDL_replace}")
 
         return df
 
@@ -208,10 +209,10 @@ class Reader(AbstractReader):
         # 計算保留的数據的百分比
         retained_percentage = (valid_mask.sum() / len(df)) * 100
 
-        self.logger.info(
-            f"\t{'Ions balance summary':21}: {retained_percentage.__round__(0)}% within tolerance ± {tolerance}")
+        self.logger.info("")
+        self.logger.info(f"Ions balance: {retained_percentage.__round__(0)}% within tolerance (±{tolerance})")
 
         if retained_percentage < 70:
-            self.logger.warning("\tWarning: The percentage of retained data is less than 70%")
+            self.logger.warning("Warning: retained data < 70%")
 
         return df

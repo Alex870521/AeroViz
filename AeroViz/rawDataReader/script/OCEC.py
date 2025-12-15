@@ -1,11 +1,11 @@
 import numpy as np
-from pandas import to_datetime, read_csv, to_numeric
+from pandas import to_datetime, read_csv, to_numeric, Series
 
-from AeroViz.rawDataReader.core import AbstractReader
+from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
 
 
 class Reader(AbstractReader):
-    """ OC/EC (Organic Carbon/Elemental Carbon) Analyzer Data Reader
+    """OC/EC (Organic Carbon/Elemental Carbon) Analyzer Data Reader
 
     A specialized reader for OC/EC analyzer data files, which measure carbonaceous
     aerosol composition using thermal and optical methods.
@@ -14,6 +14,26 @@ class Reader(AbstractReader):
     on supported formats and QC procedures.
     """
     nam = 'OCEC'
+
+    # =========================================================================
+    # Column Definitions
+    # =========================================================================
+    OUTPUT_COLUMNS = ['Thermal_OC', 'Thermal_EC', 'Optical_OC', 'Optical_EC', 'TC',
+                      'OC1', 'OC2', 'OC3', 'OC4', 'PC']
+
+    # =========================================================================
+    # QC Thresholds
+    # =========================================================================
+    MIN_VALUE = -5       # Minimum valid value (ugC/m3)
+    MAX_VALUE = 100      # Maximum valid value (ugC/m3)
+
+    # Detection limits (MDL) for each carbon fraction
+    MDL = {
+        'Thermal_OC': 0.3,
+        'Optical_OC': 0.3,
+        'Thermal_EC': 0.015,
+        'Optical_EC': 0.015
+    }
 
     def _raw_reader(self, file):
         """
@@ -96,42 +116,58 @@ class Reader(AbstractReader):
         """
         Perform quality control on OC/EC data.
 
-        Parameters
-        ----------
-        _df : pandas.DataFrame
-            Raw OC/EC data with datetime index and carbon fraction columns.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Quality-controlled OC/EC data with invalid measurements masked.
-
-        Notes
-        -----
-        Applies the following QC filters:
-        1. Value range: Valid carbon measurements between -5 and 100 μgC/m³
-        2. Detection limits:
-           - Thermal_OC: 0.3 μgC/m³
-           - Optical_OC: 0.3 μgC/m³
-           - Thermal_EC: 0.015 μgC/m³
-           - Optical_EC: 0.015 μgC/m³
-        3. Time-based outlier detection: Using IQR-based filtering
-        4. Requires valid OC measurements (Thermal and Optical)
+        QC Rules Applied
+        ----------------
+        1. Invalid Carbon  : Carbon value outside valid range (-5-100 ugC/m3)
+        2. Below MDL       : Value below method detection limit
+        3. Spike           : Sudden value change (vectorized spike detection)
+        4. Missing OC      : Thermal_OC or Optical_OC is missing
         """
-        MDL = {'Thermal_OC': 0.3,  # 0.89
-               'Optical_OC': 0.3,  # 0.08
-               'Thermal_EC': 0.015,
-               'Optical_EC': 0.015
-               }
-
         _index = _df.index.copy()
+        df_qc = _df.copy()
 
-        _df = _df.mask((_df <= -5) | (_df > 100))
+        # Pre-calculate MDL mask (below detection limit)
+        mdl_mask = Series(False, index=df_qc.index)
+        for col, threshold in self.MDL.items():
+            if col in df_qc.columns:
+                mdl_mask = mdl_mask | (df_qc[col] <= threshold)
 
-        for col, threshold in MDL.items():
-            _df.loc[_df[col] <= threshold, col] = np.nan
+        # Build QC rules declaratively
+        qc = QCFlagBuilder()
+        qc.add_rules([
+            QCRule(
+                name='Invalid Carbon',
+                condition=lambda df: ((df[self.OUTPUT_COLUMNS] <= self.MIN_VALUE) |
+                                      (df[self.OUTPUT_COLUMNS] > self.MAX_VALUE)).any(axis=1),
+                description=f'Carbon value outside valid range ({self.MIN_VALUE}-{self.MAX_VALUE} ugC/m3)'
+            ),
+            QCRule(
+                name='Below MDL',
+                condition=lambda df: mdl_mask.reindex(df.index).fillna(False),
+                description='Value below method detection limit'
+            ),
+            QCRule(
+                name='Spike',
+                condition=lambda df: self.QC_control().spike_detection(
+                    df[['Thermal_OC', 'Thermal_EC', 'Optical_OC', 'Optical_EC']],
+                    max_change_rate=3.0
+                ),
+                description='Sudden unreasonable value change detected'
+            ),
+            QCRule(
+                name='Missing OC',
+                condition=lambda df: df['Thermal_OC'].isna() | df['Optical_OC'].isna(),
+                description='Missing Thermal_OC or Optical_OC'
+            ),
+        ])
 
-        # use IQR_QC
-        _df = self.time_aware_IQR_QC(_df)
+        # Apply all QC rules and get flagged DataFrame
+        df_qc = qc.apply(df_qc)
 
-        return _df.dropna(subset=['Thermal_OC', 'Optical_OC']).reindex(_index)
+        # Log QC summary
+        summary = qc.get_summary(df_qc)
+        self.logger.info(f"{self.nam} QC Summary:")
+        for _, row in summary.iterrows():
+            self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+
+        return df_qc[self.OUTPUT_COLUMNS + ['QC_Flag']].reindex(_index)

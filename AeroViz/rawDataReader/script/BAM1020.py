@@ -1,10 +1,10 @@
 from pandas import read_csv, to_numeric, NA
 
-from AeroViz.rawDataReader.core import AbstractReader
+from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
 
 
 class Reader(AbstractReader):
-    """ BAM1020 (Beta Attenuation Monitor) Data Reader
+    """BAM1020 (Beta Attenuation Monitor) Data Reader
 
     A specialized reader for BAM1020 data files, which measure PM2.5 mass concentration
     using beta attenuation technology.
@@ -13,6 +13,12 @@ class Reader(AbstractReader):
     on supported formats and QC procedures.
     """
     nam = 'BAM1020'
+
+    # =========================================================================
+    # QC Thresholds
+    # =========================================================================
+    MIN_CONC = 0       # Minimum PM2.5 concentration (ug/m3)
+    MAX_CONC = 500     # Maximum PM2.5 concentration (ug/m3)
 
     def _raw_reader(self, file):
         """
@@ -47,30 +53,38 @@ class Reader(AbstractReader):
         """
         Perform quality control on BAM1020 data.
 
-        Parameters
-        ----------
-        _df : pandas.DataFrame
-            Raw BAM1020 data with datetime index and concentration column.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Quality-controlled BAM1020 data with invalid measurements masked.
-
-        Notes
-        -----
-        Applies the following QC filters:
-        1. Value range: Valid PM2.5 concentrations between 0-500 μg/m³
-        2. Time-based outlier detection: Uses 1-hour window for IQR-based filtering
-        3. Complete record requirement: Removes rows with any missing values
+        QC Rules Applied
+        ----------------
+        1. Invalid Conc    : Concentration outside valid range (0-500 ug/m3)
+        2. Spike           : Sudden value change (vectorized spike detection)
         """
         _index = _df.index.copy()
+        df_qc = _df.copy()
 
-        # remove negative value
-        _df = _df.mask((_df <= 0) | (_df > 500))
+        # Build QC rules declaratively
+        qc = QCFlagBuilder()
+        qc.add_rules([
+            QCRule(
+                name='Invalid Conc',
+                condition=lambda df: (df['Conc'] <= self.MIN_CONC) | (df['Conc'] > self.MAX_CONC),
+                description=f'Concentration outside valid range ({self.MIN_CONC}-{self.MAX_CONC} ug/m3)'
+            ),
+            QCRule(
+                name='Spike',
+                condition=lambda df: self.QC_control().spike_detection(
+                    df[['Conc']], max_change_rate=3.0
+                ),
+                description='Sudden unreasonable value change detected'
+            ),
+        ])
 
-        # use IQR_QC
-        _df = self.time_aware_IQR_QC(_df, time_window='1h')
+        # Apply all QC rules and get flagged DataFrame
+        df_qc = qc.apply(df_qc)
 
-        # make sure all columns have values, otherwise set to nan
-        return _df.dropna(how='any').reindex(_index)
+        # Log QC summary
+        summary = qc.get_summary(df_qc)
+        self.logger.info(f"{self.nam} QC Summary:")
+        for _, row in summary.iterrows():
+            self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+
+        return df_qc[['Conc', 'QC_Flag']].reindex(_index)

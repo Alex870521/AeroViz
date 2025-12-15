@@ -1,59 +1,133 @@
-# TEOM Data Reading and Processing
+# TEOM (Tapered Element Oscillating Microbalance)
 
-The TEOM (Tapered Element Oscillating Microbalance) instrument is used for continuous monitoring of PM2.5 mass
-concentrations. This document details the data reading and quality control procedures implemented in the AeroViz
-package.
+The TEOM is used for continuous monitoring of PM2.5 mass concentrations using microbalance technology.
 
-## Supported File Formats
+::: AeroViz.rawDataReader.script.TEOM.Reader
 
-This module supports three types of TEOM data output formats:
+## Data Format
 
-1. **Remote Download Format**
-    - Identified by the 'Time Stamp' column
-    - Date format: 'DD - MM - YYYY HH:MM:SS'
-    - May contain Chinese month names requiring conversion
-    - Column mapping: Time Stamp → time, System status → status, PM-2.5 base MC → PM_NV,
-      PM-2.5 MC → PM_Total, PM-2.5 TEOM noise → noise
+- File format: CSV file
+- Sampling frequency: 6 minutes
+- File naming pattern: `*.csv`
+- Supported formats:
+    - Remote Download Format (Time Stamp column)
+    - USB Download/Auto Export Format (tmoStatusCondition_0 column)
 
-2. **USB Download or Auto Export Format**
-    - Identified by the 'tmoStatusCondition_0' column
-    - Two possible time formats:
-      a) Standard: 'Date' and 'Time' columns (YYYY-MM-DD HH:MM:SS)
-      b) Alternative: 'time_stamp' column (similar to remote format)
-    - Column mapping: tmoStatusCondition_0 → status, tmoTEOMABaseMC_0 → PM_NV,
-      tmoTEOMAMC_0 → PM_Total, tmoTEOMANoise_0 → noise
+### Remote Download Format
 
-3. **Other Formats** - Not implemented, raises NotImplementedError
+| Column | Mapping | Description |
+|--------|---------|-------------|
+| Time Stamp | time | Timestamp (DD - MM - YYYY HH:MM:SS) |
+| System status | status | Instrument status |
+| PM-2.5 base MC | PM_NV | Non-volatile PM2.5 |
+| PM-2.5 MC | PM_Total | Total PM2.5 |
+| PM-2.5 TEOM noise | noise | Measurement noise |
 
-## Data Processing Workflow
+### USB/Auto Export Format
 
-The data processing workflow consists of the following steps:
+| Column | Mapping | Description |
+|--------|---------|-------------|
+| Date, Time | time | Timestamp |
+| tmoStatusCondition_0 | status | Instrument status |
+| tmoTEOMABaseMC_0 | PM_NV | Non-volatile PM2.5 |
+| tmoTEOMAMC_0 | PM_Total | Total PM2.5 |
+| tmoTEOMANoise_0 | noise | Measurement noise |
 
-1. Data Standardization
-2. Quality Control Procedures
-3. Output Data Generation
+## Measurement Parameters
 
-### Data Standardization
+| Parameter | Unit | Description |
+|-----------|------|-------------|
+| PM_Total | μg/m³ | Total PM2.5 mass concentration |
+| PM_NV | μg/m³ | Non-volatile PM2.5 concentration |
+| noise | - | TEOM measurement noise |
+
+## Data Processing
+
+### Data Reading
 
 - Unifies column names across different data formats
 - Handles various time formats, including Chinese month name conversion
 - Converts all measurement values to numeric format
 - Removes duplicate timestamps and invalid indices
 
-### Quality Control Procedures
+### Quality Control
 
-1. Noise threshold filtering (noise < 0.01)
-2. Value range validation (removes negative or zero values)
-3. Time-based outlier detection (using 6-hour window IQR filtering)
-4. Temporal data completeness check (minimum 50% measurements per hour)
-5. Complete record requirement (both PM_NV and PM_Total columns must have values)
+The TEOM reader uses the declarative **QCFlagBuilder** system with the following rules:
+
+```
++-----------------------------------------------------------------------+
+|                         QC Thresholds                                 |
++-----------------------------------------------------------------------+
+| MAX_NOISE          = 0.01                                             |
+| MIN_VOL_FRAC       = 0.01      PM_NV / PM_Total minimum               |
+| MAX_VOL_FRAC       = 0.9       PM_NV / PM_Total maximum               |
+| STATUS_OK          = 0         (numeric status code)                  |
++-----------------------------------------------------------------------+
+
++-----------------------------------------------------------------------+
+|                            _QC() Pipeline                             |
++-----------------------------------------------------------------------+
+|                                                                       |
+|  [Pre-process] Calculate volatile fraction (PM_NV / PM_Total)         |
+|       |                                                               |
+|       v                                                               |
+|  +-------------------------+                                          |
+|  | Rule: Status Error      |                                          |
+|  +-------------------------+                                          |
+|  | Status code != 0        |                                          |
+|  +-------------------------+                                          |
+|           |                                                           |
+|           v                                                           |
+|  +-------------------------+    +-------------------------+           |
+|  | Rule: High Noise        |    | Rule: Non-positive      |           |
+|  +-------------------------+    +-------------------------+           |
+|  | noise > 0.01            |    | PM_Total <= 0 OR        |           |
+|  +-------------------------+    | PM_NV <= 0              |           |
+|           |                     +-------------------------+           |
+|           v                              |                            |
+|  +-------------------------+             v                            |
+|  | Rule: NV > Total        |    +-------------------------+           |
+|  +-------------------------+    | Rule: Invalid Vol Frac  |           |
+|  | PM_NV > PM_Total        |    +-------------------------+           |
+|  | (physically impossible) |    | Ratio > 0.9 OR < 0.01   |           |
+|  +-------------------------+    +-------------------------+           |
+|           |                              |                            |
+|           v                              v                            |
+|  +-------------------------+    +-------------------------+           |
+|  | Rule: Spike             |    | Rule: Insufficient      |           |
+|  +-------------------------+    +-------------------------+           |
+|  | Sudden value change     |    | < 50% hourly data       |           |
+|  | (vectorized detection)  |    | completeness            |           |
+|  +-------------------------+    +-------------------------+           |
+|                                                                       |
++-----------------------------------------------------------------------+
+```
+
+#### QC Rules Applied
+
+| Rule | Condition | Description |
+|------|-----------|-------------|
+| **Status Error** | Status ≠ 0 | Non-zero status code indicates instrument error |
+| **High Noise** | noise ≥ 0.01 | Measurement noise exceeds threshold |
+| **Non-positive** | PM_Total ≤ 0 OR PM_NV ≤ 0 | Non-positive concentration values |
+| **NV > Total** | PM_NV > PM_Total | Non-volatile exceeds total (physically impossible) |
+| **Invalid Vol Frac** | Ratio < 0 OR > 1 | Volatile fraction outside valid range (0-1) |
+| **Spike** | Sudden value change | Unreasonable sudden change detected |
+| **Insufficient** | < 50% hourly data | Less than 50% hourly data completeness |
 
 ## Output Data
 
-The processed DataFrame contains the following standardized columns:
+The processed data contains the following columns:
 
-- **PM_NV**: Non-volatile PM2.5 concentration (µg/m³)
-- **PM_Total**: Total PM2.5 concentration (µg/m³)
+| Column | Unit | Description |
+|--------|------|-------------|
+| PM_Total | μg/m³ | Total PM2.5 mass concentration |
+| PM_NV | μg/m³ | Non-volatile PM2.5 concentration |
+
+!!! note "QC_Flag Handling"
+
+    - The intermediate file (`_read_teom_qc.pkl/csv`) contains the `QC_Flag` column
+    - The final output has invalid data set to NaN and `QC_Flag` column removed
 
 ## Usage Example
 

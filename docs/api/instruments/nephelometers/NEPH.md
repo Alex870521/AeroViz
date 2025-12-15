@@ -30,9 +30,14 @@ The Nephelometer is an instrument used for measuring light scattering properties
 
 The Nephelometer provides measurements at three wavelengths:
 
-- B, G, R: Total scattering coefficients at blue, green, and red wavelengths (Mm⁻¹)
-- BB, BG, BR: Backscattering coefficients at blue, green, and red wavelengths (Mm⁻¹)
-- RH: Relative humidity inside the nephelometer (%)
+| Column | Wavelength | Description |
+|--------|------------|-------------|
+| B | 450 nm | Total scattering (blue) |
+| G | 550 nm | Total scattering (green) |
+| R | 700 nm | Total scattering (red) |
+| BB | 450 nm | Backscattering (blue) |
+| BG | 550 nm | Backscattering (green) |
+| BR | 700 nm | Backscattering (red) |
 
 ## Data Processing
 
@@ -47,26 +52,93 @@ The Nephelometer provides measurements at three wavelengths:
 
 ### Quality Control
 
-- Removes physically impossible values (negative or > 2000 Mm⁻¹)
-- Ensures physical consistency:
-    - Backscattering must be less than total scattering
-    - Blue > Green > Red (Rayleigh scattering principle)
-- Applies time-aware IQR filtering with 1-hour windows
-- Ensures data completeness across all channels
-- Filters data based on instrument status codes
+The NEPH reader uses the declarative **QCFlagBuilder** system with the following rules:
+
+```
++-----------------------------------------------------------------------+
+|                         QC Thresholds                                 |
++-----------------------------------------------------------------------+
+| MIN_SCAT_VALUE = 0       Mm⁻¹                                         |
+| MAX_SCAT_VALUE = 2000    Mm⁻¹                                         |
+| STATUS_OK      = 0       (numeric status code)                        |
++-----------------------------------------------------------------------+
+
++-----------------------------------------------------------------------+
+|                            _QC() Pipeline                             |
++-----------------------------------------------------------------------+
+|                                                                       |
+|  [Pre-process] Calculate scattering Angstrom exponent (SAE)           |
+|       |                                                               |
+|       v                                                               |
+|  +---------------------------+                                        |
+|  | Rule: Status Error        |                                        |
+|  +---------------------------+                                        |
+|  | Status code != 0          |                                        |
+|  | (from Y record col 9)     |                                        |
+|  +---------------------------+                                        |
+|           |                                                           |
+|           v                                                           |
+|  +---------------------------+    +---------------------------+       |
+|  | Rule: No Data             |    | Rule: Invalid Scat Value  |       |
+|  +---------------------------+    +---------------------------+       |
+|  | All columns are NaN       |    | Value <= 0 OR             |       |
+|  +---------------------------+    | Value > 2000 Mm⁻¹         |       |
+|           |                       +---------------------------+       |
+|           v                                |                          |
+|  +---------------------------+             v                          |
+|  | Rule: Invalid Scat Rel    |    +---------------------------+       |
+|  +---------------------------+    | Rule: Insufficient        |       |
+|  | Blue < Green < Red        |    +---------------------------+       |
+|  | (violates physics)        |    | < 50% hourly data         |       |
+|  +---------------------------+    +---------------------------+       |
+|                                                                       |
++-----------------------------------------------------------------------+
+```
+
+#### QC Rules Applied
+
+| Rule | Condition | Description |
+|------|-----------|-------------|
+| **Status Error** | Status ≠ 0 | Non-zero status code indicates instrument error |
+| **No Data** | All columns NaN | All scattering columns are missing |
+| **Invalid Scat Value** | Value ≤ 0 OR > 2000 Mm⁻¹ | Scattering outside valid range |
+| **Invalid Scat Rel** | B < G < R | Wavelength dependence violation |
+| **Insufficient** | < 50% hourly data | Less than 50% hourly data completeness |
+
+#### Wavelength Dependence Check
+
+```
+    Scattering (Mm⁻¹)
+       ^
+       |     Expected: Blue > Green > Red
+       |
+       |  B *
+       |      \
+       |       G *
+       |           \
+       |            R *
+       +----+----+----+-----> Wavelength
+           450  550  700
+```
 
 ## Output Data
 
 The processed data contains the following columns:
 
-- Time index: Data acquisition time
-- B, G, R: Total scattering coefficients (Mm⁻¹)
-- BB, BG, BR: Backscattering coefficients (Mm⁻¹)
-- RH: Relative humidity (%)
+| Column | Unit | Description |
+|--------|------|-------------|
+| B, G, R | Mm⁻¹ | Total scattering coefficients |
+| BB, BG, BR | Mm⁻¹ | Backscattering coefficients |
+| sca_550 | Mm⁻¹ | Scattering at 550nm |
+| SAE | - | Scattering Angstrom Exponent |
+
+!!! note "QC_Flag Handling"
+
+    - The intermediate file (`_read_neph_qc.pkl/csv`) contains the `QC_Flag` column
+    - The final output has invalid data set to NaN and `QC_Flag` column removed
 
 ## Notes
 
 - Provides information about aerosol optical properties and size distribution
 - Supports both normal and total scattering modes
-- Maintains physical consistency between measurements
-- Automatically handles different record types and data formats 
+- Wavelength dependence follows Rayleigh scattering principle

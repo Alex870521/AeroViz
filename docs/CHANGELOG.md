@@ -1,8 +1,26 @@
 ## Unreleased
 
+## v0.1.17 (2025-12-14)
+
 ### Feat
 
-- Implement multi-version Python testing support
+- Implement QCFlagBuilder system for unified QC workflow
+- Add QCRule dataclass for declarative QC rule definition
+- Add pre_process.py for unified absorption/scattering coefficient calculation
+- Unified QC_Flag column for all instrument data quality marking
+- QC Summary output at end of processing with validation results
+
+### Docs
+
+- Update QC_Flag handling documentation for all instruments
+- Clarify QC_Flag only in intermediate files, removed from final output
+- Update RawDataReader processing flow documentation
+- Simplify Technical Specifications table in instruments index
+
+### Refactor
+
+- Simplify rate calculation and remove deter_key dependency
+- Unify QC output format across all instrument readers
 
 ## v0.1.16 (2025-02-20)
 

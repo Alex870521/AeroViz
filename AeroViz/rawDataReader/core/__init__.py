@@ -573,7 +573,7 @@ class AbstractReader(ABC):
             else:
                 _f_raw, _f_qc = _f_raw_done, _f_qc_done
 
-                return _f_qc if self.qc else _f_raw
+                return _f_raw, _f_qc
 
         else:
             self.logger.info_box(f"Reading {self.nam} RAW DATA from {user_start} to {user_end}")

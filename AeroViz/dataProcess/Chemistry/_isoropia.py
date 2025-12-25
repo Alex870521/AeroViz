@@ -4,16 +4,66 @@ from subprocess import Popen, PIPE
 import numpy as np
 from pandas import concat, DataFrame, to_numeric, read_csv
 
-from ._calculate import _ug2umol
+from ._calculate import convert_mass_to_molar_concentration
 
 
 def _basic(df_che, path_out, nam_lst):
-    # parameter
+    """
+    Run ISORROPIA II thermodynamic model to calculate aerosol pH, liquid water content (ALWC),
+    and gas-particle partitioning of semi-volatile inorganic species.
+
+    Parameters
+    ----------
+    df_che : list of pandas.DataFrame
+        List of DataFrames containing chemical species concentrations and meteorological data.
+        These DataFrames will be concatenated along columns.
+
+    path_out : pathlib.Path
+        Output directory path where temporary files will be created and results stored.
+
+    nam_lst : list of str
+        List of column names to be assigned to the concatenated DataFrame.
+        Should include: 'NH4+', 'NH3', 'HNO3', 'NO3-', 'HCl', 'Cl-', 'Na+',
+        'SO42-', 'Ca2+', 'K+', 'Mg2+', 'RH', 'temp'
+
+    Returns
+    -------
+    dict
+        Dictionary containing two DataFrames:
+        - 'input': DataFrame with processed input data for ISORROPIA II
+        - 'output': DataFrame with model results including:
+          * 'pH': Aerosol pH (only consider data RH between 20% and 95%)
+          * 'ALWC': Aerosol liquid water content (μg/m³)
+          * 'NH3', 'HNO3', 'HCl': Gas phase concentrations (μmol/m³)
+          * 'NH4+', 'NO3-', 'Cl-': Aerosol phase concentrations (μmol/m³)
+
+    Notes
+    -----
+    This function:
+    1. Converts mass concentrations to molar concentrations
+    2. Prepares input for ISORROPIA II in required format
+    3. Executes the ISORROPIA II model in forward mode and metastable state
+    4. Processes model output to calculate pH and aerosol composition
+
+    The function creates temporary files during execution which are removed afterward.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> from AeroViz import DataProcess
+    >>>
+    >>> path_out = Path("./results")
+    >>> df = pd.read_csv('your_data.csv')
+    >>> column_names = ['NH4+', 'NH3', 'HNO3', 'NO3-', 'HCl', 'Cl-', 'Na+',
+    >>>                    'SO42-', 'Ca2+', 'K+', 'Mg2+', 'RH', 'temp']
+    >>> chem_prcs = DataProcess('Chemistry', path_out, excel=False, csv=True)
+    >>> run_iso = chem_prcs.ISOROPIA(df[column_names])
+    """
     df_all = concat(df_che, axis=1)
     index = df_all.index.copy()
     df_all.columns = nam_lst
 
-    df_umol = _ug2umol(df_all)
+    df_umol = convert_mass_to_molar_concentration(df_all)
 
     # output
     # Na, SO4, NH3, NO3, Cl, Ca, K, Mg, RH, TEMP

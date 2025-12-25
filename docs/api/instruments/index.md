@@ -42,9 +42,14 @@ Instruments for chemical composition analysis:
 - **[IGAC](chemical/IGAC.md)** - Ion chromatography (water-soluble ions)
 - **[OCEC](chemical/OCEC.md)** - Organic/Elemental Carbon Analyzer
 - **[VOC](chemical/VOC.md)** - Volatile Organic Compounds Monitor
-- **[XRF](chemical/XRF.md)** - X-Ray Fluorescence (elemental analysis)
-- **[TEOM](chemical/TEOM.md)** - Tapered Element Oscillating Microbalance (PM mass)
-- **[BAM1020](chemical/BAM1020.md)** - Beta Attenuation Monitor (PM2.5 mass)
+- **[Xact](chemical/Xact.md)** - Xact 625i XRF Analyzer (elemental analysis)
+
+### Mass Concentration
+
+Instruments for PM mass concentration measurement:
+
+- **[TEOM](mass/TEOM.md)** - Tapered Element Oscillating Microbalance
+- **[BAM1020](mass/BAM1020.md)** - Beta Attenuation Monitor (PM2.5)
 
 !!! tip "Usage Example"
 
@@ -77,7 +82,7 @@ Instruments for chemical composition analysis:
 | **BAM1020** | 1 h | .csv | Invalid Conc, Spike |
 | **OCEC** | 1 h | *LCRes.csv | Invalid Carbon, Below MDL, Spike, Missing OC |
 | **IGAC** | 1 h | .csv | Mass Closure, Missing Main, Below MDL, Ion Balance |
-| **XRF** | 1 h | .csv | - |
+| **Xact** | 1 h | .csv | Instrument Error, Upscale Warning, Invalid Value, High Uncertainty |
 | **VOC** | 1 h | .csv | - |
 | **EPA** | 1 h | .csv | Negative Value |
 

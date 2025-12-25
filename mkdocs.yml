@@ -47,9 +47,25 @@ nav:
 
   - Guide:
       - Getting Started: guide/index.md
-      - Working with Data: guide/data.md
-      - Visualization: guide/visualization.md
-      - Examples: guide/examples.md
+      - Tutorials:
+          - RawDataReader: guide/rawdatareader.md
+          - DataProcess: guide/dataprocess.md
+          - Visualization: guide/visualization.md
+      - Examples:
+          - Size Distribution: guide/size_distribution.md
+          - Optical Closure: guide/optical_closure.md
+          - Chemical Analysis: guide/chemical_analysis.md
+          - VOC Analysis: guide/voc_analysis.md
+
+  - Theory:
+      - Overview: theory/index.md
+      - Mie Theory: theory/mie.md
+      - IMPROVE Equation: theory/improve.md
+      - Log-Normal Distribution: theory/lognormal.md
+      - ICRP 66 Model: theory/icrp.md
+      - κ-Köhler Theory: theory/kappa.md
+      - Mass Reconstruction: theory/mass_reconstruction.md
+      - OFP/SOAP: theory/ofp.md
 
   - API Reference:
       - Overview: api/index.md
@@ -59,32 +75,52 @@ nav:
           - Quality Control: api/QualityControl.md
           - Supported Instruments:
               - Overview: api/instruments/index.md
-              - AE33: api/instruments/aethalometers/AE33.md
-              - AE43: api/instruments/aethalometers/AE43.md
-              - BC1054: api/instruments/aethalometers/BC1054.md
-              - MA350: api/instruments/aethalometers/MA350.md
-              - Aurora: api/instruments/nephelometers/Aurora.md
-              - NEPH: api/instruments/nephelometers/NEPH.md
-              - SMPS: api/instruments/particle-sizers/SMPS.md
-              - APS: api/instruments/particle-sizers/APS.md
-              - GRIMM: api/instruments/particle-sizers/GRIMM.md
-              - IGAC: api/instruments/chemical/IGAC.md
-              - OCEC: api/instruments/chemical/OCEC.md
-              - VOC: api/instruments/chemical/VOC.md
-              - XRF: api/instruments/chemical/XRF.md
-              - TEOM: api/instruments/chemical/TEOM.md
+              - Aethalometers:
+                  - AE33: api/instruments/aethalometers/AE33.md
+                  - AE43: api/instruments/aethalometers/AE43.md
+                  - BC1054: api/instruments/aethalometers/BC1054.md
+                  - MA350: api/instruments/aethalometers/MA350.md
+              - Nephelometers:
+                  - Aurora: api/instruments/nephelometers/Aurora.md
+                  - NEPH: api/instruments/nephelometers/NEPH.md
+              - Particle Sizers:
+                  - SMPS: api/instruments/particle-sizers/SMPS.md
+                  - APS: api/instruments/particle-sizers/APS.md
+                  - GRIMM: api/instruments/particle-sizers/GRIMM.md
+              - Chemical:
+                  - IGAC: api/instruments/chemical/IGAC.md
+                  - OCEC: api/instruments/chemical/OCEC.md
+                  - VOC: api/instruments/chemical/VOC.md
+                  - Xact: api/instruments/chemical/Xact.md
+              - Mass:
+                  - TEOM: api/instruments/mass/TEOM.md
+                  - BAM1020: api/instruments/mass/BAM1020.md
       - DataProcess:
-          - Overview: api/DataProcess/index.md  # 新增主頁面
-          - Basic Process: api/DataProcess/basic.md   # 改為子項目
+          - Overview: api/DataProcess/index.md
+          - SizeDistr: api/DataProcess/SizeDistr.md
+          - Chemistry: api/DataProcess/Chemistry.md
+          - Optical: api/DataProcess/Optical.md
+          - VOC: api/DataProcess/VOC.md
       - Plotting:
           - Overview: api/plot/index.md
-          - Basic Plots:
+          - Basic:
               - scatter: api/plot/basic/scatter.md
               - regression: api/plot/basic/regression.md
               - box: api/plot/basic/box.md
               - bar: api/plot/basic/bar.md
               - violin: api/plot/basic/violin.md
               - pie: api/plot/basic/pie.md
+              - radar: api/plot/basic/radar.md
+          - Time Series:
+              - timeseries: api/plot/timeseries/timeseries.md
+          - Distribution:
+              - distribution: api/plot/distribution/distribution.md
+          - Meteorology:
+              - wind_rose: api/plot/meteorology/wind_rose.md
+              - CBPF: api/plot/meteorology/CBPF.md
+              - hysplit: api/plot/meteorology/hysplit.md
+          - Optical:
+              - optical: api/plot/optical/optical.md
 
   - About: https://aeroviz.org/
 
@@ -108,11 +144,17 @@ markdown_extensions:
       alternate_style: true
   - tables
   - footnotes
+  - pymdownx.arithmatex:
+      generic: true
 
 extra_css:
   - stylesheets/extra.css
   - stylesheets/claude-code-navigation.css
   - https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 extra:
   social:

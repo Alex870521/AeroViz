@@ -197,9 +197,9 @@ After processing, the following files are generated in the `{instrument}_outputs
 
 ## Supported Instruments
 
-For detailed specifications of supported instruments, see [Instruments API Reference](instruments/index.md).
+For detailed specifications of supported instruments, see [Instruments API Reference](../instruments/index.md).
 
 ## See Also
 
-- [Base Class API](AbstractReader.md) - Documentation for the abstract base class
-- [Quality Control API](QualityControl.md) - Details about quality control implementation
+- [Base Class API](../AbstractReader.md) - Documentation for the abstract base class
+- [Quality Control API](../QualityControl.md) - Details about quality control implementation

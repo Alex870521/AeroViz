@@ -12,7 +12,7 @@ A modern Python package for aerosol data processing and visualization
             New to AeroViz? Check out the Beginner's Guide. It contains an introduction to AeroViz's main features and examples to get you started quickly.
         </div>
         <div class="card-action">
-            <a href="guide/" class="card-button">To the beginner's guide</a>
+            <a href="guide/index.md" class="card-button">To the beginner's guide</a>
         </div>
     </div>
     <div class="doc-card">
@@ -24,7 +24,7 @@ A modern Python package for aerosol data processing and visualization
             The user guide provides in-depth information on key concepts of AeroViz with detailed explanations of data processing and visualization capabilities.
         </div>
         <div class="card-action">
-            <a href="guide/" class="card-button">To the user guide</a>
+            <a href="guide/index.md" class="card-button">To the user guide</a>
         </div>
     </div>
     <div class="doc-card">
@@ -63,7 +63,7 @@ pip install AeroViz
 ```
 
 For detailed installation instructions, system requirements, and troubleshooting, please see
-the [Getting Started Guide](guide/).
+the [Getting Started Guide](guide/index.md).
 
 ## **Quick Start**
 
@@ -90,7 +90,7 @@ processed_data = processor.process()
 plot.time_series(processed_data, 'BC')
 ```
 
-For detailed tutorials and examples, see the [Getting Started Guide](guide/).
+For detailed tutorials and examples, see the [Getting Started Guide](guide/index.md).
 
 ## **Key Features**
 
@@ -104,7 +104,7 @@ visualizations.
 
 ## **Documentation**
 
-- [Installation Guide](guide/index.md#installation) - Setup instructions
+- [Installation Guide](guide/index.md) - Setup instructions
 
 [//]: # (- [Tutorials]&#40;guide/tutorials.md&#41; - Step-by-step guides)
 

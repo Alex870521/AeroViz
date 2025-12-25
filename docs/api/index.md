@@ -11,7 +11,7 @@ analysis, and visualization.
 
 ### Data Input and Processing
 
-**[RawDataReader](RawDataReader/)**  
+**[RawDataReader](RawDataReader/index.md)**
 Primary interface for reading and standardizing aerosol instrument data with automatic format detection.
 
 - [AbstractReader](AbstractReader.md) - Base class architecture and extension points
@@ -45,14 +45,18 @@ AeroViz provides native support for the following categories of aerosol instrume
 - [IGAC](instruments/chemical/IGAC.md) - Ion chromatography for water-soluble species
 - [OCEC](instruments/chemical/OCEC.md) - Organic and elemental carbon analysis
 - [VOC](instruments/chemical/VOC.md) - Volatile organic compounds monitoring
-- [XRF](instruments/chemical/XRF.md) - X-ray fluorescence elemental analysis
+- [Xact](instruments/chemical/Xact.md) - Xact 625i XRF elemental analyzer
 - [TEOM](instruments/chemical/TEOM.md) - Tapered Element Oscillating Microbalance
 
 ### Data Processing and Analysis
 
-**[DataProcess](DataProcess.md)**  
-Advanced data processing engine providing statistical analysis, time series operations, and data transformation
-capabilities.
+**[DataProcess](DataProcess/index.md)**
+Advanced data processing engine for aerosol science with specialized modules:
+
+- [SizeDistr](DataProcess/SizeDistr.md) - Particle size distribution processing and analysis
+- [Chemistry](DataProcess/Chemistry.md) - Chemical composition and mass reconstruction
+- [Optical](DataProcess/Optical.md) - Optical properties and extinction calculations
+- [VOC](DataProcess/VOC.md) - Volatile organic compounds analysis
 
 ## Visualization and Plotting
 
@@ -72,12 +76,12 @@ Professional-grade plotting interface optimized for scientific publications with
 
 ### New Users
 
-Begin with the [RawDataReader](RawDataReader/) for data input, understand [Quality Control](QualityControl.md)
+Begin with the [RawDataReader](RawDataReader/index.md) for data input, understand [Quality Control](QualityControl.md)
 procedures, then explore [basic plotting](plot/basic/scatter.md) capabilities.
 
 ### Advanced Users
 
-Leverage [DataProcess](DataProcess.md) for complex workflows,
+Leverage [DataProcess](DataProcess/index.md) for complex workflows,
 consult [instrument-specific documentation](instruments/index.md) for detailed configurations, and utilize
 advanced [plotting features](plot/index.md) for publication-quality figures.
 
@@ -100,6 +104,6 @@ instrument implementations as templates, and study plotting modules for extendin
 
 ## Related Resources
 
-- **[User Guide](../guide/)** - Step-by-step tutorials and workflow examples
-- **[Examples Gallery](../guide/examples.md)** - Real-world usage scenarios and case studies
-- **[Installation Guide](../guide/)** - Setup instructions and system requirements
+- **[User Guide](../guide/index.md)** - Step-by-step tutorials and workflow examples
+- **[Examples](../guide/index.md)** - Real-world usage scenarios and case studies
+- **[Installation Guide](../guide/index.md)** - Setup instructions and system requirements

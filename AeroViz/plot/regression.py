@@ -59,11 +59,13 @@ def linear_regression(df: pd.DataFrame,
     - The regression line is fitted for each y variable.
     - Customization options are provided via **kwargs.
 
-    Example
-    -------
-    >>> linear_regression(df, x='X', y=['Y1', 'Y2'], labels=['Label1', 'Label2'],
-    ...                  diagonal=True, xlim=(0, 10), ylim=(0, 20),
-    ...                  xlabel="X-axis", ylabel="Y-axis", title="Scatter Plot with Regressions")
+    Examples
+    --------
+    >>> from AeroViz import plot
+    >>>
+    >>> plot.linear_regression(df, x='X', y=['Y1', 'Y2'], labels=['Label1', 'Label2'],
+    ...                        diagonal=True, xlim=(0, 10), ylim=(0, 20),
+    ...                        xlabel="X-axis", ylabel="Y-axis", title="Scatter Plot with Regressions")
     """
     fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
 
@@ -135,39 +137,41 @@ def multiple_linear_regression(df: pd.DataFrame,
     Parameters
     ----------
     df : pd.DataFrame
-       Input DataFrame containing the data.
+        Input DataFrame containing the data.
     x : str or list of str
-       Column name(s) for the independent variable(s). Can be a single string or a list of strings.
+        Column name(s) for the independent variable(s). Can be a single string or a list of strings.
     y : str or list of str
-       Column name(s) for the dependent variable(s). Can be a single string or a list of strings.
+        Column name(s) for the dependent variable(s). Can be a single string or a list of strings.
     labels : str or list of str, optional
-       Labels for the dependent variable(s). If None, column names are used as labels. Default is None.
+        Labels for the dependent variable(s). If None, column names are used as labels. Default is None.
     ax : Axes, optional
-       Matplotlib Axes object to use for the plot. If None, a new subplot is created. Default is None.
+        Matplotlib Axes object to use for the plot. If None, a new subplot is created. Default is None.
     diagonal : bool, optional
-       Whether to include a diagonal line (1:1 line) in the plot. Default is False.
+        Whether to include a diagonal line (1:1 line) in the plot. Default is False.
     positive : bool, optional
-       Whether to constrain the regression coefficients to be positive. Default is True.
+        Whether to constrain the regression coefficients to be positive. Default is True.
     fit_intercept: bool, optional
         Whether to calculate the intercept for this model. Default is True.
     **kwargs
-       Additional keyword arguments for plot customization.
+        Additional keyword arguments for plot customization.
 
     Returns
     -------
     tuple[Figure, Axes]
-       The Figure and Axes containing the regression plot.
+        The Figure and Axes containing the regression plot.
 
     Notes
     -----
     This function performs multiple linear regression analysis using the input DataFrame.
     It supports multiple independent variables and can plot the regression results.
 
-    Example
-    -------
-    >>> multiple_linear_regression(df, x=['X1', 'X2'], y='Y', labels=['Y1', 'Y2'],
-    ...                             diagonal=True, fit_intercept=True,
-    ...                             xlabel="X-axis", ylabel="Y-axis", title="Multiple Linear Regression Plot")
+    Examples
+    --------
+    >>> from AeroViz import plot
+    >>>
+    >>> plot.multiple_linear_regression(df, x=['X1', 'X2'], y='Y', labels=['Y1', 'Y2'],
+    ...                                 diagonal=True, fit_intercept=True,
+    ...                                 xlabel="X-axis", ylabel="Y-axis", title="Multiple Linear Regression Plot")
     """
     fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
 

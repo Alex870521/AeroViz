@@ -4,99 +4,68 @@ meta = {
     "NEPH": {
         "pattern": ["*.dat"],
         "freq": "5min",
-        "deter_key": {"Scatter Coe. (550 nm)": ["G"]},
     },
 
     "Aurora": {
         "pattern": ["*.csv"],
         "freq": "1min",
-        "deter_key": {"Scatter Coe. (550 nm)": ["G"]},
     },
 
     "SMPS": {
         "pattern": ["*.txt", "*.csv"],
         "freq": "6min",
-        "deter_key": {"Bins": ["all"]},
     },
 
     "GRIMM": {
         "pattern": ["*.dat"],
         "freq": "6min",
-        "deter_key": {"Bins": ["all"]},
     },
 
     "APS": {
         "pattern": ["*.txt"],
         "freq": "6min",
-        "deter_key": {"Bins": ["all"]},
     },
 
     "AE33": {
         "pattern": ["[!ST|!CT|!FV]*[!log]_AE33*.dat"],
         "freq": "1min",
-        "deter_key": {"BC Mass Conc. (880 nm)": ["BC6"]},
     },
 
     "AE43": {
         "pattern": ["[!ST|!CT|!FV]*[!log]_AE43*.dat"],
         "freq": "1min",
-        "deter_key": {"BC Mass Conc. (880 nm)": ["BC6"]},
     },
 
     "BC1054": {
         "pattern": ["*.csv"],
         "freq": "1min",
-        "deter_key": {"BC Mass Conc. (880 nm)": ["BC9"]},
     },
 
     "MA350": {
         "pattern": ["*.csv"],
         "freq": "1min",
-        "deter_key": {"BC Mass Conc. (880 nm)": ["BC5"]},
     },
 
     "BAM1020": {
         "pattern": ["*.csv"],
         "freq": "1h",
-        "deter_key": {
-            "Mass Conc.": ["Conc"]},
     },
 
     "TEOM": {
         "pattern": ["*.csv"],
         "freq": "6min",
-        "deter_key": {
-            "PM1.0 Mass Conc.": ["PM_Total"],
-            "PM1.0 NV Mass Conc.": ["PM_NV"],
-        },
     },
 
     "OCEC": {
         "pattern": ["*LCRes.csv"],
         "freq": "1h",
-        "deter_key": {
-            "Thermal OC & EC": ["Thermal_OC", "Thermal_EC"],
-            "Optical OC & EC": ["Optical_OC", "Optical_EC"],
-        },
     },
 
     "IGAC": {
         "pattern": ["*.csv"],
         "freq": "1h",
-        "deter_key": {
-            "Na+": ["Na+"],
-            "NH4+": ["NH4+"],
-            "K+": ["K+"],
-            "Mg2+": ["Mg2+"],
-            "Ca2+": ["Ca2+"],
-            "Cl-": ["Cl-"],
-            "NO2-": ["NO2-"],
-            "NO3-": ["NO3-"],
-            "SO42-": ["SO42-"],
-            "Main Salt (NH4+, NO3-, SO42-)": ["NO3-", "SO42-", "NH4+"],
-        },
-        # https://www.yangyao-env.com/web/product/product_in2.jsp?pd_id=PD1640151884502
 
+        # https://www.yangyao-env.com/web/product/product_in2.jsp?pd_id=PD1640151884502
         # HF: 0.08, F-: 0.08, PO43-: None is not measured
         "MDL": {
             'HF': None, 'HCl': 0.05, 'HNO2': 0.01, 'HNO3': 0.05, 'G-SO2': 0.05, 'NH3': 0.1,
@@ -111,13 +80,10 @@ meta = {
         }
     },
 
-    "XRF": {
+    "Xact": {
         "pattern": ["*.csv"],
         "freq": "1h",
-        "deter_key": {
-            "Several trace element (Al, Si, Ti, V, Cr, Mn, Fe)": ["Al", "Si", "Ti", "V", "Cr", "Mn", "Fe"],
 
-        },
         # base on Xact 625i Minimum Decision Limit (MDL) for XRF in ng/m3, 60 min sample time
         "MDL": {
             'Al': 100, 'Si': 18, 'P': 5.2, 'S': 3.2, 'Cl': 1.7,
@@ -130,6 +96,11 @@ meta = {
             'Ba': 0.39, 'La': 0.36, 'Ce': 0.3, 'W': 0.0001, 'Pt': 0.12,
             'Au': 0.1, 'Hg': 0.12, 'Tl': 0.12, 'Pb': 0.13, 'Bi': 0.13
         }
+    },
+
+    "Q-ACSM": {
+        "pattern": ["*.csv"],
+        "freq": "30min",
     },
 
     "VOC": {
@@ -150,21 +121,15 @@ meta = {
             'Acetone', 'Butyl Acetate', 'Ethanol', 'Ethyl Acetate', 'Hexane', 'IPA', 'Iso-Propylbenzene',
             'PCE', 'Propene', 'TCE', 'VCM',
         ],
-        "deter_key": None,
     },
 
     "EPA": {
         "pattern": ["*.csv"],
         "freq": "1h",
-        "deter_key": {"Items": ["all"]},
     },
 
     "Minion": {
         "pattern": ["*.csv", "*.xlsx"],
         "freq": "1h",
-        "deter_key": {
-            "Main Salt (Na+, NH4+, Cl-, NO3-, SO42-)": ["Na+", "NH4+", "Cl-", "NO3-", "SO42-"],
-            "Several trace element (Al, Ti, V, Cr, Mn, Fe)": ["Al", "Ti", "V", "Cr", "Mn", "Fe"],
-        },
     },
 }

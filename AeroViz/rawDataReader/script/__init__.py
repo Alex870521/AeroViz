@@ -12,7 +12,7 @@ __all__ = [
     'TEOM',
     'OCEC',
     'IGAC',
-    'XRF',
+    'Xact',
     'VOC',
     'EPA',
     'Minion'

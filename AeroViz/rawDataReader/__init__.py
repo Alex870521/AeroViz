@@ -9,13 +9,6 @@ from AeroViz.rawDataReader.script import *
 
 __all__ = ['RawDataReader']
 
-SUPPORTED_INSTRUMENTS = [
-    NEPH, Aurora, SMPS, APS, GRIMM, AE33, AE43, BC1054,
-    MA350, BAM1020, TEOM, OCEC, IGAC, VOC, EPA, Minion
-]
-
-SIZE_RANGE_INSTRUMENTS = ['SMPS', 'APS', 'GRIMM']
-
 
 def RawDataReader(instrument: str,
                   path: Path | str,
@@ -94,6 +87,11 @@ def RawDataReader(instrument: str,
     FileNotFoundError
         If path does not exist or cannot be accessed
 
+    See Also
+    --------
+    AeroViz.rawDataReader.core.AbstractReader
+        A abstract reader class for reading raw data from different instruments
+
     Examples
     --------
     >>> from AeroViz import RawDataReader
@@ -125,6 +123,10 @@ def RawDataReader(instrument: str,
     """
 
     # Mapping of instrument names to their respective classes
+    SUPPORTED_INSTRUMENTS = [
+        NEPH, Aurora, SMPS, APS, GRIMM, AE33, AE43, BC1054,
+        MA350, BAM1020, TEOM, OCEC, IGAC, VOC, EPA, Minion
+    ]
     instrument_class_map = {cls.__name__.split('.')[-1]: cls for cls in SUPPORTED_INSTRUMENTS}
 
     # Check if the instrument name is in the map
@@ -179,6 +181,7 @@ def RawDataReader(instrument: str,
 
     # Validate size range
     if size_range is not None:
+        SIZE_RANGE_INSTRUMENTS = ['SMPS', 'APS', 'GRIMM']
         if instrument not in SIZE_RANGE_INSTRUMENTS:
             raise ValueError(f"Size range filtering is only supported for {SIZE_RANGE_INSTRUMENTS}")
 

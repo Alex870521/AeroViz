@@ -27,16 +27,16 @@ Built-in `RawDataReader` supporting multiple aerosol instruments:
 - **Chemical Analysis**: OCEC, IGAC, XRF, VOC
 
 > Features include quality control, data filtering, flexible resampling, and CSV export. For detailed instrument support
-> and usage, check our [RawDataReader Guide](https://alex870521.github.io/AeroViz/guide/RawDataReader/).
+> and usage, check our [RawDataReader API](https://alex870521.github.io/AeroViz/api/RawDataReader/).
 
 ### 🔬 Data Processing ▶ DataProcess
 
-Built-in `DataProcess` provides advanced aerosol analysis:
+Built-in `DataProcess` provides advanced aerosol analysis with specialized modules:
 
-- **Size Distribution**: Mode Fitting, Log-Normal Analysis
-- **Optical Properties**: Mie Theory, IMPROVE
-- **Chemical**: Mass Closure, Source Apportionment
-- **VOC**: OFP, SOAP
+- **SizeDistr**: Size distribution processing, SMPS-APS merge, mode statistics, lung deposition (ICRP 66)
+- **Optical**: Mie theory, IMPROVE extinction, RI retrieval, derived optical parameters
+- **Chemistry**: Mass reconstruction, volume/RI calculation, kappa, partition ratios
+- **VOC**: OFP, SOAP, MIR calculations
 
 ### 📈 Data Visualization ▶ plot
 

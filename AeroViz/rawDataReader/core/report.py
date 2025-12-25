@@ -368,8 +368,10 @@ def calculate_rates(logger, raw_data: pd.DataFrame, qc_flag: pd.Series,
     valid_mask = qc_flag == 'Valid'
     # 重採樣：計算每個時段內 Valid 的比例
     valid_ratio_per_period = valid_mask.resample(resample_freq).mean()
-    # 有效時段：該時段內有超過 50% 的資料通過 QC
-    qc_size = (valid_ratio_per_period > 0.5).sum()
+    # 確保只計算 raw_data 有資料的時段
+    has_data_mask = raw_data.resample(resample_freq).mean().notna().any(axis=1)
+    # 有效時段：該時段內有資料且超過 50% 通過 QC
+    qc_size = ((valid_ratio_per_period > 0.5) & has_data_mask).sum()
 
     # 防止除以零
     if period_size == 0:

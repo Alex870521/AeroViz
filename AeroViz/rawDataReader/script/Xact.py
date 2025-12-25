@@ -1,4 +1,4 @@
-from pandas import read_csv, to_datetime, to_numeric, Series
+from pandas import read_csv, to_datetime, to_numeric
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
 
@@ -24,7 +24,7 @@ class Reader(AbstractReader):
     ENV_COLUMNS = [
         'AT', 'SAMPLE_T', 'BP', 'TAPE', 'FLOW_25', 'FLOW_ACT', 'FLOW_STD', 'VOLUME',
         'TUBE_T', 'ENCLOSURE_T', 'FILAMENT_V', 'SDD_T', 'DPP_T', 'RH',
-        'WIND', 'WIND_DIR', 'SAMPLE_TIME', 'ALARM'
+        'WIND', 'WIND_DIR', 'SAMPLE_TIME', 'ALARM', 'SAMPLE_TYPE'
     ]
 
     # =========================================================================
@@ -59,6 +59,10 @@ class Reader(AbstractReader):
     MIN_VALUE = 0
     MAX_VALUE = 100000  # ng/m3
 
+    # Internal standard (Nb) QC parameters
+    INTERNAL_STD_ELEMENT = 'Nb'
+    INTERNAL_STD_TOLERANCE = 0.20  # ±20% from median
+
     def _raw_reader(self, file):
         """Read and parse raw Xact 625i XRF data files."""
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
@@ -71,6 +75,12 @@ class Reader(AbstractReader):
         _df['time'] = to_datetime(_df['TIME'], format='%m/%d/%Y %H:%M:%S', errors='coerce')
         _df = _df.set_index('time')
         _df = _df.loc[~_df.index.duplicated() & _df.index.notna()]
+
+        # Filter out calibration samples BEFORE rounding to avoid losing valid 00:30 samples
+        # Xact does daily QA checks at midnight (00:00-00:30), SAMPLE_TYPE: 1=normal, 2=calibration
+        if 'Sample Type' in _df.columns:
+            _df = _df[_df['Sample Type'] == 1]
+
         _df.index = _df.index.round('1h')
 
         # Rename environmental/status columns
@@ -93,6 +103,7 @@ class Reader(AbstractReader):
             'WIND DIR (deg)': 'WIND_DIR',
             'SAMPLE TIME (min)': 'SAMPLE_TIME',
             'ALARM': 'ALARM',
+            'Sample Type': 'SAMPLE_TYPE'
         }
 
         # Build element column rename map
@@ -128,19 +139,32 @@ class Reader(AbstractReader):
 
         QC Rules Applied
         ----------------
-        1. Instrument Error  : ALARM code 100-110 indicates instrument error
-        2. Upscale Warning   : ALARM code 200-203 indicates upscale warning
-        3. Invalid Value     : Element concentration outside valid range (0-100000 ng/m3)
-        4. High Uncertainty  : Measurement uncertainty > 50% of value
+        1. Calibration Mode      : SAMPLE_TYPE != 1 indicates zero calibration
+        2. Instrument Error      : ALARM code 100-110 indicates instrument error
+        3. Upscale Warning       : ALARM code 200-203 indicates upscale warning
+        4. Invalid Value         : Element concentration outside valid range (0-100000 ng/m3)
+        5. Internal Std Drift    : Nb internal standard deviates ±20% from median
         """
         _index = _df.index.copy()
         df_qc = _df.copy()
 
         # Get element columns (exclude uncertainty and environmental columns)
         element_cols = [col for col in df_qc.columns if col in self.ELEMENTS]
+        uncert_cols = [f'{elem}_uncert' for elem in element_cols if f'{elem}_uncert' in df_qc.columns]
 
         # Build QC rules declaratively
         qc = QCFlagBuilder()
+
+        # Add Calibration Mode rule (SAMPLE_TYPE: 1=normal sampling, 2=zero calibration)
+        # Note: Most calibration samples are already filtered in _raw_reader, this catches any remaining
+        if 'SAMPLE_TYPE' in df_qc.columns:
+            qc.add_rules([
+                QCRule(
+                    name='Calibration Mode',
+                    condition=lambda df: (df['SAMPLE_TYPE'] != 1) & df['SAMPLE_TYPE'].notna(),
+                    description='Instrument in calibration mode (SAMPLE_TYPE != 1)'
+                ),
+            ])
 
         # Add Instrument Error rule (ALARM codes 100-110)
         if 'ALARM' in df_qc.columns:
@@ -169,14 +193,18 @@ class Reader(AbstractReader):
                 ),
             ])
 
-        # Add High Uncertainty rule
-        uncert_cols = [f'{elem}_uncert' for elem in element_cols if f'{elem}_uncert' in df_qc.columns]
-        if uncert_cols:
+        # Add Internal Standard Drift rule (Nb)
+        if self.INTERNAL_STD_ELEMENT in df_qc.columns:
+            nb_median = df_qc[self.INTERNAL_STD_ELEMENT].median()
+            lower_bound = nb_median * (1 - self.INTERNAL_STD_TOLERANCE)
+            upper_bound = nb_median * (1 + self.INTERNAL_STD_TOLERANCE)
             qc.add_rules([
                 QCRule(
-                    name='High Uncertainty',
-                    condition=lambda df, elems=element_cols: self._check_high_uncertainty(df, elems),
-                    description='Measurement uncertainty > 50% of value'
+                    name='Internal Std Drift',
+                    condition=lambda df, lb=lower_bound, ub=upper_bound: (
+                            (df[self.INTERNAL_STD_ELEMENT] < lb) | (df[self.INTERNAL_STD_ELEMENT] > ub)
+                    ),
+                    description=f'{self.INTERNAL_STD_ELEMENT} internal standard outside ±{int(self.INTERNAL_STD_TOLERANCE * 100)}% of median ({nb_median:.2f} ng/m³)'
                 ),
             ])
 
@@ -192,16 +220,6 @@ class Reader(AbstractReader):
         # Get output columns: elements + uncertainties + environmental + QC_Flag
         output_cols = element_cols + uncert_cols + [c for c in self.ENV_COLUMNS if c in df_qc.columns] + ['QC_Flag']
         return df_qc[[c for c in output_cols if c in df_qc.columns]].reindex(_index)
-
-    def _check_high_uncertainty(self, df, element_cols):
-        """Check if uncertainty is > 50% of measured value."""
-        mask = Series(False, index=df.index)
-        for elem in element_cols:
-            uncert_col = f'{elem}_uncert'
-            if uncert_col in df.columns and elem in df.columns:
-                # Flag if uncertainty > 50% of value (and value > 0)
-                mask = mask | ((df[uncert_col] > 0.5 * df[elem]) & (df[elem] > 0))
-        return mask
 
     def decode_alarm(self, alarm_code):
         """Decode ALARM code to human-readable message.

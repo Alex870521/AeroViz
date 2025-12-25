@@ -122,16 +122,17 @@ def RawDataReader(instrument: str,
     ... )
     """
 
-    # Mapping of instrument names to their respective classes
-    SUPPORTED_INSTRUMENTS = [
-        NEPH, Aurora, SMPS, APS, GRIMM, AE33, AE43, BC1054,
-        MA350, BAM1020, TEOM, OCEC, IGAC, VOC, EPA, Minion
-    ]
-    instrument_class_map = {cls.__name__.split('.')[-1]: cls for cls in SUPPORTED_INSTRUMENTS}
+    # Dynamically build instrument class map from meta configuration
+    # This avoids hardcoding the list and automatically includes new instruments
+    import AeroViz.rawDataReader.script as script_module
+    instrument_class_map = {}
+    for instrument_name in meta.keys():
+        if hasattr(script_module, instrument_name):
+            instrument_class_map[instrument_name] = getattr(script_module, instrument_name)
 
     # Check if the instrument name is in the map
-    if instrument not in meta.keys():
-        raise KeyError(f"Instrument name '{instrument}' is not valid. \nMust be one of: {list(meta.keys())}")
+    if instrument not in instrument_class_map:
+        raise KeyError(f"Instrument name '{instrument}' is not valid. \nMust be one of: {list(instrument_class_map.keys())}")
 
     # Check if path exists and is a directory
     if not isinstance(path, Path):

@@ -33,6 +33,8 @@ class Reader(AbstractReader):
     # =========================================================================
     # Status Error Codes (bitwise flags)
     # =========================================================================
+    # Note: 128 and 256 are tape low warnings, not errors - data is still valid
+    # 384 (128+256) removed to avoid flagging tape warnings as errors
     ERROR_STATES = [
         1,     # Tape advance (tape advance, fast calibration, warm-up)
         2,     # First measurement – obtaining ATN0
@@ -40,7 +42,6 @@ class Reader(AbstractReader):
         4,     # Flow low/high by more than 0.5 LPM
         16,    # Calibrating LED
         32,    # Calibration error (at least one channel OK)
-        384,   # Tape error (tape not moving, end of tape)
         1024,  # Stability test
         2048,  # Clean air test
         4096,  # Optical test

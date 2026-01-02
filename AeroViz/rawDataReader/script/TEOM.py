@@ -110,6 +110,8 @@ class Reader(AbstractReader):
                 self._status_data = status_col
             else:
                 self._status_data = concat([self._status_data, status_col])
+                # Remove duplicates to prevent reindex error
+                self._status_data = self._status_data.loc[~self._status_data.index.duplicated()]
 
         return _df
 

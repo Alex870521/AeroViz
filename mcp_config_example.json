@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "aeroviz": {
+      "command": "python",
+      "args": ["/Users/chanchihyu/PycharmProjects/AeroViz/AeroViz/mcp_server.py"],
+      "env": {
+        "PYTHONPATH": "/Users/chanchihyu/PycharmProjects/AeroViz"
+      }
+    }
+  }
+}

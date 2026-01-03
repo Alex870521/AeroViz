@@ -5,12 +5,44 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "AeroViz"
 version = "0.1.20"
-description = "Aerosol science"
-authors = [{ name = "alex", email = "alex870521@gmail.com" }]
+description = "Aerosol data processing and visualization toolkit. Read, QC, and analyze data from SMPS, APS, AE33, TEOM, Nephelometer, XRF, and 15+ atmospheric instruments."
+authors = [{ name = "Alex Chan", email = "alex870521@gmail.com" }]
 license = { text = "MIT" }
 readme = "README.md"
 requires-python = ">=3.10"
+keywords = [
+    # Core functionality
+    "aerosol",
+    "atmospheric-science",
+    "air-quality",
+    "data-processing",
+    "visualization",
+    # Measurements
+    "PM2.5",
+    "PM10",
+    "black-carbon",
+    "particle-size-distribution",
+    "optical-properties",
+    # Instruments
+    "SMPS",
+    "APS",
+    "aethalometer",
+    "nephelometer",
+    "TEOM",
+    "XRF",
+    "OC-EC",
+    # Applications
+    "environmental-monitoring",
+    "research",
+    "quality-control",
+]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Chemistry",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -53,12 +85,18 @@ docs = [
     "mkdocstrings[python]>=0.18.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/Alex870521/AeroViz"
+Documentation = "https://alex870521.github.io/AeroViz/"
+Repository = "https://github.com/Alex870521/AeroViz"
+Issues = "https://github.com/Alex870521/AeroViz/issues"
+Changelog = "https://github.com/Alex870521/AeroViz/blob/main/docs/CHANGELOG.md"
+
 [tool.pytest.ini_options]
 pythonpath = "."
 markers = [
     "requires_data: marks tests that require actual data files",
 ]
-
 
 [tool.commitizen]
 name = "cz_conventional_commits"
@@ -69,12 +107,6 @@ version_provider = "pep621"
 update_changelog_on_bump = true
 major_version_zero = true
 
-[project.urls]
-Homepage = "https://github.com/Alex870521/AeroViz"
-Repository = "https://github.com/Alex870521/AeroViz"
-Issues = "https://github.com/Alex870521/AeroViz/issues"
-
-# 只保留一個 setuptools 配置部分
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["AeroViz*"]

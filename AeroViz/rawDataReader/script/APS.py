@@ -88,42 +88,76 @@ class Reader(AbstractReader):
         Handles files with multiple concatenated headers (when multiple APS export
         files are merged into one). Header rows are identified and filtered out.
         """
+        import csv
+
+        def find_header_row(file_obj, delimiter):
+            csv_reader = csv.reader(file_obj, delimiter=delimiter)
+            for skip, row in enumerate(csv_reader):
+                if row and row[0] == 'Sample #':
+                    return skip
+            raise ValueError("Header row not found")
+
+        def parse_date(df, date_format):
+            if 'Date' in df.columns and 'Start Time' in df.columns:
+                return to_datetime(df['Date'] + ' ' + df['Start Time'], format=date_format, errors='coerce')
+            else:
+                raise ValueError("Expected date columns not found")
+
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            try:
-                # Try normal reading first
-                _df_full = read_table(f, skiprows=6, parse_dates={'Time': ['Date', 'Start Time']},
-                                      date_format='%m/%d/%y %H:%M:%S', low_memory=False).set_index('Time')
-            except:
-                # File is transposed, re-read
-                f.seek(0)
-                raw_df = read_table(f, skiprows=6, low_memory=False, index_col='Sample #')
-                _df_full = raw_df.T
-                _df_full.columns.name = None
+            delimiter, date_formats = '\t', ['%m/%d/%y %H:%M:%S', '%m/%d/%Y %H:%M:%S']
 
-                if 'Date' in _df_full.columns and 'Start Time' in _df_full.columns:
-                    datetime_str = _df_full['Date'] + ' ' + _df_full['Start Time']
-                    df_idx = to_datetime(datetime_str, format='%m/%d/%y %H:%M:%S', errors='coerce')
-                    _df_full.index = df_idx
-                    _df_full.index.name = 'Time'
-                    _df_full.drop('Date', axis=1, inplace=True)
+            skip = find_header_row(f, delimiter)
+            f.seek(0)
 
-            # Index is already datetime from try/except block above
-            # Filter out invalid timestamps (NaT from embedded headers)
-            _df_full = _df_full.loc[_df_full.index.notna()]
-            # Remove duplicate indices (keep first occurrence)
-            dup_mask = _df_full.index.duplicated(keep=False)
-            if dup_mask.any():
-                print(f"File: {file.name} - Duplicated indices: {_df_full.index[dup_mask].unique().tolist()}")
-            _df_full = _df_full[~_df_full.index.duplicated(keep='first')]
+            _df = read_table(f, sep=delimiter, skiprows=skip, low_memory=False)
 
-            # Now extract size bins (542 nm ~ 1981 nm, columns 3 to 54)
-            _df = _df_full.iloc[:, 3:54].rename(columns=lambda x: round(float(x), 4))
+            # Handle transposed format
+            if 'Date' not in _df.columns:
+                try:
+                    _df = _df.set_index('Sample #').T
+                    _df.columns.name = None
+                    _df = _df.reset_index(drop=True)
+                except:
+                    raise NotImplementedError('Not supported data format')
+
+            # Parse date with multiple formats
+            for date_format in date_formats:
+                _time_index = parse_date(_df, date_format)
+                if not _time_index.isna().all():
+                    break
+            else:
+                raise ValueError("Unable to parse dates with given formats")
+
+            # Set time index
+            _df.index = _time_index
+            _df.index.name = 'time'
+
+            # Filter numeric columns (size bins ~542nm to ~1981nm)
+            numeric_cols = []
+            for col in _df.columns:
+                col_str = str(col).strip()
+                # Check if it's a numeric column (float-like)
+                try:
+                    val = float(col_str)
+                    if 0.5 <= val <= 20:  # APS size range in μm
+                        numeric_cols.append(col)
+                except (ValueError, TypeError):
+                    pass
+            numeric_cols.sort(key=lambda x: float(str(x).strip()))
+
+            _df_aps = _df[numeric_cols].copy()
+
+            # Filter out invalid timestamps (NaT from embedded headers in merged files)
+            _df_aps = _df_aps.loc[_df_aps.index.dropna().copy()]
+
+            # Rename columns to float values
+            _df_aps.columns = [round(float(str(col).strip()), 4) for col in _df_aps.columns]
 
             # Include Status Flags column in _df (will be processed by core together)
-            if self.STATUS_COLUMN in _df_full.columns:
-                _df[self.STATUS_COLUMN] = _df_full[self.STATUS_COLUMN].astype(str).str.strip()
+            if self.STATUS_COLUMN in _df.columns:
+                _df_aps[self.STATUS_COLUMN] = _df.loc[_df_aps.index, self.STATUS_COLUMN].astype(str).str.strip()
 
-        return _df
+            return _df_aps
 
     def _QC(self, _df):
         """

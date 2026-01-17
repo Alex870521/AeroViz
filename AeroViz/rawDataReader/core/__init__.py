@@ -327,6 +327,12 @@ class AbstractReader(ABC):
         -----
         Handles time range filtering and data appending.
         """
+        # Ensure index is DatetimeIndex
+        if not isinstance(_df.index, pd.DatetimeIndex):
+            _df.index = pd.to_datetime(_df.index, errors='coerce')
+            # Filter out rows with invalid timestamps (NaT)
+            _df = _df.loc[_df.index.notna()]
+
         # Round timestamps and remove duplicates
         _df = _df.groupby(_df.index.floor('1min')).first()
 

@@ -1,10 +1,178 @@
 import os
+from datetime import datetime, timedelta
 
 import pandas as pd
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
+from rich.panel import Panel
+
+
+def print_timeline_visual(timeline_data: list, start_date: str = None, end_date: str = None,
+                          width: int = 80, show_details: bool = True) -> None:
+    """
+    Print a visual representation of the timeline to the console.
+
+    Parameters
+    ----------
+    timeline_data : list
+        List of timeline entries with 'start', 'end', 'status', 'reason', 'duration' keys.
+    start_date : str, optional
+        Overall start date (format: 'YYYY/MM/DD HH:MM').
+    end_date : str, optional
+        Overall end date (format: 'YYYY/MM/DD HH:MM').
+    width : int, default 80
+        Width of the timeline bar in characters.
+    show_details : bool, default True
+        Whether to show detailed downtime information.
+
+    Notes
+    -----
+    Creates a visual bar showing operational (green) and down (red) periods,
+    followed by a summary table of downtime events.
+    """
+    if not timeline_data:
+        return
+
+    console = Console(force_terminal=True)
+
+    # Parse dates
+    def parse_date(date_str):
+        try:
+            return datetime.strptime(date_str, '%Y/%m/%d %H:%M')
+        except ValueError:
+            return datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+
+    # Get time range
+    if start_date and end_date:
+        total_start = parse_date(start_date)
+        total_end = parse_date(end_date)
+    else:
+        all_times = []
+        for entry in timeline_data:
+            all_times.append(parse_date(entry['start']))
+            all_times.append(parse_date(entry['end']))
+        total_start = min(all_times)
+        total_end = max(all_times)
+
+    total_duration = (total_end - total_start).total_seconds()
+    if total_duration <= 0:
+        return
+
+    # Build visual bar
+    bar_chars = [' '] * width
+
+    for entry in timeline_data:
+        entry_start = parse_date(entry['start'])
+        entry_end = parse_date(entry['end'])
+
+        # Calculate positions
+        start_pos = int(((entry_start - total_start).total_seconds() / total_duration) * width)
+        end_pos = int(((entry_end - total_start).total_seconds() / total_duration) * width)
+
+        start_pos = max(0, min(width - 1, start_pos))
+        end_pos = max(0, min(width, end_pos))
+
+        char = '█' if entry['status'] == 'operational' else '░'
+        for i in range(start_pos, end_pos):
+            bar_chars[i] = char
+
+    # Create colored bar
+    bar_text = Text()
+    current_char = None
+    current_count = 0
+
+    for char in bar_chars:
+        if char == current_char:
+            current_count += 1
+        else:
+            if current_char is not None:
+                color = 'green' if current_char == '█' else 'red'
+                bar_text.append(current_char * current_count, style=color)
+            current_char = char
+            current_count = 1
+
+    if current_char is not None:
+        color = 'green' if current_char == '█' else 'red'
+        bar_text.append(current_char * current_count, style=color)
+
+    # Calculate statistics
+    operational_hours = 0
+    down_hours = 0
+    down_events = []
+
+    for entry in timeline_data:
+        entry_start = parse_date(entry['start'])
+        entry_end = parse_date(entry['end'])
+        duration_hours = (entry_end - entry_start).total_seconds() / 3600
+
+        if entry['status'] == 'operational':
+            operational_hours += duration_hours
+        else:
+            down_hours += duration_hours
+            down_events.append(entry)
+
+    total_hours = operational_hours + down_hours
+    uptime_pct = (operational_hours / total_hours * 100) if total_hours > 0 else 0
+
+    # Print header
+    console.print()
+    console.print(f"[bold cyan]Data Timeline[/bold cyan]")
+    console.print(f"[dim]{total_start.strftime('%Y/%m/%d')} → {total_end.strftime('%Y/%m/%d')}[/dim]")
+    console.print()
+
+    # Print bar with date markers
+    console.print(f"[dim]{total_start.strftime('%m/%d')}[/dim]", end="")
+    padding = width - 10
+    console.print(" " * (padding // 2), end="")
+    console.print(f"[dim]{total_end.strftime('%m/%d')}[/dim]")
+
+    # Print the bar
+    console.print("[", end="")
+    console.print(bar_text, end="")
+    console.print("]")
+
+    # Print legend
+    console.print()
+    console.print(Text("█ Operational", style="green"), end="  ")
+    console.print(Text("░ Down", style="red"))
+
+    # Print summary
+    console.print()
+    console.print(f"[bold]Summary:[/bold]")
+    console.print(f"  • Uptime: [green]{uptime_pct:.1f}%[/green] ({operational_hours:.1f} hours)")
+    console.print(f"  • Downtime: [red]{100-uptime_pct:.1f}%[/red] ({down_hours:.1f} hours)")
+    console.print(f"  • Down events: {len(down_events)}")
+
+    # Print detailed downtime table if requested
+    if show_details and down_events:
+        console.print()
+        table = Table(title="Downtime Events", show_header=True, header_style="bold magenta")
+        table.add_column("Start", style="dim")
+        table.add_column("End", style="dim")
+        table.add_column("Duration", justify="right")
+        table.add_column("Reason", style="yellow")
+
+        # Only show first 10 events to avoid clutter
+        display_events = down_events[:10]
+        for event in display_events:
+            table.add_row(
+                event['start'],
+                event['end'],
+                event.get('duration', 'N/A'),
+                event.get('reason', 'Unknown')
+            )
+
+        if len(down_events) > 10:
+            table.add_row("...", "...", "...", f"(+{len(down_events) - 10} more events)")
+
+        console.print(table)
+
+    console.print()
 
 
 def process_timeline_report(report_dict: dict, df: pd.DataFrame, max_gap_hours: int = 2,
-                            logger=None) -> dict:
+                            logger=None, show_visual: bool = True) -> dict:
     """
     Process instrument data and generate timeline data showing operational status.
 
@@ -19,6 +187,8 @@ def process_timeline_report(report_dict: dict, df: pd.DataFrame, max_gap_hours: 
         rather than brief downtime.
     logger : Logger, optional
         Logger object to use for logging messages. If None, print statements are used.
+    show_visual : bool, default True
+        If True, prints a visual timeline to the console showing operational/down periods.
 
     Returns
     -------
@@ -31,6 +201,12 @@ def process_timeline_report(report_dict: dict, df: pd.DataFrame, max_gap_hours: 
     The function detects data gaps based on whether any data exists in each row.
     Known issues are loaded from a YAML configuration file and matched against
     detected downtime periods to provide specific reason information.
+
+    When show_visual=True, a graphical timeline is displayed in the console showing:
+    - Green blocks for operational periods
+    - Red blocks for downtime periods
+    - Summary statistics (uptime percentage, downtime hours, event count)
+    - Detailed table of downtime events with reasons
     """
 
     # Helper function for logging
@@ -231,6 +407,15 @@ def process_timeline_report(report_dict: dict, df: pd.DataFrame, max_gap_hours: 
 
     # 將結果添加到報告中
     report_dict['timeline'] = status_changes
+
+    # Print visual timeline if requested
+    if show_visual and status_changes:
+        print_timeline_visual(
+            status_changes,
+            start_date=report_dict.get('startDate'),
+            end_date=report_dict.get('endDate'),
+            show_details=True
+        )
 
     return report_dict
 

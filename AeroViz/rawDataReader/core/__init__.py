@@ -13,7 +13,7 @@ from rich.progress import Progress, TextColumn, BarColumn, SpinnerColumn, TaskPr
 from AeroViz.rawDataReader.config.supported_instruments import meta
 from AeroViz.rawDataReader.core.logger import ReaderLogger
 from AeroViz.rawDataReader.core.qc import QualityControl, QCRule, QCFlagBuilder
-from AeroViz.rawDataReader.core.report import calculate_rates, process_rates_report, process_timeline_report
+from AeroViz.rawDataReader.core.report import calculate_rates, process_rates_report, process_timeline_report, print_timeline_visual
 
 __all__ = ['AbstractReader', 'QCRule', 'QCFlagBuilder']
 

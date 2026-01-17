@@ -18,9 +18,9 @@ class Reader(AbstractReader):
     # =========================================================================
     # QC Thresholds
     # =========================================================================
-    MIN_HOURLY_COUNT = 5      # Minimum measurements per hour
-    MIN_TOTAL_CONC = 1        # Minimum total concentration (#/cm³)
-    MAX_TOTAL_CONC = 700      # Maximum total concentration (#/cm³)
+    MIN_HOURLY_COUNT = 5  # Minimum measurements per hour
+    MIN_TOTAL_CONC = 1  # Minimum total concentration (#/cm³)
+    MAX_TOTAL_CONC = 700  # Maximum total concentration (#/cm³)
 
     # Status Flags column name
     STATUS_COLUMN = 'Status Flags'
@@ -44,7 +44,6 @@ class Reader(AbstractReader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._status_data = None  # Store status flag data separately
         self._distributions = None  # Store distributions for separate file output
 
     def __call__(self, start, end, mean_freq='1h'):
@@ -83,32 +82,12 @@ class Reader(AbstractReader):
 
         return result_stats
 
-    @staticmethod
-    def _parse_status_flags(status_str):
-        """
-        Parse APS binary status flags string to integer.
-
-        Parameters
-        ----------
-        status_str : str
-            Status flags in binary format, e.g., "0000 0000 0000 0000"
-
-        Returns
-        -------
-        int
-            Integer value of the status flags (0 if normal)
-        """
-        if not isinstance(status_str, str) or status_str in ('nan', ''):
-            return 0
-        # Remove spaces and convert binary string to integer
-        binary_str = status_str.replace(' ', '')
-        try:
-            return int(binary_str, 2)
-        except ValueError:
-            return 0
-
     def _raw_reader(self, file):
-        """Read and parse raw APS data files."""
+        """Read and parse raw APS data files.
+
+        Handles files with multiple concatenated headers (when multiple APS export
+        files are merged into one). Header rows are identified and filtered out.
+        """
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             try:
                 # Try normal reading first
@@ -128,24 +107,21 @@ class Reader(AbstractReader):
                     _df_full.index.name = 'Time'
                     _df_full.drop('Date', axis=1, inplace=True)
 
-            # 542 nm ~ 1981 nm (columns 3 to 54)
+            # Index is already datetime from try/except block above
+            # Filter out invalid timestamps (NaT from embedded headers)
+            _df_full = _df_full.loc[_df_full.index.notna()]
+            # Remove duplicate indices (keep first occurrence)
+            dup_mask = _df_full.index.duplicated(keep=False)
+            if dup_mask.any():
+                print(f"File: {file.name} - Duplicated indices: {_df_full.index[dup_mask].unique().tolist()}")
+            _df_full = _df_full[~_df_full.index.duplicated(keep='first')]
+
+            # Now extract size bins (542 nm ~ 1981 nm, columns 3 to 54)
             _df = _df_full.iloc[:, 3:54].rename(columns=lambda x: round(float(x), 4))
-            _df_idx = to_datetime(_df.index, format='%m/%d/%y %H:%M:%S', errors='coerce')
 
-            _df = _df.set_index(_df_idx).loc[_df_idx.dropna()]
-
-            # Extract Status Flags column if available (store separately, not in main df)
+            # Include Status Flags column in _df (will be processed by core together)
             if self.STATUS_COLUMN in _df_full.columns:
-                status_col = _df_full[self.STATUS_COLUMN].copy()
-                status_col = status_col.astype(str).str.strip()
-                status_col.index = _df_idx
-                status_col = status_col.reindex(_df.index)
-                # Accumulate status data
-                if self._status_data is None:
-                    self._status_data = status_col
-                else:
-                    from pandas import concat
-                    self._status_data = concat([self._status_data, status_col])
+                _df[self.STATUS_COLUMN] = _df_full[self.STATUS_COLUMN].astype(str).str.strip()
 
         return _df
 
@@ -162,19 +138,13 @@ class Reader(AbstractReader):
         _df = _df.copy()
         _index = _df.index.copy()
 
-        # Get status flag from instance variable (populated during _raw_reader)
-        status_flag = None
-        if self._status_data is not None:
-            # Align status data with current dataframe index
-            status_flag = self._status_data.reindex(_df.index)
-
-        # Filter to numeric columns only
+        # Filter to numeric columns only (exclude Status Flags)
         numeric_cols = [col for col in _df.columns if isinstance(col, (int, float))]
-        _df = _df[numeric_cols]
+        df_numeric = _df[numeric_cols]
 
         # Calculate total concentration
-        dlogDp = np.diff(np.log(_df.columns.to_numpy(float))).mean()
-        total_conc = _df.sum(axis=1, min_count=1) * dlogDp
+        dlogDp = np.diff(np.log(df_numeric.columns.to_numpy(float))).mean()
+        total_conc = df_numeric.sum(axis=1, min_count=1) * dlogDp
 
         # Calculate hourly data counts
         hourly_counts = (total_conc
@@ -183,26 +153,19 @@ class Reader(AbstractReader):
                          .size()
                          .resample('6min')
                          .ffill()
-                         .reindex(_df.index, method='ffill', tolerance='6min'))
+                         .reindex(df_numeric.index, method='ffill', tolerance='6min'))
 
         # Build QC rules declaratively
         qc = QCFlagBuilder()
 
-        # Add Status Error rule if status flag is available
-        if status_flag is not None:
-            # Parse binary status flags to integer values
-            status_values = status_flag.apply(self._parse_status_flags)
-
-            # Use default argument to capture status_values for proper type inference
-            qc.add_rules([
-                QCRule(
-                    name='Status Error',
-                    condition=lambda df, sv=status_values: Series(sv > 0, index=df.index).fillna(False),
-                    description='Non-zero status flags indicate instrument error'
-                ),
-            ])
-
         qc.add_rules([
+            QCRule(
+                name='Status Error',
+                condition=lambda df: self.QC_control().filter_error_status(
+                    _df, status_column=self.STATUS_COLUMN, status_type='binary_string'
+                ),
+                description='Non-zero status flags indicate instrument error'
+            ),
             QCRule(
                 name='Insufficient',
                 condition=lambda df: Series(hourly_counts < self.MIN_HOURLY_COUNT, index=df.index).fillna(True),
@@ -288,9 +251,9 @@ class Reader(AbstractReader):
 
         # Size cutoffs in μm (APS bins are in μm)
         SIZE_CUTOFFS = {
-            '1um': 1.0,     # 1 μm
-            '2.5um': 2.5,   # 2.5 μm
-            'all': np.inf   # All particles
+            '1um': 1.0,  # 1 μm
+            '2.5um': 2.5,  # 2.5 μm
+            'all': np.inf  # All particles
         }
 
         # Calculate for each weighting type and size cutoff

@@ -32,7 +32,6 @@ class Reader(AbstractReader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._status_data = None  # Store status flag data separately
         self._distributions = None  # Store distributions for separate file output
 
     def __call__(self, start, end, mean_freq='1h'):
@@ -143,17 +142,9 @@ class Reader(AbstractReader):
 
             _df_smps = _df_smps.apply(to_numeric, errors='coerce')
 
-            # Extract Status Flag column if available (store separately, not in main df)
+            # Include Status Flag column in _df (will be processed by core together)
             if self.STATUS_COLUMN in _df.columns:
-                # Get status values aligned with the filtered index
-                status_col = _df.loc[_df_smps.index, self.STATUS_COLUMN].copy()
-                # Clean status: strip whitespace
-                status_col = status_col.astype(str).str.strip()
-                # Accumulate status data
-                if self._status_data is None:
-                    self._status_data = status_col
-                else:
-                    self._status_data = concat([self._status_data, status_col])
+                _df_smps[self.STATUS_COLUMN] = _df.loc[_df_smps.index, self.STATUS_COLUMN].astype(str).str.strip()
 
             return _df_smps
 
@@ -171,22 +162,16 @@ class Reader(AbstractReader):
         _df = _df.copy()
         _index = _df.index.copy()
 
-        # Get status flag from instance variable (populated during _raw_reader)
-        status_flag = None
-        if self._status_data is not None:
-            # Align status data with current dataframe index
-            status_flag = self._status_data.reindex(_df.index)
-
         # Apply size range filter
         size_range = self.kwargs.get('size_range') or (11.8, 593.5)
         numeric_cols = [col for col in _df.columns if isinstance(col, (int, float))]
-        _df = _df[numeric_cols]
-        size_mask = (_df.columns.astype(float) >= size_range[0]) & (_df.columns.astype(float) <= size_range[1])
-        _df = _df.loc[:, size_mask]
+        df_numeric = _df[numeric_cols]
+        size_mask = (df_numeric.columns.astype(float) >= size_range[0]) & (df_numeric.columns.astype(float) <= size_range[1])
+        df_numeric = df_numeric.loc[:, size_mask]
 
         # Calculate total concentration for QC checks
-        dlogDp = np.diff(np.log(_df.columns[:-1].to_numpy(float))).mean()
-        total_conc = _df.sum(axis=1, min_count=1) * dlogDp
+        dlogDp = np.diff(np.log(df_numeric.columns[:-1].to_numpy(float))).mean()
+        total_conc = df_numeric.sum(axis=1, min_count=1) * dlogDp
 
         # Calculate hourly data counts
         hourly_counts = (total_conc
@@ -195,29 +180,22 @@ class Reader(AbstractReader):
                          .size()
                          .resample('6min')
                          .ffill()
-                         .reindex(_df.index, method='ffill', tolerance='6min'))
+                         .reindex(df_numeric.index, method='ffill', tolerance='6min'))
 
         # Get large bins (>400nm)
-        large_bins = _df.columns[_df.columns.astype(float) >= self.LARGE_BIN_THRESHOLD]
+        large_bins = df_numeric.columns[df_numeric.columns.astype(float) >= self.LARGE_BIN_THRESHOLD]
 
         # Build QC rules declaratively
         qc = QCFlagBuilder()
 
-        # Add Status Error rule if status flag is available
-        if status_flag is not None:
-            # Use default argument to capture status_flag value for proper type inference
-            qc.add_rules([
-                QCRule(
-                    name='Status Error',
-                    condition=lambda df, sf=status_flag: Series(
-                        (sf != self.STATUS_OK) & (sf != '') & (sf != 'nan') & sf.notna(),
-                        index=df.index
-                    ).fillna(False),
-                    description=f'Status flag is not "{self.STATUS_OK}"'
-                ),
-            ])
-
         qc.add_rules([
+            QCRule(
+                name='Status Error',
+                condition=lambda df: self.QC_control().filter_error_status(
+                    _df, status_column=self.STATUS_COLUMN, status_type='text', ok_value=self.STATUS_OK
+                ),
+                description=f'Status flag is not "{self.STATUS_OK}"'
+            ),
             QCRule(
                 name='Insufficient',
                 condition=lambda df: Series(hourly_counts < self.MIN_HOURLY_COUNT, index=df.index).fillna(True),

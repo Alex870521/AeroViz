@@ -32,7 +32,6 @@ class Reader(AbstractReader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._status_data = None  # Store status flag data separately
 
     def _raw_reader(self, file):
         """
@@ -101,18 +100,6 @@ class Reader(AbstractReader):
         # Remove duplicates and NaN indices
         _df = _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
-        # Store status data separately
-        if self.STATUS_COLUMN in _df.columns:
-            status_col = _df[self.STATUS_COLUMN].astype('Int64')
-
-            # Accumulate status data
-            if self._status_data is None:
-                self._status_data = status_col
-            else:
-                self._status_data = concat([self._status_data, status_col])
-                # Remove duplicates to prevent reindex error
-                self._status_data = self._status_data.loc[~self._status_data.index.duplicated()]
-
         return _df
 
     def _QC(self, _df):
@@ -131,12 +118,6 @@ class Reader(AbstractReader):
         """
         _index = _df.index.copy()
 
-        # Get status flag from instance variable (populated during _raw_reader)
-        status_flag = None
-        if self._status_data is not None:
-            # Align status data with current dataframe index
-            status_flag = self._status_data.reindex(_df.index)
-
         # Pre-process: calculate Volatile_Fraction
         _df['Volatile_Fraction'] = ((_df['PM_Total'] - _df['PM_NV']) / _df['PM_Total']).__round__(4)
         df_qc = _df.copy()
@@ -144,21 +125,14 @@ class Reader(AbstractReader):
         # Build QC rules declaratively
         qc = QCFlagBuilder()
 
-        # Add Status Error rule if status flag is available
-        if status_flag is not None:
-            # Use default argument to capture status_flag value for proper type inference
-            qc.add_rules([
-                QCRule(
-                    name='Status Error',
-                    condition=lambda df, sf=status_flag: Series(
-                        (sf != self.STATUS_OK) & sf.notna(),
-                        index=df.index
-                    ).fillna(False),
-                    description=f'Status code is not {self.STATUS_OK} (non-zero indicates error)'
-                ),
-            ])
-
         qc.add_rules([
+            QCRule(
+                name='Status Error',
+                condition=lambda df: self.QC_control().filter_error_status(
+                    _df, status_column=self.STATUS_COLUMN, status_type='numeric', ok_value=self.STATUS_OK
+                ),
+                description=f'Status code is not {self.STATUS_OK} (non-zero indicates error)'
+            ),
             QCRule(
                 name='High Noise',
                 condition=lambda df: df['noise'] >= self.MAX_NOISE,

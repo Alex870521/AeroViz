@@ -205,3 +205,77 @@ class Optical(Writer):
         )
 
         return self, out
+
+    @run_process('Optical - BrC', 'BrC')
+    def BrC(self, df_abs, wavelengths=None, ref_wavelength=880, aae_bc=1.0):
+        """
+        Calculate Brown Carbon (BrC) absorption by separating BC and BrC contributions.
+
+        This method uses the AAE-based separation approach:
+        1. Assume Black Carbon (BC) has AAE = 1.0 (or user-specified value)
+        2. Absorption at 880nm is entirely from BC (reference wavelength)
+        3. Calculate BC absorption at shorter wavelengths using power law
+        4. BrC absorption = Total absorption - BC absorption
+        5. Calculate BrC AAE from the derived spectrum
+
+        Parameters
+        ----------
+        df_abs : DataFrame
+            Absorption coefficient data with columns like 'abs_370', 'abs_470',
+            'abs_520', 'abs_590', 'abs_660', 'abs_880'.
+            Units should be Mm-1.
+        wavelengths : list[int], optional
+            Wavelengths to calculate BrC absorption for.
+            Default: [370, 470, 520, 590, 660]
+        ref_wavelength : int, default=880
+            Reference wavelength (nm) assumed to be purely BC absorption.
+        aae_bc : float, default=1.0
+            Absorption Ångström Exponent for Black Carbon.
+            Typical range: 0.8-1.1 for fresh BC.
+
+        Returns
+        -------
+        DataFrame
+            - abs_BC_{wl}: BC absorption at each wavelength (Mm-1)
+            - abs_BrC_{wl}: BrC absorption at each wavelength (Mm-1, NaN if invalid)
+            - BrC_fraction_{wl}: BrC contribution fraction (0-1, NaN if invalid)
+            - AAE_BrC: BrC Absorption Ångström Exponent (NaN if invalid)
+
+        Examples
+        --------
+        >>> from AeroViz import RawDataReader, DataProcess
+        >>> # Read AE33 data (has multi-wavelength absorption)
+        >>> ae33 = RawDataReader(instrument='AE33', path='/data/AE33',
+        ...                       start='2024-01-01', end='2024-01-31')
+        >>> # Calculate BrC
+        >>> optical = DataProcess(method='Optical')
+        >>> brc_result = optical.BrC(ae33)
+        >>> # Check valid data (non-NaN)
+        >>> valid_brc = brc_result['AAE_BrC'].dropna()
+        >>> print(valid_brc.mean())
+
+        Notes
+        -----
+        The separation assumes AAE_BC ≈ 1.0 based on Mie theory for graphitic
+        carbon. Real BC may have slightly different AAE depending on mixing
+        state and size distribution.
+
+        **Validity check**: If calculated BC absorption exceeds total absorption
+        at ANY wavelength, the entire row is marked as invalid (NaN for all
+        BrC-related values). This indicates the AAE=1 assumption is not valid.
+
+        References
+        ----------
+        - Lack & Langridge (2013), ACP 13:8321-8341
+        - Kirchstetter et al. (2004), JGR 109:D21208
+        """
+        from ._derived import calculate_BrC_absorption
+
+        out = calculate_BrC_absorption(
+            df_abs=df_abs,
+            wavelengths=wavelengths,
+            ref_wavelength=ref_wavelength,
+            aae_bc=aae_bc
+        )
+
+        return self, out

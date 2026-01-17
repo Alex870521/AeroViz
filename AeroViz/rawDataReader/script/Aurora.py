@@ -35,7 +35,6 @@ class Reader(AbstractReader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._status_data = None  # Store status flag data separately
 
     def _raw_reader(self, file):
         """
@@ -83,18 +82,12 @@ class Reader(AbstractReader):
                 break
 
         _df_out = _df[['B', 'G', 'R', 'BB', 'BG', 'BR']].apply(pd.to_numeric, errors='coerce')
-        _df_out = _df_out.loc[~_df_out.index.duplicated() & _df_out.index.notna()]
 
-        # Store status data separately if available
+        # Include status column in _df (will be processed by core together)
         if status_col_name is not None:
-            status_col = pd.to_numeric(_df[status_col_name], errors='coerce').astype('Int64')
-            status_col = status_col.reindex(_df_out.index)
+            _df_out[self.STATUS_COLUMN] = pd.to_numeric(_df[status_col_name], errors='coerce').astype('Int64')
 
-            # Accumulate status data
-            if self._status_data is None:
-                self._status_data = status_col
-            else:
-                self._status_data = concat([self._status_data, status_col])
+        _df_out = _df_out.loc[~_df_out.index.duplicated() & _df_out.index.notna()]
 
         return _df_out
 
@@ -115,33 +108,20 @@ class Reader(AbstractReader):
         _index = _df.index.copy()
         df_qc = _df.copy()
 
-        # Get status flag from instance variable (populated during _raw_reader)
-        status_flag = None
-        if self._status_data is not None:
-            # Align status data with current dataframe index
-            status_flag = self._status_data.reindex(_df.index)
-
         # Identify rows with all data missing (handled separately)
         all_missing_mask = df_qc[self.SCAT_COLUMNS].isna().all(axis=1)
 
         # Build QC rules declaratively
         qc = QCFlagBuilder()
 
-        # Add Status Error rule if status flag is available
-        if status_flag is not None:
-            # Use default argument to capture status_flag value for proper type inference
-            qc.add_rules([
-                QCRule(
-                    name='Status Error',
-                    condition=lambda df, sf=status_flag: Series(
-                        (sf != self.STATUS_OK) & sf.notna(),
-                        index=df.index
-                    ).fillna(False),
-                    description=f'Status code is not {self.STATUS_OK} (non-zero indicates error)'
-                ),
-            ])
-
         qc.add_rules([
+            QCRule(
+                name='Status Error',
+                condition=lambda df: self.QC_control().filter_error_status(
+                    _df, status_column=self.STATUS_COLUMN, status_type='numeric', ok_value=self.STATUS_OK
+                ),
+                description=f'Status code is not {self.STATUS_OK} (non-zero indicates error)'
+            ),
             QCRule(
                 name='No Data',
                 condition=lambda df: Series(all_missing_mask, index=df.index),

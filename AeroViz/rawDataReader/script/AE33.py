@@ -21,6 +21,7 @@ class Reader(AbstractReader):
     BC_COLUMNS = ['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7']
     ABS_COLUMNS = ['abs_370', 'abs_470', 'abs_520', 'abs_590', 'abs_660', 'abs_880', 'abs_950']
     CAL_COLUMNS = ['abs_550', 'AAE', 'eBC']
+    BB_COLUMN = 'BB(%)'  # Biomass Burning percentage from source apportionment
 
     # =========================================================================
     # QC Thresholds
@@ -55,7 +56,13 @@ class Reader(AbstractReader):
         _df = read_table(file, parse_dates={'time': [0, 1]}, index_col='time',
                          delimiter=r'\s+', skiprows=5, usecols=range(67))
         _df.columns = _df.columns.str.strip(';')
-        _df = _df[self.BC_COLUMNS + ['Status']].apply(to_numeric, errors='coerce')
+
+        # Select BC columns, Status, and BB(%) if available
+        cols_to_read = self.BC_COLUMNS + ['Status']
+        if self.BB_COLUMN in _df.columns:
+            cols_to_read.append(self.BB_COLUMN)
+
+        _df = _df[cols_to_read].apply(to_numeric, errors='coerce')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
@@ -131,8 +138,11 @@ class Reader(AbstractReader):
         # Calculate absorption coefficients, AAE, and eBC
         _df_cal = _absCoe(_df[self.BC_COLUMNS], instru=self.nam, specified_band=[550])
 
-        # Combine with Status and QC_Flag
-        df_out = concat([_df_cal, _df[['Status', 'QC_Flag']]], axis=1)
+        # Combine with Status, BB(%), and QC_Flag
+        extra_cols = ['Status', 'QC_Flag']
+        if self.BB_COLUMN in _df.columns:
+            extra_cols.insert(0, self.BB_COLUMN)
+        df_out = concat([_df_cal, _df[extra_cols]], axis=1)
 
         # Validate AAE and update QC_Flag
         # AAE is stored as negative value, so we check -AAE
@@ -158,4 +168,6 @@ class Reader(AbstractReader):
 
         # Reorder columns
         all_data_cols = self.BC_COLUMNS + self.ABS_COLUMNS + self.CAL_COLUMNS
+        if self.BB_COLUMN in df_out.columns:
+            all_data_cols.append(self.BB_COLUMN)
         return df_out[all_data_cols + ['QC_Flag']].reindex(_index)

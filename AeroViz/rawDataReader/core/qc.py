@@ -694,7 +694,8 @@ class QualityControl:
         return pd.Series(outlier_array, index=index)
     
     @staticmethod
-    def filter_error_status(_df, error_codes, special_codes=None, return_mask=True):
+    def filter_error_status(_df, error_codes=None, special_codes=None, return_mask=True,
+                            status_column='Status', status_type='bitwise', ok_value=None):
         """
         Filter data based on error status codes.
 
@@ -702,13 +703,25 @@ class QualityControl:
         ----------
         _df : pd.DataFrame
             Input DataFrame
-        error_codes : list or array-like
-            Codes indicating errors
+        error_codes : list or array-like, optional
+            Codes indicating errors (for 'bitwise' type)
         special_codes : list or array-like, optional
-            Special codes to handle differently
+            Special codes to handle differently (exact match)
         return_mask : bool, default=True
             If True, returns a boolean mask where True indicates errors;
             If False, returns filtered DataFrame
+        status_column : str, default='Status'
+            Name of the status column in DataFrame
+        status_type : str, default='bitwise'
+            Type of status check:
+            - 'bitwise': Use bitwise AND to check error codes (AE33, AE43, BC1054, MA350)
+            - 'numeric': Check if status != ok_value (TEOM, Aurora, NEPH)
+            - 'text': Check if status != ok_value as string (SMPS)
+            - 'binary_string': Parse binary string and check if > 0 (APS)
+        ok_value : any, optional
+            The value indicating OK status (for 'numeric', 'text' types)
+            - For 'numeric': typically 0
+            - For 'text': typically 'Normal Scan'
 
         Returns
         -------
@@ -716,20 +729,64 @@ class QualityControl:
             If return_mask=True: boolean Series with True for error points
             If return_mask=False: Filtered DataFrame with error points masked
         """
+        # Check if status column exists
+        if status_column not in _df.columns:
+            # No status column, return all False (no errors)
+            if return_mask:
+                return pd.Series(False, index=_df.index)
+            else:
+                return _df
+
         # Create an empty mask
         error_mask = pd.Series(False, index=_df.index)
 
-        # Convert Status to integer (if it's not already)
-        status_values = pd.to_numeric(_df['Status'], errors='coerce').fillna(0).astype(int)
+        if status_type == 'bitwise':
+            # Original bitwise logic for AE33, AE43, BC1054, MA350
+            status_values = pd.to_numeric(_df[status_column], errors='coerce').fillna(0).astype(int)
 
-        # Bitwise test normal error codes
-        for code in error_codes:
-            # Use bitwise operation on the integer-converted status_values
-            error_mask = error_mask | ((status_values & code) != 0)
+            # Bitwise test normal error codes
+            if error_codes:
+                for code in error_codes:
+                    error_mask = error_mask | ((status_values & code) != 0)
 
-        # Exact matching for special codes
-        if special_codes:
-            error_mask = error_mask | status_values.isin(special_codes)
+            # Exact matching for special codes
+            if special_codes:
+                error_mask = error_mask | status_values.isin(special_codes)
+
+        elif status_type == 'numeric':
+            # Simple numeric comparison for TEOM, Aurora, NEPH
+            status_values = pd.to_numeric(_df[status_column], errors='coerce')
+            if ok_value is not None:
+                error_mask = (status_values != ok_value) & status_values.notna()
+            else:
+                # Default: 0 is OK
+                error_mask = (status_values != 0) & status_values.notna()
+
+        elif status_type == 'text':
+            # Text comparison for SMPS
+            status_values = _df[status_column].astype(str).str.strip()
+            if ok_value is not None:
+                error_mask = (status_values != ok_value) & (status_values != '') & (status_values != 'nan')
+            else:
+                # No ok_value specified, can't determine errors
+                error_mask = pd.Series(False, index=_df.index)
+
+        elif status_type == 'binary_string':
+            # Binary string parsing for APS ('0000 0000 0000 0000')
+            def parse_binary_status(status_str):
+                if not isinstance(status_str, str) or status_str in ('nan', ''):
+                    return 0
+                binary_str = status_str.replace(' ', '')
+                try:
+                    return int(binary_str, 2)
+                except ValueError:
+                    return 0
+
+            status_values = _df[status_column].apply(parse_binary_status)
+            error_mask = status_values > 0
+
+        else:
+            raise ValueError(f"Unknown status_type: {status_type}")
 
         # Return either the mask or the filtered DataFrame
         if return_mask:

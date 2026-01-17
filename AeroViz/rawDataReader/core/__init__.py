@@ -513,7 +513,21 @@ class AbstractReader(ABC):
         raw_data = pd.concat(df_list, axis=0).groupby(level=0).first()
 
         if self.nam in ['SMPS', 'APS', 'GRIMM']:
-            raw_data = raw_data.sort_index(axis=1, key=lambda x: x.astype(float))
+            # Separate numeric and non-numeric columns
+            numeric_cols = []
+            non_numeric_cols = []
+            for col in raw_data.columns:
+                try:
+                    float(col)
+                    numeric_cols.append(col)
+                except (ValueError, TypeError):
+                    non_numeric_cols.append(col)
+
+            # Sort only numeric columns by their float value
+            numeric_cols_sorted = sorted(numeric_cols, key=lambda x: float(x))
+
+            # Reorder: numeric columns first (sorted), then non-numeric columns
+            raw_data = raw_data[numeric_cols_sorted + non_numeric_cols]
 
         raw_data = self._timeIndex_process(raw_data)
 

@@ -122,10 +122,12 @@ def print_timeline_visual(timeline_data: list, start_date: str = None, end_date:
     console.print()
 
     # Print bar with date markers
-    console.print(f"[dim]{total_start.strftime('%m/%d')}[/dim]", end="")
-    padding = width - 10
-    console.print(" " * (padding // 2), end="")
-    console.print(f"[dim]{total_end.strftime('%m/%d')}[/dim]")
+    start_label = total_start.strftime('%m/%d')
+    end_label = total_end.strftime('%m/%d')
+    padding = width - len(start_label) - len(end_label)
+    console.print(f"[dim]{start_label}[/dim]", end="")
+    console.print(" " * padding, end="")
+    console.print(f"[dim]{end_label}[/dim]")
 
     # Print the bar
     console.print("[", end="")

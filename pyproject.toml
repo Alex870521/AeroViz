@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "AeroViz"
-version = "0.1.21"
+version = "0.1.22"
 description = "Aerosol data processing and visualization toolkit. Read, QC, and analyze data from SMPS, APS, AE33, TEOM, Nephelometer, XRF, and 15+ atmospheric instruments."
 authors = [{ name = "Alex Chan", email = "alex870521@gmail.com" }]
 license = { text = "MIT" }
@@ -53,16 +53,16 @@ classifiers = [
 ]
 dependencies = [
     "pandas>=2.2.0",
-    "numpy>=1.26.4",
+    "numpy>=2.0.0",
     "matplotlib>=3.8.4",
-    "scipy>=1.14.0",
+    "scipy>=1.15.0",
     "seaborn>=0.13.2",
     "scikit-learn>=1.5.1",
     "windrose>=1.9.2",
     "cartopy>=0.24.1",
     "tabulate>=0.9.0",
     "rich~=13.9.4",
-    "numba~=0.61.0"
+    "numba>=0.63.0"
 ]
 
 [project.optional-dependencies]

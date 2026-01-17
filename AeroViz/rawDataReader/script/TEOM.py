@@ -87,8 +87,7 @@ class Reader(AbstractReader):
             _df = _df.set_index(to_datetime(_tm_idx, errors='coerce', format='%d - %m - %Y %X'))
 
         elif 'Date' in _df.columns and 'Time' in _df.columns:  # USB download format
-            _df['time'] = to_datetime(_df['Date'] + ' ' + _df['Time'],
-                                      errors='coerce', format='%Y-%m-%d %H:%M:%S')
+            _df['time'] = to_datetime(_df['Date'] + ' ' + _df['Time'], errors='coerce')
             _df.drop(columns=['Date', 'Time'], inplace=True)
             _df.set_index('time', inplace=True)
 

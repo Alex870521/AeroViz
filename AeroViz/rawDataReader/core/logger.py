@@ -8,10 +8,11 @@ from pathlib import Path
 
 
 class ReaderLogger:
-    def __init__(self, name: str, log_path: Path, log_level: str = 'INFO'):
+    def __init__(self, name: str, log_path: Path, log_level: str = 'INFO', quiet: bool = False):
         self.name = name
         self.log_path = log_path
         self._log_level = getattr(logging, log_level)
+        self.quiet = quiet
 
         # 檢查是否支持顏色輸出
         self.color_support = self._check_color_support()
@@ -123,10 +124,11 @@ class ReaderLogger:
         except Exception as e:
             print(f"Warning: Could not set up file logging: {e}")
 
-        # 設置控制台處理器
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(logging.Formatter('%(message)s'))
-        logger.addHandler(console_handler)
+        # 設置控制台處理器（quiet 模式下不加）
+        if not self.quiet:
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setFormatter(logging.Formatter('%(message)s'))
+            logger.addHandler(console_handler)
 
         return logger
 

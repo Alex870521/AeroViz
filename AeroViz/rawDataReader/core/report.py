@@ -155,18 +155,13 @@ def print_timeline_visual(timeline_data: list, start_date: str = None, end_date:
         table.add_column("Duration", justify="right")
         table.add_column("Reason", style="yellow")
 
-        # Only show first 10 events to avoid clutter
-        display_events = down_events[:10]
-        for event in display_events:
+        for event in down_events:
             table.add_row(
                 event['start'],
                 event['end'],
                 event.get('duration', 'N/A'),
                 event.get('reason', 'Unknown')
             )
-
-        if len(down_events) > 10:
-            table.add_row("...", "...", "...", f"(+{len(down_events) - 10} more events)")
 
         console.print(table)
 

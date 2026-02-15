@@ -355,7 +355,7 @@ class Reader(AbstractReader):
             self.logger.warning("No distributions to save. Run _process() first.")
             return
 
-        output_folder = self.csv_out.parent
+        output_folder = self._output_folder
         self.logger.info("")
 
         for dist_name, dist_df in self._distributions.items():
@@ -368,6 +368,6 @@ class Reader(AbstractReader):
 
             # Resample and save
             dist_resampled = dist_df.resample(mean_freq).mean().round(4)
-            output_path = output_folder / f'output_{self.nam.lower()}_{dist_name}.csv'
+            output_path = output_folder / f'{self._output_prefix}_{dist_name}.csv'
             dist_resampled.to_csv(output_path)
             self.logger.info(f"Saved: {output_path.name}")

@@ -72,9 +72,9 @@ class AbstractReader(ABC):
         **kwargs : dict
             Additional keyword arguments:
                 log_level : str
-                    Logging level for the reader
-                suppress_warnings : bool
-                    If True, suppresses warning messages
+                    Logging level for the log file
+                quiet : bool
+                    If True, suppresses all console output
 
         Notes
         -----
@@ -83,12 +83,21 @@ class AbstractReader(ABC):
         """
         self.path = Path(path)
         self.meta = meta[self.nam]
-        output_folder = self.path / f'{self.nam.lower()}_outputs'
-        output_folder.mkdir(parents=True, exist_ok=True)
 
+        # Output directory (customisable, default preserves original behaviour)
+        _output_dir = kwargs.get('output_dir')
+        if _output_dir is not None:
+            output_folder = Path(_output_dir)
+        else:
+            output_folder = self.path / f'{self.nam.lower()}_outputs'
+        output_folder.mkdir(parents=True, exist_ok=True)
+        self._output_folder = output_folder
+
+        self.quiet = kwargs.get('quiet', False)
         self.logger = ReaderLogger(
             self.nam, output_folder,
-            kwargs.get('log_level').upper() if not kwargs.get('suppress_warnings') else 'ERROR')
+            kwargs.get('log_level', 'INFO').upper(),
+            quiet=self.quiet)
 
         self.reset = reset is True
         self.append = reset == 'append'
@@ -96,11 +105,22 @@ class AbstractReader(ABC):
         self.qc_freq = qc if isinstance(qc, str) else None
         self.kwargs = kwargs
 
+        # Selective output control
+        self.save_pkl = kwargs.get('save_pkl', True)
+        self.save_intermediate_csv = kwargs.get('save_intermediate_csv', True)
+        self.save_report = kwargs.get('save_report', True)
+
+        # Output prefix (customisable)
+        self._output_prefix = kwargs.get('output_prefix') or f'output_{self.nam.lower()}'
+
+        # Cache file paths
         self.pkl_nam = output_folder / f'_read_{self.nam.lower()}_qc.pkl'
         self.csv_nam = output_folder / f'_read_{self.nam.lower()}_qc.csv'
         self.pkl_nam_raw = output_folder / f'_read_{self.nam.lower()}_raw.pkl'
         self.csv_nam_raw = output_folder / f'_read_{self.nam.lower()}_raw.csv'
-        self.csv_out = output_folder / f'output_{self.nam.lower()}.csv'
+
+        # Final output file paths (use custom prefix)
+        self.csv_out = output_folder / f'{self._output_prefix}.csv'
         self.report_out = output_folder / 'report.json'
 
     def __call__(self,
@@ -160,11 +180,12 @@ class AbstractReader(ABC):
         _f_qc.to_csv(self.csv_out)
 
         # Generate timeline data (hourly values)
-        report_dict = process_timeline_report(self.report_dict, _f_qc)
+        report_dict = process_timeline_report(self.report_dict, _f_qc, show_visual=not self.quiet)
 
         # Write report
-        with open(self.report_out, 'w') as f:
-            json.dump(report_dict, f, indent=4)
+        if self.save_report:
+            with open(self.report_out, 'w') as f:
+                json.dump(report_dict, f, indent=4)
 
         return _f_qc
 
@@ -421,10 +442,12 @@ class AbstractReader(ABC):
         Saves data in both pickle and CSV formats.
         """
         try:
-            raw_data.to_pickle(self.pkl_nam_raw)
-            raw_data.to_csv(self.csv_nam_raw)
-            qc_data.to_pickle(self.pkl_nam)
-            qc_data.to_csv(self.csv_nam)
+            if self.save_pkl:
+                raw_data.to_pickle(self.pkl_nam_raw)
+                qc_data.to_pickle(self.pkl_nam)
+            if self.save_intermediate_csv:
+                raw_data.to_csv(self.csv_nam_raw)
+                qc_data.to_csv(self.csv_nam)
 
         except Exception as e:
             raise IOError(f"Error saving data. {e}")
@@ -448,6 +471,11 @@ class AbstractReader(ABC):
         -----
         Uses rich library for progress display.
         """
+        if self.quiet:
+            # Quiet mode: no progress bar, just yield a dummy progress/task
+            yield None, None
+            return
+
         # Create message temporary storage and replace logger method
         logs = {level: [] for level in ['info', 'warning', 'error']}
         original = {level: getattr(self.logger, level) for level in logs}
@@ -503,7 +531,8 @@ class AbstractReader(ABC):
         # Context manager for progress bar display
         with self.progress_reading(files) as (progress, task):
             for file in files:
-                progress.update(task, advance=1, filename=file.name)
+                if progress is not None:
+                    progress.update(task, advance=1, filename=file.name)
                 try:
                     if (df := self._raw_reader(file)) is not None and not df.empty:
                         df_list.append(df)

@@ -18,7 +18,12 @@ def RawDataReader(instrument: str,
                   end: datetime | str = None,
                   mean_freq: str = '1h',
                   size_range: tuple[float, float] | None = None,
-                  suppress_warnings: bool = False,
+                  output_dir: Path | str | None = None,
+                  output_prefix: str | None = None,
+                  save_pkl: bool = True,
+                  save_intermediate_csv: bool = True,
+                  save_report: bool = True,
+                  quiet: bool = False,
                   log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'] = 'INFO',
                   **kwargs):
     """
@@ -62,11 +67,30 @@ def RawDataReader(instrument: str,
     size_range : tuple[float, float], optional
         Size range in nanometers (min_size, max_size) for SMPS/APS data filtering
 
-    suppress_warnings : bool, optional
-        Whether to suppress warning messages (default: False)
+    output_dir : Path or str, optional
+        Directory for all output files (pkl, csv, log, report).
+        Default: ``path/{instrument}_outputs/``
+
+    output_prefix : str, optional
+        Prefix for output file names (e.g., ``'NZ_smps'`` → ``NZ_smps.csv``).
+        Default: ``output_{instrument}``
+
+    save_pkl : bool, default=True
+        Whether to save pickle cache files. Existing pickles are still read
+        when ``reset=False`` regardless of this setting.
+
+    save_intermediate_csv : bool, default=True
+        Whether to save intermediate ``_read_*_qc.csv`` / ``_read_*_raw.csv`` files.
+
+    save_report : bool, default=True
+        Whether to save ``report.json``.
+
+    quiet : bool, default=False
+        Suppress all console output (progress bar, timeline, log messages).
+        Log file is still written.
 
     log_level : {'DEBUG', 'INFO', 'WARNING', 'ERROR'}
-        Logging level (default: 'INFO')
+        Logging level for the log file (default: 'INFO')
 
     **kwargs
         Additional arguments to pass to the reader module
@@ -202,8 +226,13 @@ def RawDataReader(instrument: str,
         kwargs.update({'size_range': size_range})
 
     kwargs.update({
-        'suppress_warnings': suppress_warnings,
-        'log_level': log_level
+        'output_dir': output_dir,
+        'output_prefix': output_prefix,
+        'save_pkl': save_pkl,
+        'save_intermediate_csv': save_intermediate_csv,
+        'save_report': save_report,
+        'quiet': quiet,
+        'log_level': log_level,
     })
 
     # Instantiate the class and return the instance

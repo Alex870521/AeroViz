@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "AeroViz"
-version = "0.1.24"
+version = "0.1.25"
 description = "Aerosol data processing and visualization toolkit. Read, QC, and analyze data from SMPS, APS, AE33, TEOM, Nephelometer, XRF, and 15+ atmospheric instruments."
 authors = [{ name = "Alex Chan", email = "alex870521@gmail.com" }]
 license = { text = "MIT" }

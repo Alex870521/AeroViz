@@ -56,7 +56,9 @@ class Reader(AbstractReader):
         to _QC() and _process() stages.
         """
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            _df = read_csv(f, parse_dates=True, index_col=0)
+            # BC1054 files have 4 metadata lines before column header:
+            # "Data Report" or "User Report", timestamp, location, blank line
+            _df = read_csv(f, parse_dates=True, index_col=0, skiprows=4)
             _df.columns = _df.columns.str.replace(' ', '')
 
             _df = _df.rename(columns={

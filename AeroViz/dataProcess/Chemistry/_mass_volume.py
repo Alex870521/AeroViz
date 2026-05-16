@@ -305,10 +305,76 @@ def calculate_equivalents(mol_NH4, mol_SO4, mol_NO3):
 
 
 # =============================================================================
+# EC-Tracer Method for POA/SOA Split
+# =============================================================================
+
+def _split_om_ec_tracer(df_mass, df_all, oa_oc_ratio=1.8):
+    """
+    Split OM into POA and SOA using the EC-tracer (Minimum R Squared) method.
+
+    The method finds the primary OC/EC ratio by minimizing the R² between
+    SOC and EC, ensuring they are independent.
+
+    POC = (OC/EC)_primary × EC
+    SOC = OC - POC
+    POA = POC × oa_oc_ratio
+    SOA = SOC × oa_oc_ratio
+
+    Parameters
+    ----------
+    df_mass : DataFrame
+        Reconstructed mass with 'OM' column.
+    df_all : DataFrame
+        Raw input data with 'OC' and 'EC' columns.
+    oa_oc_ratio : float
+        OA/OC conversion ratio.
+
+    Returns
+    -------
+    DataFrame
+        df_mass with added POA, SOA, POC, SOC columns.
+    """
+    import numpy as np
+
+    oc = df_all['OC']
+    ec = df_all['EC']
+
+    # Minimum R Squared (MRS) method to find (OC/EC)_primary
+    # Scan OC/EC ratios and find the one that minimizes R² between SOC and EC
+    valid = oc.notna() & ec.notna() & (ec > 0)
+    oc_valid = oc[valid]
+    ec_valid = ec[valid]
+
+    oc_ec_ratios = np.arange(0.5, (oc_valid / ec_valid).quantile(0.95), 0.01)
+    min_r2 = np.inf
+    best_ratio = oc_ec_ratios[0]
+
+    for ratio in oc_ec_ratios:
+        soc_trial = oc_valid - ratio * ec_valid
+        soc_trial = soc_trial.clip(lower=0)
+        if soc_trial.std() == 0:
+            continue
+        corr = np.corrcoef(soc_trial, ec_valid)[0, 1]
+        r2 = corr ** 2
+        if r2 < min_r2:
+            min_r2 = r2
+            best_ratio = ratio
+
+    # Calculate POC and SOC
+    df_mass['POC'] = (best_ratio * ec).clip(lower=0)
+    df_mass['SOC'] = (oc - df_mass['POC']).clip(lower=0)
+    df_mass['POA'] = df_mass['POC'] * oa_oc_ratio
+    df_mass['SOA'] = df_mass['SOC'] * oa_oc_ratio
+
+    return df_mass
+
+
+# =============================================================================
 # Main Function
 # =============================================================================
 
-def reconstruction_basic(df_che, df_ref, df_water=None, df_density=None, nam_lst=None):
+def reconstruction_basic(df_che, df_ref, df_water=None, df_density=None, nam_lst=None,
+                         split_om=False, oa_oc_ratio=1.8):
     """
     Reconstruct aerosol mass and volume from chemical composition.
 
@@ -329,12 +395,18 @@ def reconstruction_basic(df_che, df_ref, df_water=None, df_density=None, nam_lst
     nam_lst : list, optional
         Column names for df_che after concatenation.
         Default: ['NH4+', 'SO42-', 'NO3-', 'Fe', 'Na+', 'OC', 'EC']
+    split_om : bool, optional
+        If True, split OM into POA and SOA using the EC-tracer method.
+        Requires 'OC' and 'EC' columns. Default: False.
+    oa_oc_ratio : float, optional
+        OA/OC conversion ratio for POA/SOA calculation. Default: 1.8.
 
     Returns
     -------
     dict
         Dictionary containing:
         - 'mass': Reconstructed mass (AS, AN, OM, Soil, SS, EC, total)
+                  If split_om=True, also includes POA, SOA, POC, SOC columns.
         - 'volume': Reconstructed volume (species + total_dry, total_wet)
         - 'vol_cal': Calculated volume for density
         - 'eq': Molar and equivalent concentrations
@@ -355,10 +427,11 @@ def reconstruction_basic(df_che, df_ref, df_water=None, df_density=None, nam_lst
     ...     df_che=(df_ions, df_carbon),
     ...     df_ref=df_pm25,
     ...     df_water=df_alwc,
-    ...     nam_lst=['NH4+', 'SO42-', 'NO3-', 'Fe', 'Na+', 'OC', 'EC']
+    ...     nam_lst=['NH4+', 'SO42-', 'NO3-', 'Fe', 'Na+', 'OC', 'EC'],
+    ...     split_om=True
     ... )
-    >>> result['mass']       # Reconstructed mass
-    >>> result['NH4_status'] # Ammonium status
+    >>> result['mass']       # Includes POA, SOA columns
+    >>> result['mass'][['POA', 'SOA']].sum(axis=1)  # Should equal OM
     """
     # Default column names
     if nam_lst is None:
@@ -383,6 +456,11 @@ def reconstruction_basic(df_che, df_ref, df_water=None, df_density=None, nam_lst
 
     # Step 4: Adjust for NH4 deficiency
     df_mass = adjust_mass_deficiency(df_mass, mol_NH4, mol_SO4, mol_NO3, status_ratio)
+
+    # Step 4.5: Split OM into POA and SOA using EC-tracer (MRS) method
+    if split_om:
+        df_mass = _split_om_ec_tracer(df_mass, df_all, oa_oc_ratio)
+
     df_mass['total'] = df_mass.sum(axis=1, min_count=6)
 
     # Quality control ratio

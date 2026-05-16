@@ -28,7 +28,6 @@ def ammonium_rich(df: DataFrame,
 
     color_bar = plt.colorbar(scatter, label=Unit('PM2.5'), extend='both')
 
-    # fig.savefig(f'Ammonium_rich_{title}')
     plt.show()
 
     return fig, ax

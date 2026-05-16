@@ -128,7 +128,6 @@ def Q_plot(species: Literal["AS", "AN", "OM", "Soil", "SS", "BC", "Water"] | lis
     ax.grid(color='k', axis='x', which='major', linestyle='dashdot', linewidth=0.4, alpha=0.4)
     ax.legend(loc='best', prop={'weight': 'bold'})
 
-    # fig.savefig(PATH_MAIN/f'Q_{species}')
     plt.show()
 
     return fig, ax
@@ -187,7 +186,6 @@ def RI_couple(**kwargs) -> tuple[Figure, Axes]:
     ax2.set_ylabel(r'$\bf Absorption\ efficiency\ (Q_{{abs}})$')
 
     fig.suptitle(r'$\bf n\ =\ 1.50 $')
-    # fig.savefig(PATH_MAIN/f'IJ_couple')
 
     plt.show()
 
@@ -244,8 +242,6 @@ def RRI_2D(mode: Literal["ext", "sca", "abs"] = 'ext',
         im = plt.imshow(arr, extent=(1.3, 2, 0, 0.7), cmap='jet', origin='lower')
         color_bar = plt.colorbar(im, extend='both')
         color_bar.set_label(label=fr'$\bf Q_{{{mode}}}$')
-
-    # fig.savefig(PATH_MAIN/f'RRI_{mode}_{dp}')
 
     plt.show()
 

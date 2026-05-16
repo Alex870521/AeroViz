@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import Literal
 
 import matplotlib.pyplot as plt
@@ -333,6 +334,7 @@ def timeseries_stacked(df,
                        minor_freq: str = '1d',
                        support_df: DataFrame | None = None,
                        ax: Axes | None = None,
+                       savefig: str | Path | None = None,
                        **kwargs
                        ) -> tuple[Figure, Axes]:
     try:
@@ -440,8 +442,8 @@ def timeseries_stacked(df,
         pass
         # ax1.axes.xaxis.set_visible(False)
 
-    if kwargs.get('savefig'):
-        plt.savefig(kwargs.get('savefig'), transparent=True)
+    if savefig:
+        plt.savefig(savefig)
 
     plt.show()
     return fig, ax1

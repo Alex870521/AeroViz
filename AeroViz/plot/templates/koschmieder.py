@@ -1,3 +1,4 @@
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,6 +16,7 @@ def koschmieder(df: pd.DataFrame,
                 vis: str,
                 ext: list[str],
                 ax: Axes | None = None,
+                savefig: str | Path | None = None,
                 **kwargs
                 ) -> tuple[Figure, Axes]:
     """
@@ -90,8 +92,8 @@ def koschmieder(df: pd.DataFrame,
 
     plt.xticks(ticks=np.array(range(0, 31, 5)), labels=np.array(range(0, 31, 5)))
 
-    if kwargs.get('savefig'):
-        fig.savefig(kwargs.get('savefig'))
+    if savefig:
+        fig.savefig(savefig)
 
     plt.show()
 

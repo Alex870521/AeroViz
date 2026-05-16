@@ -44,22 +44,12 @@ def _test_plot(ax, smps, aps, unp, shft):
 
 # ax.legend(handles=[], framealpha=0, fontsize=fs-2.)
 
-# ax.set_title(shft, **font_dic)
-# fig.suptitle('', fontsize=fs+2.)
-# fig.savefig(/'.png')
-# show()
-# close()
 
 
 def test_plot(smps, aps, unp, shft):
-    from matplotlib.pyplot import subplots, show, rcParams
+    from matplotlib.pyplot import subplots, show
 
-    ## parameter
     fs = 22.
-    # font_fam = 'DejaVu Sans'
-    font_fam = 'Times New Roman'
-    rcParams['font.sans-serif'] = font_fam
-    rcParams['mathtext.fontset'] = 'custom'
     font_dic = dict(fontsize=fs, math_fontfamily='custom')
 
     ## plot

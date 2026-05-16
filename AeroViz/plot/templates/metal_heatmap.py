@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -124,6 +126,7 @@ def metal_heatmaps(df,
                    minor_freq='1d',
                    cmap='jet',
                    ax: Axes | None = None,
+                   savefig: str | Path | None = None,
                    **kwargs
                    ) -> tuple[Figure, Axes]:
     if process:
@@ -150,8 +153,8 @@ def metal_heatmaps(df,
            title=kwargs.get('title', None)
            )
 
-    if kwargs.get('savefig'):
-        plt.savefig(kwargs.get('savefig'))
+    if savefig:
+        plt.savefig(savefig)
 
     plt.show()
 

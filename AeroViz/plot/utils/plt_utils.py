@@ -63,6 +63,7 @@ def set_figure(func=None,
             # plt.rcParams['figure.constrained_layout.use'] = True
 
             plt.rcParams['savefig.transparent'] = True
+            plt.rcParams['savefig.bbox'] = 'tight'
 
             return _func(*args, **kwargs)
 

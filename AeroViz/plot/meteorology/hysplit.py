@@ -83,7 +83,7 @@ def hysplit(file: Path = DEFAULT_FILE, savefig: str | Path | None = None):
     plt.tight_layout()
 
     if savefig:
-        plt.savefig(savefig, bbox_inches='tight')
+        plt.savefig(savefig)
 
     plt.show()
 

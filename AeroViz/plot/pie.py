@@ -115,8 +115,6 @@ def pie(data_set: DataFrame | dict,
 
     ax[-1].legend(labels, loc='center left', prop={'size': 8, 'weight': 'normal'}, bbox_to_anchor=(1, 0, 1.15, 1))
 
-    # fig.savefig(f"pie_{style}_{title}")
-
     plt.show()
 
     return fig, ax
@@ -202,8 +200,6 @@ def donuts(data_set: DataFrame | dict,
     ax.legend(labels, loc='center', prop={'size': 8}, title_fontproperties={'weight': 'bold'},
               title=f'Outer : {category_names[2]}' + '\n' + f'Middle : {category_names[1]}' + '\n' + f'Inner : {category_names[0]}',
               bbox_to_anchor=(0.8, 0, 0.5, 1))
-
-    # fig.savefig(f"donuts_{title}")
 
     plt.show()
 

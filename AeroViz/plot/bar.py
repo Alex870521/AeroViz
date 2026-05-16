@@ -119,8 +119,6 @@ def bar(data_set: DataFrame | dict,
 		ax.set_xlim(0, None if style == "dispersed" else 100)
 		ax.legend(labels, bbox_to_anchor=(1, 1), loc='upper left', prop={'size': 8})
 
-	# fig.savefig(f"Barplot_{title}")
-
 	plt.show()
 
 	return fig, ax

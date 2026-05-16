@@ -952,7 +952,7 @@ class QualityControl:
 
         for col in numeric_cols:
             # Calculate actual data points per hour
-            hourly_count = df[col].dropna().resample('1h').size().reindex(df.index).ffill()
+            hourly_count = df[col].notna().groupby(df.index.floor('1h')).transform('sum')
 
             # Mark points with insufficient data
             insufficient_mask = hourly_count < min_points

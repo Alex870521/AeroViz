@@ -94,18 +94,16 @@ class Reader(AbstractReader):
 
             _df = _df.apply(to_numeric, errors='coerce')
 
-            _df['OC1'] = _df['OC1_raw'] / _df['Sample_Volume']
-            _df['OC2'] = _df['OC2_raw'] / _df['Sample_Volume']
-            _df['OC3'] = _df['OC3_raw'] / _df['Sample_Volume']
-            _df['OC4'] = _df['OC4_raw'] / _df['Sample_Volume']
+            # Per-peak fractions only exist on newer firmware (RTCalc802+); older
+            # files (RTCalc705) don't have OCPk*-ug C columns — leave NaN.
+            for i in (1, 2, 3, 4):
+                src = f'OC{i}_raw'
+                _df[f'OC{i}'] = _df[src] / _df['Sample_Volume'] if src in _df.columns else float('nan')
 
-            _df['PC'] = _df['Thermal_OC'] - _df['OC1'] - _df['OC2'] - _df['OC3'] - _df['OC4']
-
-            # _df['EC1'] = _df['EC1_raw'] / _df['Sample_Volume']
-            # _df['EC2'] = _df['EC2_raw'] / _df['Sample_Volume']
-            # _df['EC3'] = _df['EC3_raw'] / _df['Sample_Volume']
-            # _df['EC4'] = _df['EC4_raw'] / _df['Sample_Volume']
-            # _df['EC5'] = _df['EC5_raw'] / _df['Sample_Volume']
+            if all(f'OC{i}' in _df.columns and _df[f'OC{i}'].notna().any() for i in (1, 2, 3, 4)):
+                _df['PC'] = _df['Thermal_OC'] - _df['OC1'] - _df['OC2'] - _df['OC3'] - _df['OC4']
+            else:
+                _df['PC'] = float('nan')
 
             _df = _df[['Thermal_OC', 'Thermal_EC', 'Optical_OC', 'Optical_EC', 'TC', 'Sample_Volume',
                        'OC1', 'OC2', 'OC3', 'OC4', 'PC']]

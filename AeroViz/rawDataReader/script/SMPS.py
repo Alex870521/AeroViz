@@ -99,7 +99,8 @@ class Reader(AbstractReader):
 
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             if file.suffix.lower() == '.txt':
-                delimiter, date_formats = '\t', ['%m/%d/%y %X', '%m/%d/%Y %X']
+                # %Y/%m/%d for AIM 10.3+ which exports dates like "2021/1/3"
+                delimiter, date_formats = '\t', ['%m/%d/%y %X', '%m/%d/%Y %X', '%Y/%m/%d %X']
             else:  # csv
                 delimiter, date_formats = ',', ['%d/%m/%Y %X']
 

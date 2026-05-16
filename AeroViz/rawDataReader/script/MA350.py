@@ -51,19 +51,10 @@ class Reader(AbstractReader):
     ]
 
     def _raw_reader(self, file):
-        """
-        Read and parse raw MA350 Aethalometer data files.
+        """Read and parse raw MA350 Aethalometer data files.
 
-        Parameters
-        ----------
-        file : Path or str
-            Path to the MA350 data file.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Processed MA350 data with datetime index and standardized black carbon
-            and source apportionment columns.
+        Returns all columns from the raw file. Column selection is deferred
+        to _QC() and _process() stages.
         """
         _df = read_csv(file, parse_dates=['Date / time local'], index_col='Date / time local').rename_axis(
             "Time")
@@ -80,11 +71,6 @@ class Reader(AbstractReader):
             'AAE': 'AAE_ref',
             'BB (%)': 'BB',
         })
-
-        _df = _df[
-            ['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BB mass', 'FF mass', 'Delta-C', 'AAE_ref', 'BB', 'Status']].apply(
-            to_numeric,
-            errors='coerce')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
@@ -150,8 +136,9 @@ class Reader(AbstractReader):
         # Calculate absorption coefficients, AAE, and eBC
         _df_cal = _absCoe(_df[self.BC_COLUMNS], instru=self.nam, specified_band=[550])
 
-        # Combine with Status and QC_Flag
-        df_out = concat([_df_cal, _df[['Status', 'QC_Flag']]], axis=1)
+        # Preserve all original columns (metadata like BB mass, FF mass, Delta-C, etc.)
+        non_bc_cols = [c for c in _df.columns if c not in self.BC_COLUMNS]
+        df_out = concat([_df_cal, _df[non_bc_cols]], axis=1)
 
         # Validate AAE and update QC_Flag
         invalid_aae = (-df_out['AAE'] < self.MIN_AAE) | (-df_out['AAE'] > self.MAX_AAE)
@@ -174,6 +161,4 @@ class Reader(AbstractReader):
             for _, row in summary.iterrows():
                 self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
 
-        # Reorder columns
-        all_data_cols = self.BC_COLUMNS + self.ABS_COLUMNS + self.CAL_COLUMNS
-        return df_out[all_data_cols + ['QC_Flag']].reindex(_index)
+        return df_out.reindex(_index)

@@ -76,13 +76,15 @@ class Reader(AbstractReader):
             _df_out.index.name = 'Time'
 
             # Y : state
-            # col : 5 RH, col : 9 status
+            # col : 1 total_counts, 2 pressure, 3 temp1, 4 temp2, 5 RH, 8 status_hex, 9 status
             _df_st = _df_grp.get_group('Y')
             _df_out['RH'] = _df_st[5].values
-            status_values = to_numeric(_df_st[9].values, errors='coerce').astype('Int64')
+            _df_out['pressure'] = _df_st[2].values
+            _df_out['temp1'] = _df_st[3].values
+            _df_out['temp2'] = _df_st[4].values
+            status_values = to_numeric(_df_st[9], errors='coerce').astype('Int64').values
 
-            _df = _df_out[['B', 'G', 'R', 'BB', 'BG', 'BR', 'RH']].apply(to_numeric, errors='coerce')
-            # Include status as a column (will be processed by core together)
+            _df = _df_out.apply(to_numeric, errors='coerce')
             _df[self.STATUS_COLUMN] = status_values
             _df = _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
@@ -184,11 +186,9 @@ class Reader(AbstractReader):
         # Calculate SAE and scattering at 550nm
         _df_cal = _scaCoe(_df[self.SCAT_COLUMNS], instru=self.nam, specified_band=[550])
 
-        # Combine with RH and QC_Flag
-        if 'RH' in _df.columns:
-            df_out = pd.concat([_df_cal, _df[['RH', 'QC_Flag']]], axis=1)
-        else:
-            df_out = pd.concat([_df_cal, _df[['QC_Flag']]], axis=1)
+        # Preserve all non-SCAT columns (RH, pressure, temp1, temp2, status, QC_Flag, etc.)
+        non_scat_cols = [c for c in _df.columns if c not in self.SCAT_COLUMNS]
+        df_out = pd.concat([_df_cal, _df[non_scat_cols]], axis=1)
 
         # Log QC summary
         if hasattr(self, '_qc_summary') and self._qc_summary is not None:

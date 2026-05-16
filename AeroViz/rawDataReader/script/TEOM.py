@@ -34,26 +34,14 @@ class Reader(AbstractReader):
         super().__init__(*args, **kwargs)
 
     def _raw_reader(self, file):
-        """
-        Read and parse raw TEOM data files in various formats.
+        """Read and parse raw TEOM data files in various formats.
 
-        Handles multiple TEOM data formats and standardizes them to a consistent
-        structure with uniform column names and datetime index.
+        Returns all columns from the raw file. Column selection is deferred
+        to _QC() and _process() stages.
 
-        Parameters
-        ----------
-        file : Path or str
-            Path to the TEOM data file.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Processed raw TEOM data with datetime index and standardized columns.
-
-        Raises
-        ------
-        NotImplementedError
-            If the file format is not recognized as a supported TEOM data format.
+        Supported formats:
+        - Remote download: Time Stamp with Chinese month names, columns like 'PM-2.5 base MC'
+        - USB/auto export: Date + Time columns, columns like 'tmoTEOMABaseMC_0'
         """
         _df = read_csv(file, skiprows=3, index_col=False)
 
@@ -61,20 +49,51 @@ class Reader(AbstractReader):
         _time_replace = {'十一月': '11', '十二月': '12', '一月': '01', '二月': '02', '三月': '03', '四月': '04',
                          '五月': '05', '六月': '06', '七月': '07', '八月': '08', '九月': '09', '十月': '10'}
 
-        # Try both naming conventions (will ignore columns that don't exist)
+        # Standardize column names across formats
         _df = _df.rename(columns={
             # Remote download format
             'Time Stamp': 'time',
             'System status': 'status',
             'PM-2.5 base MC': 'PM_NV',
+            'PM-2.5 reference MC': 'PM_ref',
             'PM-2.5 MC': 'PM_Total',
+            'PM-2.5 1-Hr MC': 'PM_1Hr',
+            'PM-2.5 24-Hr MC': 'PM_24Hr',
+            'PM-2.5 TEOM frequency': 'frequency',
             'PM-2.5 TEOM noise': 'noise',
+            'PM-2.5 TEOM filter load': 'filter_load',
+            'PM-2.5 TEOM filter pressure': 'filter_pressure',
+            'PM-2.5 vol. flow rate': 'flow_rate',
+            'Bypass volumetric flow rate': 'bypass_flow',
+            'PM-2.5 air tube temp': 'air_tube_temp',
+            'Cap temperature': 'cap_temp',
+            'Case temperature': 'case_temp',
+            'PM-2.5 cooler temp': 'cooler_temp',
+            'PM-2.5 dryer dew point': 'dryer_dew_point',
+            'Ambient temperature': 'ambient_temp',
+            'Ambient relative humidity': 'ambient_RH',
+            'Ambient pressure': 'ambient_pressure',
+            'Vacuum pump pressure': 'pump_pressure',
             # USB/auto export format
             'time_stamp': 'time',
             'tmoStatusCondition_0': 'status',
             'tmoTEOMABaseMC_0': 'PM_NV',
+            'tmoTEOMARefMC_0': 'PM_ref',
             'tmoTEOMAMC_0': 'PM_Total',
-            'tmoTEOMANoise_0': 'noise'
+            'tmoTEOMAMC1Hr_0': 'PM_1Hr',
+            'tmoTEOMAMC12Hr_0': 'PM_12Hr',
+            'tmoTEOMAFrequency_0': 'frequency',
+            'tmoTEOMANoise_0': 'noise',
+            'tmoTEOMAFilterLoad_0': 'filter_load',
+            'tmoTEOMADryerDewPoint_0': 'dryer_dew_point',
+            'tmoTEOMAFlowVolumetric_0': 'flow_rate',
+            'tmoBypassFlowVolumetric_0': 'bypass_flow',
+            'tmoTEOMAAirTubeHeatTemp_0': 'air_tube_temp',
+            'tmoCapHeatTemp_0': 'cap_temp',
+            'tmoCaseHeatTemp_0': 'case_temp',
+            'tmoAmbientTemp_0': 'ambient_temp',
+            'tmoAmbientRH_0': 'ambient_RH',
+            'tmoVacPumpPressure_0': 'pump_pressure',
         })
 
         # Handle different time formats
@@ -94,7 +113,10 @@ class Reader(AbstractReader):
         else:
             raise NotImplementedError("Unsupported TEOM data format")
 
-        _df = _df[['PM_NV', 'PM_Total', 'noise', 'status']].apply(to_numeric, errors='coerce')
+        _df.index.name = 'time'
+
+        # Drop the 'time' column if it remains after set_index
+        _df = _df.drop(columns=['time'], errors='ignore')
 
         # Remove duplicates and NaN indices
         _df = _df.loc[~_df.index.duplicated() & _df.index.notna()]
@@ -111,14 +133,10 @@ class Reader(AbstractReader):
         2. High Noise           : noise >= 0.01
         3. Non-positive         : PM_NV <= 0 OR PM_Total <= 0
         4. NV > Total           : PM_NV > PM_Total (physically impossible)
-        5. Invalid Vol Frac     : Volatile_Fraction outside valid range (0-1)
-        6. Spike                : Sudden value change (vectorized spike detection)
-        7. Insufficient         : Less than 50% hourly data completeness
+        5. Spike                : Sudden value change (vectorized spike detection)
+        6. Insufficient         : Less than 50% hourly data completeness
         """
         _index = _df.index.copy()
-
-        # Pre-process: calculate Volatile_Fraction
-        _df['Volatile_Fraction'] = ((_df['PM_Total'] - _df['PM_NV']) / _df['PM_Total']).__round__(4)
         df_qc = _df.copy()
 
         # Build QC rules declaratively
@@ -148,11 +166,6 @@ class Reader(AbstractReader):
                 description='PM_NV exceeds PM_Total (physically impossible)'
             ),
             QCRule(
-                name='Invalid Vol Frac',
-                condition=lambda df: (df['Volatile_Fraction'] < 0) | (df['Volatile_Fraction'] > 1),
-                description='Volatile_Fraction outside 0-1 range'
-            ),
-            QCRule(
                 name='Spike',
                 condition=lambda df: self.QC_control().spike_detection(
                     df[self.PM_COLUMNS], max_change_rate=3.0
@@ -177,4 +190,14 @@ class Reader(AbstractReader):
         for _, row in summary.iterrows():
             self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
 
-        return df_qc[self.OUTPUT_COLUMNS + ['QC_Flag']].reindex(_index)
+        return df_qc.reindex(_index)
+
+    def _process(self, _df):
+        """
+        Calculate derived parameters from QC'd TEOM data.
+
+        Calculates Volatile_Fraction = (PM_Total - PM_NV) / PM_Total.
+        """
+        _df = _df.copy()
+        _df['Volatile_Fraction'] = ((_df['PM_Total'] - _df['PM_NV']) / _df['PM_Total']).__round__(4)
+        return _df

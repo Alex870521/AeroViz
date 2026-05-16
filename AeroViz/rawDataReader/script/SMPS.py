@@ -71,7 +71,16 @@ class Reader(AbstractReader):
         return result_stats
 
     def _raw_reader(self, file):
-        """Read and parse raw SMPS data files."""
+        """Read and parse raw SMPS data files.
+
+        Returns all columns from the raw file. Column selection is deferred
+        to _QC() and _process() stages.
+
+        Supported formats:
+        - S80 TXT (AIM old): tab-separated, header at 'Sample #'
+        - S82 TXT (AIM 10.3): tab-separated, header at 'Sample #'
+        - CSV (AIM 11.x): comma-separated, header at 'Scan Number'
+        """
 
         def find_header_row(file_obj, delimiter):
             csv_reader = csv.reader(file_obj, delimiter=delimiter)
@@ -115,38 +124,38 @@ class Reader(AbstractReader):
                 raise ValueError("Unable to parse dates with given formats")
 
             # Check for comma decimal separator
-            comma_decimal_cols = [col for col in _df.columns if ',' in col.strip()]
+            comma_decimal_cols = [col for col in _df.columns if isinstance(col, str) and ',' in col.strip()]
             if comma_decimal_cols:
                 self.logger.warning(f"Detected {len(comma_decimal_cols)} columns using comma as decimal separator")
                 _df.columns = _df.columns.str.replace(',', '.')
 
-            # Filter numeric columns
-            numeric_cols = [col for col in _df.columns if col.strip().replace('.', '').isdigit()]
+            # Identify size bin columns (numeric column names)
+            numeric_cols = [col for col in _df.columns if isinstance(col, str) and col.strip().replace('.', '').isdigit()]
             numeric_cols.sort(key=lambda x: float(x.strip()))
 
+            # Set time index
             _df.index = _time_index
             _df.index.name = 'time'
+            _df = _df.loc[_df.index.dropna().copy()]
 
-            _df_smps = _df[numeric_cols]
-            _df_smps = _df_smps.loc[_df_smps.index.dropna().copy()]
+            # Rename size bin columns to float values
+            bin_rename = {col: float(col.strip()) for col in numeric_cols}
+            _df = _df.rename(columns=bin_rename)
+            bin_cols = sorted(bin_rename.values())
 
-            # Rename columns to float values (strip spaces)
-            _df_smps.columns = [float(col.strip()) for col in _df_smps.columns]
-
+            # Check size range
             size_range = self.kwargs.get('size_range') or (11.8, 593.5)
-
-            if _df_smps.columns[0] != size_range[0] or _df_smps.columns[-1] != size_range[1]:
+            if bin_cols[0] != size_range[0] or bin_cols[-1] != size_range[1]:
                 self.logger.warning(f'SMPS file: {file.name} size range mismatch. '
-                                    f'Expected {size_range}, got ({_df_smps.columns[0]}, {_df_smps.columns[-1]})')
+                                    f'Expected {size_range}, got ({bin_cols[0]}, {bin_cols[-1]})')
                 return None
 
-            _df_smps = _df_smps.apply(to_numeric, errors='coerce')
+            # Drop columns already consumed for the time index
+            index_cols = ['Date', 'Start Time', 'DateTime Sample Start',
+                          'Sample #', 'Scan Number', 'Diameter Midpoint', 'Diameter Midpoint (nm)']
+            _df = _df.drop(columns=[c for c in index_cols if c in _df.columns], errors='ignore')
 
-            # Include Status Flag column in _df (will be processed by core together)
-            if self.STATUS_COLUMN in _df.columns:
-                _df_smps[self.STATUS_COLUMN] = _df.loc[_df_smps.index, self.STATUS_COLUMN].astype(str).str.strip()
-
-            return _df_smps
+            return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
     def _QC(self, _df):
         """
@@ -173,15 +182,6 @@ class Reader(AbstractReader):
         dlogDp = np.diff(np.log(df_numeric.columns[:-1].to_numpy(float))).mean()
         total_conc = df_numeric.sum(axis=1, min_count=1) * dlogDp
 
-        # Calculate hourly data counts
-        hourly_counts = (total_conc
-                         .dropna()
-                         .resample('h')
-                         .size()
-                         .resample('6min')
-                         .ffill()
-                         .reindex(df_numeric.index, method='ffill', tolerance='6min'))
-
         # Get large bins (>400nm)
         large_bins = df_numeric.columns[df_numeric.columns.astype(float) >= self.LARGE_BIN_THRESHOLD]
 
@@ -198,8 +198,10 @@ class Reader(AbstractReader):
             ),
             QCRule(
                 name='Insufficient',
-                condition=lambda df: Series(hourly_counts < self.MIN_HOURLY_COUNT, index=df.index).fillna(True),
-                description=f'Less than {self.MIN_HOURLY_COUNT} measurements per hour'
+                condition=lambda df: self.QC_control().hourly_completeness_QC(
+                    df[df_numeric.columns], freq=self.meta['freq']
+                ),
+                description='Less than 50% hourly data completeness'
             ),
             QCRule(
                 name='Invalid Number Conc',

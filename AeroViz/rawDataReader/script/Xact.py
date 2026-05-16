@@ -64,7 +64,11 @@ class Reader(AbstractReader):
     INTERNAL_STD_TOLERANCE = 0.20  # ±20% from median
 
     def _raw_reader(self, file):
-        """Read and parse raw Xact 625i XRF data files."""
+        """Read and parse raw Xact 625i XRF data files.
+
+        Returns all columns from the raw file. Column selection is deferred
+        to _QC() and _process() stages.
+        """
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             f.readline()  # skip row 0 (element names)
             headers = f.readline().strip().split(',')
@@ -118,19 +122,9 @@ class Reader(AbstractReader):
 
         _df = _df.rename(columns=rename_map)
 
-        # Select columns to keep (elements + uncertainties + environmental)
-        keep_cols = []
-        for elem in self.ELEMENTS:
-            if elem in _df.columns:
-                keep_cols.append(elem)
-            if f'{elem}_uncert' in _df.columns:
-                keep_cols.append(f'{elem}_uncert')
-        for env_col in self.ENV_COLUMNS:
-            if env_col in _df.columns:
-                keep_cols.append(env_col)
-
-        _df = _df[[col for col in keep_cols if col in _df.columns]]
-        _df = _df.apply(to_numeric, errors='coerce')
+        # Drop parsing artifacts, consumed index columns, and non-data string columns
+        _df = _df.drop(columns=['_extra_', 'TIME', 'PUMP START TIME', 'Output Pin 7 (True=ON)', 'XC VER'],
+                        errors='ignore')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
@@ -217,9 +211,7 @@ class Reader(AbstractReader):
         for _, row in summary.iterrows():
             self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
 
-        # Get output columns: elements + uncertainties + environmental + QC_Flag
-        output_cols = element_cols + uncert_cols + [c for c in self.ENV_COLUMNS if c in df_qc.columns] + ['QC_Flag']
-        return df_qc[[c for c in output_cols if c in df_qc.columns]].reindex(_index)
+        return df_qc.reindex(_index)
 
     def decode_alarm(self, alarm_code):
         """Decode ALARM code to human-readable message.

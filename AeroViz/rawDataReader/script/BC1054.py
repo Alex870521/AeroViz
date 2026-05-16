@@ -50,7 +50,11 @@ class Reader(AbstractReader):
     ]
 
     def _raw_reader(self, file):
-        """Read and parse raw BC1054 data files."""
+        """Read and parse raw BC1054 data files.
+
+        Returns all columns from the raw file. Column selection is deferred
+        to _QC() and _process() stages.
+        """
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             _df = read_csv(f, parse_dates=True, index_col=0)
             _df.columns = _df.columns.str.replace(' ', '')
@@ -59,10 +63,14 @@ class Reader(AbstractReader):
                 'BC1(ng/m3)': 'BC1', 'BC2(ng/m3)': 'BC2', 'BC3(ng/m3)': 'BC3',
                 'BC4(ng/m3)': 'BC4', 'BC5(ng/m3)': 'BC5', 'BC6(ng/m3)': 'BC6',
                 'BC7(ng/m3)': 'BC7', 'BC8(ng/m3)': 'BC8', 'BC9(ng/m3)': 'BC9',
-                'BC10(ng/m3)': 'BC10'
+                'BC10(ng/m3)': 'BC10',
+                'Flow(lpm)': 'Flow', 'DFlow(lpm)': 'DFlow',
+                'WS(m/s)': 'WS', 'WD(Deg)': 'WD',
+                'AT(C)': 'AT', 'RH(%)': 'RH', 'BP(mbar)': 'BP',
             })
 
-            _df = _df[self.BC_COLUMNS + ['Status']].apply(to_numeric, errors='coerce')
+            # Drop redundant time column (already used as index)
+            _df = _df.drop(columns=['Time'], errors='ignore')
 
             return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
@@ -132,8 +140,9 @@ class Reader(AbstractReader):
         # Calculate absorption coefficients, AAE, and eBC
         _df_cal = _absCoe(_df[self.BC_COLUMNS], instru=self.nam, specified_band=[550])
 
-        # Combine with Status and QC_Flag
-        df_out = concat([_df_cal, _df[['Status', 'QC_Flag']]], axis=1)
+        # Preserve all original columns (metadata like Flow, AT, RH, BP, etc.)
+        non_bc_cols = [c for c in _df.columns if c not in self.BC_COLUMNS]
+        df_out = concat([_df_cal, _df[non_bc_cols]], axis=1)
 
         # Validate AAE and update QC_Flag
         invalid_aae = (-df_out['AAE'] < self.MIN_AAE) | (-df_out['AAE'] > self.MAX_AAE)
@@ -156,6 +165,4 @@ class Reader(AbstractReader):
             for _, row in summary.iterrows():
                 self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
 
-        # Reorder columns
-        all_data_cols = self.BC_COLUMNS + self.ABS_COLUMNS + self.CAL_COLUMNS
-        return df_out[all_data_cols + ['QC_Flag']].reindex(_index)
+        return df_out.reindex(_index)

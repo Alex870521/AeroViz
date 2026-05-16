@@ -49,20 +49,17 @@ class Reader(AbstractReader):
     ]
 
     def _raw_reader(self, file):
-        """Read and parse raw AE33 Aethalometer data files."""
+        """Read and parse raw AE33 Aethalometer data files.
+
+        Returns all columns from the raw file. Column selection is deferred
+        to _QC() and _process() stages.
+        """
         if file.stat().st_size / 1024 < 550:
             self.logger.warning(f'{file.name} may not be a whole daily data.')
 
         _df = read_table(file, parse_dates={'time': [0, 1]}, index_col='time',
                          delimiter=r'\s+', skiprows=5, usecols=range(67))
         _df.columns = _df.columns.str.strip(';')
-
-        # Select BC columns, Status, and BB(%) if available
-        cols_to_read = self.BC_COLUMNS + ['Status']
-        if self.BB_COLUMN in _df.columns:
-            cols_to_read.append(self.BB_COLUMN)
-
-        _df = _df[cols_to_read].apply(to_numeric, errors='coerce')
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

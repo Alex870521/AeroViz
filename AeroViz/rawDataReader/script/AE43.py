@@ -47,13 +47,16 @@ class Reader(AbstractReader):
     ]
 
     def _raw_reader(self, file):
-        """Read and parse raw AE43 Aethalometer data files."""
+        """Read and parse raw AE43 Aethalometer data files.
+
+        Returns all columns from the raw file. Column selection is deferred
+        to _QC() and _process() stages.
+        """
         _df = read_csv(file, parse_dates={'time': ['StartTime']}, index_col='time')
         _df_id = _df['SetupID'].iloc[-1]
 
-        # Get last SetupID data (including Status column)
-        _df = _df.groupby('SetupID').get_group(_df_id)[self.BC_COLUMNS + ['Status']].copy()
-        _df = _df.apply(to_numeric, errors='coerce')
+        # Get last SetupID data (all columns)
+        _df = _df.groupby('SetupID').get_group(_df_id).copy()
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
@@ -122,8 +125,9 @@ class Reader(AbstractReader):
         # Note: AE43 uses AE33 coefficients
         _df_cal = _absCoe(_df[self.BC_COLUMNS], instru='AE33', specified_band=[550])
 
-        # Combine with Status and QC_Flag
-        df_out = concat([_df_cal, _df[['Status', 'QC_Flag']]], axis=1)
+        # Preserve all original columns (metadata like Flow, Pressure, Temperature, etc.)
+        non_bc_cols = [c for c in _df.columns if c not in self.BC_COLUMNS]
+        df_out = concat([_df_cal, _df[non_bc_cols]], axis=1)
 
         # Validate AAE and update QC_Flag
         invalid_aae = (-df_out['AAE'] < self.MIN_AAE) | (-df_out['AAE'] > self.MAX_AAE)
@@ -146,6 +150,4 @@ class Reader(AbstractReader):
             for _, row in summary.iterrows():
                 self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
 
-        # Reorder columns
-        all_data_cols = self.BC_COLUMNS + self.ABS_COLUMNS + self.CAL_COLUMNS
-        return df_out[all_data_cols + ['QC_Flag']].reindex(_index)
+        return df_out.reindex(_index)

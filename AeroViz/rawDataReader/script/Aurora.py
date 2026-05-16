@@ -37,19 +37,10 @@ class Reader(AbstractReader):
         super().__init__(*args, **kwargs)
 
     def _raw_reader(self, file):
-        """
-        Read and parse raw Aurora nephelometer data files.
+        """Read and parse raw Aurora nephelometer data files.
 
-        Parameters
-        ----------
-        file : Path or str
-            Path to the Aurora data file.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Processed Aurora data with datetime index and standardized
-            scattering coefficient columns.
+        Returns all columns from the raw file. Column selection is deferred
+        to _QC() and _process() stages.
         """
         _df = pd.read_csv(file, low_memory=False, index_col=0)
 
@@ -58,7 +49,7 @@ class Reader(AbstractReader):
 
         _df.columns = _df.keys().str.strip(' ')
 
-        # consider another csv format
+        # Standardize column names across formats
         _df = _df.rename(columns={
             '0°σspB': 'B',
             '0°σspG': 'G',
@@ -74,22 +65,18 @@ class Reader(AbstractReader):
             'B_Red': 'BR',
         })
 
-        # Check for status column (try multiple common names)
-        status_col_name = None
+        # Normalize status column name
         for col_name in self.STATUS_COLUMNS:
-            if col_name in _df.columns:
-                status_col_name = col_name
+            if col_name in _df.columns and col_name != self.STATUS_COLUMN:
+                _df = _df.rename(columns={col_name: self.STATUS_COLUMN})
                 break
 
-        _df_out = _df[['B', 'G', 'R', 'BB', 'BG', 'BR']].apply(pd.to_numeric, errors='coerce')
+        # Drop redundant time column
+        _df = _df.drop(columns=['Raw_Data_Time'], errors='ignore')
 
-        # Include status column in _df (will be processed by core together)
-        if status_col_name is not None:
-            _df_out[self.STATUS_COLUMN] = pd.to_numeric(_df[status_col_name], errors='coerce').astype('Int64')
+        _df = _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
-        _df_out = _df_out.loc[~_df_out.index.duplicated() & _df_out.index.notna()]
-
-        return _df_out
+        return _df
 
     def _QC(self, _df):
         """
@@ -179,8 +166,9 @@ class Reader(AbstractReader):
         # Calculate SAE and scattering at 550nm
         _df_cal = _scaCoe(_df[self.SCAT_COLUMNS], instru=self.nam, specified_band=[550])
 
-        # Combine with QC_Flag
-        df_out = concat([_df_cal, _df[['QC_Flag']]], axis=1)
+        # Preserve all non-SCAT columns (T1, T2, RH, P, S1, S2, Status, QC_Flag, etc.)
+        non_scat_cols = [c for c in _df.columns if c not in self.SCAT_COLUMNS]
+        df_out = concat([_df_cal, _df[non_scat_cols]], axis=1)
 
         # Log QC summary
         if hasattr(self, '_qc_summary') and self._qc_summary is not None:

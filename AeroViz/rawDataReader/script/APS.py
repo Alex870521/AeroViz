@@ -85,6 +85,9 @@ class Reader(AbstractReader):
     def _raw_reader(self, file):
         """Read and parse raw APS data files.
 
+        Returns all columns from the raw file. Column selection is deferred
+        to _QC() and _process() stages.
+
         Handles files with multiple concatenated headers (when multiple APS export
         files are merged into one). Header rows are identified and filtered out.
         """
@@ -131,33 +134,29 @@ class Reader(AbstractReader):
             # Set time index
             _df.index = _time_index
             _df.index.name = 'time'
+            _df = _df.loc[_df.index.dropna().copy()]
 
-            # Filter numeric columns (size bins ~542nm to ~1981nm)
+            # Identify size bin columns (numeric, in APS range 0.5-20 μm)
             numeric_cols = []
             for col in _df.columns:
                 col_str = str(col).strip()
-                # Check if it's a numeric column (float-like)
                 try:
                     val = float(col_str)
-                    if 0.5 <= val <= 20:  # APS size range in μm
+                    if 0.5 <= val <= 20:
                         numeric_cols.append(col)
                 except (ValueError, TypeError):
                     pass
             numeric_cols.sort(key=lambda x: float(str(x).strip()))
 
-            _df_aps = _df[numeric_cols].copy()
+            # Rename size bin columns to float values
+            bin_rename = {col: round(float(str(col).strip()), 4) for col in numeric_cols}
+            _df = _df.rename(columns=bin_rename)
 
-            # Filter out invalid timestamps (NaT from embedded headers in merged files)
-            _df_aps = _df_aps.loc[_df_aps.index.dropna().copy()]
+            # Drop columns already consumed for the time index
+            index_cols = ['Date', 'Start Time', 'Sample #', 'Aerodynamic Diameter']
+            _df = _df.drop(columns=[c for c in index_cols if c in _df.columns], errors='ignore')
 
-            # Rename columns to float values
-            _df_aps.columns = [round(float(str(col).strip()), 4) for col in _df_aps.columns]
-
-            # Include Status Flags column in _df (will be processed by core together)
-            if self.STATUS_COLUMN in _df.columns:
-                _df_aps[self.STATUS_COLUMN] = _df.loc[_df_aps.index, self.STATUS_COLUMN].astype(str).str.strip()
-
-            return _df_aps
+            return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
     def _QC(self, _df):
         """
@@ -180,15 +179,6 @@ class Reader(AbstractReader):
         dlogDp = np.diff(np.log(df_numeric.columns.to_numpy(float))).mean()
         total_conc = df_numeric.sum(axis=1, min_count=1) * dlogDp
 
-        # Calculate hourly data counts
-        hourly_counts = (total_conc
-                         .dropna()
-                         .resample('h')
-                         .size()
-                         .resample('6min')
-                         .ffill()
-                         .reindex(df_numeric.index, method='ffill', tolerance='6min'))
-
         # Build QC rules declaratively
         qc = QCFlagBuilder()
 
@@ -202,8 +192,10 @@ class Reader(AbstractReader):
             ),
             QCRule(
                 name='Insufficient',
-                condition=lambda df: Series(hourly_counts < self.MIN_HOURLY_COUNT, index=df.index).fillna(True),
-                description=f'Less than {self.MIN_HOURLY_COUNT} measurements per hour'
+                condition=lambda df: self.QC_control().hourly_completeness_QC(
+                    df[df_numeric.columns], freq=self.meta['freq']
+                ),
+                description='Less than 50% hourly data completeness'
             ),
             QCRule(
                 name='Invalid Number Conc',

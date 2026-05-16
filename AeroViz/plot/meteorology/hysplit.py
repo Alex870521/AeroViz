@@ -34,7 +34,7 @@ def read_hysplit_data(file: Path):
 
 
 @set_figure
-def hysplit(file: Path = DEFAULT_FILE):
+def hysplit(file: Path = DEFAULT_FILE, savefig: str | Path | None = None):
     data = read_hysplit_data(file)
 
     # 創建地圖
@@ -82,10 +82,9 @@ def hysplit(file: Path = DEFAULT_FILE):
 
     plt.tight_layout()
 
-    # 保存地圖
-    plt.savefig('backward_hysplit.png', dpi=300, bbox_inches='tight')
+    if savefig:
+        plt.savefig(savefig, bbox_inches='tight')
 
-    # 顯示地圖（可選）
     plt.show()
 
 

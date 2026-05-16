@@ -151,7 +151,7 @@ def metal_heatmaps(df,
            )
 
     if kwargs.get('savefig'):
-        plt.savefig(kwargs.get('savefig'), dpi=600)
+        plt.savefig(kwargs.get('savefig'))
 
     plt.show()
 

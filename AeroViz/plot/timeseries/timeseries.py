@@ -359,9 +359,9 @@ def timeseries_stacked(df,
     # Set figure size based on plot_type
     figsize = (7, 6) if plot_type == 'both' else (7, 3)
     if plot_type == 'both':
-        fig, (ax1, ax2) = plt.subplots(2, 1, **{**{'figsize': figsize, 'dpi': 600}, **kwargs.get('fig_kws', {})})
+        fig, (ax1, ax2) = plt.subplots(2, 1, **{**{'figsize': figsize}, **kwargs.get('fig_kws', {})})
     else:
-        fig, ax1 = plt.subplots(1, 1, **{**{'figsize': figsize, 'dpi': 600}, **kwargs.get('fig_kws', {})})
+        fig, ax1 = plt.subplots(1, 1, **{**{'figsize': figsize}, **kwargs.get('fig_kws', {})})
 
     plt.subplots_adjust(right=0.95)
     width = 0.0417
@@ -440,7 +440,8 @@ def timeseries_stacked(df,
         pass
         # ax1.axes.xaxis.set_visible(False)
 
-    plt.savefig('/Users/chanchihyu/Desktop/times_stacked.png', transparent=True)
+    if kwargs.get('savefig'):
+        plt.savefig(kwargs.get('savefig'), transparent=True)
 
     plt.show()
     return fig, ax1

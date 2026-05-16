@@ -50,7 +50,8 @@ def set_figure(func=None,
             plt.rcParams['legend.labelspacing'] = 0.7
 
             plt.rcParams['figure.figsize'] = figsize or (4, 4)
-            plt.rcParams['figure.dpi'] = 300
+            plt.rcParams['figure.dpi'] = 600
+            plt.rcParams['savefig.dpi'] = 600
             plt.rcParams['figure.autolayout'] = autolayout
 
             if not autolayout:

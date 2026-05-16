@@ -71,6 +71,9 @@ class AbstractReader(ABC):
             If str, specifies the frequency for QC calculations
         **kwargs : dict
             Additional keyword arguments:
+                raw_freq : str
+                    Override raw data frequency (e.g., '6min', '1h').
+                    If not set, frequency is auto-inferred from the data.
                 log_level : str
                     Logging level for the log file
                 quiet : bool
@@ -103,6 +106,7 @@ class AbstractReader(ABC):
         self.append = reset == 'append'
         self.qc = qc  # if qc, then calculate rate
         self.qc_freq = qc if isinstance(qc, str) else None
+        self.raw_freq = kwargs.get('raw_freq', None)
         self.kwargs = kwargs
 
         # Selective output control
@@ -357,8 +361,19 @@ class AbstractReader(ABC):
         # Round timestamps and remove duplicates
         _df = _df.groupby(_df.index.floor('1min')).first()
 
-        # Determine frequency
-        freq = _df.index.inferred_freq or self.meta['freq']
+        # Determine frequency: user override > inferred > median interval > config fallback
+        if self.raw_freq is not None:
+            freq = self.raw_freq
+            self.logger.debug(f"Using user-specified raw_freq: {freq}")
+        else:
+            freq = _df.index.inferred_freq
+            if freq is None and len(_df.index) >= 2:
+                median_delta = pd.Series(_df.index).diff().dropna().median()
+                # Round to nearest minute to avoid odd offsets like 1min55s
+                freq_minutes = max(1, round(median_delta.total_seconds() / 60))
+                freq = f'{freq_minutes}min'
+                self.logger.debug(f"Inferred frequency from median interval: {freq}")
+            freq = freq or self.meta['freq']
 
         # Append new data if provided
         if append_df is not None:
@@ -366,34 +381,26 @@ class AbstractReader(ABC):
             _df = pd.concat([append_df.dropna(how='all'), _df.dropna(how='all')])
             _df = _df.loc[~_df.index.duplicated()]
 
-        # Determine time range
+        # Determine time range, align start to freq grid
         df_start, df_end = _df.index.sort_values()[[0, -1]]
+        start = user_start or df_start.floor(freq)
+        end = user_end or df_end
+        new_index = pd.date_range(start, end, freq=freq, name='time')
 
-        # Create new time index
-        new_index = pd.date_range(user_start or df_start, user_end or df_end, freq=freq, name='time')
+        # Warn if data timestamps are misaligned with the freq grid
+        offset = _df.index - _df.index.floor(freq)
+        misaligned = offset > pd.Timedelta(0)
+        if misaligned.any():
+            n_misaligned = misaligned.sum()
+            example = _df.index[misaligned][0]
+            self.logger.warning(
+                f"Time misalignment: {n_misaligned} timestamps not on {freq} grid "
+                f"(e.g. {example}). Data will be snapped to nearest grid point."
+            )
 
-        # Process data: convert to numeric, resample, and reindex with controlled tolerance
-        if freq in ['1min', 'min', 'T']:
-            # For minute-level data, use smaller tolerance, e.g., 30 seconds
-            return _df.reindex(new_index, method='nearest', tolerance='30s')
-        elif freq in ['1h', 'h', 'H']:
-            # For hourly data, use 30 minutes as tolerance
-            # This way 08:20 matches to 08:00, but not to 09:00
-            return _df.reindex(new_index, method='nearest', tolerance='30min')
-        else:
-            # For other frequencies, set tolerance to half the frequency
-            if isinstance(freq, str) and freq[-1].isalpha():
-                # If freq format is 'number+unit', e.g., '2h', '3min'
-                try:
-                    num = int(freq[:-1])
-                    unit = freq[-1]
-                    half_freq = f"{num // 2}{unit}" if num > 1 else f"30{'min' if unit == 'h' else 's'}"
-                    return _df.reindex(new_index, method='nearest', tolerance=half_freq)
-                except ValueError:
-                    # Cannot parse freq, use default value
-                    return _df.reindex(new_index, method='nearest', tolerance=freq)
-            else:
-                return _df.reindex(new_index, method='nearest', tolerance=freq)
+        # Reindex with tolerance = half the frequency interval
+        tolerance = pd.Timedelta(pd.tseries.frequencies.to_offset(freq)) / 2
+        return _df.reindex(new_index, method='nearest', tolerance=tolerance)
 
     def _outlier_process(self, _df):
         """
@@ -566,7 +573,17 @@ class AbstractReader(ABC):
 
         raw_data = self._timeIndex_process(raw_data)
 
+        # Smart to_numeric: preserve truly non-numeric (text) columns
+        _preserved_text = {}
+        for col in raw_data.select_dtypes(include=['object', 'string']).columns:
+            converted = pd.to_numeric(raw_data[col], errors='coerce')
+            if converted.isna().all() and raw_data[col].notna().any():
+                _preserved_text[col] = raw_data[col].copy()
+
         raw_data = raw_data.apply(pd.to_numeric, errors='coerce').copy(deep=True)
+
+        for col, data in _preserved_text.items():
+            raw_data[col] = data
 
         # Perform QC processing (raw data quality checks only)
         qc_data = self._QC(raw_data.copy(deep=True))

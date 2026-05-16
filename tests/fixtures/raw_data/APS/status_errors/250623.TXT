@@ -1,0 +1,32 @@
+Sample File	C:\Users\User\Desktop\2025\APS\250623.A21
+Sample Time	115
+Density	1
+Stokes Correction	off
+Lower Channel Bound	0.486968
+Upper Channel Bound	20.5353
+Sample #	Date	Start Time	Aerodynamic Diameter	<0.523	0.542	0.583	0.626	0.673	0.723	0.777	0.835	0.898	0.965	1.037	1.114	1.197	1.286	1.382	1.486	1.596	1.715	1.843	1.981	2.129	2.288	2.458	2.642	2.839	3.051	3.278	3.523	3.786	4.068	4.371	4.698	5.048	5.425	5.829	6.264	6.732	7.234	7.774	8.354	8.977	9.647	10.37	11.14	11.97	12.86	13.82	14.86	15.96	17.15	18.43	19.81	Event 1	Event 3	Event 4	Dead Time	Inlet Pressure	Total Flow	Sheath Flow	Analog Input Voltage 0	Analog Input Voltage 1	Digital Input Level 0	Digital Input Level 1	Digital Input Level 2	Laser Power	Laser Current	Sheath Pump Voltage	Total Pump Voltage	Box Temperature	Avalanch Photo Diode Temperature	Avalanch Photo Diode Voltage	Status Flags	Median(µm)	Mean(µm)	Geo. Mean(µm)	Mode(µm)	Geo. Std. Dev.	Total Conc.
+1	06/23/25	10:36:01	dN/dlogDp	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	994.9	4.98	3.99	0	0	0	0	0	5	77.6	2.726	3.063	39.6	35.3	221	0000 0000 0000 0001	-1.#IND	-1.#IND	-1.#IND	0	-1.#IND	0(#/cm3)
+2	06/23/25	10:37:56	dN/dlogDp	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	994.9	4.98	3.98	0	0	0	0	0	5	77.7	2.727	3.063	39.5	35.3	221	0000 0000 0000 0001	-1.#IND	-1.#IND	-1.#IND	0	-1.#IND	0(#/cm3)
+3	06/23/25	10:39:51	dN/dlogDp	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0.0166953	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	995.2	4.98	3.98	0	0	0	0	0	5	77.6	2.74	3.058	39.5	35.3	221	0000 0000 0000 0001	2.64507	2.64165	2.64165	2.64165	1	0.000521729(#/cm3)
+4	06/23/25	10:42:00	dN/dlogDp	0.0772158	0	0.0166953	0	0	0	0	0	0	0	0	0.0166953	0.0166953	0.0166953	0.0166953	0.0166953	0	0	0.0166953	0	0	0.0166953	0.050086	0	0	0	0	0	0.0333906	0.0166953	0	0.0166953	0.0166953	0	0	0	0.0333906	0.0166953	0.0166953	0.0166953	0	0	0.0166953	0	0	0.0166953	0.0166953	0	0	0.0166953	0	0.0166953	35	57	17	1	994.6	4.98	3.99	0	0	0	0	0	5	77.7	2.725	3.065	39.5	35.3	221	0000 0000 0000 0001	3.92673	5.79928	3.90253	2.45824	2.52234	0.0328689(#/cm3)
+5	06/23/25	10:43:55	dN/dlogDp	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	994.6	4.98	3.98	0	0	0	0	0	5	77.6	2.724	3.063	39.4	35.3	221	0000 0000 0000 0001	-1.#IND	-1.#IND	-1.#IND	0	-1.#IND	0(#/cm3)
+6	06/23/25	10:45:50	dN/dlogDp	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	994.9	4.98	3.99	0	0	0	0	0	5	77.6	2.725	3.065	39.4	35.3	221	0000 0000 0000 0001	-1.#IND	-1.#IND	-1.#IND	0	-1.#IND	0(#/cm3)
+Sample File	C:\Users\User\Desktop\2025\APS\250623.A21
+Sample Time	115
+Density	1
+Stokes Correction	off
+Lower Channel Bound	0.486968
+Upper Channel Bound	20.5353
+Sample #	Date	Start Time	Aerodynamic Diameter	<0.523	0.542	0.583	0.626	0.673	0.723	0.777	0.835	0.898	0.965	1.037	1.114	1.197	1.286	1.382	1.486	1.596	1.715	1.843	1.981	2.129	2.288	2.458	2.642	2.839	3.051	3.278	3.523	3.786	4.068	4.371	4.698	5.048	5.425	5.829	6.264	6.732	7.234	7.774	8.354	8.977	9.647	10.37	11.14	11.97	12.86	13.82	14.86	15.96	17.15	18.43	19.81	Event 1	Event 3	Event 4	Dead Time	Inlet Pressure	Total Flow	Sheath Flow	Analog Input Voltage 0	Analog Input Voltage 1	Digital Input Level 0	Digital Input Level 1	Digital Input Level 2	Laser Power	Laser Current	Sheath Pump Voltage	Total Pump Voltage	Box Temperature	Avalanch Photo Diode Temperature	Avalanch Photo Diode Voltage	Status Flags	Median(µm)	Mean(µm)	Geo. Mean(µm)	Mode(µm)	Geo. Std. Dev.	Total Conc.
+7	06/23/25	10:54:00	dN/dlogDp	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	994.3	4.98	3.99	0	0	0	0	0	5	77.6	2.728	3.067	39.3	35.3	221	0000 0000 0000 0001	-1.#IND	-1.#IND	-1.#IND	0	-1.#IND	0(#/cm3)
+Sample File	C:\Users\User\Desktop\2025\APS\250623.A21
+Sample Time	115
+Density	1
+Stokes Correction	off
+Lower Channel Bound	0.486968
+Upper Channel Bound	20.5353
+Sample #	Date	Start Time	Aerodynamic Diameter	<0.523	0.542	0.583	0.626	0.673	0.723	0.777	0.835	0.898	0.965	1.037	1.114	1.197	1.286	1.382	1.486	1.596	1.715	1.843	1.981	2.129	2.288	2.458	2.642	2.839	3.051	3.278	3.523	3.786	4.068	4.371	4.698	5.048	5.425	5.829	6.264	6.732	7.234	7.774	8.354	8.977	9.647	10.37	11.14	11.97	12.86	13.82	14.86	15.96	17.15	18.43	19.81	Event 1	Event 3	Event 4	Dead Time	Inlet Pressure	Total Flow	Sheath Flow	Analog Input Voltage 0	Analog Input Voltage 1	Digital Input Level 0	Digital Input Level 1	Digital Input Level 2	Laser Power	Laser Current	Sheath Pump Voltage	Total Pump Voltage	Box Temperature	Avalanch Photo Diode Temperature	Avalanch Photo Diode Voltage	Status Flags	Median(µm)	Mean(µm)	Geo. Mean(µm)	Mode(µm)	Geo. Std. Dev.	Total Conc.
+1	06/23/25	11:24:00	dN/dlogDp	0.00208691	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0	998.1	4.98	3.98	0	0	0	0	0	5	77.7	2.737	3.05	38.2	35.3	221	0000 0000 0000 0001	-1.#IND	-1.#IND	-1.#IND	0	-1.#IND	0.000521729(#/cm3)
+2	06/23/25	11:25:55	dN/dlogDp	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	997.5	4.98	3.98	0	0	0	0	0	5	77.7	2.724	3.052	37.8	35.3	221	0000 0000 0000 0001	-1.#IND	-1.#IND	-1.#IND	0	-1.#IND	0(#/cm3)
+3	06/23/25	11:27:50	dN/dlogDp	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	997.2	4.97	3.98	0	0	0	0	0	5	77.7	2.72	3.056	37.4	35.3	221	0000 0000 0000 0001	-1.#IND	-1.#IND	-1.#IND	0	-1.#IND	0(#/cm3)
+4	06/23/25	11:30:00	dN/dlogDp	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	998.1	4.98	3.98	0	0	0	0	0	5	77.7	2.738	3.05	37.3	34.9	221	0000 0000 0000 0001	-1.#IND	-1.#IND	-1.#IND	0	-1.#IND	0(#/cm3)

@@ -719,22 +719,16 @@ def _dry_pnsd_process(dist: np.ndarray,
     # Find which bin each dry diameter belongs to
     belong_which_ibin = np.digitize(dry_dp, dp) - 1
 
-    # Redistribute particles to appropriate bins
-    result = {}
-    for i, (ibin, dn) in enumerate(zip(belong_which_ibin, ndp)):
-        if ibin < 0 or ibin >= len(dp):
-            continue
-        if dp[ibin] not in result:
-            result[dp[ibin]] = []
-        result[dp[ibin]].append(ndp[i])
+    # Accumulate particles into each dry bin. Use SUM (not average) so the
+    # total number of particles is preserved when multiple wet bins shrink
+    # into the same dry bin. Output is fixed-length len(dp) and aligned to
+    # the input dp grid; empty bins are zero.
+    dry_ndp = np.zeros(len(dp))
+    for i, ibin in enumerate(belong_which_ibin):
+        if 0 <= ibin < len(dp):
+            dry_ndp[ibin] += ndp[i]
 
-    # Average concentrations in each bin
-    dry_ndp = []
-    for key in sorted(result.keys()):
-        val = result[key]
-        dry_ndp.append(sum(val) / len(val))
-
-    return np.array(dry_ndp)
+    return dry_ndp
 
 
 def _geometric_statistics(dp: np.ndarray, dist: DataFrame) -> tuple:

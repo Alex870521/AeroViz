@@ -1,13 +1,10 @@
 from typing import Literal
 
 import numpy as np
-import pandas
 from pandas import DataFrame, read_excel
 
 from AeroViz.rawDataReader.config.supported_instruments import meta
 from AeroViz.rawDataReader.core import AbstractReader
-
-pandas.set_option("future.no_silent_downcasting", True)
 
 desired_order1 = ['SO2', 'NO', 'NOx', 'NO2', 'CO', 'O3', 'THC', 'NMHC',
                   'CH4', 'PM10', 'PM2.5', 'WS', 'WD', 'AT', 'RH']

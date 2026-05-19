@@ -1,4 +1,4 @@
-from pandas import read_table, to_numeric, concat
+from pandas import read_table, to_datetime, to_numeric, concat
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
 from AeroViz.rawDataReader.core.pre_process import _absCoe
@@ -57,9 +57,19 @@ class Reader(AbstractReader):
         if file.stat().st_size / 1024 < 550:
             self.logger.warning(f'{file.name} may not be a whole daily data.')
 
-        _df = read_table(file, parse_dates={'time': [0, 1]}, index_col='time',
-                         delimiter=r'\s+', skiprows=5, usecols=range(67))
+        # AE33 stores date and time in separate columns 0 and 1; combine them
+        # into a single datetime index. (pandas 3.0 removed the dict form of
+        # `parse_dates` so the combine has to happen after the read.)
+        _df = read_table(file, delimiter=r'\s+', skiprows=5, usecols=range(67))
         _df.columns = _df.columns.str.strip(';')
+
+        date_col, time_col = _df.columns[0], _df.columns[1]
+        _df.index = to_datetime(
+            _df[date_col].astype(str) + ' ' + _df[time_col].astype(str),
+            errors='coerce',
+        )
+        _df.index.name = 'time'
+        _df = _df.drop(columns=[date_col, time_col])
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 

@@ -52,7 +52,8 @@ class Reader(AbstractReader):
         Returns all columns from the raw file. Column selection is deferred
         to _QC() and _process() stages.
         """
-        _df = read_csv(file, parse_dates={'time': ['StartTime']}, index_col='time')
+        _df = read_csv(file, parse_dates=['StartTime'], index_col='StartTime')
+        _df.index.name = 'time'
         _df_id = _df['SetupID'].iloc[-1]
 
         # Get last SetupID data (all columns)

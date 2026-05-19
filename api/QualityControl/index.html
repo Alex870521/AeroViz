@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -616,6 +616,8 @@
       
         
       
+        
+      
     
     
     
@@ -676,6 +678,34 @@
     
   
     RawDataReader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/rawdatareader-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Internals
   
 
     
@@ -5192,7 +5222,7 @@ applying more lenient criteria when consistent trends are detected.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">filter_error_status</span><span class="p">(</span><span class="n">_df</span><span class="p">,</span> <span class="n">error_codes</span><span class="p">,</span> <span class="n">special_codes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">filter_error_status</span><span class="p">(</span><span class="n">_df</span><span class="p">,</span> <span class="n">error_codes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">special_codes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status_column</span><span class="o">=</span><span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="n">status_type</span><span class="o">=</span><span class="s1">&#39;bitwise&#39;</span><span class="p">,</span> <span class="n">ok_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5236,11 +5266,11 @@ applying more lenient criteria when consistent trends are detected.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Codes indicating errors</p>
+                <p>Codes indicating errors (for 'bitwise' type)</p>
               </div>
             </td>
             <td>
-                <em>required</em>
+                  <code>None</code>
             </td>
           </tr>
           <tr class="doc-section-item">
@@ -5252,7 +5282,7 @@ applying more lenient criteria when consistent trends are detected.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Special codes to handle differently</p>
+                <p>Special codes to handle differently (exact match)</p>
               </div>
             </td>
             <td>
@@ -5274,6 +5304,60 @@ If False, returns filtered DataFrame</p>
             </td>
             <td>
                   <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>status_column</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the status column in DataFrame</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;Status&#39;</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>status_type</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Type of status check:
+- 'bitwise': Use bitwise AND to check error codes (AE33, AE43, BC1054, MA350)
+- 'numeric': Check if status != ok_value (TEOM, Aurora, NEPH)
+- 'text': Check if status != ok_value as string (SMPS)
+- 'binary_string': Parse binary string and check if &gt; 0 (APS)</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;bitwise&#39;</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>ok_value</code>
+            </td>
+            <td>
+                  <code><span title="any">any</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The value indicating OK status (for 'numeric', 'text' types)
+- For 'numeric': typically 0
+- For 'text': typically 'Normal Scan'</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
             </td>
           </tr>
       </tbody>

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -616,6 +616,8 @@
       
         
       
+        
+      
     
     
     
@@ -676,6 +678,34 @@
     
   
     RawDataReader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/rawdatareader-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Internals
   
 
     
@@ -3485,9 +3515,36 @@
 
     <div class="doc doc-contents first">
 
-        <p>Factory function to create appropriate data processing module based on method type.</p>
-<p>This function serves as an entry point for different data processing methods in AeroViz.
-It returns an instance of the appropriate processor class based on the specified method.</p>
+        <p>Factory function (DEPRECATED) — use the top-level functions instead.</p>
+<p>.. deprecated::
+    <code>DataProcess(...)</code> will be removed in a future release. Each method
+    on the returned Writer instance now has a direct top-level function
+    equivalent. Migration cheatsheet::</p>
+<div class="highlight"><pre><span></span><code>    DataProcess(&#39;Chemistry&#39;, ...).ReConstrc_basic(df, ...)
+      → from AeroViz import reconstruct_mass
+        reconstruct_mass(df, ...)
+
+    DataProcess(&#39;Optical&#39;, ...).IMPROVE(df_mass, df_RH, method=&#39;revised&#39;)
+      → from AeroViz import improve
+        improve(df_mass, df_RH, method=&#39;revised&#39;)
+
+    DataProcess(&#39;Optical&#39;, ...).Mie(df_psd, df_m)
+      → from AeroViz import mie
+        mie(df_psd, df_m)
+
+    DataProcess(&#39;SizeDistr&#39;, ...).merge_SMPS_APS_v4(df_smps, df_aps, df_pm25)
+      → from AeroViz import merge_psd
+        merge_psd(df_smps, df_aps, df_pm25=df_pm25, version=4)
+
+    DataProcess(&#39;VOC&#39;, ...).VOC_basic(df_voc)
+      → from AeroViz import voc_potentials
+        voc_potentials(df_voc)
+
+Sub-namespaces (``AeroViz.chemistry``, ``AeroViz.optical``,
+``AeroViz.size``, ``AeroViz.voc``) are also supported. The new
+functions return DataFrames/dicts directly — pass ``df.to_csv(...)``
+yourself if you want files written.
+</code></pre></div>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -3619,7 +3676,7 @@ It returns an instance of the appropriate processor class based on the specified
 <p><span class="doc-section-title">Examples:</span></p>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataProcess</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">processor</span> <span class="o">=</span> <span class="n">DataProcess</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;Optical&#39;</span><span class="p">,</span> <span class="n">path_out</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;./results&#39;</span><span class="p">))</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">processor</span> <span class="o">=</span> <span class="n">DataProcess</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;Optical&#39;</span><span class="p">,</span> <span class="n">path_out</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;./results&#39;</span><span class="p">))</span>  <span class="c1"># deprecated</span>
 </code></pre></div>
 
 

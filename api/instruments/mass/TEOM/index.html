@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -616,6 +616,8 @@
       
         
       
+        
+      
     
     
     
@@ -676,6 +678,34 @@
     
   
     RawDataReader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/rawdatareader-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Internals
   
 
     
@@ -2371,17 +2401,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.TEOM.Reader._status_data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _status_data
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -2415,6 +2434,17 @@
     <span class="md-ellipsis">
       
         _QC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.TEOM.Reader._process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _process
       
     </span>
   </a>
@@ -3756,17 +3786,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.TEOM.Reader._status_data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _status_data
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -3800,6 +3819,17 @@
     <span class="md-ellipsis">
       
         _QC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.TEOM.Reader._process" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _process
       
     </span>
   </a>
@@ -4149,28 +4179,6 @@ on supported formats and QC procedures.</p>
 
 </div>
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h4 id="AeroViz.rawDataReader.script.TEOM.Reader._status_data" class="doc doc-heading">
-            <span class="doc doc-object-name doc-attribute-name">_status_data</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
-  </span>
-
-</h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_status_data</span> <span class="o">=</span> <span class="kc">None</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-    </div>
-
-</div>
-
 
 <h3 id="AeroViz.rawDataReader.script.TEOM.Reader-functions">Functions</h3>
 
@@ -4188,85 +4196,11 @@ on supported formats and QC procedures.</p>
     <div class="doc doc-contents ">
 
         <p>Read and parse raw TEOM data files in various formats.</p>
-<p>Handles multiple TEOM data formats and standardizes them to a consistent
-structure with uniform column names and datetime index.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>file</code>
-            </td>
-            <td>
-                  <code><span title="pathlib.Path">Path</span> or <span title="str">str</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Path to the TEOM data file.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="pandas.DataFrame">DataFrame</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Processed raw TEOM data with datetime index and standardized columns.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<p><span class="doc-section-title">Raises:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="NotImplementedError">NotImplementedError</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>If the file format is not recognized as a supported TEOM data format.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+<p>Returns all columns from the raw file. Column selection is deferred
+to _QC() and _process() stages.</p>
+<p>Supported formats:
+- Remote download: Time Stamp with Chinese month names, columns like 'PM-2.5 base MC'
+- USB/auto export: Date + Time columns, columns like 'tmoTEOMABaseMC_0'</p>
 
 
     </div>
@@ -4296,11 +4230,31 @@ structure with uniform column names and datetime index.</p>
 <li>High Noise           : noise &gt;= 0.01</li>
 <li>Non-positive         : PM_NV &lt;= 0 OR PM_Total &lt;= 0</li>
 <li>NV &gt; Total           : PM_NV &gt; PM_Total (physically impossible)</li>
-<li>Invalid Vol Frac     : Volatile_Fraction outside valid range (0-1)</li>
 <li>Spike                : Sudden value change (vectorized spike detection)</li>
 <li>Insufficient         : Less than 50% hourly data completeness</li>
 </ol>
 </details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="AeroViz.rawDataReader.script.TEOM.Reader._process" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_process</span>
+
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_process</span><span class="p">(</span><span class="n">_df</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculate derived parameters from QC'd TEOM data.</p>
+<p>Calculates Volatile_Fraction = (PM_Total - PM_NV) / PM_Total.</p>
+
 
     </div>
 

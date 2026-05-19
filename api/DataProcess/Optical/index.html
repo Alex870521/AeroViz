@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -616,6 +616,8 @@
       
         
       
+        
+      
     
     
     
@@ -676,6 +678,34 @@
     
   
     RawDataReader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/rawdatareader-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Internals
   
 
     
@@ -2780,6 +2810,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.dataProcess.Optical.Optical.BrC" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BrC
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3972,6 +4013,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.dataProcess.Optical.Optical.BrC" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BrC
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4452,7 +4504,7 @@ Columns are particle diameters (nm), rows are time points.</p>
 
 
 </h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">IMPROVE</span><span class="p">(</span><span class="n">df_mass</span><span class="p">,</span> <span class="n">df_RH</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;revised&#39;</span><span class="p">,</span> <span class="n">df_nh4_status</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">IMPROVE</span><span class="p">(</span><span class="n">df_mass</span><span class="p">,</span> <span class="n">df_RH</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;revised&#39;</span><span class="p">,</span> <span class="n">df_nh4_status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">df_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">oa_oc_ratio</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4480,7 +4532,9 @@ Columns are particle diameters (nm), rows are time points.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Mass concentrations with columns: AS, AN, OM, Soil, SS, EC</p>
+                <p>Mass concentrations.
+- 'revised' / 'modified': columns AS, AN, OM, Soil, SS, EC
+- 'localized':            columns AS, AN, POC, SOC, Soil, SS, EC</p>
               </div>
             </td>
             <td>
@@ -4496,7 +4550,7 @@ Columns are particle diameters (nm), rows are time points.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Relative humidity data</p>
+                <p>Relative humidity data (%).</p>
               </div>
             </td>
             <td>
@@ -4512,7 +4566,7 @@ Columns are particle diameters (nm), rows are time points.</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>IMPROVE version: 'revised' or 'modified'</p>
+                <p>IMPROVE version: 'revised', 'modified', or 'localized'.</p>
               </div>
             </td>
             <td>
@@ -4530,6 +4584,58 @@ Columns are particle diameters (nm), rows are time points.</p>
               <div class="doc-md-description">
                 <p>NH4 status from reconstruction_basic()['NH4_status'].
 If provided, rows with 'Deficiency' status will be excluded.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>df_ext</code>
+            </td>
+            <td>
+                  <code><span title="DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Measured extinction with 'Scattering' and 'Absorption' columns
+(Mm⁻¹). Required when method='localized' to fit POA/SOA mass
+scattering efficiencies via MLR.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>oa_oc_ratio</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>OA/OC conversion ratio (used only by method='localized').</p>
+              </div>
+            </td>
+            <td>
+                  <code>1.8</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>upper_bounds</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Upper bounds for the MLR coefficients (used only by
+method='localized'). Defaults to
+{'S_POA': 10, 'L_POA': 10, 'S_SOA': 10, 'L_SOA': 10}.</p>
               </div>
             </td>
             <td>
@@ -4556,10 +4662,13 @@ If provided, rows with 'Deficiency' status will be excluded.</p>
             <td>
               <div class="doc-md-description">
                 <p>Dictionary with keys:
-- 'dry': Dry extinction DataFrame
-- 'wet': Wet extinction DataFrame (if df_RH provided)
+- 'dry':  Dry extinction DataFrame
+- 'wet':  Wet extinction DataFrame (if df_RH provided)
 - 'ALWC': Water contribution (wet - dry)
-- 'fRH': Hygroscopic growth factor</p>
+- 'fRH':  Hygroscopic growth factor
+For method='localized' the dict additionally contains:
+- 'coefficients': fitted MSE/MAE values
+- 'regression':   slope and R² of the closure</p>
               </div>
             </td>
           </tr>
@@ -4996,6 +5105,175 @@ If provided, rows with 'Deficiency' status will be excluded.</p>
       </tbody>
     </table>
 
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="AeroViz.dataProcess.Optical.Optical.BrC" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">BrC</span>
+
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">BrC</span><span class="p">(</span><span class="n">df_abs</span><span class="p">,</span> <span class="n">wavelengths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ref_wavelength</span><span class="o">=</span><span class="mi">880</span><span class="p">,</span> <span class="n">aae_bc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Calculate Brown Carbon (BrC) absorption by separating BC and BrC contributions.</p>
+<p>This method uses the AAE-based separation approach:
+1. Assume Black Carbon (BC) has AAE = 1.0 (or user-specified value)
+2. Absorption at 880nm is entirely from BC (reference wavelength)
+3. Calculate BC absorption at shorter wavelengths using power law
+4. BrC absorption = Total absorption - BC absorption
+5. Calculate BrC AAE from the derived spectrum</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>df_abs</code>
+            </td>
+            <td>
+                  <code><span title="DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Absorption coefficient data with columns like 'abs_370', 'abs_470',
+'abs_520', 'abs_590', 'abs_660', 'abs_880'.
+Units should be Mm-1.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>wavelengths</code>
+            </td>
+            <td>
+                  <code><span title="list">list</span>[<span title="int">int</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Wavelengths to calculate BrC absorption for.
+Default: [370, 470, 520, 590, 660]</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>ref_wavelength</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Reference wavelength (nm) assumed to be purely BC absorption.</p>
+              </div>
+            </td>
+            <td>
+                  <code>880</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>aae_bc</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Absorption Ångström Exponent for Black Carbon.
+Typical range: 0.8-1.1 for fresh BC.</p>
+              </div>
+            </td>
+            <td>
+                  <code>1.0</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <ul>
+<li>abs_BC_{wl}: BC absorption at each wavelength (Mm-1)</li>
+<li>abs_BrC_{wl}: BrC absorption at each wavelength (Mm-1, NaN if invalid)</li>
+<li>BrC_fraction_{wl}: BrC contribution fraction (0-1, NaN if invalid)</li>
+<li>AAE_BrC: BrC Absorption Ångström Exponent (NaN if invalid)</li>
+</ul>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Examples:</span></p>
+    <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">RawDataReader</span><span class="p">,</span> <span class="n">DataProcess</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Read AE33 data (has multi-wavelength absorption)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">ae33</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;/data/AE33&#39;</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="gp">... </span>                      <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;2024-01-31&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Calculate BrC</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">optical</span> <span class="o">=</span> <span class="n">DataProcess</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s1">&#39;Optical&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">brc_result</span> <span class="o">=</span> <span class="n">optical</span><span class="o">.</span><span class="n">BrC</span><span class="p">(</span><span class="n">ae33</span><span class="p">)</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Check valid data (non-NaN)</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">valid_brc</span> <span class="o">=</span> <span class="n">brc_result</span><span class="p">[</span><span class="s1">&#39;AAE_BrC&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">valid_brc</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+</code></pre></div>
+
+
+<details class="note" open>
+  <summary>Notes</summary>
+  <p>The separation assumes AAE_BC ≈ 1.0 based on Mie theory for graphitic
+carbon. Real BC may have slightly different AAE depending on mixing
+state and size distribution.</p>
+<p><strong>Validity check</strong>: If calculated BC absorption exceeds total absorption
+at ANY wavelength, the entire row is marked as invalid (NaN for all
+BrC-related values). This indicates the AAE=1 assumption is not valid.</p>
+</details>
+
+<details class="references" open>
+  <summary>References</summary>
+  <ul>
+<li>Lack &amp; Langridge (2013), ACP 13:8321-8341</li>
+<li>Kirchstetter et al. (2004), JGR 109:D21208</li>
+</ul>
+</details>
 
     </div>
 

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
@@ -616,6 +616,8 @@
       
         
       
+        
+      
     
     
     
@@ -676,6 +678,34 @@
     
   
     RawDataReader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/rawdatareader-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Internals
   
 
     
@@ -2055,17 +2085,6 @@
     <span class="md-ellipsis">
       
         STATUS_OK
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._status_data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _status_data
       
     </span>
   </a>
@@ -3839,17 +3858,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._status_data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _status_data
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.SMPS.Reader._distributions" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4318,28 +4326,6 @@ on supported formats and QC procedures.</p>
 
 
 
-<h4 id="AeroViz.rawDataReader.script.SMPS.Reader._status_data" class="doc doc-heading">
-            <span class="doc doc-object-name doc-attribute-name">_status_data</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
-  </span>
-
-</h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_status_data</span> <span class="o">=</span> <span class="kc">None</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-attribute">
-
-
-
 <h4 id="AeroViz.rawDataReader.script.SMPS.Reader._distributions" class="doc doc-heading">
             <span class="doc doc-object-name doc-attribute-name">_distributions</span>
 
@@ -4483,6 +4469,12 @@ and filter out size bins from main output.</p>
     <div class="doc doc-contents ">
 
         <p>Read and parse raw SMPS data files.</p>
+<p>Returns all columns from the raw file. Column selection is deferred
+to _QC() and _process() stages.</p>
+<p>Supported formats:
+- S80 TXT (AIM old): tab-separated, header at 'Sample #'
+- S82 TXT (AIM 10.3): tab-separated, header at 'Sample #'
+- CSV (AIM 11.x): comma-separated, header at 'Scan Number'</p>
 
 
     </div>

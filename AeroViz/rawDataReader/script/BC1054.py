@@ -56,9 +56,24 @@ class Reader(AbstractReader):
         to _QC() and _process() stages.
         """
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            # BC1054 files have 4 metadata lines before column header:
-            # "Data Report" or "User Report", timestamp, location, blank line
-            _df = read_csv(f, parse_dates=True, index_col=0, skiprows=4)
+            # Locate the column header row by looking for a line whose first
+            # token is "Time" or "Raw_Time". Header variants seen in the wild:
+            #   - Column header on line 1 directly         (NZ 2024)
+            #   - "Raw_Time,Time,..." on line 1            (NZ 2025)
+            #   - "Data Report"/"User Report" + 3 metadata lines + header (TP)
+            #   - Leading blank line(s) before all of the above (TP 2024)
+            skip = 0
+            for i in range(20):
+                pos = f.tell()
+                line = f.readline()
+                if not line:
+                    break
+                first_token = line.lstrip().split(',', 1)[0].strip().lower()
+                if first_token in ("time", "raw_time"):
+                    skip = i
+                    break
+            f.seek(0)
+            _df = read_csv(f, parse_dates=True, index_col=0, skiprows=skip)
             _df.columns = _df.columns.str.replace(' ', '')
 
             _df = _df.rename(columns={

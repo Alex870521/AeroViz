@@ -139,17 +139,30 @@ def calculate_nh4_status(mol_NH4, mol_SO4, mol_NO3, index):
     return df_status, ratio
 
 
-def reconstruct_mass_enough(df, mol_NH4, mol_SO4, mol_NO3):
+def reconstruct_mass_enough(df, mol_NH4, mol_SO4, mol_NO3, oa_oc_ratio=None):
     """
     Reconstruct mass for NH4-sufficient conditions.
 
     When NH4 is sufficient:
     - AS = SO42- * 1.375 (full neutralization)
     - AN = NO3- * 1.29 (full neutralization)
+    - OM = OC * oa_oc_ratio (default 1.8 from MASS_COEFFICIENTS)
+
+    Parameters
+    ----------
+    oa_oc_ratio : float, optional
+        Override the OM/OC conversion ratio. If None, uses
+        MASS_COEFFICIENTS['OM'] (= 1.8). Pass an explicit value to keep the
+        base reconstruction consistent with the EC-tracer POA/SOA split when
+        a non-default oa_oc_ratio is also passed to reconstruction_basic().
     """
     df_mass = DataFrame(index=df.index)
 
-    for species, coef in MASS_COEFFICIENTS.items():
+    coefficients = dict(MASS_COEFFICIENTS)
+    if oa_oc_ratio is not None:
+        coefficients['OM'] = oa_oc_ratio
+
+    for species, coef in coefficients.items():
         raw_col = SPECIES_MAPPING[species]
         df_mass[species] = df[raw_col] * coef
 
@@ -451,8 +464,13 @@ def reconstruction_basic(df_che, df_ref, df_water=None, df_density=None, nam_lst
     # Step 2: Calculate NH4 status
     df_nh4_status, status_ratio = calculate_nh4_status(mol_NH4, mol_SO4, mol_NO3, original_index)
 
-    # Step 3: Reconstruct mass (assuming NH4 sufficient)
-    df_mass = reconstruct_mass_enough(df_all, mol_NH4, mol_SO4, mol_NO3)
+    # Step 3: Reconstruct mass (assuming NH4 sufficient).
+    # Pass `oa_oc_ratio` so the base OM = OC × ratio is consistent with the
+    # split_om branch below; passing None keeps the default 1.8.
+    df_mass = reconstruct_mass_enough(
+        df_all, mol_NH4, mol_SO4, mol_NO3,
+        oa_oc_ratio=oa_oc_ratio,
+    )
 
     # Step 4: Adjust for NH4 deficiency
     df_mass = adjust_mass_deficiency(df_mass, mol_NH4, mol_SO4, mol_NO3, status_ratio)

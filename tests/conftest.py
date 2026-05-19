@@ -16,10 +16,12 @@ import pytest
 FIXTURES_PATH = Path(__file__).parent / 'fixtures'
 RAW_DATA_PATH = FIXTURES_PATH / 'raw_data'
 
-# All supported instruments
+# Supported instruments with reader tests (EPA/Minion handle custom file
+# formats, not physical instruments — they intentionally have no test_readers
+# coverage)
 INSTRUMENTS = [
     'AE33', 'AE43', 'APS', 'Aurora', 'BAM1020', 'BC1054',
-    'EPA', 'GRIMM', 'IGAC', 'MA350', 'Minion', 'NEPH',
+    'GRIMM', 'IGAC', 'MA350', 'NEPH',
     'OCEC', 'Q-ACSM', 'SMPS', 'TEOM', 'VOC', 'Xact'
 ]
 

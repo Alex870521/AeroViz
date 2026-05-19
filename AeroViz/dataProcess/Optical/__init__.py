@@ -76,39 +76,67 @@ class Optical(Writer):
         return self, out
 
     @run_process('Optical - IMPROVE', 'IMPROVE')
-    def IMPROVE(self, df_mass, df_RH=None, method='revised', df_nh4_status=None):
+    def IMPROVE(self, df_mass, df_RH=None, method='revised', df_nh4_status=None,
+                df_ext=None, oa_oc_ratio=1.8, upper_bounds=None):
         """
         Calculate extinction using IMPROVE equation.
 
         Parameters
         ----------
         df_mass : DataFrame
-            Mass concentrations with columns: AS, AN, OM, Soil, SS, EC
+            Mass concentrations.
+            - 'revised' / 'modified': columns AS, AN, OM, Soil, SS, EC
+            - 'localized':            columns AS, AN, POC, SOC, Soil, SS, EC
         df_RH : DataFrame, optional
-            Relative humidity data
+            Relative humidity data (%).
         method : str, default='revised'
-            IMPROVE version: 'revised' or 'modified'
+            IMPROVE version: 'revised', 'modified', or 'localized'.
         df_nh4_status : DataFrame, optional
             NH4 status from reconstruction_basic()['NH4_status'].
             If provided, rows with 'Deficiency' status will be excluded.
+        df_ext : DataFrame, optional
+            Measured extinction with 'Scattering' and 'Absorption' columns
+            (Mm⁻¹). Required when method='localized' to fit POA/SOA mass
+            scattering efficiencies via MLR.
+        oa_oc_ratio : float, default=1.8
+            OA/OC conversion ratio (used only by method='localized').
+        upper_bounds : dict, optional
+            Upper bounds for the MLR coefficients (used only by
+            method='localized'). Defaults to
+            {'S_POA': 10, 'L_POA': 10, 'S_SOA': 10, 'L_SOA': 10}.
 
         Returns
         -------
         dict
             Dictionary with keys:
-            - 'dry': Dry extinction DataFrame
-            - 'wet': Wet extinction DataFrame (if df_RH provided)
+            - 'dry':  Dry extinction DataFrame
+            - 'wet':  Wet extinction DataFrame (if df_RH provided)
             - 'ALWC': Water contribution (wet - dry)
-            - 'fRH': Hygroscopic growth factor
+            - 'fRH':  Hygroscopic growth factor
+            For method='localized' the dict additionally contains:
+            - 'coefficients': fitted MSE/MAE values
+            - 'regression':   slope and R² of the closure
         """
-        from ._IMPROVE import revised, modified
+        from ._IMPROVE import revised, modified, localized
 
         if method == 'revised':
             out = revised(df_mass, df_RH, df_nh4_status)
         elif method == 'modified':
             out = modified(df_mass, df_RH, df_nh4_status)
+        elif method == 'localized':
+            if df_ext is None:
+                raise ValueError(
+                    "method='localized' requires df_ext with 'Scattering' and "
+                    "'Absorption' columns to fit POA/SOA mass scattering "
+                    "efficiencies via MLR."
+                )
+            out = localized(df_mass, df_ext, df_RH, df_nh4_status,
+                            oa_oc_ratio=oa_oc_ratio, upper_bounds=upper_bounds)
         else:
-            raise ValueError(f"method must be 'revised' or 'modified', got '{method}'")
+            raise ValueError(
+                f"method must be 'revised', 'modified', or 'localized', "
+                f"got '{method}'"
+            )
 
         return self, out
 

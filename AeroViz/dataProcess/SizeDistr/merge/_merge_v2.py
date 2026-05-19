@@ -7,7 +7,7 @@ from scipy.interpolate import UnivariateSpline as unvpline, interp1d
 
 from AeroViz.dataProcess.core import union_index
 
-__all__ = ['_merge_SMPS_APS']
+__all__ = ['merge_SMPS_APS']
 
 
 def __test_plot(smpsx, smps, apsx, aps, mergex, merge, mergeox, mergeo, _sh):

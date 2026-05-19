@@ -15,10 +15,7 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-__all__ = [
-    '_merge_SMPS_APS',
-
-]
+__all__ = ['merge_SMPS_APS']
 
 
 def _test_plot(ax, smps, aps, unp, shft):
@@ -298,108 +295,6 @@ def _merge_data(_smps_ori, _aps_ori, _shift_ori, _smps_lb, _aps_hb, _shift_mode,
         return _df
 
     return _out_df(_df_merge), _out_df(_shift_ori ** 2), _out_df(_df_corr)
-
-
-def merge_SMPS_APS(df_smps, df_aps, aps_unit='um', smps_overlap_lowbound=500, aps_fit_highbound=1000, dndsdv_alg=True):
-    merge_data, merge_data_dn, merge_data_dsdv, merge_data_cor_dn, density, density_dn, density_dsdv, density_cor_dn = [
-                                                                                                                           DataFrame(
-                                                                                                                               [
-                                                                                                                                   np.nan])] * 8
-
-    ## set to the same units
-    smps, aps_ori = df_smps.copy(), df_aps.copy()
-    smps.columns = smps.keys().to_numpy(float)
-    aps_ori.columns = aps_ori.keys().to_numpy(float)
-
-    if aps_unit == 'um':
-        aps_ori.columns = aps_ori.keys() * 1e3
-
-    den_lst, mer_lst = [], []
-    aps_input = aps_ori.loc[:, (aps_ori.keys() > 700) & (aps_ori.keys() < 1000)].copy()
-
-    # aps_over  = aps[ aps.keys()[aps.keys() < 1000] ].copy()
-    smps_over = smps[smps.keys()[smps.keys() > 500]].copy()
-
-    for _count in range(2):
-
-        ## shift data calculate
-        if _count == 0:
-            alg_type = 'dn'
-            shift = _powerlaw_fit_dN(smps_over, aps_input)
-
-            if dndsdv_alg:
-                shift_dsdv = _corr_with_dNdSdV(smps_over, aps_input).mask(shift.isna())
-
-        else:
-            alg_type = 'cor_dndsdv'
-            shift_cor = _powerlaw_fit_dN(smps_over, aps_input)
-
-            if dndsdv_alg:
-                shift = _corr_with_dNdSdV(smps_over, aps_input).mask(shift_cor.isna())
-
-        ## merge aps and smps
-        ## 1. power law fit (dn) -> return dn data and aps correct factor
-        ## 2. correaltion with dn, ds, dv -> return corrected dn_ds_dv data
-        if (alg_type == 'dn') | dndsdv_alg:
-            merge_arg = (smps, aps_ori, shift, smps_overlap_lowbound, aps_fit_highbound)
-
-            merge_data, density, _corr = _merge_data(*merge_arg, 'mobility', _alg_type=alg_type)
-            density.columns = ['density']
-
-        ## without aps correct
-        if _count == 0:
-            ## merge aps and smps
-            ## dn_ds_dv data
-            if dndsdv_alg:
-                merge_arg = (smps, aps_ori, shift_dsdv, smps_overlap_lowbound, aps_fit_highbound)
-
-                merge_data_dsdv, density_dsdv, _ = _merge_data(*merge_arg, 'mobility', _alg_type='dndsdv')
-                density_dsdv.columns = ['density']
-
-            ## dn data
-            merge_data_dn, density_dn = merge_data.copy(), density.copy()
-
-            ## correct aps data
-            corr = _corr.resample('1d').mean().reindex(smps.index).ffill()
-            corr = corr.mask(corr < 1, 1)
-            aps_ori.loc[:, corr.keys()] *= corr
-
-            aps_input = aps_ori.copy()
-
-        ## with aps correct
-        else:
-            ## merge aps and smps
-            ## dn data
-            merge_arg = (smps, aps_ori, shift_cor, smps_overlap_lowbound, aps_fit_highbound)
-
-            merge_data_cor_dn, density_cor_dn, _ = _merge_data(*merge_arg, 'mobility', _alg_type='cor_dn')
-            density_cor_dn.columns = ['density']
-
-    out_rho = concat([density_dn, density_cor_dn, density_dsdv, density], axis=1)
-    out_rho.columns = ['dn', 'cor_dn', 'dndsdv', 'cor_dndsdv']
-
-    ## out
-    out_dic = {
-        'data_cor_dndsdv': merge_data,
-        'data_dn': merge_data_dn,
-        'data_dndsdv': merge_data_dsdv,
-        'data_cor_dn': merge_data_cor_dn,
-
-        'density': out_rho,
-
-        # 'data_all_aer' : merge_data_aer,
-
-        # 'density_cor_dndsdv' : density,
-        # 'density_dn'   		 : density_dn,
-        # 'density_dndsdv'	 : density_dsdv,
-        # 'density_cor_dn'	 : density_cor_dn,
-    }
-
-    ## process data
-    for _nam, _df in out_dic.items():
-        out_dic[_nam] = _df.reindex(smps.index).copy()
-
-    return out_dic
 
 
 def merge_SMPS_APS(df_smps, df_aps, aps_unit='um', smps_overlap_lowbound=500, aps_fit_highbound=1000, dndsdv_alg=True):

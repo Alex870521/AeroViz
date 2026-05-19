@@ -12,7 +12,7 @@ from scipy.interpolate import UnivariateSpline as unvpline, interp1d
 
 warnings.filterwarnings("ignore")
 
-__all__ = ['_merge_SMPS_APS']
+__all__ = ['merge_SMPS_APS']
 
 
 def _powerlaw_fit(_coeA, _coeB, _aps, _idx, _factor):

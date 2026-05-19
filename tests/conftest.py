@@ -102,10 +102,11 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: mark test as slow running"
     )
-    # Add markers for each instrument
+    # Add markers for each instrument (normalize Q-ACSM -> q_acsm to match test files)
     for instrument in INSTRUMENTS:
+        marker_name = instrument.lower().replace('-', '_')
         config.addinivalue_line(
-            "markers", f"{instrument.lower()}: mark test as {instrument} specific"
+            "markers", f"{marker_name}: mark test as {instrument} specific"
         )
 
 

@@ -1,52 +1,70 @@
-import warnings
-
 import numpy as np
 from pandas import concat, DataFrame
-from scipy.optimize import curve_fit, least_squares, OptimizeWarning
 
 from AeroViz.dataProcess.core import union_index
 
 __all__ = [
     '_basic',
+    'find_mrs_ratio',
     # '_ocec_ratio_cal',
 ]
 
 
+def find_mrs_ratio(oc, ec, ratio_grid):
+    """
+    Minimum-R-Squared (MRS) primary OC/EC ratio finder.
+
+    Scans ``ratio_grid`` and returns the ratio that minimizes the squared
+    Pearson correlation between SOC = OC − ratio·EC and EC, so the
+    secondary fraction is most independent of the EC tracer for primary
+    organic aerosol (Lim & Turpin, 2002).
+
+    Parameters
+    ----------
+    oc, ec : pandas.Series
+        Aligned organic-carbon and elemental-carbon time series. Rows
+        where either is NaN, or EC ≤ 0, are dropped before the search.
+    ratio_grid : array-like
+        Candidate primary OC/EC ratios to evaluate.
+
+    Returns
+    -------
+    best_ratio : float
+        Candidate from ``ratio_grid`` minimizing R²(SOC, EC).
+    soc : pandas.Series
+        SOC = OC − best_ratio·EC computed on the *original* index (without
+        the validity mask), unclipped — callers that want physical
+        bounds (SOC ≥ 0) should clip the result themselves.
+
+    Notes
+    -----
+    Pearson r² and the R² of a simple linear regression are
+    mathematically equal, so this implementation uses ``np.corrcoef``
+    rather than ``scipy.optimize.curve_fit`` — same answer, far faster
+    over a dense grid.
+    """
+    valid = oc.notna() & ec.notna() & (ec > 0)
+    oc_v = oc[valid]
+    ec_v = ec[valid]
+
+    min_r2 = np.inf
+    best_ratio = ratio_grid[0]
+    for ratio in ratio_grid:
+        soc_trial = oc_v - ratio * ec_v
+        if soc_trial.std() == 0:
+            continue
+        corr = np.corrcoef(soc_trial, ec_v)[0, 1]
+        r2 = corr ** 2
+        if r2 < min_r2:
+            min_r2 = r2
+            best_ratio = ratio
+
+    return float(best_ratio), oc - best_ratio * ec
+
+
 def _min_Rsq(_oc, _ec, _rng):
-    _val_mesh, _oc_mesh = np.meshgrid(_rng, _oc)
-    _val_mesh, _ec_mesh = np.meshgrid(_rng, _ec)
-
-    _out_table = DataFrame(_oc_mesh - _val_mesh * _ec_mesh, index=_oc.index, columns=_rng)
-
-    # calculate R2
-    _r2_dic = {}
-    _func = lambda _x, _sl, _inte: _sl * _x + _inte
-    for _ocec, _out in _out_table.items():
-        _df = DataFrame([_out.values, _ec.values]).T.dropna()
-
-        _x, _y = _df[0].values, _df[1].values
-
-        # 初始參數估計
-        slope_guess = (_y[-1] - _y[0]) / (_x[-1] - _x[0])
-        intercept_guess = _y[0] - slope_guess * _x[0]
-
-        try:
-            with warnings.catch_warnings():
-                warnings.filterwarnings('error')
-                _opt, _ = curve_fit(_func, _x, _y, p0=[slope_guess, intercept_guess], maxfev=5000)
-        except (RuntimeWarning, OptimizeWarning):
-            # 如果 curve_fit 失敗，嘗試使用 least_squares
-            residuals = lambda p: _func(_x, *p) - _y
-            _opt = least_squares(residuals, [slope_guess, intercept_guess]).x
-
-        _tss = np.sum((_y - np.mean(_y)) ** 2)
-        _rss = np.sum((_y - _func(_x, *_opt)) ** 2)
-
-        _r2_dic[round(_ocec, 3)] = 1 - _rss / _tss
-
-    _ratio = DataFrame(_r2_dic, index=[0]).idxmin(axis=1).values[0]
-
-    return _ratio, _out_table[_ratio]
+    """Backward-compatible wrapper around ``find_mrs_ratio``."""
+    return find_mrs_ratio(_oc, _ec, _rng)
 
 
 def _ocec_ratio_cal(_nam, _lcres_splt, _hr_lim, _range_, _wisoc_range_):

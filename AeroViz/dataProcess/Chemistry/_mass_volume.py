@@ -307,8 +307,8 @@ def _split_om_ec_tracer(df_mass, df_all, oa_oc_ratio=1.8):
     """
     Split OM into POA and SOA using the EC-tracer (Minimum R Squared) method.
 
-    The method finds the primary OC/EC ratio by minimizing the R² between
-    SOC and EC, ensuring they are independent.
+    The method finds the primary OC/EC ratio by minimizing R² between
+    SOC and EC, ensuring they are independent (Lim & Turpin, 2002).
 
     POC = (OC/EC)_primary × EC
     SOC = OC - POC
@@ -330,32 +330,29 @@ def _split_om_ec_tracer(df_mass, df_all, oa_oc_ratio=1.8):
         df_mass with added POA, SOA, POC, SOC columns.
     """
     import numpy as np
+    from AeroViz.dataProcess.Chemistry._ocec import find_mrs_ratio
 
     oc = df_all['OC']
     ec = df_all['EC']
 
-    # Minimum R Squared (MRS) method to find (OC/EC)_primary
-    # Scan OC/EC ratios and find the one that minimizes R² between SOC and EC
+    # Use the canonical MRS implementation in _ocec.py so the OC/EC
+    # tracer search is identical to the one used by the OCEC processing
+    # pipeline. Scan range follows the convention used previously:
+    # from 0.5 up to the 95th-percentile of (OC/EC) in the data.
     valid = oc.notna() & ec.notna() & (ec > 0)
-    oc_valid = oc[valid]
-    ec_valid = ec[valid]
+    if not valid.any():
+        df_mass['POC'] = np.nan
+        df_mass['SOC'] = np.nan
+        df_mass['POA'] = np.nan
+        df_mass['SOA'] = np.nan
+        return df_mass
 
-    oc_ec_ratios = np.arange(0.5, (oc_valid / ec_valid).quantile(0.95), 0.01)
-    min_r2 = np.inf
-    best_ratio = oc_ec_ratios[0]
+    oc_ec_ratios = np.arange(0.5, (oc[valid] / ec[valid]).quantile(0.95), 0.01)
+    best_ratio, _ = find_mrs_ratio(oc, ec, oc_ec_ratios)
 
-    for ratio in oc_ec_ratios:
-        soc_trial = oc_valid - ratio * ec_valid
-        soc_trial = soc_trial.clip(lower=0)
-        if soc_trial.std() == 0:
-            continue
-        corr = np.corrcoef(soc_trial, ec_valid)[0, 1]
-        r2 = corr ** 2
-        if r2 < min_r2:
-            min_r2 = r2
-            best_ratio = ratio
-
-    # Calculate POC and SOC
+    # Calculate POC and SOC (clip negatives to enforce physical bounds on
+    # the output; the search itself uses unclipped SOC, matching canonical
+    # MRS).
     df_mass['POC'] = (best_ratio * ec).clip(lower=0)
     df_mass['SOC'] = (oc - df_mass['POC']).clip(lower=0)
     df_mass['POA'] = df_mass['POC'] * oa_oc_ratio

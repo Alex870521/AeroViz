@@ -144,12 +144,16 @@ class Reader(AbstractReader):
             _df = _df.rename(columns=bin_rename)
             bin_cols = sorted(bin_rename.values())
 
-            # Check size range
-            size_range = self.kwargs.get('size_range') or (11.8, 593.5)
+            # Check size range — only reject when user explicitly requested a specific range.
+            # Otherwise just warn so older instrument configs (e.g. 2017 with 18.8-914 nm)
+            # still get parsed for coverage / time-index purposes.
+            explicit_range = self.kwargs.get('size_range')
+            size_range = explicit_range or (11.8, 593.5)
             if bin_cols[0] != size_range[0] or bin_cols[-1] != size_range[1]:
                 self.logger.warning(f'SMPS file: {file.name} size range mismatch. '
                                     f'Expected {size_range}, got ({bin_cols[0]}, {bin_cols[-1]})')
-                return None
+                if explicit_range is not None:
+                    return None
 
             # Drop columns already consumed for the time index
             index_cols = ['Date', 'Start Time', 'DateTime Sample Start',

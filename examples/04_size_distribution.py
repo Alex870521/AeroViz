@@ -1,14 +1,13 @@
 """
 04_size_distribution.py - 粒徑分布處理範例
 
-此範例展示如何使用 DataProcess 處理粒徑分布數據。
+此範例展示如何使用 AeroViz 的 top-level functions 處理粒徑分布數據。
 """
 
 from datetime import datetime
 from pathlib import Path
 
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
+from AeroViz import RawDataReader, psd_stats, merge_psd
 from AeroViz.dataProcess.SizeDistr import SizeDist
 
 # =============================================================================
@@ -37,9 +36,8 @@ def basic_psd_processing():
         size_range=(11.8, 593.5)
     )
 
-    # 使用 DataProcess
-    dp = DataProcess('SizeDistr', OUTPUT_PATH)
-    result = dp.basic(df_pnsd)
+    # 使用 top-level function
+    result = psd_stats(df_pnsd)
 
     print("=== 基本處理結果 ===")
     print(f"數量分布: {result['number'].shape}")
@@ -142,13 +140,10 @@ def merge_smps_aps():
         mean_freq='1h'
     )
 
-    # 合併 (v4 版本，含密度校正)
-    dp = DataProcess('SizeDistr', OUTPUT_PATH)
-    result = dp.merge_SMPS_APS_v4(
-        df_smps=df_smps,
-        df_aps=df_aps,
-        # df_pm25=df_pm25  # 可選，用於密度校正
-    )
+    # 合併 (v4 版本，含密度校正) — 需要 PM2.5 reference
+    # 若沒有 PM2.5 可用 version=3 跳過 fitness 步驟
+    # result = merge_psd(df_smps, df_aps, df_pm25=df_pm25, version=4)
+    result = merge_psd(df_smps, df_aps, version=3)
 
     merged = result['data_dn']
     print(f"合併後粒徑範圍: {merged.columns[0]:.1f} ~ {merged.columns[-1]:.1f} nm")

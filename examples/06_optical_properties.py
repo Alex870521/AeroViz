@@ -1,7 +1,7 @@
 """
 06_optical_properties.py - 光學特性計算範例
 
-此範例展示如何使用 DataProcess 計算光學特性。
+此範例展示如何使用 AeroViz 的 top-level functions 計算光學特性。
 """
 
 from datetime import datetime
@@ -9,9 +9,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
-from AeroViz.dataProcess.SizeDistr import SizeDist
+from AeroViz import (
+    RawDataReader,
+    reconstruct_mass,
+    volume_ri,
+    improve,
+    mie,
+    retrieve_ri,
+)
 
 # =============================================================================
 # 設定參數
@@ -81,19 +86,17 @@ def improve_extinction():
     df_chem = pd.concat([df_igac, df_ocec], axis=1)
 
     # 質量重建
-    dp_chem = DataProcess('Chemistry', OUTPUT_PATH)
-    mass_result = dp_chem.reconstruction_basic(df_chem)
+    mass_result = reconstruct_mass(df_chem)
     df_mass = mass_result['mass']
 
     # RH 數據 (假設)
     df_RH = pd.DataFrame({'RH': 70}, index=df_mass.index)
 
     # IMPROVE 計算
-    dp_opt = DataProcess('Optical', OUTPUT_PATH)
-    result = dp_opt.IMPROVE(
+    result = improve(
         df_mass=df_mass,
         df_RH=df_RH,
-        method='revised'  # 'revised' 或 'modified'
+        method='revised'  # 'revised' / 'modified' / 'localized'
     )
 
     print("\n=== IMPROVE 消光 ===")
@@ -131,31 +134,25 @@ def mie_extinction():
         RawDataReader('OCEC', DATA_PATH / 'OCEC', start=START, end=END, mean_freq='1h')
     ], axis=1)
 
-    # 計算折射率
-    dp_chem = DataProcess('Chemistry', OUTPUT_PATH)
-    vol_ri = dp_chem.volume_RI(df_chem)
-    df_RI = vol_ri['RI']
+    # 計算折射率 (體積平均混合)
+    mass_result = reconstruct_mass(df_chem)
+    ri_result = volume_ri(mass_result['volume'])
+    # 把 n_dry/k_dry 組合成 complex RI 給 mie 用
+    ri_complex = ri_result['n_dry'] + 1j * ri_result['k_dry']
 
-    # 使用 SizeDist 計算消光分布
-    psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')
+    # Mie 計算（單一材料路徑：給 complex Series）
+    optics = mie(df_pnsd, ri=ri_complex, wavelength=550)
+    total_ext = optics['ext']
+    total_sca = optics['sca']
+    total_abs = optics['abs']
 
-    # 內混合模式
-    ext_internal = psd.to_extinction(df_RI, method='internal', result_type='extinction')
-    sca_internal = psd.to_extinction(df_RI, method='internal', result_type='scattering')
-    abs_internal = psd.to_extinction(df_RI, method='internal', result_type='absorption')
-
-    # 總消光係數
-    total_ext = ext_internal.sum(axis=1)
-    total_sca = sca_internal.sum(axis=1)
-    total_abs = abs_internal.sum(axis=1)
-
-    print("\n=== Mie 消光計算 (內混合) ===")
+    print("\n=== Mie 消光計算 (體積平均 RI) ===")
     print(f"消光係數: {total_ext.mean():.1f} Mm⁻¹")
     print(f"散射係數: {total_sca.mean():.1f} Mm⁻¹")
     print(f"吸收係數: {total_abs.mean():.1f} Mm⁻¹")
     print(f"SSA: {(total_sca / total_ext).mean():.3f}")
 
-    return ext_internal, sca_internal, abs_internal
+    return optics
 
 
 # =============================================================================
@@ -163,7 +160,7 @@ def mie_extinction():
 # =============================================================================
 
 def compare_mixing_modes():
-    """比較不同混合模式的消光計算"""
+    """比較 internal vs external mixing 模式的消光計算"""
 
     df_pnsd = RawDataReader(
         instrument='SMPS',
@@ -173,28 +170,24 @@ def compare_mixing_modes():
         mean_freq='1h'
     )
 
-    # 假設有折射率數據
-    df_RI = pd.DataFrame({
-        'n': 1.5,
-        'k': 0.01
+    # 假設有 species mixing 表 (各成分的 volume ratio)
+    # 實務上會從 reconstruct_mass + volume_ri 流程拿到
+    df_mixing = pd.DataFrame({
+        'AS_volume_ratio': 0.3,
+        'AN_volume_ratio': 0.2,
+        'OM_volume_ratio': 0.3,
+        'EC_volume_ratio': 0.1,
+        'Soil_volume_ratio': 0.05,
+        'SS_volume_ratio': 0.05,
     }, index=df_pnsd.index)
 
-    psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')
-
-    methods = ['internal', 'external', 'core_shell']
-    results = {}
-
     print("\n=== 混合模式比較 ===")
-    for method in methods:
-        try:
-            ext = psd.to_extinction(df_RI, method=method, result_type='extinction')
-            total = ext.sum(axis=1).mean()
-            results[method] = total
-            print(f"{method}: {total:.1f} Mm⁻¹")
-        except Exception as e:
-            print(f"{method}: {e}")
+    both = mie(df_pnsd, ri=df_mixing, wavelength=550, mixing='both')
+    for mode, result in both.items():
+        total = result['ext'].mean()
+        print(f"{mode}: {total:.1f} Mm⁻¹")
 
-    return results
+    return both
 
 
 # =============================================================================
@@ -217,20 +210,16 @@ def retrieve_refractive_index():
         mean_freq='1h'
     )
 
-    psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')
-
     # 反演折射率
-    dp_opt = DataProcess('Optical', OUTPUT_PATH)
-    result = dp_opt.retrieve_RI(
+    result = retrieve_ri(
         df_optical=df_optical,
         df_pnsd=df_pnsd,
-        dlogdp=psd.dlogdp,
-        wavelength=550
+        wavelength=550,
     )
 
     print("\n=== 折射率反演 ===")
-    print(f"實部 (n): {result['n'].mean():.3f} ± {result['n'].std():.3f}")
-    print(f"虛部 (k): {result['k'].mean():.4f} ± {result['k'].std():.4f}")
+    print(f"實部 (n): {result['re_real'].mean():.3f}")
+    print(f"虛部 (k): {result['re_imaginary'].mean():.4f}")
 
     return result
 
@@ -256,17 +245,14 @@ def derived_optical_parameters():
     # df_no2 = read_gas_data()
     # df_temp = read_met_data()
 
-    dp_opt = DataProcess('Optical', OUTPUT_PATH)
-
-    # result = dp_opt.derived(
-    #     df_sca=df_neph,
-    #     df_abs=df_ae33,
-    #     df_ec=df_ocec,
-    #     df_no2=df_no2,
-    #     df_temp=df_temp
+    # 衍生光學參數目前在 AeroViz.dataProcess.Optical._derived 內部
+    # (沒有 expose 在 top-level)，使用方式：
+    #
+    # from AeroViz.dataProcess.Optical._derived import derived_parameters
+    # result = derived_parameters(
+    #     df_sca=df_neph, df_abs=df_ae33, df_ec=df_ocec,
+    #     df_no2=df_no2, df_temp=df_temp,
     # )
-
-    # print("\n=== 衍生參數 ===")
     # print(f"MAC: {result['MAC'].mean():.2f} m²/g")
     # print(f"能見度: {result['Vis_cal'].mean():.1f} km")
 

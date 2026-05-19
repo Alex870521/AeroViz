@@ -92,7 +92,7 @@ def read_size_distribution():
     print(f"SMPS 粒徑範圍: {df_smps.columns[0]} ~ {df_smps.columns[-1]} nm")
     print(f"APS 粒徑範圍: {df_aps.columns[0]} ~ {df_aps.columns[-1]} nm")
 
-    # 注意: SMPS-APS 合併需要使用 DataProcess
+    # 注意: SMPS-APS 合併使用 AeroViz.size.merge_psd
     # 參見 04_size_distribution.py
 
     return df_smps, df_aps

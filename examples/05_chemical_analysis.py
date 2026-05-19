@@ -1,7 +1,7 @@
 """
 05_chemical_analysis.py - 化學成分分析範例
 
-此範例展示如何使用 DataProcess 進行化學成分分析。
+此範例展示如何使用 AeroViz 的 top-level functions 進行化學成分分析。
 """
 
 from datetime import datetime
@@ -9,8 +9,15 @@ from pathlib import Path
 
 import pandas as pd
 
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
+from AeroViz import (
+    RawDataReader,
+    reconstruct_mass,
+    volume_ri,
+    kappa,
+    growth_factor,
+    partition_ratios,
+    split_oc_ec,
+)
 
 # =============================================================================
 # 設定參數
@@ -65,8 +72,9 @@ def mass_reconstruction():
 
     df_chem = read_chemical_data()
 
-    dp = DataProcess('Chemistry', OUTPUT_PATH)
-    result = dp.reconstruction_basic(df_chem)
+    # 假設有 PM2.5 reference 資料 (df_pm25)
+    df_pm25 = df_chem.get('PM25') if 'PM25' in df_chem.columns else None
+    result = reconstruct_mass(df_chem, df_ref=df_pm25)
 
     # 重建質量
     df_mass = result['mass']
@@ -99,19 +107,15 @@ def volume_and_ri():
 
     df_chem = read_chemical_data()
 
-    dp = DataProcess('Chemistry', OUTPUT_PATH)
-    result = dp.volume_RI(df_chem)
+    # volume_ri 需要 df_volume (來自 reconstruct_mass) + 可選 df_alwc
+    mass_result = reconstruct_mass(df_chem)
+    df_volume = mass_result['volume']
 
-    # 體積分率
-    df_volume = result['volume']
-    print("\n=== 體積分率 ===")
-    print(df_volume.mean())
+    result = volume_ri(df_volume)
 
-    # 折射率
-    df_RI = result['RI']
-    print(f"\n=== 折射率 ===")
-    print(f"實部 (n): {df_RI['n'].mean():.3f} ± {df_RI['n'].std():.3f}")
-    print(f"虛部 (k): {df_RI['k'].mean():.4f} ± {df_RI['k'].std():.4f}")
+    print("\n=== 折射率 (體積平均混合) ===")
+    print(f"乾氣膠 n: {result['n_dry'].mean():.3f}")
+    print(f"乾氣膠 k: {result['k_dry'].mean():.4f}")
 
     return result
 
@@ -125,19 +129,27 @@ def kappa_calculation():
 
     df_chem = read_chemical_data()
 
-    # 需要 RH 數據 (這裡假設從氣象數據讀取)
-    # 實際使用時需要提供真實的 RH 數據
-    df_RH = pd.DataFrame(
-        {'RH': 70},  # 假設 RH = 70%
-        index=df_chem.index
-    )
+    # kappa 需要 gRH + AT + RH 三個欄位
+    # 通常流程：reconstruct_mass → volume_ri (得 gRH) → 配上氣象資料 → kappa
+    mass_result = reconstruct_mass(df_chem)
+    df_volume = mass_result['volume']
 
-    dp = DataProcess('Chemistry', OUTPUT_PATH)
-    result = dp.kappa(df_chem, df_RH)
+    # 假設有 ALWC 資料（從 ISORROPIA 或其他來源）
+    df_alwc = pd.DataFrame({'ALWC': 5.0}, index=df_chem.index)
+    df_gRH = growth_factor(df_volume, df_alwc)
+
+    # 組合 gRH + 氣象資料供 kappa 使用
+    df_for_kappa = pd.DataFrame({
+        'gRH': df_gRH['gRH'],
+        'AT': 25.0,   # 假設 AT = 25°C
+        'RH': 70.0,   # 假設 RH = 70%
+    }, index=df_chem.index)
+
+    result = kappa(df_for_kappa, diameter=0.5)
 
     print("\n=== 吸濕性參數 ===")
-    print(f"κ 值: {result['kappa'].mean():.3f} ± {result['kappa'].std():.3f}")
-    print(f"成長因子 gRH: {result['gRH'].mean():.2f} ± {result['gRH'].std():.2f}")
+    print(f"κ 值: {result['kappa_chem'].mean():.3f}")
+    print(f"成長因子 gRH: {df_gRH['gRH'].mean():.2f}")
 
     return result
 
@@ -146,25 +158,20 @@ def kappa_calculation():
 # 範例 5: 氣粒分配比
 # =============================================================================
 
-def partition_ratios():
-    """計算氣粒分配比"""
+def gas_particle_partitioning():
+    """計算氣粒分配比 (SOR/NOR/NTR 等)"""
 
     df_chem = read_chemical_data()
 
-    # 需要氣體數據 (SO2, NO2, HNO3, NH3)
-    # 這裡假設從其他來源讀取
+    # 需要氣體數據 (SO2, NO2, HNO3, NH3) 並含 temp 欄位
     # df_gas = read_gas_data()
     # df_combined = pd.concat([df_chem, df_gas], axis=1)
-
-    dp = DataProcess('Chemistry', OUTPUT_PATH)
-
-    # 如果有完整數據
-    # result = dp.partition_ratios(df_combined)
+    # result = partition_ratios(df_combined)
     # print("\n=== 氣粒分配比 ===")
     # print(f"SOR: {result['SOR'].mean():.2f}")
     # print(f"NOR: {result['NOR'].mean():.2f}")
 
-    print("需要氣體數據 (SO2, NO2, HNO3, NH3) 才能計算氣粒分配比")
+    print("需要氣體數據 (SO2, NO2, HNO3, NH3) + 溫度才能計算氣粒分配比")
 
 
 # =============================================================================
@@ -182,14 +189,14 @@ def ocec_analysis():
         mean_freq='1h'
     )
 
-    dp = DataProcess('Chemistry', OUTPUT_PATH)
-    result = dp.ocec_ratio(df_ocec)
+    result = split_oc_ec(df_ocec)
 
     print("\n=== OC/EC 分析 ===")
-    if 'ratio' in result:
-        print(f"OC/EC 比值: {result['ratio'].mean():.2f} ± {result['ratio'].std():.2f}")
-    if 'SOC' in result:
-        print(f"SOC 估算: {result['SOC'].mean():.2f} μg/m³")
+    df_basic = result.get('basic')
+    if df_basic is not None and 'OC/EC_thm' in df_basic.columns:
+        print(f"OC/EC 比值: {df_basic['OC/EC_thm'].mean():.2f}")
+    if df_basic is not None and 'SOC_thm' in df_basic.columns:
+        print(f"SOC 估算: {df_basic['SOC_thm'].mean():.2f} μgC/m³")
 
     return result
 
@@ -204,16 +211,12 @@ def full_chemical_analysis():
     # 1. 讀取數據
     df_chem = read_chemical_data()
 
-    # 2. 初始化處理器
-    dp = DataProcess('Chemistry', OUTPUT_PATH)
-
-    # 3. 質量重建
-    mass_result = dp.reconstruction_basic(df_chem)
+    # 2. 質量重建
+    mass_result = reconstruct_mass(df_chem)
     df_mass = mass_result['mass']
 
-    # 4. 體積和折射率
-    vol_ri = dp.volume_RI(df_chem)
-    df_RI = vol_ri['RI']
+    # 3. 折射率 (從質量重建拿 df_volume)
+    df_RI = volume_ri(mass_result['volume'])
 
     # 5. 成分貢獻比例
     components = ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS']
@@ -230,7 +233,7 @@ def full_chemical_analysis():
     print("\n=== 分析摘要 ===")
     if 'PM25' in df_chem.columns:
         print(f"PM2.5: {df_chem['PM25'].mean():.1f} ± {df_chem['PM25'].std():.1f} μg/m³")
-    print(f"RI: {df_RI['n'].mean():.3f} + {df_RI['k'].mean():.4f}i")
+    print(f"RI: {df_RI['n_dry'].mean():.3f} + {df_RI['k_dry'].mean():.4f}i")
 
     return {
         'mass': df_mass,

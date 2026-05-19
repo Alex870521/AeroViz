@@ -49,6 +49,7 @@ nav:
       - Getting Started: guide/index.md
       - Tutorials:
           - RawDataReader: guide/rawdatareader.md
+          - RawDataReader Internals: guide/rawdatareader-internals.md
           - DataProcess: guide/dataprocess.md
           - Visualization: guide/visualization.md
       - Examples:

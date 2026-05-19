@@ -153,8 +153,6 @@ def _corr_with_dNdSdV(_smps, _aps, _alg_type):
 
     _smooth = 50
 
-    _shift_val = np.arange(0.5, 2.605, .005) ** .5
-    _shift_val = np.arange(0.9, 2.01, .01) ** .5
     _shift_val = np.arange(0.9, 2.65, .05) ** .5
 
     ## spline fitting with shift aps and smps

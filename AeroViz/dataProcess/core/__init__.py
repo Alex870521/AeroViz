@@ -6,6 +6,9 @@ from pathlib import Path
 
 from pandas import concat
 
+# Shared physical constants (single source of truth).
+from ._constants import REFRACTIVE_INDEX  # noqa: F401
+
 # Ensure all deprecation warnings are displayed
 warnings.filterwarnings('always', category=DeprecationWarning)
 warnings.filterwarnings('always', category=FutureWarning)

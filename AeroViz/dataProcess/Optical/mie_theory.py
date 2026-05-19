@@ -223,13 +223,10 @@ def external(dist: pd.Series,
     np.ndarray
         Extinction distribution calculated based on the external mixing model.
     """
-    refractive_dic = {'AS_volume_ratio': complex(1.53, 0.00),
-                      'AN_volume_ratio': complex(1.55, 0.00),
-                      'OM_volume_ratio': complex(1.54, 0.00),
-                      'Soil_volume_ratio': complex(1.56, 0.01),
-                      'SS_volume_ratio': complex(1.54, 0.00),
-                      'EC_volume_ratio': complex(1.80, 0.54),
-                      'ALWC_volume_ratio': complex(1.33, 0.00)}
+    # Refractive indices at 550 nm sourced from core/_constants.py so this
+    # stays in sync with the mass-reconstruction and Mie-SD modules.
+    from AeroViz.dataProcess.core import REFRACTIVE_INDEX
+    refractive_dic = {f'{sp}_volume_ratio': ri for sp, ri in REFRACTIVE_INDEX['550'].items()}
 
     ndp = np.array(dist[:np.size(dp)])
     mie_results = (

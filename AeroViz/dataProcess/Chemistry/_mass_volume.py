@@ -87,27 +87,9 @@ DENSITY_COEFFICIENTS = {
     'EC': 1.5,
 }
 
-# Refractive index at different wavelengths (n + kj)
-REFRACTIVE_INDEX = {
-    '550': {
-        'ALWC': 1.333 + 0j,
-        'AS': 1.53 + 0j,
-        'AN': 1.55 + 0j,
-        'OM': 1.55 + 0.0163j,
-        'Soil': 1.56 + 0.006j,
-        'SS': 1.54 + 0j,
-        'EC': 1.80 + 0.72j,
-    },
-    '450': {
-        'ALWC': 1.333 + 0j,
-        'AS': 1.57 + 0j,
-        'AN': 1.57 + 0j,
-        'OM': 1.58 + 0.056j,
-        'Soil': 1.56 + 0.009j,
-        'SS': 1.54 + 0j,
-        'EC': 1.80 + 0.79j,
-    },
-}
+# Refractive index at different wavelengths — see core/_constants.py for
+# provenance.
+from AeroViz.dataProcess.core import REFRACTIVE_INDEX  # noqa: E402
 
 
 # =============================================================================

@@ -664,16 +664,12 @@ def calculate_mass_efficiency(
 # Mixing Models for Multi-Component Aerosols
 # =============================================================================
 
-# Default refractive indices for common aerosol species at 550 nm
-DEFAULT_REFRACTIVE_INDICES = {
-    'AS': complex(1.53, 0.00),      # Ammonium Sulfate
-    'AN': complex(1.55, 0.00),      # Ammonium Nitrate
-    'OM': complex(1.54, 0.00),      # Organic Matter
-    'Soil': complex(1.56, 0.01),    # Soil/Dust
-    'SS': complex(1.54, 0.00),      # Sea Salt
-    'EC': complex(1.80, 0.54),      # Elemental Carbon
-    'ALWC': complex(1.33, 0.00),    # Aerosol Liquid Water Content
-}
+# Default refractive indices for common aerosol species at 550 nm —
+# sourced from core/_constants.py so this stays in sync with the
+# Chemistry-side mass reconstruction values.
+from AeroViz.dataProcess.core import REFRACTIVE_INDEX as _RI
+
+DEFAULT_REFRACTIVE_INDICES = dict(_RI['550'])
 
 
 def internal_mixing(

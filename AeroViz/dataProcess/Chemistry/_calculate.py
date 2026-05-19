@@ -11,7 +11,7 @@ This module provides functions for:
 
 from pandas import concat, DataFrame
 
-from AeroViz.dataProcess.core import safe_divide, validate_inputs
+from AeroViz.dataProcess.core import REFRACTIVE_INDEX, safe_divide, validate_inputs
 
 # =============================================================================
 # Constants
@@ -216,10 +216,12 @@ def volume_average_mixing(df_volume, df_alwc=None):
     if df_alwc is not None:
         validate_inputs(df_alwc, GRH_ALWC_REQUIRED, 'volume_average_mixing (df_alwc)', GRH_COLUMN_DESCRIPTIONS)
 
-    # Refractive index values at 550 nm
+    # Refractive index values at 550 nm, sourced from core/_constants.py.
+    # Split the complex values into the legacy n / k dicts used below.
+    _ri = REFRACTIVE_INDEX['550']
     RI_values = {
-        'n': {'AS': 1.53, 'AN': 1.55, 'OM': 1.55, 'Soil': 1.56, 'SS': 1.54, 'EC': 1.80, 'ALWC': 1.33},
-        'k': {'AS': 0.00, 'AN': 0.00, 'OM': 0.00, 'Soil': 0.01, 'SS': 0.00, 'EC': 0.54, 'ALWC': 0.00}
+        'n': {sp: _ri[sp].real for sp in _ri},
+        'k': {sp: _ri[sp].imag for sp in _ri},
     }
 
     volume_cols = ['AS', 'AN', 'OM', 'Soil', 'SS', 'EC']

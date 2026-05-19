@@ -463,10 +463,6 @@ def reconstruction_basic(df_che, df_ref, df_water=None, df_density=None, nam_lst
 
     df_mass['total'] = df_mass.sum(axis=1, min_count=6)
 
-    # Quality control ratio
-    qc_ratio = df_mass['total'] / df_ref
-    qc_valid = (qc_ratio >= 0.5) & (qc_ratio <= 1.5)
-
     # Step 5: Calculate volume
     df_mass_valid = df_mass.dropna().copy()
     df_vol = calculate_volume(df_mass_valid, df_water)

@@ -44,7 +44,22 @@ def _basic(_df_voc):
         'ClVOC': ['VCM', 'TCE', 'PCE', '1.4-DCB', '1.2-DCB'],
     }
 
+    # _df_voc is in ppb; multiplying by molecular weight (g/mol) gives a
+    # ppb·(g/mol) quantity that the three potential calculations below each
+    # convert into their domain unit using a different set of constants.
     _df_MW = (_df_voc * _MW).copy()
+
+    # Constants used below:
+    #   48     g/mol  — molar mass of O3, converts ppb·(g/mol of VOC) into
+    #                   O3-equivalent mass; OFP = VOC × MIR  (μg O3 / m³)
+    #   24.5   L/mol  — molar volume of an ideal gas at 25 °C and 1 atm; used
+    #                   to translate ppb (mol/mol) into μg/m³ when multiplied
+    #                   by molecular weight
+    #   100           — converts SOAP from percent into a fraction
+    #   0.054         — empirical SOA yield scaling factor (calibrated against
+    #                   the original SOAP definition; see VOC source paper)
+    #   0.602  = N_A / 1e24, converts a (mol/m³) quantity into a per-molecule
+    #                   number-density consistent with KOH's units of cm³/molec/s
     _df_dic = {
         'Conc': _df_voc.copy(),
         'OFP': _df_MW / 48 * _MIR,

@@ -93,7 +93,12 @@ def grid_search_RI(bext_mea: float,
             bsca_cal = sum(sca_dist) * dlogdp
             babs_cal = sum(abs_dist) * dlogdp
 
-            # Normalized chi-squared
+            # Normalized chi-squared. The denominators (18.23 Mm⁻¹ for absorption,
+            # 83.67 Mm⁻¹ for scattering) are empirical weights — they balance the
+            # two residual terms so neither dominates the grid search regardless
+            # of the absolute magnitude of bsca vs babs. They are roughly the
+            # typical measurement spread observed in the original calibration
+            # dataset; the exact provenance is not documented in the code.
             delta_array[ni][ki] = ((babs_mea - babs_cal) / 18.23) ** 2 + \
                                   ((bsca_mea - bsca_cal) / 83.67) ** 2
 
@@ -123,6 +128,10 @@ def grid_search_RI(bext_mea: float,
             bsca_cal = sum(sca_dist) * dlogdp
             babs_cal = sum(abs_dist) * dlogdp
 
+            # Same normalizers as the coarse pass. Note that this pass minimizes
+            # the (ext, sca) residual whereas the coarse pass used (abs, sca);
+            # this is intentional — the second pass refines around the joint
+            # absorption + scattering minimum once it has been bracketed.
             delta_fine[ni][ki] = ((bext_mea - bext_cal) / 18.23) ** 2 + \
                                  ((bsca_mea - bsca_cal) / 83.67) ** 2
 

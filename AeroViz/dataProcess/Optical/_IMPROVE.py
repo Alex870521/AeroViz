@@ -617,8 +617,9 @@ def gas_extinction(df_no2, df_temp):
 
     result = DataFrame(index=df_no2.index)
 
-    # Rayleigh scattering (temperature-dependent)
-    temp_kelvin = 273 + df_temp.iloc[:, 0]
+    # Rayleigh scattering (temperature-dependent); use 273.15 to be consistent
+    # with the rest of the package (e.g. _calculate.kappa_calculate).
+    temp_kelvin = 273.15 + df_temp.iloc[:, 0]
     result['ScatteringByGas'] = 11.4 * 293 / temp_kelvin
 
     # NO2 absorption

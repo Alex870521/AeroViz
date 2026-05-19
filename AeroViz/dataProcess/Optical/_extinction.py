@@ -86,15 +86,20 @@ def _basic(df_sca, df_abs, df_mass=None, df_no2=None, df_temp=None):
         df_out['MSE'] = df_out['sca'] / df_mass
         df_out['MEE'] = df_out['MSE'] + df_out['MAE']
 
-    # gas absorbtion
-    if df_no2 is not None:
-        df_out['abs_gas'] = df_no2 * .33
-
-    if df_temp is not None:
-        df_out['sca_gas'] = (11.4 * 293 / (273 + df_temp))
-
+    # Gas contribution. When both NO2 and temperature are available, defer to
+    # the canonical gas_extinction() routine so the Rayleigh / NO2 cross-section
+    # constants live in exactly one place. The DataFrame keeps the original
+    # short column names (abs_gas / sca_gas / ext_all) for backward compatibility.
     if df_no2 is not None and df_temp is not None:
-        df_out['ext_all'] = df_out['ext'] + df_out['abs_gas'] + df_out['sca_gas']
+        from ._IMPROVE import gas_extinction
+        df_gas = gas_extinction(df_no2, df_temp)
+        df_out['abs_gas'] = df_gas['AbsorptionByGas'].values
+        df_out['sca_gas'] = df_gas['ScatteringByGas'].values
+        df_out['ext_all'] = df_out['ext'] + df_gas['ExtinctionByGas'].values
+    elif df_no2 is not None:
+        df_out['abs_gas'] = df_no2 * .33
+    elif df_temp is not None:
+        df_out['sca_gas'] = 11.4 * 293 / (273.15 + df_temp)
 
     return df_out
 

@@ -265,7 +265,8 @@ def volume_average_mixing(df_volume, df_alwc=None):
                 ) * multiplier
         )
 
-        result['gRH'] = (v_wet / v_dry) ** (1 / 3)
+        # Delegate to gRH_calculate() so the formula lives in one place.
+        result['gRH'] = gRH_calculate(df_volume, df_alwc)['gRH']
     else:
         result['n_amb'] = np.nan
         result['k_amb'] = np.nan

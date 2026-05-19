@@ -61,22 +61,26 @@ $$GF = \left(\frac{D_{wet}}{D_{dry}}\right) = \left(1 + \kappa \frac{RH/100}{1 -
 ## AeroViz Implementation
 
 ```python
-from AeroViz.dataProcess import DataProcess
-from pathlib import Path
+import pandas as pd
+from AeroViz import reconstruct_mass, growth_factor, kappa
 
-dp = DataProcess('Chemistry', Path('./output'))
+# 1. Reconstruct volumes from chemistry
+mass_result = reconstruct_mass(df_chem)
+df_volume   = mass_result['volume']
 
-# Calculate kappa and growth factor
-result = dp.kappa(df_chem, df_RH)
+# 2. Growth factor (needs total_dry + ALWC)
+df_gRH = growth_factor(df_volume, df_alwc)        # column: gRH
 
-# Output
-result['kappa']  # kappa value time series
-result['gRH']    # Growth factor
+# 3. kappa (needs gRH + AT + RH columns)
+df_kappa = kappa(
+    pd.concat([df_gRH, met_data[['AT', 'RH']]], axis=1),
+    diameter=0.5,
+)                                                  # column: kappa_chem
 
 # Example output
-#                     kappa    gRH
-# 2024-01-01 00:00    0.35    1.42
-# 2024-01-01 01:00    0.38    1.45
+#                     gRH     kappa_chem
+# 2024-01-01 00:00    1.42    0.35
+# 2024-01-01 01:00    1.45    0.38
 ```
 
 ## Applications

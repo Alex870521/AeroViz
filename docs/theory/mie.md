@@ -61,23 +61,30 @@ EC as the core with other components as the shell. Suitable for aged aerosols.
 ## AeroViz Implementation
 
 ```python
-from AeroViz.dataProcess import DataProcess
-from pathlib import Path
+from AeroViz import mie
 
-dp = DataProcess('Optical', Path('./output'))
-
-# Calculate extinction distribution
-result = dp.Mie(
+# Single-material RI: pass a Series of complex numbers (n + ik per row)
+result = mie(
     df_pnsd,           # Particle number size distribution
-    df_RI,             # Refractive index DataFrame (n, k columns)
-    wave_length=550    # Wavelength (nm)
+    df_RI_complex,     # Series of complex RI, one per row
+    wavelength=550,    # Wavelength (nm)
 )
 
-# Output
-result['extinction']   # Extinction coefficient (Mm-1)
-result['scattering']   # Scattering coefficient (Mm-1)
-result['absorption']   # Absorption coefficient (Mm-1)
+# Output: DataFrame with extinction, scattering, absorption (Mm-1)
+
+# Species mixing-table: DataFrame with '*_volume_ratio' columns
+result_mix = mie(
+    df_pnsd,
+    df_mixing_table,           # AS_volume_ratio, AN_volume_ratio, ...
+    wavelength=550,
+    mixing='internal',         # 'internal' | 'external' | 'both'
+)
+
+# Per-bin distribution instead of totals
+dext = mie(df_pnsd, df_RI_complex, wavelength=550, distribution=True)
 ```
+
+`mie` replaces the legacy `Mie` / `extinction_distribution` / `extinction_full` triplet — behavior is selected by the shape of `ri` and the `mixing` / `distribution` keywords.
 
 ## References
 

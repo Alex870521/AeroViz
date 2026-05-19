@@ -89,23 +89,22 @@ Possible sources:
 ## AeroViz Implementation
 
 ```python
-from AeroViz.dataProcess import DataProcess
-from pathlib import Path
+from AeroViz import reconstruct_mass
 
-dp = DataProcess('Chemistry', Path('./output'))
-
-# Basic mass reconstruction
-result = dp.reconstruction_basic(df_chem)
+# Mass reconstruction
+result = reconstruct_mass(df_chem, df_ref=df_chem[['PM25']])
 
 # Output
-result['mass']        # Reconstructed mass DataFrame
+result['mass']         # Reconstructed mass DataFrame
 #   AS, AN, OM, EC, Soil, SS, PM25_rc
 
-result['NH4_status']  # Ammonium status
-#   Excess / Balance / Deficiency
+result['NH4_status']   # Ammonium status (Excess / Balance / Deficiency)
+result['volume']       # Component volumes (µm³/m³)
+result['density_rec']  # Reconstructed density
+result['RI_550']       # Volume-weighted refractive index at 550 nm
 
-# Full reconstruction (with ite)
-result_full = dp.reconstruction_full(df_chem)
+# Split OM into POA / SOA via EC-tracer method
+result_split = reconstruct_mass(df_chem, df_ref=df_chem[['PM25']], split_om=True)
 ```
 
 ### Input Format

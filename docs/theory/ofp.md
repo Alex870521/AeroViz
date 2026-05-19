@@ -81,13 +81,10 @@ $$SOAP_i = C_i \times SOAP_{factor,i}$$
 ## AeroViz Implementation
 
 ```python
-from AeroViz.dataProcess import DataProcess
-from pathlib import Path
-
-dp = DataProcess('VOC', Path('./output'))
+from AeroViz import voc_potentials
 
 # Calculate OFP and SOAP
-result = dp.potential(df_voc)
+result = voc_potentials(df_voc)
 
 # Output
 result['OFP']    # OFP contribution per species (ug O3/m3)

@@ -37,15 +37,14 @@ aps = RawDataReader(
 ### Basic Merging
 
 ```python
-from AeroViz.dataProcess import DataProcess
+from AeroViz import merge_psd
 
-dp = DataProcess('SizeDistr', Path('./output'))
-
-# v4 merging (recommended, with PM2.5 correction)
-result = dp.merge_SMPS_APS_v4(
-    df_smps=smps,
-    df_aps=aps,
-    df_pm25=pm25_data  # Optional, for density correction
+# v4 merging (recommended, with PM2.5 fitness function)
+result = merge_psd(
+    smps,
+    aps,
+    df_pm25=pm25_data,   # required for version=4
+    version=4,
 )
 
 # Output
@@ -58,9 +57,13 @@ density = result['density']           # Estimated particle density
 
 | Parameter | Description |
 |-----------|-------------|
-| `overlap_range` | SMPS-APS overlap range (default 500-700 nm) |
-| `shift_mode` | APS diameter shift mode |
-| `density_range` | Density search range (default 1.0-2.5 g/cm3) |
+| `version` | Algorithm version: 1, 2, 3, or 4 (default 4, recommended) |
+| `df_pm25` | PM2.5 reference DataFrame (required for `version=4`) |
+| `aps_unit` | `'um'` (default) or `'nm'` |
+| `smps_overlap_lowbound` | SMPS bin lower bound for overlap region (nm, default 500) |
+| `aps_fit_highbound` | APS bin upper bound for power-law fit (nm, default 1000) |
+| `shift_mode` | APS diameter shift mode (`version=1` only) |
+| `dndsdv_alg` | Apply dN/dS/dV correlation refinement (`version >= 3`) |
 
 ---
 
@@ -114,10 +117,11 @@ print(summary)
 ### Requires Refractive Index Data
 
 ```python
+from AeroViz import reconstruct_mass, volume_ri
+
 # Calculate refractive index from chemical composition
-dp_chem = DataProcess('Chemistry', Path('./output'))
-ri_result = dp_chem.volume_RI(df_chem)
-df_RI = ri_result['RI']  # n, k columns
+mass_result = reconstruct_mass(df_chem)
+df_RI = volume_ri(mass_result['volume'])   # n_dry, k_dry, n_amb, k_amb, gRH
 
 # Calculate extinction distribution
 ext_dist = psd.to_extinction(
@@ -134,9 +138,10 @@ ext_dist = psd.to_extinction(
 ### Hygroscopic Correction
 
 ```python
-# Calculate growth factor
-kappa_result = dp_chem.kappa(df_chem, df_RH)
-df_gRH = kappa_result[['gRH']]
+from AeroViz import growth_factor
+
+# Calculate growth factor (needs total_dry + ALWC)
+df_gRH = growth_factor(mass_result['volume'], df_alwc)
 
 # Convert to dry PSD
 dry_psd = psd.to_dry(df_gRH, uniform=True)
@@ -188,8 +193,7 @@ for act, dose in results.items():
 ```python
 from datetime import datetime
 from pathlib import Path
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
+from AeroViz import RawDataReader, merge_psd
 from AeroViz.dataProcess.SizeDistr import SizeDist
 
 # 1. Read data
@@ -197,10 +201,11 @@ smps = RawDataReader('SMPS', Path('./data/smps'),
                      datetime(2024,1,1), datetime(2024,3,31))
 aps = RawDataReader('APS', Path('./data/aps'),
                     datetime(2024,1,1), datetime(2024,3,31))
+pm25 = RawDataReader('TEOM', Path('./data/teom'),
+                     datetime(2024,1,1), datetime(2024,3,31))[['PM_Total']]
 
-# 2. Merge SMPS-APS
-dp = DataProcess('SizeDistr', Path('./output'))
-merged = dp.merge_SMPS_APS_v4(smps, aps)
+# 2. Merge SMPS-APS (v4 requires PM2.5 reference)
+merged = merge_psd(smps, aps, df_pm25=pm25, version=4)
 df_pnsd = merged['data_dn']
 
 # 3. Create SizeDist object

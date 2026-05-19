@@ -65,16 +65,13 @@ $$b_{ag} = 0.33 \times [NO_2]\ (ppb)$$
 ## AeroViz Implementation
 
 ```python
-from AeroViz.dataProcess import DataProcess
-from pathlib import Path
-
-dp = DataProcess('Optical', Path('./output'))
+from AeroViz import improve
 
 # IMPROVE calculation
-result = dp.IMPROVE(
+result = improve(
     df_mass,            # Mass concentration (AS, AN, OM, Soil, SS, EC)
     df_RH,              # Relative humidity
-    method='revised'    # 'revised' or 'modified'
+    method='revised',   # 'revised', 'modified', or 'localized'
 )
 
 # Output

@@ -8,8 +8,15 @@ Chemical composition analysis workflow, including mass reconstruction, ion balan
 from datetime import datetime
 from pathlib import Path
 import pandas as pd
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
+from AeroViz import (
+    RawDataReader,
+    reconstruct_mass,
+    volume_ri,
+    kappa,
+    growth_factor,
+    partition_ratios,
+    split_oc_ec,
+)
 
 # Read ion data
 igac = RawDataReader(
@@ -46,10 +53,8 @@ df_chem = pd.concat([igac, ocec, xact], axis=1)
 ### Basic Reconstruction
 
 ```python
-dp = DataProcess('Chemistry', Path('./output'))
-
 # Perform mass reconstruction
-result = dp.reconstruction_basic(df_chem)
+result = reconstruct_mass(df_chem, df_ref=df_chem[['PM25']])
 
 # Main component masses
 df_mass = result['mass']
@@ -105,18 +110,15 @@ print(contributions.mean())
 ## Volume and Refractive Index Calculation
 
 ```python
-# Calculate volume fraction and refractive index
-vol_ri = dp.volume_RI(df_chem)
-
-# Volume fraction
-df_volume = vol_ri['volume']
+# Reconstruction already produced volumes; feed them to volume_ri
+df_volume = result['volume']
 print(df_volume.columns)
-# ['AS_volume', 'AN_volume', 'OM_volume', 'EC_volume', 'Soil_volume', 'SS_volume']
+# ['AS_volume', 'AN_volume', 'OM_volume', 'EC_volume', 'Soil_volume', 'SS_volume', 'total_dry']
 
-# Refractive index
-df_RI = vol_ri['RI']
-print(f"Mean n: {df_RI['n'].mean():.3f}")
-print(f"Mean k: {df_RI['k'].mean():.4f}")
+# Volume-weighted refractive index (dry + ambient if ALWC provided)
+df_RI = volume_ri(df_volume, df_alwc=df_alwc)
+print(f"Mean n_dry: {df_RI['n_dry'].mean():.3f}")
+print(f"Mean k_dry: {df_RI['k_dry'].mean():.4f}")
 ```
 
 ---
@@ -124,19 +126,16 @@ print(f"Mean k: {df_RI['k'].mean():.4f}")
 ## Hygroscopicity (kappa) Calculation
 
 ```python
-# Requires RH data
-df_RH = met_data[['RH']]
+import pandas as pd
 
-# Calculate kappa and growth factor
-kappa_result = dp.kappa(df_chem, df_RH)
+# Growth factor from volume + ALWC
+df_gRH = growth_factor(df_volume, df_alwc)        # column: gRH
+print(f"Mean gRH: {df_gRH['gRH'].mean():.2f}")
 
-# kappa value
-df_kappa = kappa_result['kappa']
-print(f"Mean kappa: {df_kappa.mean():.3f}")
-
-# Growth factor
-df_gRH = kappa_result['gRH']
-print(f"Mean gRH at RH=80%: {df_gRH.mean():.2f}")
+# kappa: needs gRH, ambient temperature (AT, °C), and RH (%)
+df_kappa_input = pd.concat([df_gRH, met_data[['AT', 'RH']]], axis=1)
+df_kappa = kappa(df_kappa_input, diameter=0.5)    # column: kappa_chem
+print(f"Mean kappa: {df_kappa['kappa_chem'].mean():.3f}")
 ```
 
 ### kappa vs Composition Relationship
@@ -147,18 +146,18 @@ fig, axes = plt.subplots(1, 3, figsize=(12, 4))
 
 # kappa vs SIA ratio
 sia_ratio = (df_mass['AS'] + df_mass['AN']) / df_mass['PM25_rc']
-axes[0].scatter(sia_ratio, df_kappa, alpha=0.5)
+axes[0].scatter(sia_ratio, df_kappa['kappa_chem'], alpha=0.5)
 axes[0].set_xlabel('SIA / PM2.5')
 axes[0].set_ylabel('kappa')
 
 # kappa vs OM ratio
 om_ratio = df_mass['OM'] / df_mass['PM25_rc']
-axes[1].scatter(om_ratio, df_kappa, alpha=0.5)
+axes[1].scatter(om_ratio, df_kappa['kappa_chem'], alpha=0.5)
 axes[1].set_xlabel('OM / PM2.5')
 axes[1].set_ylabel('kappa')
 
 # kappa vs RH
-axes[2].scatter(df_RH['RH'], df_kappa, alpha=0.5)
+axes[2].scatter(met_data['RH'], df_kappa['kappa_chem'], alpha=0.5)
 axes[2].set_xlabel('RH (%)')
 axes[2].set_ylabel('kappa')
 
@@ -171,15 +170,15 @@ plt.show()
 ## Gas-Particle Partitioning Ratios
 
 ```python
-# Requires gas data
+# Requires gas data + temperature
 df_gas = gas_data[['SO2', 'NO2', 'HNO3', 'NH3']]
-df_combined = pd.concat([df_chem, df_gas], axis=1)
+df_combined = pd.concat([df_chem, df_gas, met_data[['temp']]], axis=1)
 
 # Calculate partitioning ratios
-partition = dp.partition_ratios(df_combined)
+partition = partition_ratios(df_combined)
 
 print(partition.columns)
-# ['SOR', 'NOR', 'NTR', 'epsilon_ite', 'epsilon_ss']
+# ['SOR', 'NOR', 'NOR_2', 'NTR', 'epls_SO42-', 'epls_NO3-', 'epls_NH4+', 'epls_Cl-']
 ```
 
 ### Partitioning Ratio Description
@@ -207,19 +206,20 @@ plt.show()
 
 ---
 
-## OC/EC Ratio Analysis
+## OC/EC Split (POC / SOC)
 
 ```python
-# OC/EC analysis
-ocec_result = dp.ocec_ratio(df_chem[['OC', 'EC']])
+# Requires the OC/EC analyzer level-result columns
+# (OC1-OC4, PC, Thermal_OC/EC, Optical_OC/EC, Sample_Volume).
+ocec_result = split_oc_ec(df_lcres, df_mass=df_chem[['PM25']])
 
-# OC/EC ratio
-ratio = ocec_result['ratio']
-print(f"Mean OC/EC: {ratio.mean():.2f}")
+# Concatenated OC/EC + POC/SOC/WSOC/WISOC + status flags
+basic = ocec_result['basic']
+print(f"Mean OC/EC: {basic['OC/EC'].mean():.2f}")
+print(f"Mean SOC: {basic['SOC'].mean():.2f} ug/m3")
 
-# SOC estimation
-soc = ocec_result['SOC']
-print(f"Mean SOC: {soc.mean():.2f} ug/m3")
+# Per-species PM ratios
+ratios = ocec_result['ratio']
 ```
 
 ---
@@ -231,37 +231,42 @@ from datetime import datetime
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
+from AeroViz import (
+    RawDataReader,
+    reconstruct_mass,
+    volume_ri,
+    kappa,
+    growth_factor,
+)
 
 # 1. Read data
 igac = RawDataReader('IGAC', Path('./data'), ...)
 ocec = RawDataReader('OCEC', Path('./data'), ...)
 df_chem = pd.concat([igac, ocec], axis=1)
-df_RH = pd.read_csv('met.csv', index_col='time', parse_dates=True)[['RH']]
+met    = pd.read_csv('met.csv', index_col='time', parse_dates=True)
+df_alwc = met[['ALWC']]                                  # from ISOROPIA, e.g.
 
-# 2. Initialize processor
-dp = DataProcess('Chemistry', Path('./output'))
+# 2. Mass reconstruction
+mass_result = reconstruct_mass(df_chem, df_ref=df_chem[['PM25']])
+df_mass   = mass_result['mass']
+df_volume = mass_result['volume']
 
-# 3. Mass reconstruction
-mass_result = dp.reconstruction_basic(df_chem)
-df_mass = mass_result['mass']
+# 3. Volume-weighted refractive index
+df_RI = volume_ri(df_volume, df_alwc=df_alwc)
 
-# 4. Volume and refractive index
-vol_ri = dp.volume_RI(df_chem)
-df_RI = vol_ri['RI']
+# 4. Hygroscopicity
+df_gRH   = growth_factor(df_volume, df_alwc)
+df_kappa = kappa(
+    pd.concat([df_gRH, met[['AT', 'RH']]], axis=1),
+    diameter=0.5,
+)
 
-# 5. Hygroscopicity
-kappa_result = dp.kappa(df_chem, df_RH)
-df_kappa = kappa_result['kappa']
-df_gRH = kappa_result['gRH']
-
-# 6. Output results summary
+# 5. Output results summary
 print("=== Chemical Analysis Summary ===")
 print(f"PM2.5: {df_chem['PM25'].mean():.1f} +/- {df_chem['PM25'].std():.1f} ug/m3")
 print(f"Closure: {(df_mass['PM25_rc']/df_chem['PM25']*100).mean():.1f}%")
-print(f"RI: {df_RI['n'].mean():.3f} + {df_RI['k'].mean():.4f}i")
-print(f"kappa: {df_kappa.mean():.3f} +/- {df_kappa.std():.3f}")
+print(f"RI(dry): {df_RI['n_dry'].mean():.3f} + {df_RI['k_dry'].mean():.4f}i")
+print(f"kappa: {df_kappa['kappa_chem'].mean():.3f}")
 ```
 
 ---

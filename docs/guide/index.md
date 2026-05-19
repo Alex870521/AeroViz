@@ -54,15 +54,13 @@ print(data.columns)
 ### 2. Data Processing
 
 ```python
-from AeroViz.dataProcess import DataProcess
+from AeroViz import psd_stats, reconstruct_mass
 
 # Size distribution processing
-dp = DataProcess('SizeDistr', Path('./output'))
-result = dp.basic(df_pnsd)
+result = psd_stats(df_pnsd)
 
 # Chemical composition processing
-dp = DataProcess('Chemistry', Path('./output'))
-result = dp.reconstruction_basic(df_chem)
+result = reconstruct_mass(df_chem)
 ```
 
 ### 3. Visualization
@@ -95,18 +93,18 @@ A unified data reading interface supporting multiple aerosol instruments:
 
 See [RawDataReader Tutorial](rawdatareader.md)
 
-### DataProcess
+### Post-Processing Functions
 
-The data processing engine includes four modules:
+Top-level functions organized into four namespaces:
 
-| Module | Function |
-|--------|----------|
-| SizeDistr | Size distribution processing, merging, conversion |
-| Chemistry | Mass reconstruction, ion balance, kappa calculation |
-| Optical | Mie calculation, IMPROVE, RI retrieval |
-| VOC | OFP, SOAP calculation |
+| Namespace | Function |
+|-----------|----------|
+| `size` | Size distribution processing, merging, conversion |
+| `chemistry` | Mass reconstruction, ion balance, kappa calculation |
+| `optical` | Mie calculation, IMPROVE, RI retrieval |
+| `voc` | OFP, SOAP calculation |
 
-See [DataProcess Tutorial](dataprocess.md)
+See [Post-Processing Functions Tutorial](dataprocess.md)
 
 ### Plot
 

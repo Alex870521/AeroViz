@@ -7,8 +7,7 @@ Volatile Organic Compounds (VOC) analysis workflow, including OFP and SOAP calcu
 ```python
 from datetime import datetime
 from pathlib import Path
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
+from AeroViz import RawDataReader, voc_potentials
 
 # Read VOC data
 voc = RawDataReader(
@@ -31,10 +30,8 @@ print(voc.columns.tolist())
 ### Basic Calculation
 
 ```python
-dp = DataProcess('VOC', Path('./output'))
-
 # Calculate ozone formation potential
-result = dp.potential(voc)
+result = voc_potentials(voc)
 
 # OFP for each species
 df_ofp = result['OFP']
@@ -186,16 +183,14 @@ from datetime import datetime
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
+from AeroViz import RawDataReader, voc_potentials
 
 # 1. Read VOC data
 voc = RawDataReader('VOC', Path('./data/voc'),
                     datetime(2024, 1, 1), datetime(2024, 3, 31))
 
 # 2. Calculate OFP/SOAP
-dp = DataProcess('VOC', Path('./output'))
-result = dp.potential(voc)
+result = voc_potentials(voc)
 
 df_ofp = result['OFP']
 df_soap = result['SOAP']

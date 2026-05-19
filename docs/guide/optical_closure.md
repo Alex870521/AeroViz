@@ -17,8 +17,14 @@ Optical closure analysis includes multiple methods:
 ```python
 from datetime import datetime
 from pathlib import Path
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
+from AeroViz import (
+    RawDataReader,
+    reconstruct_mass,
+    volume_ri,
+    improve,
+    retrieve_ri,
+    optical_basic,
+)
 
 # Read optical data
 neph = RawDataReader('NEPH', Path('./data/neph'),
@@ -44,29 +50,25 @@ ocec = RawDataReader('OCEC', Path('./data/ocec'),
 ### Mass Reconstruction
 
 ```python
-dp_chem = DataProcess('Chemistry', Path('./output'))
-
 # Merge chemical data
 df_chem = pd.concat([igac, ocec], axis=1)
 
 # Mass reconstruction
-mass_result = dp_chem.reconstruction_basic(df_chem)
+mass_result = reconstruct_mass(df_chem)
 df_mass = mass_result['mass']  # AS, AN, OM, Soil, SS, EC
 ```
 
 ### IMPROVE Extinction Calculation
 
 ```python
-dp_opt = DataProcess('Optical', Path('./output'))
-
 # Get RH data
 df_RH = met_data[['RH']]
 
 # IMPROVE calculation
-improve_result = dp_opt.IMPROVE(
-    df_mass=df_mass,
-    df_RH=df_RH,
-    method='revised'
+improve_result = improve(
+    df_mass,
+    df_RH,
+    method='revised',     # 'revised' | 'modified' | 'localized'
 )
 
 # Output
@@ -111,8 +113,7 @@ plt.show()
 
 ```python
 # Calculate volume and refractive index from chemical composition
-ri_result = dp_chem.volume_RI(df_chem)
-df_RI = ri_result['RI']  # n, k columns
+df_RI = volume_ri(mass_result['volume'])   # n_dry, k_dry, n_amb, k_amb, gRH
 ```
 
 ### Mie Extinction Calculation
@@ -163,40 +164,36 @@ plt.show()
 
 ```python
 # Retrieve refractive index from measured optical properties and PSD
-ri_retrieved = dp_opt.retrieve_RI(
-    df_optical=df_optical,  # Sca, Abs columns
-    df_pnsd=df_pnsd,
-    dlogdp=psd.dlogdp,
-    wavelength=550
+ri_retrieved = retrieve_ri(
+    df_optical,         # Extinction, Scattering, Absorption columns
+    df_pnsd,
+    dlogdp=0.014,
+    wavelength=550,
 )
 
 # Output
-n_retrieved = ri_retrieved['n']  # Real part
-k_retrieved = ri_retrieved['k']  # Imaginary part
+n_retrieved = ri_retrieved['re_real']        # Real part
+k_retrieved = ri_retrieved['re_imaginary']   # Imaginary part
 
 print(f"Retrieved RI: {n_retrieved.mean():.3f} + {k_retrieved.mean():.4f}i")
 ```
 
 ---
 
-## Derived Optical Parameters
+## Basic Optical Parameters
 
 ```python
-# Calculate derived parameters
-derived = dp_opt.derived(
+# Compute derived optical properties (extinction, SSA, MEE/MSE/MAE, Ångström, etc.)
+derived = optical_basic(
     df_sca=neph[['Sca_550']],
     df_abs=ae33[['Abs_880']],
-    df_ec=ocec[['EC']],
+    df_mass=df_chem[['PM25']],
     df_no2=gas[['NO2']],
-    df_temp=met[['Temp']]
+    df_temp=met[['Temp']],
 )
 
-# Output
-print(derived.columns)
-# ['PG', 'MAC', 'Ox', 'Vis_cal', 'fRH_IMPR', 'OCEC_ratio', 'PM1_PM25']
-
 # Single scattering albedo
-SSA = derived['Sca'] / (derived['Sca'] + derived['Abs'])
+SSA = derived['Scattering'] / (derived['Scattering'] + derived['Absorption'])
 ```
 
 ---
@@ -208,8 +205,12 @@ from datetime import datetime
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
-from AeroViz import RawDataReader
-from AeroViz.dataProcess import DataProcess
+from AeroViz import (
+    RawDataReader,
+    reconstruct_mass,
+    volume_ri,
+    improve,
+)
 from AeroViz.dataProcess.SizeDistr import SizeDist
 
 # 1. Read all data
@@ -219,26 +220,23 @@ smps = RawDataReader('SMPS', Path('./data'), ...)
 df_chem = pd.read_csv('chemistry.csv', parse_dates=['time'], index_col='time')
 df_RH = pd.read_csv('met.csv', parse_dates=['time'], index_col='time')[['RH']]
 
-# 2. Initialize processors
-dp_chem = DataProcess('Chemistry', Path('./output'))
-dp_opt = DataProcess('Optical', Path('./output'))
+# 2. Mass reconstruction and refractive index
+mass_result = reconstruct_mass(df_chem)
+mass = mass_result['mass']
+ri   = volume_ri(mass_result['volume'])
 
-# 3. Mass reconstruction and refractive index
-mass = dp_chem.reconstruction_basic(df_chem)['mass']
-ri = dp_chem.volume_RI(df_chem)['RI']
+# 3. IMPROVE closure
+improve_result = improve(mass, df_RH, method='revised')
+ext_improve = improve_result['wet']['Total_ext']
 
-# 4. IMPROVE closure
-improve = dp_opt.IMPROVE(mass, df_RH, method='revised')
-ext_improve = improve['wet']['Total_ext']
-
-# 5. Mie closure
+# 4. Mie closure
 psd = SizeDist(smps, state='dlogdp', weighting='n')
 ext_mie = psd.to_extinction(ri, method='internal').sum(axis=1)
 
-# 6. Measured extinction
+# 5. Measured extinction
 ext_measured = neph['Sca_550'] + ae33['Abs_880']
 
-# 7. Compare results
+# 6. Compare results
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
 axes[0].scatter(ext_measured, ext_improve, alpha=0.5)

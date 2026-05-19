@@ -1,206 +1,248 @@
-# DataProcess Tutorial
+# Post-Processing Functions Tutorial
 
-DataProcess is the core data processing engine of AeroViz, providing four specialized modules for processing different types of aerosol data.
+AeroViz exposes its post-processing as a flat set of top-level functions, grouped into four namespaces — `chemistry`, `optical`, `size`, and `voc`. Each call is self-contained: it takes a DataFrame (or a few), runs one calculation, and returns a DataFrame or dict.
+
+!!! warning "Legacy API deprecated"
+    The old `DataProcess(...)` factory class — e.g. `dp = DataProcess('Chemistry', Path('./output'))` followed by `dp.ReConstrc_basic(df_chem)` — still exists but is deprecated and will be removed in a future release. New code should use the top-level functions described on this page. The functions take exactly the same inputs and return the same results — they just skip the constructor boilerplate and the `path_out` argument. If you want a CSV, call `.to_csv()` on the returned DataFrame yourself.
 
 ## Basic Usage
 
 ```python
-from pathlib import Path
-from AeroViz.dataProcess import DataProcess
+from AeroViz import reconstruct_mass, mie, psd_distributions
 
-# Create processor
-dp = DataProcess('SizeDistr', Path('./output'))
-
-# Call method
-result = dp.basic(df_pnsd)
+# Each call is independent — no need to pre-instantiate a processor
+result = reconstruct_mass(df_chem)
+ext = mie(df_pnsd, df_RI, wavelength=550)
+psd = psd_distributions(df_pnsd)
 ```
 
-## Module Overview
+You can also import each function from its namespace:
 
-| Module | Purpose | Main Methods |
-|--------|---------|--------------|
-| SizeDistr | Size distribution processing | basic, merge_SMPS_APS_v4, distributions |
-| Chemistry | Chemical composition analysis | reconstruction_basic, volume_RI, kappa |
-| Optical | Optical property calculation | IMPROVE, Mie, retrieve_RI, derived |
-| VOC | VOC reactivity assessment | potential |
+```python
+from AeroViz import chemistry, optical, size, voc
+
+result = chemistry.reconstruct_mass(df_chem)
+ext    = optical.mie(df_pnsd, df_RI, wavelength=550)
+```
+
+## Function Overview
+
+| Namespace | Functions |
+|-----------|-----------|
+| `chemistry` | `reconstruct_mass`, `split_oc_ec`, `partition_ratios`, `isoropia`, `volume_ri`, `kappa`, `growth_factor` |
+| `optical` | `optical_basic`, `improve`, `mie`, `gas_extinction`, `retrieve_ri`, `brown_carbon` |
+| `size` | `psd_stats`, `psd_distributions`, `merge_psd` |
+| `voc` | `voc_potentials` |
 
 ---
 
-## SizeDistr Module
+## Size Distribution
 
-### Basic Processing
+### Basic Statistics
 
 ```python
-dp = DataProcess('SizeDistr', Path('./output'))
+from AeroViz import psd_stats
 
-# Basic statistics
-result = dp.basic(df_pnsd)
+result = psd_stats(df_pnsd)
 # result['number']   - Number distribution
 # result['surface']  - Surface area distribution
 # result['volume']   - Volume distribution
 # result['other']    - Mode statistics
 ```
 
+### Number / Surface / Volume Distributions
+
+```python
+from AeroViz import psd_distributions
+
+dists = psd_distributions(df_pnsd)
+# dists['number'], dists['surface'], dists['volume']
+# dists['properties'] - concatenated GMD/GSD/mode per weighting
+```
+
 ### SMPS-APS Merging
 
 ```python
-# v4 version (recommended)
-result = dp.merge_SMPS_APS_v4(
-    df_smps=smps_data,
-    df_aps=aps_data,
-    df_pm25=pm25_data  # Optional, for density correction
-)
+from AeroViz import merge_psd
 
-# Output
-merged = result['data_dn']           # Merged dN
-merged_all = result['data_dndsdv']   # dN, dS, dV
-density = result['density']          # Estimated density
+# v4 (recommended, requires PM2.5 reference)
+result = merge_psd(smps_data, aps_data, df_pm25=pm25_data, version=4)
+
+merged   = result['data_dn']         # Merged dN
+all_dist = result['data_dndsdv']     # dN, dS, dV
+density  = result['density']         # Estimated density
 ```
 
-### Using SizeDist Class
+`version` selects the algorithm: 1 (original power-law), 2 (simplified), 3 (dN/dS/dV refinement), 4 (PM2.5 fitness, default and recommended). v4 requires `df_pm25`.
+
+### Using the SizeDist Class
+
+For per-row distribution conversions (extinction, dry PSD, lung deposition), use the `SizeDist` class directly:
 
 ```python
 from AeroViz.dataProcess.SizeDistr import SizeDist
 
-# Create object
 psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')
 
 # Distribution conversion
-surface = psd.to_surface()
-volume = psd.to_volume()
+surface    = psd.to_surface()
+volume     = psd.to_volume()
 extinction = psd.to_extinction(df_RI, method='internal')
-dry = psd.to_dry(df_gRH)
+dry        = psd.to_dry(df_gRH)
 
 # Statistics
 props = psd.properties()
 stats = psd.mode_statistics()
 
-# Lung deposition
+# Lung deposition (ICRP 66)
 lung = psd.lung_deposition(activity='light')
 ```
 
 ---
 
-## Chemistry Module
+## Chemistry
 
 ### Mass Reconstruction
 
 ```python
-dp = DataProcess('Chemistry', Path('./output'))
+from AeroViz import reconstruct_mass
 
-# Basic reconstruction
-result = dp.reconstruction_basic(df_chem)
+result = reconstruct_mass(df_chem, df_ref=df_pm25)
 # result['mass']        - Reconstructed mass (AS, AN, OM, EC, Soil, SS)
-# result['NH4_status']  - Ammonium status
-
-# Full reconstruction
-result = dp.reconstruction_full(df_chem)
+# result['volume']      - Component volumes
+# result['NH4_status']  - Ammonium status (Excess / Balance / Deficiency)
+# result['RI_550']      - Refractive index at 550 nm
+# result['density_rec'] - Reconstructed density
 ```
 
 ### Volume and Refractive Index
 
 ```python
-result = dp.volume_RI(df_chem)
-# result['volume']  - Volume fraction of each component
-# result['RI']      - Refractive index (n, k)
+from AeroViz import volume_ri
+
+ri = volume_ri(df_volume, df_alwc=df_alwc)
+# Columns: n_dry, k_dry, n_amb, k_amb, gRH
 ```
 
-### Hygroscopicity
+### Hygroscopicity (kappa)
 
 ```python
-result = dp.kappa(df_chem, df_RH)
-# result['kappa']  - kappa value
-# result['gRH']    - Growth factor
+from AeroViz import kappa, growth_factor
+
+gf  = growth_factor(df_volume, df_alwc)        # gRH = (V_wet / V_dry)^(1/3)
+kap = kappa(df_data, diameter=0.5)             # df_data needs gRH, AT, RH
 ```
 
-### Gas-Particle Partitioning Ratios
+### Gas-Particle Partitioning
 
 ```python
-result = dp.partition_ratios(df_combined)
-# SOR, NOR, NTR, epsilon_ite, epsilon_ss
+from AeroViz import partition_ratios
+
+ratios = partition_ratios(df_data)
+# SOR, NOR, NOR_2, NTR, epls_SO42-, epls_NO3-, epls_NH4+, epls_Cl-
+```
+
+### OC / EC Split
+
+```python
+from AeroViz import split_oc_ec
+
+result = split_oc_ec(df_lcres, df_mass=df_pm25)
+# result['basic']  - OC/EC + POC/SOC/WSOC/WISOC + status flags
+# result['ratio']  - Per-species PM / OC ratios
+```
+
+### ISORROPIA II
+
+```python
+from pathlib import Path
+from AeroViz import isoropia
+
+# Keeps path_out: ISORROPIA shells out to a Windows binary
+result = isoropia(df_ions, df_met, path_out=Path('./isoropia_run'))
+# result['input'], result['output'] (pH, ALWC, gas/aerosol partitioning)
 ```
 
 ---
 
-## Optical Module
+## Optical
+
+### Basic Optical Properties
+
+```python
+from AeroViz import optical_basic
+
+basic = optical_basic(df_sca, df_abs, df_mass=df_mass, df_no2=df_no2, df_temp=df_temp)
+# Derived columns: extinction, SSA, MEE, MSE, MAE, Ångström exponents, etc.
+```
 
 ### IMPROVE Extinction
 
 ```python
-dp = DataProcess('Optical', Path('./output'))
+from AeroViz import improve
 
-result = dp.IMPROVE(
-    df_mass=df_mass,     # Mass concentration
-    df_RH=df_RH,         # Relative humidity
-    method='revised'     # 'revised' or 'modified'
-)
-
-# Output
-result['dry']   # Dry extinction
-result['wet']   # Wet extinction
-result['ALWC']  # Aerosol liquid water contribution
-result['fRH']   # Hygroscopic factor
+result = improve(df_mass, df_RH, method='revised')
+# method = 'revised' | 'modified' | 'localized'
+# result['dry'], result['wet'], result['ALWC'], result['fRH']
 ```
 
 ### Mie Calculation
 
 ```python
-result = dp.Mie(
-    df_pnsd=df_pnsd,      # Size distribution
-    df_m=df_RI,           # Refractive index
-    wave_length=550       # Wavelength (nm)
-)
+from AeroViz import mie
 
-# Output
-result['extinction']   # Extinction coefficient
-result['scattering']   # Scattering coefficient
-result['absorption']   # Absorption coefficient
+# Single-material RI (Series of complex numbers)
+ext = mie(df_pnsd, df_RI_complex, wavelength=550)
+# Columns: extinction, scattering, absorption (Mm⁻¹)
+
+# Species mixing-table RI (DataFrame with *_volume_ratio columns)
+ext = mie(df_pnsd, df_mix_table, wavelength=550, mixing='internal')
+# mixing = 'internal' | 'external' | 'both'
+
+# Per-bin distribution instead of totals
+dext = mie(df_pnsd, df_RI_complex, wavelength=550, distribution=True)
+```
+
+`mie` replaces the legacy `Mie` / `extinction_distribution` / `extinction_full` triplet. Behavior is controlled by the shape of `ri` and the `mixing` / `distribution` keywords.
+
+### Gas Extinction
+
+```python
+from AeroViz import gas_extinction
+
+g = gas_extinction(df_no2, df_temp)
+# Columns: ScatteringByGas, AbsorptionByGas, ExtinctionByGas
 ```
 
 ### Refractive Index Retrieval
 
 ```python
-result = dp.retrieve_RI(
-    df_optical=df_optical,  # Measured optical properties
-    df_pnsd=df_pnsd,        # Size distribution
-    wavelength=550
-)
+from AeroViz import retrieve_ri
 
-# Output
-result['n']  # Real part
-result['k']  # Imaginary part
+ri = retrieve_ri(df_optical, df_pnsd, dlogdp=0.014, wavelength=550)
+# Columns: re_real, re_imaginary
 ```
 
-### Derived Parameters
+### Brown Carbon Separation
 
 ```python
-result = dp.derived(
-    df_sca=neph,
-    df_abs=ae33,
-    df_ec=ocec,
-    df_no2=gas,
-    df_temp=met
-)
+from AeroViz import brown_carbon
 
-# Output columns
-# PG, MAC, Ox, Vis_cal, fRH_IMPR, OCEC_ratio, PM1_PM25
+bc_brc = brown_carbon(df_abs, ref_wavelength=880, aae_bc=1.0)
+# Splits multi-wavelength absorption into BC vs BrC components
 ```
 
 ---
 
-## VOC Module
-
-### OFP/SOAP Calculation
+## VOC
 
 ```python
-dp = DataProcess('VOC', Path('./output'))
+from AeroViz import voc_potentials
 
-result = dp.potential(df_voc)
-
-# Output
-result['OFP']    # OFP for each species
-result['SOAP']   # SOAP for each species
-result['total']  # Total OFP/SOAP
+result = voc_potentials(df_voc)
+# result['OFP']    - OFP per species
+# result['SOAP']   - SOAP per species
+# result['total']  - Total OFP / SOAP
 ```
 
 ---
@@ -241,15 +283,16 @@ df_voc.columns = ['Benzene', 'Toluene', 'Ethylbenzene', ...]
 
 ---
 
-## Output Management
+## Output Handling
 
-All outputs are saved to the specified output path:
+The new functions return DataFrames or dicts of DataFrames; they do **not** write files. If you want CSVs, call `.to_csv()` yourself:
 
 ```python
-dp = DataProcess('SizeDistr', Path('./output/size'))
-
-# Outputs saved to ./output/size/
+result = reconstruct_mass(df_chem)
+result['mass'].to_csv('./output/mass.csv')
 ```
+
+(Exception: `isoropia` still keeps `path_out`, because the underlying calculation shells out to a Windows binary that reads/writes temp files on disk.)
 
 ---
 

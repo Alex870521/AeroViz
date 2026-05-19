@@ -150,6 +150,36 @@ def run_process(*_ini_set: str):
     return _decorator
 
 
+def safe_divide(numerator, denominator):
+    """
+    Divide two operands and return NaN where the denominator is zero (or
+    NaN), rather than ±inf.
+
+    Works with pandas Series, numpy arrays, and scalars. Use this in place
+    of `a / b` whenever the denominator is user data that may contain
+    zeros — e.g., dividing absorption by EC, scattering by total
+    extinction, or 1096 / Bext for visibility.
+
+    Parameters
+    ----------
+    numerator, denominator : scalar | ndarray | Series
+
+    Returns
+    -------
+    Same type as numerator / denominator, with inf entries replaced by NaN.
+    """
+    import numpy as np
+    with np.errstate(divide='ignore', invalid='ignore'):
+        # np.divide (instead of `/`) keeps scalar 0/0 and x/0 as NaN/inf
+        # rather than raising ZeroDivisionError.
+        result = np.divide(numerator, denominator)
+        if hasattr(result, 'replace'):
+            result = result.replace([np.inf, -np.inf], np.nan)
+        else:
+            result = np.where(np.isinf(result), np.nan, result)
+    return result
+
+
 def union_index(*_df_arg):
     """
     Reindex multiple DataFrames to a common union index.

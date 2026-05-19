@@ -14,7 +14,7 @@ df_abs:
 
 from pandas import DataFrame
 
-from AeroViz.dataProcess.core import union_index, validate_inputs
+from AeroViz.dataProcess.core import safe_divide, union_index, validate_inputs
 
 # Required columns
 REQUIRED_SCA_COLUMNS = ['sca_550', 'SAE']
@@ -72,8 +72,8 @@ def _basic(df_sca, df_abs, df_mass=None, df_no2=None, df_temp=None):
     # extinction coe.
     df_out['ext'] = df_out['abs'] + df_out['sca']
 
-    # SSA
-    df_out['SSA'] = df_out['sca'] / df_out['ext']
+    # SSA (NaN when ext == 0 instead of inf)
+    df_out['SSA'] = safe_divide(df_out['sca'], df_out['ext'])
 
     # SAE, AAE, eBC
     df_out['SAE'] = df_sca['SAE'].copy()

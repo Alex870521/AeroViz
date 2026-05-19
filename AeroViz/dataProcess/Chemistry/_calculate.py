@@ -11,7 +11,7 @@ This module provides functions for:
 
 from pandas import concat, DataFrame
 
-from AeroViz.dataProcess.core import validate_inputs
+from AeroViz.dataProcess.core import safe_divide, validate_inputs
 
 # =============================================================================
 # Constants
@@ -489,14 +489,9 @@ def partition_ratios(df_data):
 
     result = DataFrame(index=df_data.index)
 
-    # Helper function to safely calculate ratio
-    def safe_ratio(numerator, denominator):
-        """Calculate ratio, returning NaN for division by zero."""
-        import numpy as np
-        with np.errstate(divide='ignore', invalid='ignore'):
-            ratio = numerator / denominator
-            ratio = ratio.replace([np.inf, -np.inf], np.nan)
-        return ratio
+    # Local alias so the existing call sites read the same; the shared
+    # helper from core handles division by zero identically.
+    safe_ratio = safe_divide
 
     # SOR: Sulfur Oxidation Ratio
     # SO₄²⁻ / (SO₄²⁻ + SO₂)

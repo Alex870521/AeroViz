@@ -16,7 +16,7 @@ Available Functions
 import numpy as np
 from pandas import DataFrame, concat
 
-from AeroViz.dataProcess.core import validate_inputs
+from AeroViz.dataProcess.core import safe_divide, validate_inputs
 
 __all__ = ['derived_parameters', 'calculate_visibility', 'calculate_MAC',
            'calculate_Ox', 'calculate_fRH', 'get_required_columns',
@@ -102,11 +102,11 @@ def derived_parameters(df_sca=None,
         result['Bap'] = df_abs.iloc[:, 0] if isinstance(df_abs, DataFrame) else df_abs
         result['PG'] = result['Bsp'] + result['Bap']
 
-    # Mass Absorption Cross-section (MAC)
+    # Mass Absorption Cross-section (MAC; NaN where EC == 0)
     if df_abs is not None and df_ec is not None:
         abs_val = df_abs.iloc[:, 0] if isinstance(df_abs, DataFrame) else df_abs
         ec_val = df_ec.iloc[:, 0] if isinstance(df_ec, DataFrame) else df_ec
-        result['MAC'] = abs_val / ec_val
+        result['MAC'] = safe_divide(abs_val, ec_val)
 
     # Oxidant (Ox = NO2 + O3)
     if df_no2 is not None and df_o3 is not None:
@@ -117,20 +117,20 @@ def derived_parameters(df_sca=None,
         # N2O5 tracer (NO2 * O3)
         result['N2O5_tracer'] = no2_val * o3_val
 
-    # Visibility calculation
+    # Visibility calculation (NaN where extinction == 0)
     if df_ext is not None:
         ext_val = df_ext.iloc[:, 0] if isinstance(df_ext, DataFrame) else df_ext
-        result['Vis_cal'] = 1096 / ext_val  # Koschmieder equation, visibility in km
+        result['Vis_cal'] = safe_divide(1096, ext_val)  # Koschmieder equation, visibility in km
 
     # fRH from IMPROVE
     if df_improve is not None and 'total_ext' in df_improve.columns and 'total_ext_dry' in df_improve.columns:
         result['fRH_IMPR'] = df_improve['total_ext'] / df_improve['total_ext_dry']
 
-    # OC/EC ratio
+    # OC/EC ratio (NaN where EC == 0)
     if df_oc is not None and df_ec is not None:
         oc_val = df_oc.iloc[:, 0] if isinstance(df_oc, DataFrame) else df_oc
         ec_val = df_ec.iloc[:, 0] if isinstance(df_ec, DataFrame) else df_ec
-        result['OCEC_ratio'] = oc_val / ec_val
+        result['OCEC_ratio'] = safe_divide(oc_val, ec_val)
 
     # PM1/PM2.5 ratio
     if df_pm1 is not None and df_pm25 is not None:
@@ -172,7 +172,7 @@ def calculate_visibility(df_ext: DataFrame) -> DataFrame:
 
     result = DataFrame(index=df_ext.index)
     ext_val = df_ext.iloc[:, 0] if isinstance(df_ext, DataFrame) else df_ext
-    result['Visibility'] = 1096 / ext_val
+    result['Visibility'] = safe_divide(1096, ext_val)
     return result
 
 
@@ -213,7 +213,7 @@ def calculate_MAC(df_abs: DataFrame, df_ec: DataFrame) -> DataFrame:
     result = DataFrame(index=df_abs.index)
     abs_val = df_abs.iloc[:, 0] if isinstance(df_abs, DataFrame) else df_abs
     ec_val = df_ec.iloc[:, 0] if isinstance(df_ec, DataFrame) else df_ec
-    result['MAC'] = abs_val / ec_val
+    result['MAC'] = safe_divide(abs_val, ec_val)
     return result
 
 
@@ -293,7 +293,7 @@ def calculate_fRH(df_ext_wet: DataFrame, df_ext_dry: DataFrame) -> DataFrame:
     result = DataFrame(index=df_ext_wet.index)
     wet_val = df_ext_wet.iloc[:, 0] if isinstance(df_ext_wet, DataFrame) else df_ext_wet
     dry_val = df_ext_dry.iloc[:, 0] if isinstance(df_ext_dry, DataFrame) else df_ext_dry
-    result['fRH'] = wet_val / dry_val
+    result['fRH'] = safe_divide(wet_val, dry_val)
     return result
 
 

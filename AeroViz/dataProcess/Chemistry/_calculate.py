@@ -317,7 +317,7 @@ def kappa_calculate(df_data, diameter=0.5):
 
     result = DataFrame(index=df_data.index)
 
-    T = df_data['AT'] + 273
+    T = df_data['AT'] + 273.15
     A = 4 * (surface_tension * Mw) / (density * R * T)
     power = A / (diameter * 1e-6)
 

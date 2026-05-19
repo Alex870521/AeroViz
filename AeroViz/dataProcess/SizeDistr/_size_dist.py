@@ -139,7 +139,17 @@ class SizeDist:
 
         self._data = data
         self._dp = np.array(self._data.columns, dtype=float)
-        self._dlogdp = np.full_like(self._dp, 0.014)
+        # Infer dlogdp (log10 bin width) from the actual diameter grid.
+        # For uniformly log-spaced bins (the SMPS/APS norm) this is the
+        # constant log10 step between successive dp values. For
+        # non-uniform grids we fall back to the mean step, which is what
+        # SizeDistr.basic() does — callers with hybrid grids should
+        # assign `psd.dlogdp` explicitly after construction.
+        if len(self._dp) >= 2:
+            step = float(np.diff(np.log10(self._dp)).mean())
+        else:
+            step = 0.014  # only reachable for single-bin data
+        self._dlogdp = np.full_like(self._dp, step)
         self._index = self._data.index.copy()
         self._state = state
         self._weighting = weighting

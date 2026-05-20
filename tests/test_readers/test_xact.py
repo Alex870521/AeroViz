@@ -5,6 +5,8 @@ Test Scenarios:
 - normal/: Merged Xact data with ALARM=0 and Type=1 (normal sampling)
 - status_errors/: Data with ALARM=203 (Upscale Nb Warning)
 """
+from datetime import datetime
+
 import pandas as pd
 import pytest
 
@@ -16,6 +18,10 @@ class TestXactReader(BaseReaderTest):
     INSTRUMENT = 'Xact'
 
     EXPECTED_COLUMNS = ['Fe', 'Zn', 'Pb', 'S', 'K', 'Ca']
+
+    # Fixture spans 2025-01-01 (single day)
+    DATE_RANGE_START = datetime(2025, 1, 1)
+    DATE_RANGE_END = datetime(2025, 1, 7, 23, 59, 59)
 
     def test_raw_data_has_all_columns(self, data_path, date_range, temp_output_dir):
         """Test that raw pickle preserves all original columns."""

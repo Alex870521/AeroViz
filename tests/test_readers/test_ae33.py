@@ -5,6 +5,8 @@ Test Scenarios:
 - normal/: Standard AE33 .dat files
 - status_errors/: Files with error status codes
 """
+from datetime import datetime
+
 import pytest
 
 from .base import BaseReaderTest
@@ -16,6 +18,10 @@ class TestAE33Reader(BaseReaderTest):
 
     INSTRUMENT = 'AE33'
     STATUS_COLUMN = 'Status'
+
+    # Fixture spans 2025-03-04 → 2025-03-05
+    DATE_RANGE_START = datetime(2025, 3, 1)
+    DATE_RANGE_END = datetime(2025, 3, 31, 23, 59, 59)
 
     # AE33 outputs BC at 7 wavelengths + derived parameters (QC_Flag is dropped after resample)
     EXPECTED_COLUMNS = [

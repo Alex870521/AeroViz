@@ -6,6 +6,8 @@ Test Scenarios:
 - csv_format/: AIM 11.x CSV format files
 - status_errors/: Files with non-Normal Scan status
 """
+from datetime import datetime
+
 import pandas as pd
 import pytest
 
@@ -18,6 +20,27 @@ class TestSMPSReader(BaseReaderTest):
 
     INSTRUMENT = 'SMPS'
     STATUS_COLUMN = 'Status Flag'
+
+    # The four SMPS scenarios live in widely separated months — each
+    # gets a tight 1-month window via SCENARIO_DATE_RANGES so the
+    # reindexed raw pickle stays small.
+    DATE_RANGE_START = datetime(2025, 2, 1)   # default = "normal" scenario
+    DATE_RANGE_END = datetime(2025, 2, 28, 23, 59, 59)
+
+    SCENARIO_DATE_RANGES = {
+        'status_errors': {
+            'start': datetime(2025, 1, 1),
+            'end': datetime(2025, 1, 31, 23, 59, 59),
+        },
+        'csv_format': {
+            'start': datetime(2026, 2, 1),
+            'end': datetime(2026, 2, 28, 23, 59, 59),
+        },
+        'time_misalignment': {
+            'start': datetime(2026, 3, 1),
+            'end': datetime(2026, 3, 31, 23, 59, 59),
+        },
+    }
 
     # SMPS __call__ filters out size bins, returning only statistics
     EXPECTED_COLUMNS = [

@@ -23,13 +23,17 @@ class TestNEPHReader(BaseReaderTest):
         'sca_550', 'SAE',
     ]
 
-    @pytest.fixture
-    def date_range(self):
-        """NEPH test data is from 2024."""
-        return {
-            'start': datetime(2024, 1, 1),
-            'end': datetime(2024, 12, 31, 23, 59, 59)
-        }
+    # normal=2024-06-14, status_errors=2024-10-01 — months apart, so
+    # use per-scenario ranges to keep the reindexed pickles tight.
+    DATE_RANGE_START = datetime(2024, 6, 1)   # default = "normal" scenario
+    DATE_RANGE_END = datetime(2024, 6, 30, 23, 59, 59)
+
+    SCENARIO_DATE_RANGES = {
+        'status_errors': {
+            'start': datetime(2024, 10, 1),
+            'end': datetime(2024, 10, 31, 23, 59, 59),
+        },
+    }
 
     def test_raw_data_has_all_columns(self, data_path, date_range, temp_output_dir):
         """Test that raw pickle preserves all original columns."""

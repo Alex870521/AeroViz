@@ -5,6 +5,8 @@ Test Scenarios:
 - normal/: Standard BC1054 files with status=0
 - status_errors/: Files with non-zero status codes (4096, 65536, 4128)
 """
+from datetime import datetime
+
 import pandas as pd
 import pytest
 
@@ -15,6 +17,10 @@ from .base import BaseReaderTest
 class TestBC1054Reader(BaseReaderTest):
     INSTRUMENT = 'BC1054'
     STATUS_COLUMN = 'Status'
+
+    # Fixture spans 2025-01-01 → 2025-02-03
+    DATE_RANGE_START = datetime(2025, 1, 1)
+    DATE_RANGE_END = datetime(2025, 2, 28, 23, 59, 59)
 
     EXPECTED_COLUMNS = [
         'BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7', 'BC8', 'BC9', 'BC10',

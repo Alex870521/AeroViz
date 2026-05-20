@@ -5,6 +5,8 @@ Test Scenarios:
 - normal/: Standard Aurora CSV files with Status=00
 - status_errors/: Files with out-of-range scattering values
 """
+from datetime import datetime
+
 import pandas as pd
 import pytest
 
@@ -17,6 +19,10 @@ class TestAuroraReader(BaseReaderTest):
 
     INSTRUMENT = 'Aurora'
     STATUS_COLUMN = None  # Aurora CSV uses S1/S2, not a recognized Status column
+
+    # Fixture spans 2025-01-01 (single 2-hour window)
+    DATE_RANGE_START = datetime(2025, 1, 1)
+    DATE_RANGE_END = datetime(2025, 1, 7, 23, 59, 59)
 
     EXPECTED_COLUMNS = [
         'sca_550', 'SAE',

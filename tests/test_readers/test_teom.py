@@ -6,6 +6,8 @@ Test Scenarios:
 - usb_format/: USB download format (Date + Time columns)
 - status_errors/: Files with non-zero status codes
 """
+from datetime import datetime
+
 import pandas as pd
 import pytest
 
@@ -18,6 +20,21 @@ class TestTEOMReader(BaseReaderTest):
 
     INSTRUMENT = 'TEOM'
     STATUS_COLUMN = 'status'
+
+    # Three scenarios in distinct months — use per-scenario ranges.
+    DATE_RANGE_START = datetime(2025, 6, 1)   # default = "normal" scenario
+    DATE_RANGE_END = datetime(2025, 6, 30, 23, 59, 59)
+
+    SCENARIO_DATE_RANGES = {
+        'status_errors': {
+            'start': datetime(2025, 10, 1),
+            'end': datetime(2025, 10, 31, 23, 59, 59),
+        },
+        'usb_format': {
+            'start': datetime(2025, 1, 1),
+            'end': datetime(2025, 1, 7, 23, 59, 59),
+        },
+    }
 
     EXPECTED_COLUMNS = [
         'PM_NV', 'PM_Total', 'Volatile_Fraction',

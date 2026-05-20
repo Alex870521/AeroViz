@@ -6,6 +6,8 @@ Test Scenarios:
 - multi_header/: Files with multiple concatenated headers
 - status_errors/: Files with non-zero status flags
 """
+from datetime import datetime
+
 import pandas as pd
 import pytest
 
@@ -18,6 +20,18 @@ class TestAPSReader(BaseReaderTest):
 
     INSTRUMENT = 'APS'
     STATUS_COLUMN = 'Status Flags'
+
+    # APS normal is a single day in Nov 2025; status_errors spans Apr–Jun
+    # 2025. Tight ranges per scenario keep each reindexed pickle small.
+    DATE_RANGE_START = datetime(2025, 11, 1)   # default = "normal" scenario
+    DATE_RANGE_END = datetime(2025, 11, 30, 23, 59, 59)
+
+    SCENARIO_DATE_RANGES = {
+        'status_errors': {
+            'start': datetime(2025, 4, 1),
+            'end': datetime(2025, 6, 30, 23, 59, 59),
+        },
+    }
 
     # APS __call__ filters out size bins, returning only statistics
     EXPECTED_COLUMNS = [

@@ -11,6 +11,58 @@ import pytest
 from AeroViz import RawDataReader
 
 
+# =============================================================================
+# Session-level cache for RawDataReader results
+# =============================================================================
+#
+# Most reader tests within the same class call RawDataReader with the SAME
+# (instrument, scenario_path, kwargs) — for example 5+ tests all read
+# ``normal/``. Caching the resulting DataFrame avoids the redundant I/O +
+# QC + reindex passes. On-disk pickles still exist after the first call,
+# so tests that inspect ``_read_*_qc.pkl`` artifacts still work.
+#
+# Measured impact (post-date_range tightening): 14 s with cache vs 34 s
+# without. Worth keeping despite the narrower fixtures.
+#
+# Mutation safety: returns a ``.copy()`` per call (cheap relative to the
+# reader pipeline).
+# =============================================================================
+
+_READER_CACHE: dict[tuple, pd.DataFrame] = {}
+
+
+def _make_cache_key(instrument: str, path: Path, date_range: dict,
+                    kwargs: dict) -> tuple:
+    return (
+        instrument,
+        str(path.resolve()),
+        date_range['start'].isoformat(),
+        date_range['end'].isoformat(),
+        # Use repr to handle non-hashable values (tuples are fine, but
+        # ``size_range=(11.34, 615.27)`` is the common case).
+        tuple(sorted((k, repr(v)) for k, v in kwargs.items())),
+    )
+
+
+def _cached_reader_call(instrument: str, path: Path, date_range: dict,
+                        **kwargs) -> pd.DataFrame:
+    key = _make_cache_key(instrument, path, date_range, kwargs)
+    cached = _READER_CACHE.get(key)
+    if cached is not None:
+        return cached.copy()
+
+    df = RawDataReader(
+        instrument,
+        path,
+        start=date_range['start'],
+        end=date_range['end'],
+        reset=True,
+        **kwargs,
+    )
+    _READER_CACHE[key] = df
+    return df.copy()
+
+
 class BaseReaderTest(ABC):
     """
     Base class for instrument reader tests.
@@ -19,11 +71,28 @@ class BaseReaderTest(ABC):
     - INSTRUMENT: str - The instrument name
     - EXPECTED_COLUMNS: list[str] - Expected output columns (optional)
     - STATUS_COLUMN: str - Name of status column if applicable (optional)
+    - DATE_RANGE_START / DATE_RANGE_END: datetime - tight window covering
+      the actual fixture data. RawDataReader reindexes its raw pickle to
+      the full requested range at the instrument's native frequency, so
+      passing a 2-year window for one day of data inflates the pickle by
+      ~700× (e.g. AE33 → 529 MB). Keep this just wide enough to contain
+      every scenario the subclass exercises.
     """
 
     INSTRUMENT: str = None
     EXPECTED_COLUMNS: list[str] = None
     STATUS_COLUMN: str = None
+
+    # Default window — kept intentionally wide as a safety net. Every
+    # subclass below sets a tighter range matched to its fixtures.
+    DATE_RANGE_START: datetime = datetime(2024, 1, 1)
+    DATE_RANGE_END: datetime = datetime(2026, 12, 31, 23, 59, 59)
+
+    # Per-scenario overrides for instruments whose scenarios span widely
+    # separated months (e.g. SMPS has scenarios in Jan/Feb 2025 and
+    # Feb/Mar 2026). Maps the scenario subdirectory name to a
+    # ``{'start': datetime, 'end': datetime}`` dict.
+    SCENARIO_DATE_RANGES: dict[str, dict] = {}
 
     @pytest.fixture
     def data_path(self, raw_data_path):
@@ -35,25 +104,31 @@ class BaseReaderTest(ABC):
 
     @pytest.fixture
     def date_range(self):
-        """Default date range - override in subclass if needed.
+        """Date range used by the inherited test methods.
 
-        Uses a narrow range around the test data to avoid slow reindexing.
-        Covers 2025-01 to 2026-12 to include most fixture data.
+        Driven by class attributes ``DATE_RANGE_START`` /
+        ``DATE_RANGE_END``; override either in a subclass to match its
+        fixture span.
         """
-        return {
-            'start': datetime(2025, 1, 1),
-            'end': datetime(2026, 12, 31, 23, 59, 59)
-        }
+        return {'start': self.DATE_RANGE_START, 'end': self.DATE_RANGE_END}
 
     def read_data(self, path: Path, date_range: dict, **kwargs) -> pd.DataFrame:
-        """Helper to read data with common settings."""
-        return RawDataReader(
-            self.INSTRUMENT,
-            path,
-            start=date_range['start'],
-            end=date_range['end'],
-            reset=True,
-            **kwargs
+        """Helper to read data with common settings.
+
+        Backed by a session-scoped cache keyed on
+        ``(instrument, path, date_range, kwargs)`` — see the module
+        docstring for the rationale. Tests that read the on-disk pickle
+        artifacts (``_read_*_qc.pkl``, ``_read_*_raw.pkl``) still work
+        because the first uncached call writes them.
+
+        If the path's leaf name appears in ``SCENARIO_DATE_RANGES``, that
+        override wins over the ``date_range`` argument — keeps the raw
+        pickle tight for instruments whose scenarios span widely
+        separated months.
+        """
+        effective_range = self.SCENARIO_DATE_RANGES.get(path.name, date_range)
+        return _cached_reader_call(
+            self.INSTRUMENT, path, effective_range, **kwargs,
         )
 
     # =========================================================================

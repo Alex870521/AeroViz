@@ -203,9 +203,19 @@ def calculate_mie_coefficients(
     # Initialize output DataFrames
     Q_ext = pd.DataFrame(columns=m.flatten(), index=n_terms.index)
     Q_sca = pd.DataFrame(columns=m.flatten(), index=n_terms.index)
+    g_raw = pd.DataFrame(columns=m.flatten(), index=n_terms.index)
+    # Complex backscatter coherent sum: |Σ (2n+1)·(−1)ⁿ·(aₙ−bₙ)|² / x² = Q_back
+    back_raw = pd.DataFrame(columns=m.flatten(), index=n_terms.index, dtype=complex)
 
     # Normalize n/x for later use
     n_over_x = n_terms / x.reshape(-1, 1)
+
+    # Pre-compute g and Q_back angular-series coefficients (functions of n only).
+    n_values = n_terms.values  # shape (n_bins, max_terms)
+    coef_g_a = n_values * (n_values + 2) / (n_values + 1)         # n(n+2)/(n+1)
+    coef_g_b = (2 * n_values + 1) / (n_values * (n_values + 1))   # (2n+1)/(n(n+1))
+    # (−1)ⁿ — NaN-safe: integer where n is valid, NaN otherwise → NaN propagates
+    sign_n = (-1.0) ** n_values
 
     # === Main calculation loop over size bins ===
     for bin_idx, (nmx_values, mx_values, nmax_bin) in enumerate(
@@ -266,7 +276,37 @@ def calculate_mie_coefficients(
             axis=1
         )
 
-    return Q_ext, Q_sca
+        # === Asymmetry parameter g (vectorised) ===
+        # g · Q_sca · x² / 4 = Σ [n(n+2)/(n+1)] · Re(aₙ·aₙ₊₁* + bₙ·bₙ₊₁*)
+        #                   + Σ [(2n+1)/(n(n+1))] · Re(aₙ·bₙ*)
+        # We compute the bracketed sum here ("g_raw"); the prefactor lives in
+        # calculate_mie_efficiencies so g = (4 / (Q_sca · x²)) · g_raw.
+        a_arr = np.asarray(a_n)                   # (n_times, max_terms) complex
+        b_arr = np.asarray(b_n)
+        a_shift = np.concatenate(
+            [a_arr[:, 1:], np.full((a_arr.shape[0], 1), np.nan + 0j)], axis=1
+        )
+        b_shift = np.concatenate(
+            [b_arr[:, 1:], np.full((b_arr.shape[0], 1), np.nan + 0j)], axis=1
+        )
+        # Re(aₙ · conj(aₙ₊₁)) = Re(aₙ)·Re(aₙ₊₁) + Im(aₙ)·Im(aₙ₊₁)
+        cross_a = a_arr.real * a_shift.real + a_arr.imag * a_shift.imag
+        cross_b = b_arr.real * b_shift.real + b_arr.imag * b_shift.imag
+        # Re(aₙ · conj(bₙ))
+        ab_cross = a_arr.real * b_arr.real + a_arr.imag * b_arr.imag
+        g_raw.loc[bin_idx] = np.nansum(
+            coef_g_a[bin_idx] * (cross_a + cross_b)
+            + coef_g_b[bin_idx] * ab_cross,
+            axis=1,
+        )
+
+        # === Backscatter coherent sum (complex) ===
+        # Σ (2n+1) · (−1)ⁿ · (aₙ − bₙ) — Q_back = |sum|² / x² (in efficiencies).
+        a_minus_b = a_arr - b_arr                            # complex (n_times, max_terms)
+        weighted = (coeff * sign_n[bin_idx]) * a_minus_b     # broadcasts (max_terms,) over rows
+        back_raw.loc[bin_idx] = np.nansum(weighted, axis=1)
+
+    return Q_ext, Q_sca, g_raw, back_raw
 
 
 def calculate_mie_efficiencies(
@@ -318,8 +358,6 @@ def calculate_mie_efficiencies(
     Size parameter: ``x = π · d / λ``. Number of terms scales as
     ``n_max ≈ 2 + x + 4·x^(1/3)``.
     """
-    from .mie_kernels import AutoMieQ
-
     # Detect scalar input so we can squeeze it back at the end.
     scalar_input = (
         np.isscalar(refractive_index)
@@ -329,38 +367,41 @@ def calculate_mie_efficiencies(
     ri_array = np.atleast_1d(np.asarray(refractive_index, dtype=complex))
     diameter = np.asarray(diameter, dtype=float)
 
-    # === Fast vectorised path for Q_ext / Q_sca / Q_abs ===
+    # === Fully vectorised path: all four raw sums in one inner-loop pass ===
     size_parameter = np.pi * diameter / wavelength
     n_max = np.round(2 + size_parameter + 4 * size_parameter ** (1 / 3))
     max_terms = int(n_max.max())
     n_terms = pd.DataFrame([np.arange(1, max_terms + 1)] * len(n_max))
     n_terms = n_terms.mask(n_terms > n_max.reshape(-1, 1))
 
-    Q_ext_raw, Q_sca_raw = calculate_mie_coefficients(
+    Q_ext_raw, Q_sca_raw, g_raw, back_raw = calculate_mie_coefficients(
         ri_array, size_parameter, n_max, n_terms
     )
 
-    norm_factor = (2 / size_parameter ** 2).reshape(-1, 1)
-    Q_ext = (norm_factor * Q_ext_raw).values.T.astype(float)
-    Q_sca = (norm_factor * Q_sca_raw).values.T.astype(float)
+    # Shape transforms: pandas DataFrame indexed by bin (rows) × time (cols)
+    # → numpy array of shape (n_times, n_bins).
+    x2 = size_parameter ** 2
+    inv_x2 = (1 / x2).reshape(-1, 1)
+    Q_ext = (2 * inv_x2 * Q_ext_raw).values.T.astype(float)
+    Q_sca = (2 * inv_x2 * Q_sca_raw).values.T.astype(float)
     Q_abs = Q_ext - Q_sca
 
-    # === Scalar path for g / Q_pr / Q_back / Q_ratio via mie_kernels ===
-    n_times = ri_array.size
-    n_bins = diameter.size
-    g_arr = np.zeros((n_times, n_bins))
-    Q_pr_arr = np.zeros((n_times, n_bins))
-    Q_back_arr = np.zeros((n_times, n_bins))
-    Q_ratio_arr = np.zeros((n_times, n_bins))
+    # g = (4 / (Q_sca · x²)) · g_raw, with safe divide when Q_sca → 0.
+    # Numerator/denominator both still indexed as bin × time:
+    g_numer = (4 * inv_x2 * g_raw).values.T.astype(float)   # (n_times, n_bins)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        g_arr = np.where(Q_sca > 0, g_numer / Q_sca, 0.0)
 
-    for t in range(n_times):
-        m_t = ri_array[t]
-        for b in range(n_bins):
-            _Qe, _Qs, _Qa, g, Qpr, Qb, Qr = AutoMieQ(m_t, wavelength, diameter[b])
-            g_arr[t, b] = g
-            Q_pr_arr[t, b] = Qpr
-            Q_back_arr[t, b] = Qb
-            Q_ratio_arr[t, b] = Qr
+    # Q_back = |back_raw|² / x²
+    back_complex = back_raw.values.T            # (n_times, n_bins)
+    Q_back_arr = (np.abs(back_complex) ** 2) * (1 / x2)
+
+    # Q_pr  = Q_ext − g · Q_sca
+    Q_pr_arr = Q_ext - g_arr * Q_sca
+
+    # Q_ratio = Q_back / Q_sca (safe divide)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        Q_ratio_arr = np.where(Q_sca > 0, Q_back_arr / Q_sca, 0.0)
 
     out = {
         'Q_ext': Q_ext, 'Q_sca': Q_sca, 'Q_abs': Q_abs,

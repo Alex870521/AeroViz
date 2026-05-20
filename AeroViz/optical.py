@@ -7,12 +7,28 @@ import numpy as np
 import pandas as pd
 
 __all__ = [
+    # Bulk extinction / Mie
     'optical_basic',
     'improve',
     'gas_extinction',
     'retrieve_ri',
     'brown_carbon',
     'mie',
+    # One-shot lognormal entries
+    'mie_lognormal',
+    'mie_multimodal',
+    # Angular scattering
+    'scattering_function',
+    'scattering_function_sd',
+    'phase_matrix',
+    'nephelometer_truncation_correction',
+    # Core-shell Mie (Aden-Kerker)
+    'mie_core_shell',
+    'mie_core_shell_sd',
+    # Inverse problems (RI retrieval)
+    'iterative_inversion',
+    'iterative_inversion_sd',
+    'contour_intersection',
 ]
 
 
@@ -339,3 +355,161 @@ def mie(df_psd, ri, wavelength=550, mixing=None, distribution=False):
 
     # Scalar ext/sca/abs per row via Mie_SD
     return Mie_SD(ri_array, wavelength, df_psd)
+
+
+# =============================================================================
+# Lognormal PSD shortcuts (Phase 2)
+# =============================================================================
+
+def mie_lognormal(refractive_index, wavelength=550, *, geo_mean=200,
+                  geo_std=2.0, total_number=1e6, n_bins=167,
+                  dp_range=(1, 2500)):
+    """One-shot Mie optics from a single lognormal PSD.
+
+    Convenience wrapper that builds the PSD internally then calls
+    :func:`Mie_SD`. See :mod:`AeroViz.dataProcess.Optical.mie` for
+    parameter details.
+
+    Returns
+    -------
+    dict
+        Keys ``ext``, ``sca``, ``abs`` (Mm⁻¹).
+    """
+    from AeroViz.dataProcess.Optical.mie import mie_lognormal as _impl
+    return _impl(
+        refractive_index, wavelength,
+        geo_mean=geo_mean, geo_std=geo_std,
+        total_number=total_number, n_bins=n_bins, dp_range=dp_range,
+    )
+
+
+def mie_multimodal(refractive_index, wavelength=550, *, modes,
+                   n_bins=167, dp_range=(1, 2500)):
+    """Mie optics for a multi-modal lognormal PSD.
+
+    ``modes`` is a sequence of ``(geo_mean, geo_std, total_number)``
+    tuples; their lognormal distributions are summed onto a shared
+    diameter grid before the Mie integration.
+
+    Returns
+    -------
+    dict
+        Keys ``ext``, ``sca``, ``abs`` (Mm⁻¹).
+    """
+    from AeroViz.dataProcess.Optical.mie import mie_multimodal as _impl
+    return _impl(
+        refractive_index, wavelength,
+        modes=modes, n_bins=n_bins, dp_range=dp_range,
+    )
+
+
+# =============================================================================
+# Angular scattering (Phase 3)
+# =============================================================================
+
+def scattering_function(m, wavelength, diameter, angles=None, space='theta'):
+    """Single-particle angular scattering pattern (Mie phase function).
+
+    Returns dict with ``angles``, ``SL`` (parallel-polarised),
+    ``SR`` (perpendicular), ``SU`` (unpolarised average).
+    """
+    from AeroViz.dataProcess.Optical.mie_angular import scattering_function as _impl
+    return _impl(m, wavelength, diameter, angles=angles, space=space)
+
+
+def scattering_function_sd(m, wavelength, dp, ndp, angles=None,
+                           space='theta', psd_type='auto'):
+    """PSD-integrated angular scattering pattern.
+
+    Returns dict with the same keys as :func:`scattering_function`
+    but PSD-integrated.
+    """
+    from AeroViz.dataProcess.Optical.mie_angular import scattering_function_sd as _impl
+    return _impl(m, wavelength, dp, ndp, angles=angles,
+                 space=space, psd_type=psd_type)
+
+
+def phase_matrix(m, wavelength, diameter, mu=None):
+    """Single-particle Mueller phase matrix (S₁₁, S₁₂, S₃₃, S₃₄).
+
+    Returns dict with keys ``mu``, ``S11``, ``S12``, ``S33``, ``S34``.
+    """
+    from AeroViz.dataProcess.Optical.mie_angular import phase_matrix as _impl
+    return _impl(m, wavelength, diameter, mu=mu)
+
+
+def nephelometer_truncation_correction(sae, wavelength=550, instrument='NEPH'):
+    """Anderson & Ogren (1998) truncation correction for nephelometers.
+
+    Multiplicative factor to apply to uncorrected scattering for an
+    integrating nephelometer (TSI 3563 default; Aurora 3000 also
+    tabulated). ``sae`` is the scattering Ångström exponent.
+    """
+    from AeroViz.dataProcess.Optical.mie_angular import nephelometer_truncation_correction as _impl
+    return _impl(sae, wavelength=wavelength, instrument=instrument)
+
+
+# =============================================================================
+# Core-shell Mie / Aden-Kerker theory (Phase 4)
+# =============================================================================
+
+def mie_core_shell(m_core, m_shell, d_core, d_total, wavelength):
+    """Aden-Kerker coated-sphere Mie efficiencies (single particle).
+
+    Returns dict with the same 7 keys as
+    :func:`calculate_mie_efficiencies`: ``Q_ext``, ``Q_sca``, ``Q_abs``,
+    ``g``, ``Q_pr``, ``Q_back``, ``Q_ratio``.
+    """
+    from AeroViz.dataProcess.Optical.mie_core_shell import mie_core_shell as _impl
+    return _impl(m_core, m_shell, d_core, d_total, wavelength)
+
+
+def mie_core_shell_sd(m_core, m_shell, dp_core, dp_total, ndp,
+                     wavelength=550, psd_type='dNdlogDp'):
+    """PSD-integrated Aden-Kerker coated-sphere Mie.
+
+    Returns dict ``ext``, ``sca``, ``abs`` (Mm⁻¹) plus ``g_eff``
+    (scattering-weighted mean asymmetry parameter).
+    """
+    from AeroViz.dataProcess.Optical.mie_core_shell import mie_core_shell_sd as _impl
+    return _impl(m_core, m_shell, dp_core, dp_total, ndp,
+                 wavelength=wavelength, psd_type=psd_type)
+
+
+# =============================================================================
+# Inverse problems / RI retrieval (Phase 5)
+# =============================================================================
+
+def iterative_inversion(b_ext, b_sca, b_abs, lognormal_params,
+                        wavelength=550, n_initial=1.5, k_initial=0.01):
+    """Newton-Raphson RI retrieval from measured (Bext, Bsca, Babs).
+
+    PSD is described by ``lognormal_params``, a dict with keys
+    ``geo_mean``, ``geo_std``, ``total_number``.
+
+    Returns dict with ``n``, ``k``, ``iterations``, ``converged``,
+    ``residuals``.
+    """
+    from AeroViz.dataProcess.Optical.mie_inverse import iterative_inversion as _impl
+    return _impl(b_ext, b_sca, b_abs, lognormal_params,
+                 wavelength=wavelength,
+                 n_initial=n_initial, k_initial=k_initial)
+
+
+def iterative_inversion_sd(b_ext, b_sca, b_abs, dp, ndp,
+                            wavelength=550, n_initial=1.5, k_initial=0.01):
+    """Newton-Raphson RI retrieval with explicit PSD (dp, ndp arrays)."""
+    from AeroViz.dataProcess.Optical.mie_inverse import iterative_inversion_sd as _impl
+    return _impl(b_ext, b_sca, b_abs, dp, ndp,
+                 wavelength=wavelength,
+                 n_initial=n_initial, k_initial=k_initial)
+
+
+def contour_intersection(b_ext, b_sca, b_abs, lognormal_params,
+                          wavelength=550, n_range=(1.3, 2.0),
+                          k_range=(0, 0.5), grid=51):
+    """Contour-intersection RI retrieval (Sumlin 2018 method)."""
+    from AeroViz.dataProcess.Optical.mie_inverse import contour_intersection as _impl
+    return _impl(b_ext, b_sca, b_abs, lognormal_params,
+                 wavelength=wavelength,
+                 n_range=n_range, k_range=k_range, grid=grid)

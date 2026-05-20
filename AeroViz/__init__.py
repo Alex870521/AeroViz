@@ -33,6 +33,18 @@ from AeroViz.optical import (
     gas_extinction,
     retrieve_ri,
     brown_carbon,
+    # PyMieScatt-style additions
+    mie_lognormal,
+    mie_multimodal,
+    scattering_function,
+    scattering_function_sd,
+    phase_matrix,
+    nephelometer_truncation_correction,
+    mie_core_shell,
+    mie_core_shell_sd,
+    iterative_inversion,
+    iterative_inversion_sd,
+    contour_intersection,
 )
 from AeroViz.size import (
     psd_stats,
@@ -72,6 +84,18 @@ __all__ = [
     'gas_extinction',
     'retrieve_ri',
     'brown_carbon',
+    # PyMieScatt-style optical additions
+    'mie_lognormal',
+    'mie_multimodal',
+    'scattering_function',
+    'scattering_function_sd',
+    'phase_matrix',
+    'nephelometer_truncation_correction',
+    'mie_core_shell',
+    'mie_core_shell_sd',
+    'iterative_inversion',
+    'iterative_inversion_sd',
+    'contour_intersection',
     # size top-level functions
     'psd_stats',
     'psd_distributions',

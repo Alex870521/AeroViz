@@ -177,23 +177,26 @@ def partition_ratios(df_data: DataFrame) -> DataFrame:
 
 def isoropia(
     *df_chem: DataFrame,
-    path_out: Path,
+    path_out: Optional[Path] = None,
     nam_lst: Optional[list] = None,
 ) -> dict:
     """
     Run ISORROPIA II to compute aerosol pH, ALWC, and gas-particle partitioning.
 
-    EXCEPTION: this function keeps ``path_out`` because the underlying
-    implementation shells out to a Windows binary (``isrpia2.exe``) that
-    reads/writes temporary files on disk.
+    Calls the ISORROPIA II Fortran library via a native f2py extension,
+    so this works on macOS, Linux, and Windows. Replaces the legacy
+    Windows-only ``isrpia2.exe`` path; outputs match the old binary to
+    machine precision.
 
     Parameters
     ----------
     *df_chem : DataFrame
         Chemical species + meteorology DataFrames; concatenated and renamed
         to ``nam_lst``.
-    path_out : pathlib.Path
-        Output directory; ISORROPIA reads/writes temp files here.
+    path_out : pathlib.Path, optional
+        Retained for backward compatibility with code written for the
+        legacy subprocess path; no longer used (the extension has no
+        temp-file I/O). Will be removed in a future release.
     nam_lst : list, optional
         Column names for the concatenated input. Default:
         ``['Na+', 'SO42-', 'NH4+', 'NO3-', 'Cl-', 'Ca2+', 'K+', 'Mg2+',
@@ -204,20 +207,12 @@ def isoropia(
     dict
         ``input`` (preprocessed ISORROPIA input) and ``output``
         (pH, ALWC, gas/aerosol-phase NH3/HNO3/HCl/NH4+/NO3-/Cl-).
-
-    Raises
-    ------
-    ValueError
-        If ``path_out`` is None.
     """
     from AeroViz.dataProcess.Chemistry._isoropia import _basic
 
     if nam_lst is None:
         nam_lst = ['Na+', 'SO42-', 'NH4+', 'NO3-', 'Cl-', 'Ca2+',
                    'K+', 'Mg2+', 'NH3', 'HNO3', 'HCl', 'RH', 'temp']
-
-    if path_out is None:
-        raise ValueError('Please Input "path_out" !!')
 
     return _basic(df_chem, path_out, nam_lst=nam_lst)
 

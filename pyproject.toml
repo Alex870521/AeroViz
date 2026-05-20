@@ -1,6 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = [
+    "meson-python>=0.16",
+    "meson>=1.2.0",
+    "ninja",
+    "numpy>=2.0",
+]
+build-backend = "mesonpy"
 
 [project]
 name = "AeroViz"
@@ -112,11 +117,8 @@ version_provider = "pep621"
 update_changelog_on_bump = true
 major_version_zero = true
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["AeroViz*"]
-exclude = ["tests*"]
-namespaces = false
-
-[tool.setuptools.package-data]
-AeroViz = ["*", "**/*"]
+[tool.meson-python.args]
+setup = []
+dist = []
+install = []
+compile = []

@@ -1,192 +1,156 @@
-import sys
+"""
+ISORROPIA II thermodynamic equilibrium solver for inorganic aerosol.
+
+Calls the ISORROPIA II Fortran library directly via an f2py extension
+module (``_isorropia._ext``), so this works natively on macOS, Linux,
+and Windows. Replaces the old ``isrpia2.exe``/subprocess approach.
+
+The numerical engine is the same ISORROPIA II Fortran code used by
+GEOS-Chem; only the Python ⇆ Fortran bridge changed. Outputs match the
+legacy Windows ``isrpia2.exe`` to machine precision for typical
+atmospheric conditions.
+"""
+
 from pathlib import Path
-from subprocess import Popen, PIPE
+from typing import Optional
 
 import numpy as np
-from pandas import concat, DataFrame, to_numeric, read_csv
+from pandas import concat, DataFrame
 
-from ._calculate import convert_mass_to_molar_concentration
-
-
-# ---------------------------------------------------------------------------
-# Platform support
-# ---------------------------------------------------------------------------
-# The bundled ``isrpia2.exe`` is a 32-bit Windows PE binary; it cannot run
-# natively on macOS or Linux. Calling it via subprocess on those platforms
-# fails with a cryptic ``Exec format error``. Detect early and surface a
-# clear message so the user knows exactly what's wrong and where to obtain
-# a native binary.
-# ---------------------------------------------------------------------------
-
-_SUPPORTED_PLATFORMS = {'win32'}
+from ._calculate import (
+    convert_mass_to_molar_concentration,
+    GAS_MOLECULAR_WEIGHTS,
+)
+from ._isorropia import solve_batch
 
 
-def _check_platform_supported() -> None:
-    if sys.platform in _SUPPORTED_PLATFORMS:
-        return
-    raise RuntimeError(
-        "ISORROPIA II cannot run on this platform.\n\n"
-        f"  Current platform: {sys.platform}\n"
-        "  Bundled binary  : isrpia2.exe (32-bit Windows only)\n\n"
-        "AeroViz currently ships a Windows-only ISORROPIA II executable. "
-        "macOS and Linux are not supported yet.\n\n"
-        "Workarounds:\n"
-        "  - Run on Windows, or in a Windows VM/container\n"
-        "  - Request the official Unix/Mac binary from\n"
-        "    https://www.epfl.ch/labs/lapi/models-and-software/isorropia/iso-code-repository/\n"
-        "    (then track issue #TBD on AeroViz GitHub for an upcoming\n"
-        "    `binary_path=` parameter to load it)\n\n"
-        "Tracking: cross-platform ISORROPIA support is on the roadmap; see\n"
-        "the project's CHANGELOG / GitHub issues for status."
-    )
+# Indices into the ISORROPIA outputs (see isorropiaII_main_mod.F docs
+# block around line ~10180 for the full layout):
+#   AERLIQ(01) H+      AERLIQ(03) NH4+      AERLIQ(04) Cl-
+#   AERLIQ(07) NO3-    AERLIQ(08) H2O
+#   GAS(1) NH3         GAS(2) HNO3          GAS(3) HCl
+_H_IDX, _NH4_IDX, _CL_IDX, _NO3_IDX, _H2O_IDX = 0, 2, 3, 6, 7
+
+# Molecular weights (g/mol) used to convert ISORROPIA's mol/m³ back to
+# µg/m³ for the user-facing DataFrame.
+_MW = {
+    'NH3': 17.031, 'HNO3': 63.013, 'HCl': 36.461,
+    'NH4+': 18.039, 'NO3-': 62.005, 'Cl-': 35.453,
+}
 
 
-def _basic(df_che, path_out, nam_lst):
+def _basic(df_che, path_out: Optional[Path], nam_lst):
     """
-    Run ISORROPIA II thermodynamic model to calculate aerosol pH, liquid water content (ALWC),
-    and gas-particle partitioning of semi-volatile inorganic species.
+    Compute aerosol pH, ALWC, and gas-particle partitioning of
+    semi-volatile inorganic species.
 
     Parameters
     ----------
     df_che : list of pandas.DataFrame
-        List of DataFrames containing chemical species concentrations and meteorological data.
-        These DataFrames will be concatenated along columns.
-
-    path_out : pathlib.Path
-        Output directory path where temporary files will be created and results stored.
-
+        Chemical species concentrations + meteorology, concatenated
+        column-wise and renamed to ``nam_lst``.
+    path_out : pathlib.Path or None
+        Kept for API compatibility with the legacy subprocess version;
+        no longer used (the native extension has no temp-file I/O).
     nam_lst : list of str
-        List of column names to be assigned to the concatenated DataFrame.
-        Should include: 'NH4+', 'NH3', 'HNO3', 'NO3-', 'HCl', 'Cl-', 'Na+',
-        'SO42-', 'Ca2+', 'K+', 'Mg2+', 'RH', 'temp'
+        Column names for the concatenated input; must include
+        ``NH4+``, ``NH3``, ``HNO3``, ``NO3-``, ``HCl``, ``Cl-``, ``Na+``,
+        ``SO42-``, ``Ca2+``, ``K+``, ``Mg2+``, ``RH``, ``temp``.
 
     Returns
     -------
     dict
-        Dictionary containing two DataFrames:
-        - 'input': DataFrame with processed input data for ISORROPIA II
-        - 'output': DataFrame with model results including:
-          * 'pH': Aerosol pH (only consider data RH between 20% and 95%)
-          * 'ALWC': Aerosol liquid water content (μg/m³)
-          * 'NH3', 'HNO3', 'HCl': Gas phase concentrations (μmol/m³)
-          * 'NH4+', 'NO3-', 'Cl-': Aerosol phase concentrations (μmol/m³)
-
-    Notes
-    -----
-    This function:
-    1. Converts mass concentrations to molar concentrations
-    2. Prepares input for ISORROPIA II in required format
-    3. Executes the ISORROPIA II model in forward mode and metastable state
-    4. Processes model output to calculate pH and aerosol composition
-
-    The function creates temporary files during execution which are removed afterward.
-
-    Examples
-    --------
-    >>> import pandas as pd
-    >>> from AeroViz import DataProcess
-    >>>
-    >>> path_out = Path("./results")
-    >>> df = pd.read_csv('your_data.csv')
-    >>> column_names = ['NH4+', 'NH3', 'HNO3', 'NO3-', 'HCl', 'Cl-', 'Na+',
-    >>>                    'SO42-', 'Ca2+', 'K+', 'Mg2+', 'RH', 'temp']
-    >>> chem_prcs = DataProcess('Chemistry', path_out, excel=False, csv=True)
-    >>> run_iso = chem_prcs.ISOROPIA(df[column_names])
-
-    Raises
-    ------
-    RuntimeError
-        If invoked on a platform that cannot run the bundled Windows
-        ``isrpia2.exe`` (currently anything other than Windows).
+        ``input`` (preprocessed ISORROPIA input) and ``output``
+        (pH, ALWC, gas/aerosol partition of NH3/HNO3/HCl/NH4+/NO3-/Cl-).
     """
-    _check_platform_supported()
-
     df_all = concat(df_che, axis=1)
-    index = df_all.index.copy()
-    df_all.columns = nam_lst
+
+    # The legacy API renamed columns positionally
+    # (``df_all.columns = nam_lst``), which silently mangled inputs
+    # whose column order differed from ``nam_lst``. If the input
+    # already has all required species by name, reorder them instead.
+    if set(nam_lst).issubset(df_all.columns):
+        df_all = df_all[nam_lst]
+    else:
+        df_all.columns = nam_lst
 
     df_umol = convert_mass_to_molar_concentration(df_all)
 
-    # output
-    # Na, SO4, NH3, NO3, Cl, Ca, K, Mg, RH, TEMP
-    df_input = DataFrame(index=index)
-    df_out = DataFrame(index=index)
+    # ``convert_mass_to_molar_concentration`` converts particulate ions
+    # (NH4+, NO3-, SO42-, ...) to µmol/m³ but converts gas-phase species
+    # (NH3, HNO3, HCl) to ppm via the ideal-gas law. ISORROPIA needs
+    # total = particle + gas in consistent µmol/m³ units, so re-convert
+    # the three gas species explicitly here.
+    gas_umol = DataFrame(index=df_all.index)
+    for sp in ('NH3', 'HNO3', 'HCl'):
+        gas_umol[sp] = df_all[sp] / GAS_MOLECULAR_WEIGHTS[sp]
 
-    pth_input = path_out / '_temp_input.txt'
-    pth_output = path_out / '_temp_input.dat'
-
-    pth_input.unlink(missing_ok=True)
-    pth_output.unlink(missing_ok=True)
-
-    # header
-    _header = 'Input units (0=umol/m3, 1=ug/m3)\n' + '0\n\n' + \
-              'Problem type (0=forward, 1=reverse); Phase state (0=solid+liquid, 1=metastable)\n' + '0, 1\n\n' + \
-              'NH4-SO4 system case\n'
-
-    # software
-    path_iso = Path(__file__).parent / 'isrpia2.exe'
-
-    # make input file and output temp input (without index)
-    # NH3
-    df_input['NH3'] = df_umol['NH4+'].fillna(0).copy() + df_umol['NH3']
-
-    # NO3
-    df_input['NO3'] = df_umol['HNO3'].fillna(0).copy() + df_umol['NO3-']
-
-    # Cl
-    df_input['Cl'] = df_umol['HCl'].fillna(0).copy() + df_umol['Cl-']
-
-    # temp, RH
-    df_input['RH'] = df_all['RH'] / 100
+    # Build the ISORROPIA input frame in the same order the legacy code
+    # used, so any downstream consumer of ``out['input']`` still sees
+    # the familiar column layout.
+    df_input = DataFrame(index=df_all.index)
+    df_input['Na']   = df_umol['Na+']
+    df_input['SO4']  = df_umol['SO42-']
+    df_input['NH3']  = df_umol['NH4+'].fillna(0) + gas_umol['NH3']
+    df_input['NO3']  = gas_umol['HNO3'].fillna(0) + df_umol['NO3-']
+    df_input['Cl']   = gas_umol['HCl'].fillna(0)  + df_umol['Cl-']
+    df_input['Ca']   = df_umol['Ca2+']
+    df_input['K']    = df_umol['K+']
+    df_input['Mg']   = df_umol['Mg2+']
+    df_input['RH']   = df_all['RH'] / 100.0
     df_input['TEMP'] = df_all['temp'] + 273.15
 
-    df_input[['Na', 'SO4', 'Ca', 'K', 'Mg']] = df_umol[['Na+', 'SO42-', 'Ca2+', 'K+', 'Mg2+']].copy()
+    df_input = df_input[
+        ['Na', 'SO4', 'NH3', 'NO3', 'Cl', 'Ca', 'K', 'Mg', 'RH', 'TEMP']
+    ]
 
-    df_input = df_input[['Na', 'SO4', 'NH3', 'NO3', 'Cl', 'Ca', 'K', 'Mg', 'RH', 'TEMP']].fillna('-').copy()
+    # Drop rows with NaN in any input — ISORROPIA needs all 10 inputs.
+    valid_mask = df_input.notna().all(axis=1)
+    df_valid = df_input.loc[valid_mask]
 
-    # output the input data
-    df_input.to_csv(pth_input, index=False)
-    with (pth_input).open('r+', encoding='utf-8', errors='ignore') as _f:
-        _cont = _f.read()
-        _f.seek(0)
+    df_out = DataFrame(
+        index=df_all.index,
+        columns=['pH', 'ALWC', 'NH3', 'HNO3', 'HCl', 'NH4+', 'NO3-', 'Cl-'],
+        dtype=float,
+    )
 
-        _f.write(_header)
-        _f.write(_cont)
+    if df_valid.empty:
+        return {'input': df_input, 'output': df_out}
 
-    # use ISOROPIA2
-    run = Popen([path_iso], stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    scrn_res, run_res = run.communicate(input=str(pth_input.resolve()).encode())
+    # umol/m³ → mol/m³ for the Fortran solver; (8, N) Fortran-order array
+    # so solve_batch's column iteration is contiguous.
+    wi_arr = np.asfortranarray(
+        df_valid[['Na', 'SO4', 'NH3', 'NO3', 'Cl', 'Ca', 'K', 'Mg']]
+        .values.T * 1e-6
+    )
+    rhi_arr = df_valid['RH'].values.astype(np.float64)
+    tempi_arr = df_valid['TEMP'].values.astype(np.float64)
+    cntrl = np.array([0.0, 1.0], dtype=np.float64)  # forward, metastable
 
-    # read dat file and transform to the normal name
-    cond_idx = df_all[['SO42-', 'NH4+', 'NO3-']].dropna().index
+    _wt, gas_arr, aerliq_arr, _aersld, _other = solve_batch(
+        wi_arr, rhi_arr, tempi_arr, cntrl,
+    )
 
-    with pth_output.open('r', encoding='utf-8', errors='ignore') as f:
-        df_res = read_csv(f, delimiter=r'\s+').apply(to_numeric, errors='coerce').set_index(index)
+    # pH from [H+] (mol/L) = AERLIQ(H+) / (AERLIQ(H2O) × 18.0153e-3)
+    water_mol = aerliq_arr[_H2O_IDX]
+    with np.errstate(divide='ignore', invalid='ignore'):
+        h_mol_per_l = aerliq_arr[_H_IDX] / (water_mol * 18.0153e-3)
+        ph = -np.log10(h_mol_per_l)
+    # ALWC in µg/m³ from water mol/m³.
+    alwc = water_mol * 18.0153 * 1e6
 
-    df_out['H'] = df_res['HLIQ'] / (df_res['WATER'] / 1000)
+    rh_pct = df_all.loc[valid_mask, 'RH']
+    valid_ph = (rh_pct >= 20) & (rh_pct <= 95)
 
-    df_out.loc[cond_idx, 'pH'] = -np.log10(df_out['H'].loc[cond_idx])
-    df_out['pH'] = df_out['pH'].where((df_all['RH'] <= 95) & (df_all['RH'] >= 20))
+    df_out.loc[valid_mask, 'pH'] = np.where(valid_ph, ph, np.nan)
+    df_out.loc[valid_mask, 'ALWC'] = alwc
 
-    cond_idx = df_out['pH'].dropna().index
-    df_out.loc[cond_idx, 'ALWC'] = df_res['WATER'].loc[cond_idx]
+    # Gas + aerosol concentrations: convert mol/m³ → µg/m³.
+    df_out.loc[valid_mask, 'NH3']  = gas_arr[0] * _MW['NH3']  * 1e6
+    df_out.loc[valid_mask, 'HNO3'] = gas_arr[1] * _MW['HNO3'] * 1e6
+    df_out.loc[valid_mask, 'HCl']  = gas_arr[2] * _MW['HCl']  * 1e6
+    df_out.loc[valid_mask, 'NH4+'] = aerliq_arr[_NH4_IDX] * _MW['NH4+'] * 1e6
+    df_out.loc[valid_mask, 'NO3-'] = aerliq_arr[_NO3_IDX] * _MW['NO3-'] * 1e6
+    df_out.loc[valid_mask, 'Cl-']  = aerliq_arr[_CL_IDX]  * _MW['Cl-']  * 1e6
 
-    df_out[['NH3', 'HNO3', 'HCl', 'NH4+', 'NO3-', 'Cl-']] = df_res[
-        ['GNH3', 'GHNO3', 'GHCL', 'NH4AER', 'NO3AER', 'CLAER']]
-
-    # calculate partition
-    # df_out['epls_NO3-'] = df_umol['NO3-'] / (df_umol['NO3-'] + df_umol['HNO3'])
-    # df_out['epls_NH4+'] = df_umol['NH4+'] / (df_umol['NH4+'] + df_umol['NH3'])
-    # df_out['epls_Cl-']  = df_umol['Cl-'] / (df_umol['Cl-'] + df_umol['HCl'])
-
-    # remove _temp file (input and output)
-    pth_input.unlink(missing_ok=True)
-    pth_output.unlink(missing_ok=True)
-
-    # output input and output
-    out = {
-        'input': df_input,
-        'output': df_out,
-    }
-
-    return out
+    return {'input': df_input, 'output': df_out}

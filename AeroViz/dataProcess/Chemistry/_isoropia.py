@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 from subprocess import Popen, PIPE
 
@@ -5,6 +6,39 @@ import numpy as np
 from pandas import concat, DataFrame, to_numeric, read_csv
 
 from ._calculate import convert_mass_to_molar_concentration
+
+
+# ---------------------------------------------------------------------------
+# Platform support
+# ---------------------------------------------------------------------------
+# The bundled ``isrpia2.exe`` is a 32-bit Windows PE binary; it cannot run
+# natively on macOS or Linux. Calling it via subprocess on those platforms
+# fails with a cryptic ``Exec format error``. Detect early and surface a
+# clear message so the user knows exactly what's wrong and where to obtain
+# a native binary.
+# ---------------------------------------------------------------------------
+
+_SUPPORTED_PLATFORMS = {'win32'}
+
+
+def _check_platform_supported() -> None:
+    if sys.platform in _SUPPORTED_PLATFORMS:
+        return
+    raise RuntimeError(
+        "ISORROPIA II cannot run on this platform.\n\n"
+        f"  Current platform: {sys.platform}\n"
+        "  Bundled binary  : isrpia2.exe (32-bit Windows only)\n\n"
+        "AeroViz currently ships a Windows-only ISORROPIA II executable. "
+        "macOS and Linux are not supported yet.\n\n"
+        "Workarounds:\n"
+        "  - Run on Windows, or in a Windows VM/container\n"
+        "  - Request the official Unix/Mac binary from\n"
+        "    https://www.epfl.ch/labs/lapi/models-and-software/isorropia/iso-code-repository/\n"
+        "    (then track issue #TBD on AeroViz GitHub for an upcoming\n"
+        "    `binary_path=` parameter to load it)\n\n"
+        "Tracking: cross-platform ISORROPIA support is on the roadmap; see\n"
+        "the project's CHANGELOG / GitHub issues for status."
+    )
 
 
 def _basic(df_che, path_out, nam_lst):
@@ -58,7 +92,15 @@ def _basic(df_che, path_out, nam_lst):
     >>>                    'SO42-', 'Ca2+', 'K+', 'Mg2+', 'RH', 'temp']
     >>> chem_prcs = DataProcess('Chemistry', path_out, excel=False, csv=True)
     >>> run_iso = chem_prcs.ISOROPIA(df[column_names])
+
+    Raises
+    ------
+    RuntimeError
+        If invoked on a platform that cannot run the bundled Windows
+        ``isrpia2.exe`` (currently anything other than Windows).
     """
+    _check_platform_supported()
+
     df_all = concat(df_che, axis=1)
     index = df_all.index.copy()
     df_all.columns = nam_lst

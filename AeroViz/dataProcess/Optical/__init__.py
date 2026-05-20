@@ -58,7 +58,7 @@ class Optical(Writer):
         DataFrame
             Optical coefficients with columns: ext, sca, abs (Mm⁻¹)
         """
-        from ._mie_sd import Mie_SD
+        from .mie import Mie_SD
 
         # Get valid indices (where both PSD and RI have data)
         original_index = df_psd.index.copy()

@@ -304,7 +304,7 @@ class SizeDist:
         """
         from functools import partial
         from pandas import concat
-        from ..Optical._mie_sd import Mie_PESD
+        from ..Optical.mie import Mie_PESD
         from ..core import REFRACTIVE_INDEX
 
         def _internal(dist, dp, wavelength=550, result_type='extinction'):

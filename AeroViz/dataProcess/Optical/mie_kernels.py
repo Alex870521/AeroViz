@@ -3,11 +3,9 @@
 import warnings
 
 import numpy as np
-from numba import jit
 from scipy.special import jv, yv
 
 
-@jit
 def MieQ(m, wavelength, diameter, nMedium=1.0, asDict=False, asCrossSection=False):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#MieQ
     nMedium = nMedium.real
@@ -53,17 +51,16 @@ def MieQ(m, wavelength, diameter, nMedium=1.0, asDict=False, asCrossSection=Fals
             cback = css * qback
             cratio = css * qratio
             if asDict:
-                return dict(Cext=cext, Csca=csca, Cabs=cabs, g=g, Cpr=cpr, Cback=cback, Cratio=cratio)
+                return {'Cext': cext, 'Csca': csca, 'Cabs': cabs, 'g': g, 'Cpr': cpr, 'Cback': cback, 'Cratio': cratio}
             else:
                 return cext, csca, cabs, g, cpr, cback, cratio
         else:
             if asDict:
-                return dict(Qext=qext, Qsca=qsca, Qabs=qabs, g=g, Qpr=qpr, Qback=qback, Qratio=qratio)
+                return {'Qext': qext, 'Qsca': qsca, 'Qabs': qabs, 'g': g, 'Qpr': qpr, 'Qback': qback, 'Qratio': qratio}
             else:
                 return qext, qsca, qabs, g, qpr, qback, qratio
 
 
-@jit
 def Mie_ab(m, x):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#Mie_ab
     mx = m * x
@@ -98,7 +95,6 @@ def Mie_ab(m, x):
     return an, bn
 
 
-@jit
 def Mie_cd(m, x):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#Mie_cd
     mx = m * x
@@ -137,7 +133,6 @@ def Mie_cd(m, x):
     return cn, dn
 
 
-@jit
 def RayleighMieQ(m, wavelength, diameter, nMedium=1.0, asDict=False, asCrossSection=False):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#RayleighMieQ
     nMedium = nMedium.real
@@ -165,12 +160,12 @@ def RayleighMieQ(m, wavelength, diameter, nMedium=1.0, asDict=False, asCrossSect
             cback = css * qback
             cratio = css * qratio
             if asDict:
-                return dict(Cext=cext, Csca=csca, Cabs=cabs, g=g, Cpr=cpr, Cback=cback, Cratio=cratio)
+                return {'Cext': cext, 'Csca': csca, 'Cabs': cabs, 'g': g, 'Cpr': cpr, 'Cback': cback, 'Cratio': cratio}
             else:
                 return cext, csca, cabs, g, cpr, cback, cratio
         else:
             if asDict:
-                return dict(Qext=qext, Qsca=qsca, Qabs=qabs, g=g, Qpr=qpr, Qback=qback, Qratio=qratio)
+                return {'Qext': qext, 'Qsca': qsca, 'Qabs': qabs, 'g': g, 'Qpr': qpr, 'Qback': qback, 'Qratio': qratio}
             else:
                 return qext, qsca, qabs, g, qpr, qback, qratio
 
@@ -189,7 +184,6 @@ def AutoMieQ(m, wavelength, diameter, nMedium=1.0, crossover=0.01, asDict=False,
         return MieQ(m, wavelength, diameter, nMedium, asDict=asDict, asCrossSection=asCrossSection)
 
 
-@jit
 def LowFrequencyMieQ(m, wavelength, diameter, nMedium=1.0, asDict=False, asCrossSection=False):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#LowFrequencyMieQ
     nMedium = nMedium.real
@@ -230,17 +224,16 @@ def LowFrequencyMieQ(m, wavelength, diameter, nMedium=1.0, asDict=False, asCross
             cback = css * qback
             cratio = css * qratio
             if asDict:
-                return dict(Cext=cext, Csca=csca, Cabs=cabs, g=g, Cpr=cpr, Cback=cback, Cratio=cratio)
+                return {'Cext': cext, 'Csca': csca, 'Cabs': cabs, 'g': g, 'Cpr': cpr, 'Cback': cback, 'Cratio': cratio}
             else:
                 return cext, csca, cabs, g, cpr, cback, cratio
         else:
             if asDict:
-                return dict(Qext=qext, Qsca=qsca, Qabs=qabs, g=g, Qpr=qpr, Qback=qback, Qratio=qratio)
+                return {'Qext': qext, 'Qsca': qsca, 'Qabs': qabs, 'g': g, 'Qpr': qpr, 'Qback': qback, 'Qratio': qratio}
             else:
                 return qext, qsca, qabs, g, qpr, qback, qratio
 
 
-@jit
 def LowFrequencyMie_ab(m, x):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#LowFrequencyMie_ab
     # B&H page 131
@@ -266,7 +259,6 @@ def AutoMie_ab(m, x):
         return Mie_ab(m, x)
 
 
-@jit
 def Mie_SD(m, wavelength, dp, ndp, nMedium=1.0, SMPS=True, interpolate=False, asDict=False):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#Mie_SD
     nMedium = nMedium.real
@@ -308,12 +300,11 @@ def Mie_SD(m, wavelength, dp, ndp, nMedium=1.0, SMPS=True, interpolate=False, as
         Bpr = Bext - bigG * Bsca
 
     if asDict:
-        return dict(Bext=Bext, Bsca=Bsca, Babs=Babs, G=bigG, Bpr=Bpr, Bback=Bback, Bratio=Bratio)
+        return {'Bext': Bext, 'Bsca': Bsca, 'Babs': Babs, 'G': bigG, 'Bpr': Bpr, 'Bback': Bback, 'Bratio': Bratio}
     else:
         return Bext, Bsca, Babs, bigG, Bpr, Bback, Bratio
 
 
-@jit
 def ScatteringFunction(m, wavelength, diameter, nMedium=1.0, minAngle=0, maxAngle=180, angularResolution=0.5,
                        space='theta', angleMeasure='radians', normalization=None):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#ScatteringFunction
@@ -367,7 +358,6 @@ def ScatteringFunction(m, wavelength, diameter, nMedium=1.0, minAngle=0, maxAngl
     return measure, SL, SR, SU
 
 
-@jit
 def SF_SD(m, wavelength, dp, ndp, nMedium=1.0, minAngle=0, maxAngle=180, angularResolution=0.5, space='theta',
           angleMeasure='radians', normalization=None):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#SF_SD
@@ -407,7 +397,6 @@ def SF_SD(m, wavelength, dp, ndp, nMedium=1.0, minAngle=0, maxAngle=180, angular
     return measure, SL, SR, SU
 
 
-@jit
 def MieS1S2(m, x, mu):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#MieS1S2
     nmax = np.round(2 + x + 4 * np.power(x, 1 / 3))
@@ -420,7 +409,6 @@ def MieS1S2(m, x, mu):
     return S1, S2
 
 
-@jit
 def MiePiTau(mu, nmax):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#MiePiTau
     p = np.zeros(int(nmax))
@@ -435,7 +423,6 @@ def MiePiTau(mu, nmax):
     return p, t
 
 
-@jit
 def MatrixElements(m, wavelength, diameter, mu, nMedium=1.0):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#MatrixElements
     nMedium = nMedium.real
@@ -451,7 +438,6 @@ def MatrixElements(m, wavelength, diameter, mu, nMedium=1.0):
     return S11, S12, S33, S34
 
 
-@jit
 def MieQ_withDiameterRange(m, wavelength, nMedium=1.0, diameterRange=(10, 1000), nd=1000, logD=False):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#MieQ_withDiameterRange
     nMedium = nMedium.real
@@ -472,7 +458,6 @@ def MieQ_withDiameterRange(m, wavelength, nMedium=1.0, diameterRange=(10, 1000),
     return diameters, qext, qsca, qabs, g, qpr, qback, qratio
 
 
-@jit
 def MieQ_withWavelengthRange(m, diameter, nMedium=1.0, wavelengthRange=(100, 1600), nw=1000, logW=False):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#MieQ_withWavelengthRange
     nMedium = nMedium.real
@@ -501,7 +486,6 @@ def MieQ_withWavelengthRange(m, diameter, nMedium=1.0, wavelengthRange=(100, 160
     return wavelengths, qext, qsca, qabs, g, qpr, qback, qratio
 
 
-@jit
 def MieQ_withSizeParameterRange(m, nMedium=1.0, xRange=(1, 10), nx=1000, logX=False):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#MieQ_withSizeParameterRange
     nMedium = nMedium.real
@@ -523,7 +507,6 @@ def MieQ_withSizeParameterRange(m, nMedium=1.0, xRange=(1, 10), nx=1000, logX=Fa
     return xValues, qext, qsca, qabs, g, qpr, qback, qratio
 
 
-@jit
 def Mie_Lognormal(m, wavelength, geoStdDev, geoMean, numberOfParticles, nMedium=1.0, numberOfBins=10000, lower=1,
                   upper=1000, gamma=[1], returnDistribution=False, decomposeMultimodal=False, asDict=False):
     #  http://pymiescatt.readthedocs.io/en/latest/forward.html#Mie_Lognormal
@@ -567,11 +550,11 @@ def Mie_Lognormal(m, wavelength, geoStdDev, geoMean, numberOfParticles, nMedium=
                 return Bext, Bsca, Babs, bigG, Bpr, Bback, Bratio, dp, ndp, ndpi
         else:
             if asDict == True:
-                return dict(Bext=Bext, Bsca=Bsca, Babs=Babs, bigG=bigG, Bpr=Bpr, Bback=Bback, Bratio=Bratio), dp, ndp
+                return {'Bext': Bext, 'Bsca': Bsca, 'Babs': Babs, 'bigG': bigG, 'Bpr': Bpr, 'Bback': Bback, 'Bratio': Bratio}, dp, ndp
             else:
                 return Bext, Bsca, Babs, bigG, Bpr, Bback, Bratio, dp, ndp
     else:
         if asDict == True:
-            return dict(Bext=Bext, Bsca=Bsca, Babs=Babs, bigG=bigG, Bpr=Bpr, Bback=Bback, Bratio=Bratio)
+            return {'Bext': Bext, 'Bsca': Bsca, 'Babs': Babs, 'bigG': bigG, 'Bpr': Bpr, 'Bback': Bback, 'Bratio': Bratio}
         else:
             return Bext, Bsca, Babs, bigG, Bpr, Bback, Bratio

@@ -230,7 +230,7 @@ def mie(df_psd, ri, wavelength=550, mixing=None, distribution=False):
         - mixing in (None/'internal'/'external'): DataFrame
         - mixing == 'both': dict {'internal': DataFrame, 'external': DataFrame}
     """
-    from AeroViz.dataProcess.Optical._mie_sd import (
+    from AeroViz.dataProcess.Optical.mie import (
         Mie_SD,
         internal_mixing,
         external_mixing,

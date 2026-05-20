@@ -76,7 +76,7 @@ def grid_search_RI(bext_mea: float,
     tuple
         (n_retrieved, k_retrieved) - The retrieved refractive index components.
     """
-    from ._mie_sd import Mie_PESD
+    from .mie import Mie_PESD
 
     n_array = np.linspace(n_range[0], n_range[1], num=space_size)
     k_array = np.linspace(k_range[0], k_range[1], space_size)

@@ -273,74 +273,104 @@ def calculate_mie_efficiencies(
     refractive_index,
     wavelength: float,
     diameter: np.ndarray,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> dict:
     """
-    Calculate Mie extinction, scattering, and absorption efficiencies (Q).
+    Calculate the full set of Mie efficiencies for a particle distribution.
 
-    Energy is conserved in Mie scattering, so absorption efficiency is
-    derived directly from extinction and scattering::
-
-        Q_abs = Q_ext - Q_sca
+    Returns the seven standard outputs of Mie theory in a single dict.
+    The first three (``Q_ext``, ``Q_sca``, ``Q_abs``) come from the fast
+    vectorised series in :func:`calculate_mie_coefficients`; the
+    remaining four (``g``, ``Q_pr``, ``Q_back``, ``Q_ratio``) are
+    obtained per ``(time, bin)`` pair from the JIT-compiled
+    :func:`mie_kernels.AutoMieQ` (Phase 7 will collapse this into the
+    vectorised loop).
 
     Parameters
     ----------
     refractive_index : complex | np.ndarray
         Complex refractive index. Either a single scalar (one material
-        applied to every bin) or a 1-D array of length n_times (one m
-        per time point). A 1-element numpy array counts as the
-        vectorised case — it returns a 2-D output with first axis
-        size 1.
+        applied to every bin) or a 1-D array of length ``n_times``
+        (one ``m`` per time point). A 1-element numpy array counts as
+        the vectorised case — output keeps the first axis with size 1.
     wavelength : float
         Wavelength of incident light in nm.
     diameter : np.ndarray
-        Particle diameters in nm. Shape: (n_bins,)
+        Particle diameters in nm. Shape ``(n_bins,)``.
 
     Returns
     -------
-    Q_ext, Q_sca, Q_abs : np.ndarray
-        Extinction, scattering, and absorption efficiencies. Shape is
-        ``(n_bins,)`` when ``refractive_index`` is a scalar complex,
-        or ``(n_times, n_bins)`` when it is an array.
+    dict
+        Keys (each value is an ndarray):
+
+        * ``Q_ext``   — extinction efficiency
+        * ``Q_sca``   — scattering efficiency
+        * ``Q_abs``   — absorption efficiency (= Q_ext − Q_sca)
+        * ``g``       — asymmetry parameter (forward-scattering bias)
+        * ``Q_pr``    — radiation-pressure efficiency (= Q_ext − g·Q_sca)
+        * ``Q_back``  — backscatter efficiency
+        * ``Q_ratio`` — backscatter ratio (= Q_back / Q_sca)
+
+        Each array has shape ``(n_bins,)`` for a scalar ``m`` and
+        ``(n_times, n_bins)`` otherwise.
 
     Notes
     -----
-    Size parameter: x = π * d / λ
-    The number of terms needed scales as: n_max ≈ 2 + x + 4*x^(1/3)
+    Size parameter: ``x = π · d / λ``. Number of terms scales as
+    ``n_max ≈ 2 + x + 4·x^(1/3)``.
     """
-    # Detect scalar input so we can squeeze it back at the end. We treat
-    # a bare complex / numpy 0-d as scalar; a length-1 array stays 2-D.
+    from .mie_kernels import AutoMieQ
+
+    # Detect scalar input so we can squeeze it back at the end.
     scalar_input = (
         np.isscalar(refractive_index)
         or isinstance(refractive_index, complex)
         or (isinstance(refractive_index, np.ndarray) and refractive_index.ndim == 0)
     )
     ri_array = np.atleast_1d(np.asarray(refractive_index, dtype=complex))
+    diameter = np.asarray(diameter, dtype=float)
 
-    # Size parameter: x = πd/λ
-    size_parameter = np.pi * np.asarray(diameter, dtype=float) / wavelength
-
-    # Maximum number of terms in series expansion
+    # === Fast vectorised path for Q_ext / Q_sca / Q_abs ===
+    size_parameter = np.pi * diameter / wavelength
     n_max = np.round(2 + size_parameter + 4 * size_parameter ** (1 / 3))
-
-    # Create term index matrix (masked where n > n_max for each bin)
     max_terms = int(n_max.max())
     n_terms = pd.DataFrame([np.arange(1, max_terms + 1)] * len(n_max))
     n_terms = n_terms.mask(n_terms > n_max.reshape(-1, 1))
 
-    # Calculate Mie coefficients
     Q_ext_raw, Q_sca_raw = calculate_mie_coefficients(
         ri_array, size_parameter, n_max, n_terms
     )
 
-    # Apply normalization factor: 2/x²
     norm_factor = (2 / size_parameter ** 2).reshape(-1, 1)
     Q_ext = (norm_factor * Q_ext_raw).values.T.astype(float)
     Q_sca = (norm_factor * Q_sca_raw).values.T.astype(float)
     Q_abs = Q_ext - Q_sca
 
+    # === Scalar path for g / Q_pr / Q_back / Q_ratio via mie_kernels ===
+    n_times = ri_array.size
+    n_bins = diameter.size
+    g_arr = np.zeros((n_times, n_bins))
+    Q_pr_arr = np.zeros((n_times, n_bins))
+    Q_back_arr = np.zeros((n_times, n_bins))
+    Q_ratio_arr = np.zeros((n_times, n_bins))
+
+    for t in range(n_times):
+        m_t = ri_array[t]
+        for b in range(n_bins):
+            _Qe, _Qs, _Qa, g, Qpr, Qb, Qr = AutoMieQ(m_t, wavelength, diameter[b])
+            g_arr[t, b] = g
+            Q_pr_arr[t, b] = Qpr
+            Q_back_arr[t, b] = Qb
+            Q_ratio_arr[t, b] = Qr
+
+    out = {
+        'Q_ext': Q_ext, 'Q_sca': Q_sca, 'Q_abs': Q_abs,
+        'g': g_arr, 'Q_pr': Q_pr_arr,
+        'Q_back': Q_back_arr, 'Q_ratio': Q_ratio_arr,
+    }
+
     if scalar_input:
-        return Q_ext[0], Q_sca[0], Q_abs[0]
-    return Q_ext, Q_sca, Q_abs
+        return {k: v[0] for k, v in out.items()}
+    return out
 
 
 def Mie_SD(
@@ -349,7 +379,7 @@ def Mie_SD(
     psd: pd.DataFrame,
     psd_type: str = 'auto',
     multi_ri_per_psd: bool = False,
-    precomputed_Q: tuple = None
+    precomputed_Q: dict = None
 ) -> pd.DataFrame | dict:
     """
     Calculate optical properties from particle size distribution using Mie theory.
@@ -378,8 +408,9 @@ def Mie_SD(
     multi_ri_per_psd : bool, default=False
         If True, calculate for multiple refractive indices per PSD row.
         Useful for refractive index retrieval.
-    precomputed_Q : tuple, optional
-        Pre-computed (Q_ext, Q_sca, Q_abs) to avoid recalculation.
+    precomputed_Q : dict, optional
+        Pre-computed dict from ``calculate_mie_efficiencies`` (only
+        ``Q_ext`` and ``Q_sca`` are read here) to avoid recalculation.
 
     Returns
     -------
@@ -462,11 +493,14 @@ def Mie_SD(
 
     # Get or calculate Mie efficiencies
     if precomputed_Q:
-        Q_ext, Q_sca, _ = precomputed_Q
+        Q_ext = precomputed_Q['Q_ext']
+        Q_sca = precomputed_Q['Q_sca']
     else:
-        Q_ext, Q_sca, _ = calculate_mie_efficiencies(
+        _eff = calculate_mie_efficiencies(
             refractive_index, wavelength, diameter
         )
+        Q_ext = _eff['Q_ext']
+        Q_sca = _eff['Q_sca']
 
     # === Integrate over size distribution ===
     if multi_ri_per_psd:
@@ -591,7 +625,8 @@ def calculate_extinction_distribution(
             ri_array = np.array([ri_array[0]] * n_times)
 
     # Calculate Mie efficiencies
-    Q_ext, Q_sca, _ = calculate_mie_efficiencies(ri_array, wavelength, diameter)
+    _eff = calculate_mie_efficiencies(ri_array, wavelength, diameter)
+    Q_ext, Q_sca = _eff['Q_ext'], _eff['Q_sca']
 
     # Cross-sectional area (π/4 * Dp²) in nm², scaled to Mm⁻¹
     cross_section = np.pi / 4 * diameter**2 * 1e-6
@@ -661,7 +696,8 @@ def calculate_mass_efficiency(
     """
     # Calculate Q for single refractive index
     ri_array = np.array([refractive_index])
-    Q_ext, Q_sca, _ = calculate_mie_efficiencies(ri_array, wavelength, diameter)
+    _eff = calculate_mie_efficiencies(ri_array, wavelength, diameter)
+    Q_ext, Q_sca = _eff['Q_ext'], _eff['Q_sca']
     # Q_ext shape: (1, n_bins), extract first row to get (n_bins,)
 
     # MEE = 3Q / (2ρDp) * 1000
@@ -847,7 +883,8 @@ def external_mixing(
 
         # Calculate Mie for this species (single RI for all times)
         ri_array = np.array([ri] * n_times)
-        Q_ext, Q_sca, _ = calculate_mie_efficiencies(ri_array, wavelength, diameter)
+        _eff = calculate_mie_efficiencies(ri_array, wavelength, diameter)
+        Q_ext, Q_sca = _eff['Q_ext'], _eff['Q_sca']
         # Q_ext shape: (n_times, n_bins)
 
         # Cross-sectional area
@@ -920,11 +957,140 @@ def generate_lognormal_psd(
 
 
 # =============================================================================
+# One-shot lognormal entry points (convenience over generate_lognormal_psd + Mie_SD)
+# =============================================================================
+
+def mie_lognormal(
+    refractive_index,
+    wavelength: float = 550,
+    *,
+    geo_mean: float = 200,
+    geo_std: float = 2.0,
+    total_number: float = 1e6,
+    n_bins: int = 167,
+    dp_range: tuple = (1, 2500),
+) -> dict:
+    """
+    Compute Mie optics for a single lognormal PSD without building it manually.
+
+    Equivalent to ``generate_lognormal_psd`` + ``Mie_SD`` in one call,
+    returning a flat dict of scalars. For multi-modal distributions use
+    :func:`mie_multimodal`.
+
+    Parameters
+    ----------
+    refractive_index : complex
+        Particle complex refractive index ``m = n + ik``.
+    wavelength : float, default 550
+        Wavelength in nm.
+    geo_mean : float, default 200
+        Geometric mean diameter in nm.
+    geo_std : float, default 2.0
+        Geometric standard deviation (dimensionless).
+    total_number : float, default 1e6
+        Total number concentration (#/cm³).
+    n_bins : int, default 167
+        Number of log-spaced bins.
+    dp_range : tuple, default (1, 2500)
+        Diameter range in nm.
+
+    Returns
+    -------
+    dict
+        Keys ``ext``, ``sca``, ``abs`` (Mm⁻¹) — bulk optical coefficients.
+    """
+    dp, ndp = generate_lognormal_psd(
+        geometric_mean=geo_mean,
+        geometric_std=geo_std,
+        total_number=total_number,
+        dp_range=dp_range,
+        n_bins=n_bins,
+    )
+    psd = pd.DataFrame([ndp], columns=dp)
+    ri = np.atleast_1d(np.asarray(refractive_index, dtype=complex))
+    result_df = Mie_SD(ri, wavelength, psd, psd_type='dNdlogDp')
+    return result_df.iloc[0].to_dict()
+
+
+def mie_multimodal(
+    refractive_index,
+    wavelength: float = 550,
+    *,
+    modes,
+    n_bins: int = 167,
+    dp_range: tuple = (1, 2500),
+) -> dict:
+    """
+    Compute Mie optics for a multi-modal lognormal PSD.
+
+    Common atmospheric setup: nucleation + Aitken + accumulation +
+    coarse modes summed on a single diameter grid.
+
+    Parameters
+    ----------
+    refractive_index : complex
+        Particle complex refractive index ``m = n + ik``.
+    wavelength : float, default 550
+        Wavelength in nm.
+    modes : sequence of (geo_mean, geo_std, total_number)
+        Each entry defines one lognormal mode (nm, dimensionless, #/cm³).
+        Example: ``[(50, 1.5, 1e4), (200, 2.0, 5e3)]`` for an Aitken +
+        accumulation mode.
+    n_bins : int, default 167
+        Number of log-spaced bins for the merged grid.
+    dp_range : tuple, default (1, 2500)
+        Diameter range in nm covering all modes.
+
+    Returns
+    -------
+    dict
+        Keys ``ext``, ``sca``, ``abs`` (Mm⁻¹).
+    """
+    if not modes:
+        raise ValueError("mie_multimodal() needs at least one mode in `modes`.")
+
+    diameter = np.logspace(np.log10(dp_range[0]), np.log10(dp_range[1]), n_bins)
+    log_dp = np.log(diameter)
+    total_ndp = np.zeros(n_bins)
+
+    for gm, gs, nt in modes:
+        log_sigma = np.log(gs)
+        log_mean = np.log(gm)
+        ndp = nt * (
+            1 / (log_sigma * np.sqrt(2 * np.pi))
+            * np.exp(-(log_dp - log_mean) ** 2 / (2 * log_sigma ** 2))
+        )
+        total_ndp += ndp
+
+    psd = pd.DataFrame([total_ndp], columns=diameter)
+    ri = np.atleast_1d(np.asarray(refractive_index, dtype=complex))
+    result_df = Mie_SD(ri, wavelength, psd, psd_type='dNdlogDp')
+    return result_df.iloc[0].to_dict()
+
+
+# =============================================================================
 # Backward Compatibility Aliases
 # =============================================================================
 
-MieQ = calculate_mie_efficiencies
-Mie_Q = calculate_mie_efficiencies      # matches mie_theory.Mie_Q naming
+MieQ = calculate_mie_efficiencies   # modern alias — returns dict
+
+
+def Mie_Q(m, wavelength, dp):
+    """PyMieScatt-compatible 7-tuple alias for
+    :func:`calculate_mie_efficiencies`.
+
+    Mirrors the legacy ``mie_theory.Mie_Q`` (and upstream
+    ``PyMieScatt.MieQ``) signature, returning::
+
+        (Q_ext, Q_sca, Q_abs, g, Q_pr, Q_back, Q_ratio)
+
+    New code should prefer :func:`calculate_mie_efficiencies` (dict).
+    """
+    d = calculate_mie_efficiencies(m, wavelength, dp)
+    return (d['Q_ext'], d['Q_sca'], d['Q_abs'],
+            d['g'], d['Q_pr'], d['Q_back'], d['Q_ratio'])
+
+
 Mie_ab = calculate_mie_coefficients
 
 

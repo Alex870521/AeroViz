@@ -97,6 +97,10 @@ Changelog = "https://github.com/Alex870521/AeroViz/blob/main/docs/CHANGELOG.md"
 pythonpath = "."
 markers = [
     "requires_data: marks tests that require actual data files",
+    "reader: rawDataReader pipeline tests (slow, I/O heavy)",
+    "dataprocess: post-processing tests under AeroViz.dataProcess.*",
+    "optical: optical-property tests (Mie, IMPROVE, BrC, RI retrieval)",
+    "slow: long-running tests; excluded from the quick PR job",
 ]
 
 [tool.commitizen]

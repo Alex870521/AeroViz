@@ -104,12 +104,36 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "slow: mark test as slow running"
     )
+    config.addinivalue_line(
+        "markers", "reader: rawDataReader pipeline test (slow, I/O heavy)"
+    )
+    config.addinivalue_line(
+        "markers", "dataprocess: post-processing test under AeroViz.dataProcess.*"
+    )
+    config.addinivalue_line(
+        "markers",
+        "optical: optical-property test (Mie, IMPROVE, BrC, RI retrieval)",
+    )
     # Add markers for each instrument (normalize Q-ACSM -> q_acsm to match test files)
     for instrument in INSTRUMENTS:
         marker_name = instrument.lower().replace('-', '_')
         config.addinivalue_line(
             "markers", f"{marker_name}: mark test as {instrument} specific"
         )
+
+
+def pytest_collection_modifyitems(config, items):
+    """Auto-apply ``reader`` + ``slow`` markers to every test under
+    ``tests/test_readers/``. Saves the per-file boilerplate of repeating
+    ``pytestmark = pytest.mark.reader`` in 16 instrument modules.
+    """
+    reader_marker = pytest.mark.reader
+    slow_marker = pytest.mark.slow
+    for item in items:
+        path = str(item.fspath)
+        if "tests/test_readers/" in path or "tests\\test_readers\\" in path:
+            item.add_marker(reader_marker)
+            item.add_marker(slow_marker)
 
 
 # =============================================================================

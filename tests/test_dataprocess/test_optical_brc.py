@@ -6,6 +6,9 @@ import pytest
 from AeroViz.dataProcess.Optical._derived import calculate_BrC_absorption
 
 
+pytestmark = [pytest.mark.dataprocess, pytest.mark.optical]
+
+
 class TestBrCAbsorption:
     """Test cases for BrC absorption calculation."""
 

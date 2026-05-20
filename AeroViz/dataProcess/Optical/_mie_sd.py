@@ -270,17 +270,26 @@ def calculate_mie_coefficients(
 
 
 def calculate_mie_efficiencies(
-    refractive_index: np.ndarray,
+    refractive_index,
     wavelength: float,
-    diameter: np.ndarray
-) -> tuple[np.ndarray, np.ndarray]:
+    diameter: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Calculate Mie extinction and scattering efficiencies (Q).
+    Calculate Mie extinction, scattering, and absorption efficiencies (Q).
+
+    Energy is conserved in Mie scattering, so absorption efficiency is
+    derived directly from extinction and scattering::
+
+        Q_abs = Q_ext - Q_sca
 
     Parameters
     ----------
-    refractive_index : np.ndarray
-        Complex refractive index for each time point. Shape: (n_times,)
+    refractive_index : complex | np.ndarray
+        Complex refractive index. Either a single scalar (one material
+        applied to every bin) or a 1-D array of length n_times (one m
+        per time point). A 1-element numpy array counts as the
+        vectorised case — it returns a 2-D output with first axis
+        size 1.
     wavelength : float
         Wavelength of incident light in nm.
     diameter : np.ndarray
@@ -288,21 +297,30 @@ def calculate_mie_efficiencies(
 
     Returns
     -------
-    Q_ext : np.ndarray
-        Extinction efficiency. Shape: (n_times, n_bins)
-    Q_sca : np.ndarray
-        Scattering efficiency. Shape: (n_times, n_bins)
+    Q_ext, Q_sca, Q_abs : np.ndarray
+        Extinction, scattering, and absorption efficiencies. Shape is
+        ``(n_bins,)`` when ``refractive_index`` is a scalar complex,
+        or ``(n_times, n_bins)`` when it is an array.
 
     Notes
     -----
     Size parameter: x = π * d / λ
     The number of terms needed scales as: n_max ≈ 2 + x + 4*x^(1/3)
     """
+    # Detect scalar input so we can squeeze it back at the end. We treat
+    # a bare complex / numpy 0-d as scalar; a length-1 array stays 2-D.
+    scalar_input = (
+        np.isscalar(refractive_index)
+        or isinstance(refractive_index, complex)
+        or (isinstance(refractive_index, np.ndarray) and refractive_index.ndim == 0)
+    )
+    ri_array = np.atleast_1d(np.asarray(refractive_index, dtype=complex))
+
     # Size parameter: x = πd/λ
-    size_parameter = np.pi * diameter / wavelength
+    size_parameter = np.pi * np.asarray(diameter, dtype=float) / wavelength
 
     # Maximum number of terms in series expansion
-    n_max = np.round(2 + size_parameter + 4 * size_parameter**(1/3))
+    n_max = np.round(2 + size_parameter + 4 * size_parameter ** (1 / 3))
 
     # Create term index matrix (masked where n > n_max for each bin)
     max_terms = int(n_max.max())
@@ -311,15 +329,18 @@ def calculate_mie_efficiencies(
 
     # Calculate Mie coefficients
     Q_ext_raw, Q_sca_raw = calculate_mie_coefficients(
-        refractive_index, size_parameter, n_max, n_terms
+        ri_array, size_parameter, n_max, n_terms
     )
 
     # Apply normalization factor: 2/x²
-    norm_factor = (2 / size_parameter**2).reshape(-1, 1)
+    norm_factor = (2 / size_parameter ** 2).reshape(-1, 1)
     Q_ext = (norm_factor * Q_ext_raw).values.T.astype(float)
     Q_sca = (norm_factor * Q_sca_raw).values.T.astype(float)
+    Q_abs = Q_ext - Q_sca
 
-    return Q_ext, Q_sca
+    if scalar_input:
+        return Q_ext[0], Q_sca[0], Q_abs[0]
+    return Q_ext, Q_sca, Q_abs
 
 
 def Mie_SD(
@@ -358,7 +379,7 @@ def Mie_SD(
         If True, calculate for multiple refractive indices per PSD row.
         Useful for refractive index retrieval.
     precomputed_Q : tuple, optional
-        Pre-computed (Q_ext, Q_sca) to avoid recalculation.
+        Pre-computed (Q_ext, Q_sca, Q_abs) to avoid recalculation.
 
     Returns
     -------
@@ -441,9 +462,9 @@ def Mie_SD(
 
     # Get or calculate Mie efficiencies
     if precomputed_Q:
-        Q_ext, Q_sca = precomputed_Q
+        Q_ext, Q_sca, _ = precomputed_Q
     else:
-        Q_ext, Q_sca = calculate_mie_efficiencies(
+        Q_ext, Q_sca, _ = calculate_mie_efficiencies(
             refractive_index, wavelength, diameter
         )
 
@@ -570,7 +591,7 @@ def calculate_extinction_distribution(
             ri_array = np.array([ri_array[0]] * n_times)
 
     # Calculate Mie efficiencies
-    Q_ext, Q_sca = calculate_mie_efficiencies(ri_array, wavelength, diameter)
+    Q_ext, Q_sca, _ = calculate_mie_efficiencies(ri_array, wavelength, diameter)
 
     # Cross-sectional area (π/4 * Dp²) in nm², scaled to Mm⁻¹
     cross_section = np.pi / 4 * diameter**2 * 1e-6
@@ -640,7 +661,7 @@ def calculate_mass_efficiency(
     """
     # Calculate Q for single refractive index
     ri_array = np.array([refractive_index])
-    Q_ext, Q_sca = calculate_mie_efficiencies(ri_array, wavelength, diameter)
+    Q_ext, Q_sca, _ = calculate_mie_efficiencies(ri_array, wavelength, diameter)
     # Q_ext shape: (1, n_bins), extract first row to get (n_bins,)
 
     # MEE = 3Q / (2ρDp) * 1000
@@ -826,7 +847,7 @@ def external_mixing(
 
         # Calculate Mie for this species (single RI for all times)
         ri_array = np.array([ri] * n_times)
-        Q_ext, Q_sca = calculate_mie_efficiencies(ri_array, wavelength, diameter)
+        Q_ext, Q_sca, _ = calculate_mie_efficiencies(ri_array, wavelength, diameter)
         # Q_ext shape: (n_times, n_bins)
 
         # Cross-sectional area
@@ -903,6 +924,7 @@ def generate_lognormal_psd(
 # =============================================================================
 
 MieQ = calculate_mie_efficiencies
+Mie_Q = calculate_mie_efficiencies      # matches mie_theory.Mie_Q naming
 Mie_ab = calculate_mie_coefficients
 Mie_PESD = calculate_extinction_distribution
 Mie_MEE = calculate_mass_efficiency

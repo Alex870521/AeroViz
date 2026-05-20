@@ -3,8 +3,8 @@
 ! Exposes two entry points designed for f2py to wrap cleanly with
 ! explicit intent(in)/intent(out) and float64 (real*8) bindings:
 !
-!   solve()       — single sample
-!   solve_batch() — vectorised over many samples (one ISORROPIA call per row)
+!   solve()       - single sample
+!   solve_batch() - vectorised over many samples (one ISORROPIA call per row)
 !
 ! Verified to produce results identical to the bundled isrpia2.exe (to
 ! within machine precision) for a range of sulfate/ammonia/nitrate

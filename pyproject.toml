@@ -99,7 +99,10 @@ Issues = "https://github.com/Alex870521/AeroViz/issues"
 Changelog = "https://github.com/Alex870521/AeroViz/blob/main/docs/CHANGELOG.md"
 
 [tool.pytest.ini_options]
-pythonpath = "."
+# Don't set pythonpath="." — that would shadow the installed package
+# (where the compiled Fortran extension lives) with the bare source
+# tree. After `pip install [-e] .`, the editable loader or installed
+# wheel handles import resolution.
 markers = [
     "requires_data: marks tests that require actual data files",
     "reader: rawDataReader pipeline tests (slow, I/O heavy)",

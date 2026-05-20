@@ -27,9 +27,14 @@ jobs:
       - name: Install gfortran
         run: sudo apt-get update && sudo apt-get install -y gfortran
       - name: Install
+        # Non-editable install: pip builds the wheel once, installs it,
+        # and the test run uses the installed package. Avoids
+        # meson-python's editable-rebuild-on-import path (which needs
+        # ninja in the runtime env after the build-isolation env is
+        # cleaned up).
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[test]"
+          pip install ".[test]"
       - name: Run tests
         run: |
           pytest tests/test_imports.py tests/test_dataprocess/ \
@@ -65,9 +70,14 @@ jobs:
       - name: Install gfortran
         run: sudo apt-get update && sudo apt-get install -y gfortran
       - name: Install
+        # Non-editable install: pip builds the wheel once, installs it,
+        # and the test run uses the installed package. Avoids
+        # meson-python's editable-rebuild-on-import path (which needs
+        # ninja in the runtime env after the build-isolation env is
+        # cleaned up).
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[test]"
+          pip install ".[test]"
       - name: Run reader tests
         run: |
           pytest tests/test_readers/ -m "not requires_data" \

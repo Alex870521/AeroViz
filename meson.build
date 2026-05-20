@@ -1,7 +1,7 @@
 project(
   'AeroViz',
   ['c', 'fortran'],
-  version: '0.2.1',
+  version: '0.3.0',
   meson_version: '>=1.2.0',
   default_options: [
     'buildtype=release',

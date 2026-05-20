@@ -1,15 +1,51 @@
-name: Build wheels
+name: Release
 
 on:
-  # Build wheels on every tag push (v* triggers a release).
   push:
     tags:
       - 'v*'
-  # Allow manual runs from the Actions UI for testing.
+  # Manual trigger lets us dry-run the wheel build without tagging.
+  # Publish jobs are gated below, so workflow_dispatch never touches PyPI.
   workflow_dispatch:
 
 jobs:
-  build_wheels:
+  # ----------------------------------------------------------------------
+  # 1. Sanity-check that pyproject.toml's version matches the tag.
+  #    Cheap; runs first so a mismatched version aborts before we spend
+  #    20 wheel-building minutes.
+  # ----------------------------------------------------------------------
+  verify-version:
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compare tag vs pyproject version
+        run: |
+          TAG_VERSION=${GITHUB_REF#refs/tags/v}
+          PKG_VERSION=$(python -c "
+          import tomllib, pathlib
+          print(tomllib.loads(pathlib.Path('pyproject.toml').read_text())['project']['version'])
+          ")
+          echo "Tag:     $TAG_VERSION"
+          echo "Package: $PKG_VERSION"
+          if [ "$PKG_VERSION" != "$TAG_VERSION" ]; then
+            echo "::error::version mismatch — bump pyproject.toml [+ meson.build] before tagging"
+            exit 1
+          fi
+
+  # ----------------------------------------------------------------------
+  # 2. Build platform-specific wheels: 4 OS x 5 Python = 20 wheels.
+  # ----------------------------------------------------------------------
+  build-wheels:
+    # On tag push we depend on verify-version; on workflow_dispatch
+    # there's no tag so verify-version is skipped and we always run.
+    needs: [verify-version]
+    if: |
+      always() &&
+      (needs.verify-version.result == 'success' || needs.verify-version.result == 'skipped')
     name: ${{ matrix.os }} cp${{ matrix.python }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -22,9 +58,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # cibuildwheel handles Python + isolated build env per row of the
-      # matrix; we only need gfortran in the *runner* env so the build
-      # step inside the container can find it.
       - name: Install gfortran (Linux/macOS)
         if: runner.os != 'Windows'
         shell: bash
@@ -33,34 +66,28 @@ jobs:
             sudo apt-get update
             sudo apt-get install -y gfortran
           else
-            # macOS — gfortran comes with the gcc Homebrew bottle
             brew install gcc
           fi
 
       - name: Install rtools (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: |
-          # rtools45 ships gfortran for Windows builds; the path is
-          # injected into the cibuildwheel env via CIBW_ENVIRONMENT.
-          choco install rtools -y --no-progress --version=45
+        run: choco install rtools -y --no-progress --version=45
 
       - uses: pypa/cibuildwheel@v2.21
         env:
           CIBW_BUILD: cp${{ matrix.python }}-*
-          # Skip 32-bit (i686), musllinux, and PyPy — narrow to the
-          # configurations we actually want to ship.
+          # Skip 32-bit (i686), musllinux, and PyPy.
           CIBW_SKIP: "*-musllinux_* *-manylinux_i686 *_i686 pp*"
           CIBW_ARCHS_LINUX: x86_64
           CIBW_ARCHS_MACOS: ${{ matrix.os == 'macos-14' && 'arm64' || 'x86_64' }}
           CIBW_ARCHS_WINDOWS: AMD64
-          # Each isolated cibuildwheel build env must also have meson
-          # tools + numpy headers available.
           CIBW_BUILD_FRONTEND: build
           CIBW_ENVIRONMENT_WINDOWS: >-
             PATH="C:\\rtools45\\x86_64-w64-mingw32.static.posix\\bin;C:\\rtools45\\usr\\bin;$PATH"
-          # Run the import + a couple of cheap solver calls so a broken
-          # wheel never escapes.
+          # Smoke-test the wheel: import the package and call the new
+          # Fortran extension once. A broken extension fails here, not
+          # in PyPI users' hands.
           CIBW_TEST_COMMAND: >-
             python -c "
             import numpy as np;
@@ -77,8 +104,14 @@ jobs:
           path: ./wheelhouse/*.whl
           if-no-files-found: error
 
-  build_sdist:
-    name: Source distribution
+  # ----------------------------------------------------------------------
+  # 3. Build the source distribution.
+  # ----------------------------------------------------------------------
+  build-sdist:
+    needs: [verify-version]
+    if: |
+      always() &&
+      (needs.verify-version.result == 'success' || needs.verify-version.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -97,3 +130,68 @@ jobs:
           name: sdist
           path: dist/*.tar.gz
           if-no-files-found: error
+
+  # ----------------------------------------------------------------------
+  # 4. Publish to TestPyPI (tag pushes only).
+  # ----------------------------------------------------------------------
+  publish-test:
+    needs: [build-wheels, build-sdist]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: test-pypi
+      url: https://test.pypi.org/p/AeroViz
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  # ----------------------------------------------------------------------
+  # 5. Publish to PyPI (only after TestPyPI succeeded).
+  # ----------------------------------------------------------------------
+  publish-prod:
+    needs: [publish-test]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/AeroViz
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
+  # ----------------------------------------------------------------------
+  # 6. Create a GitHub release with the wheels and sdist attached.
+  # ----------------------------------------------------------------------
+  github-release:
+    needs: [publish-prod]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist/
+          merge-multiple: true
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --repo "${{ github.repository }}" \
+            --notes "Release ${{ github.ref_name }}. See docs/CHANGELOG.md for details." \
+            dist/*

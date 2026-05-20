@@ -304,13 +304,39 @@ class SizeDist:
         """
         from functools import partial
         from pandas import concat
-        from ..Optical.mie_theory import internal, external, core_shell, sensitivity
+        from ..Optical._mie_sd import Mie_PESD
+        from ..core import REFRACTIVE_INDEX
+
+        def _internal(dist, dp, wavelength=550, result_type='extinction'):
+            ext, sca, abs_ = Mie_PESD(
+                m=complex(dist['n_amb'], dist['k_amb']),
+                wavelength=wavelength,
+                dp=dp,
+                ndp=np.array(dist[:np.size(dp)]),
+            )
+            return {'extinction': ext, 'scattering': sca, 'absorption': abs_}[result_type]
+
+        def _external(dist, dp, wavelength=550, result_type='extinction'):
+            ri_dict = {f'{sp}_volume_ratio': ri for sp, ri in REFRACTIVE_INDEX['550'].items()}
+            ndp = np.array(dist[:np.size(dp)])
+            # Use list (not generator) so each result_type branch sees all species.
+            mie_results = [
+                Mie_PESD(
+                    ri_dict[species],
+                    wavelength,
+                    dp,
+                    dist[species] / (1 + dist['ALWC_volume_ratio']) * ndp,
+                )
+                for species in ri_dict
+            ]
+            ext = np.sum([r[0] for r in mie_results], axis=0)
+            sca = np.sum([r[1] for r in mie_results], axis=0)
+            abs_ = np.sum([r[2] for r in mie_results], axis=0)
+            return {'extinction': ext, 'scattering': sca, 'absorption': abs_}[result_type]
 
         method_mapping = {
-            'internal': internal,
-            'external': external,
-            'core_shell': core_shell,
-            'sensitivity': sensitivity
+            'internal': _internal,
+            'external': _external,
         }
 
         if RI is None or (hasattr(RI, 'empty') and RI.empty):

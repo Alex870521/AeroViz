@@ -6,7 +6,7 @@ import numpy as np
 from matplotlib.pyplot import Figure, Axes
 
 from AeroViz.dataProcess.Optical.PyMieScatt_update import ScatteringFunction
-from AeroViz.dataProcess.Optical.mie_theory import Mie_Q, Mie_MEE, Mie_PESD
+from AeroViz.dataProcess.Optical._mie_sd import Mie_Q, Mie_MEE, Mie_PESD
 from AeroViz.plot.utils import *
 
 __all__ = ['Q_plot',

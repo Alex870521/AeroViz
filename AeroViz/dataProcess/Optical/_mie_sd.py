@@ -926,5 +926,28 @@ def generate_lognormal_psd(
 MieQ = calculate_mie_efficiencies
 Mie_Q = calculate_mie_efficiencies      # matches mie_theory.Mie_Q naming
 Mie_ab = calculate_mie_coefficients
-Mie_PESD = calculate_extinction_distribution
-Mie_MEE = calculate_mass_efficiency
+
+
+def Mie_PESD(m, wavelength=550, dp=None, ndp=None, **kwargs):
+    """Backward-compatible 3-tuple wrapper for
+    :func:`calculate_extinction_distribution`.
+
+    Mirrors the legacy ``mie_theory.Mie_PESD`` 3-tuple interface
+    ``(ext, sca, abs)`` so existing callers can swap the import path
+    without rewriting their unpacking. New code should prefer
+    :func:`calculate_extinction_distribution` (returns a dict).
+    """
+    result = calculate_extinction_distribution(m, wavelength, dp, ndp, **kwargs)
+    return result['ext'], result['sca'], result['abs']
+
+
+def Mie_MEE(m, wavelength, dp, density):
+    """Backward-compatible 3-tuple wrapper for
+    :func:`calculate_mass_efficiency`.
+
+    Mirrors the legacy ``mie_theory.Mie_MEE`` 3-tuple interface
+    ``(MEE, MSE, MAE)``. New code should prefer
+    :func:`calculate_mass_efficiency` (returns a dict).
+    """
+    result = calculate_mass_efficiency(m, wavelength, dp, density)
+    return result['MEE'], result['MSE'], result['MAE']

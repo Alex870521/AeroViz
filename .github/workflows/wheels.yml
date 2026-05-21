@@ -67,8 +67,22 @@ jobs:
           if [[ "$RUNNER_OS" == "Linux" ]]; then
             sudo apt-get update
             sudo apt-get install -y gfortran
+            echo "FC=gfortran" >> $GITHUB_ENV
           else
             brew install gcc
+            # Resolve the actual gfortran path: brew on Apple Silicon
+            # puts it in /opt/homebrew/bin, on Intel in /usr/local/bin.
+            # cibuildwheel's isolated build venv only sees a minimal
+            # PATH, so propagate the Homebrew bin via $GITHUB_ENV and
+            # set FC explicitly so meson skips compiler auto-detection.
+            GFORTRAN_BIN=$(brew --prefix gcc)/bin/gfortran
+            if [ ! -x "$GFORTRAN_BIN" ]; then
+              # Fall back to the versioned name.
+              GFORTRAN_BIN=$(ls "$(brew --prefix gcc)"/bin/gfortran-* 2>/dev/null | head -1)
+            fi
+            echo "Resolved gfortran: $GFORTRAN_BIN"
+            echo "FC=$GFORTRAN_BIN" >> $GITHUB_ENV
+            echo "$(brew --prefix gcc)/bin" >> $GITHUB_PATH
           fi
 
       - uses: pypa/cibuildwheel@v3.0
@@ -82,10 +96,12 @@ jobs:
           CIBW_ARCHS_LINUX: x86_64
           CIBW_ARCHS_MACOS: ${{ matrix.os == 'macos-14' && 'arm64' || 'x86_64' }}
           CIBW_BUILD_FRONTEND: build
-          # cibuildwheel runs the build in an isolated env that doesn't
-          # inherit the runner's PATH. macOS gfortran lives under
-          # Homebrew (/opt/homebrew on arm64, /usr/local on Intel).
-          CIBW_ENVIRONMENT_MACOS: 'PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"'
+          # Forward FC + the Homebrew gcc bin path into cibuildwheel's
+          # isolated build env. $GITHUB_PATH made the bin available at
+          # the runner level; CIBW_ENVIRONMENT_PASS_MACOS forwards FC
+          # (and a couple of PATH variants) into the build subprocess.
+          CIBW_ENVIRONMENT_PASS_MACOS: FC PATH
+          CIBW_ENVIRONMENT_PASS_LINUX: FC
           # Smoke-test the wheel: import the package and call the new
           # Fortran extension once. A broken extension fails here, not
           # in PyPI users' hands.

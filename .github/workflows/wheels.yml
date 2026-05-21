@@ -123,6 +123,15 @@ jobs:
           CIBW_ENVIRONMENT_PASS_MACOS: FC PATH
           CIBW_ENVIRONMENT_PASS_LINUX: FC
           CIBW_ENVIRONMENT_PASS_WINDOWS: FC PATH
+          # Windows: cibuildwheel's default repair command is empty, so
+          # the mingw runtime DLLs (libgfortran-5.dll, libquadmath-0.dll,
+          # libwinpthread-1.dll, libgcc_s_seh-1.dll) never get bundled
+          # and import fails on the user's machine with
+          # "DLL load failed while importing _ext". delvewheel scans
+          # PATH (which includes /mingw64/bin) and bundles the DLLs into
+          # the wheel's `.libs` directory.
+          CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel
+          CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -w {dest_dir} {wheel}
           # Homebrew's libgfortran/libquadmath on macos-14 are built with
           # a minimum target of macOS 14.0; the wheel default of 11.0
           # fails delocate's version check, so bump it to match.

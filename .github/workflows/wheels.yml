@@ -89,20 +89,12 @@ jobs:
           # Smoke-test the wheel: import the package and call the new
           # Fortran extension once. A broken extension fails here, not
           # in PyPI users' hands.
-          # NOTE: `python -I` runs in isolated mode (no `sys.path[0] = ""`
-          # / `PYTHONPATH`), so the source-tree `AeroViz/` package in the
-          # project root can't shadow the installed wheel. Without this
-          # the test would import the source-tree `_isorropia/__init__.py`
-          # (no compiled `_ext.so` there) and fail.
-          CIBW_TEST_COMMAND: >-
-            python -I -c "
-            import numpy as np;
-            from AeroViz.dataProcess.Chemistry._isorropia import solve;
-            wi = np.array([5e-9, 5.2e-8, 2e-7, 4.8e-8, 5e-9, 1e-9, 1e-9, 5e-10]);
-            cntrl = np.array([0.0, 1.0]);
-            _ = solve(wi, 0.8, 298.0, cntrl);
-            print('isorropia smoke test OK')
-            "
+          # NOTE: `python -I` runs in isolated mode (no cwd in
+          # sys.path), so the source-tree `AeroViz/` package in the
+          # project root can't shadow the installed wheel. One-liner
+          # because YAML folded scalars keep leading whitespace, which
+          # `python -c` reads as IndentationError.
+          CIBW_TEST_COMMAND: python -I -c "import numpy as np; from AeroViz.dataProcess.Chemistry._isorropia import solve; solve(np.array([5e-9,5.2e-8,2e-7,4.8e-8,5e-9,1e-9,1e-9,5e-10]),0.8,298.0,np.array([0.0,1.0])); print('isorropia smoke test OK')"
 
       - uses: actions/upload-artifact@v4
         with:

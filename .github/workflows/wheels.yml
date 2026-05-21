@@ -37,7 +37,9 @@ jobs:
           fi
 
   # ----------------------------------------------------------------------
-  # 2. Build platform-specific wheels: 4 OS x 5 Python = 20 wheels.
+  # 2. Build platform-specific wheels: 3 OS x 5 Python = 15 wheels.
+  #    Intel Mac (macos-13) dropped — Apple Silicon has been the only
+  #    new-Mac chip since 2020 and our user base is overwhelmingly arm64.
   # ----------------------------------------------------------------------
   build-wheels:
     # On tag push we depend on verify-version; on workflow_dispatch
@@ -51,17 +53,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # macos-13 = Intel; macos-14 = Apple Silicon
-        # Windows is deferred to a follow-up release — getting gfortran
-        # to play nicely with MSVC inside a cibuildwheel isolated env
-        # needs an MSYS2 / rtools-45 setup we haven't validated yet.
-        os: [ubuntu-latest, macos-13, macos-14]
+        os: [ubuntu-latest, macos-14, windows-latest]
         python: ['310', '311', '312', '313', '314']
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Install gfortran (Linux/macOS)
+        if: runner.os != 'Windows'
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -69,21 +68,43 @@ jobs:
             sudo apt-get install -y gfortran
             echo "FC=gfortran" >> $GITHUB_ENV
           else
+            # macOS — Homebrew gcc bundles gfortran. Apple Silicon puts
+            # it in /opt/homebrew/bin; Intel in /usr/local/bin. We only
+            # ship arm64 wheels but keep the fallback in case macos-14
+            # path layout ever shifts.
             brew install gcc
-            # Resolve the actual gfortran path: brew on Apple Silicon
-            # puts it in /opt/homebrew/bin, on Intel in /usr/local/bin.
-            # cibuildwheel's isolated build venv only sees a minimal
-            # PATH, so propagate the Homebrew bin via $GITHUB_ENV and
-            # set FC explicitly so meson skips compiler auto-detection.
             GFORTRAN_BIN=$(brew --prefix gcc)/bin/gfortran
             if [ ! -x "$GFORTRAN_BIN" ]; then
-              # Fall back to the versioned name.
               GFORTRAN_BIN=$(ls "$(brew --prefix gcc)"/bin/gfortran-* 2>/dev/null | head -1)
             fi
             echo "Resolved gfortran: $GFORTRAN_BIN"
             echo "FC=$GFORTRAN_BIN" >> $GITHUB_ENV
             echo "$(brew --prefix gcc)/bin" >> $GITHUB_PATH
           fi
+
+      - name: Setup MSYS2 + mingw-w64 gfortran (Windows)
+        if: runner.os == 'Windows'
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          path-type: inherit
+          update: false
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-gcc-fortran
+            mingw-w64-x86_64-pkgconf
+
+      - name: Configure FC for Windows
+        if: runner.os == 'Windows'
+        shell: msys2 {0}
+        run: |
+          # cibuildwheel runs outside the msys2 shell, so we need
+          # Windows-style paths in $GITHUB_ENV / $GITHUB_PATH.
+          MINGW_BIN=$(cygpath -w /mingw64/bin)
+          GFORTRAN_WIN=$(cygpath -w "$(command -v gfortran)")
+          echo "Resolved gfortran: $GFORTRAN_WIN"
+          echo "FC=$GFORTRAN_WIN" >> $GITHUB_ENV
+          echo "$MINGW_BIN" >> $GITHUB_PATH
 
       - uses: pypa/cibuildwheel@v3.0
         env:
@@ -94,19 +115,18 @@ jobs:
           # cibuildwheel versions).
           CIBW_ENABLE: cpython-prerelease
           CIBW_ARCHS_LINUX: x86_64
-          CIBW_ARCHS_MACOS: ${{ matrix.os == 'macos-14' && 'arm64' || 'x86_64' }}
+          CIBW_ARCHS_MACOS: arm64
+          CIBW_ARCHS_WINDOWS: AMD64
           CIBW_BUILD_FRONTEND: build
-          # Forward FC + the Homebrew gcc bin path into cibuildwheel's
-          # isolated build env. $GITHUB_PATH made the bin available at
-          # the runner level; CIBW_ENVIRONMENT_PASS_MACOS forwards FC
-          # (and a couple of PATH variants) into the build subprocess.
+          # Forward FC + PATH (which now includes the toolchain bin) into
+          # cibuildwheel's isolated build env across all three OSes.
           CIBW_ENVIRONMENT_PASS_MACOS: FC PATH
           CIBW_ENVIRONMENT_PASS_LINUX: FC
-          # Homebrew's libgfortran/libquadmath on macos-14 are built
-          # with a minimum target of macOS 14.0, on macos-13 with 13.0.
-          # The default wheel target of 11.0 fails delocate's version
-          # check, so bump it to match.
-          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.os == 'macos-14' && '14.0' || '13.0' }}
+          CIBW_ENVIRONMENT_PASS_WINDOWS: FC PATH
+          # Homebrew's libgfortran/libquadmath on macos-14 are built with
+          # a minimum target of macOS 14.0; the wheel default of 11.0
+          # fails delocate's version check, so bump it to match.
+          MACOSX_DEPLOYMENT_TARGET: '14.0'
           # Smoke-test the wheel: import the package and call the new
           # Fortran extension once. A broken extension fails here, not
           # in PyPI users' hands.

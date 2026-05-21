@@ -102,6 +102,11 @@ jobs:
           # (and a couple of PATH variants) into the build subprocess.
           CIBW_ENVIRONMENT_PASS_MACOS: FC PATH
           CIBW_ENVIRONMENT_PASS_LINUX: FC
+          # Homebrew's libgfortran/libquadmath on macos-14 are built
+          # with a minimum target of macOS 14.0, on macos-13 with 13.0.
+          # The default wheel target of 11.0 fails delocate's version
+          # check, so bump it to match.
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.os == 'macos-14' && '14.0' || '13.0' }}
           # Smoke-test the wheel: import the package and call the new
           # Fortran extension once. A broken extension fails here, not
           # in PyPI users' hands.

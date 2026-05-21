@@ -52,14 +52,16 @@ jobs:
       fail-fast: false
       matrix:
         # macos-13 = Intel; macos-14 = Apple Silicon
-        os: [ubuntu-latest, macos-13, macos-14, windows-latest]
+        # Windows is deferred to a follow-up release — getting gfortran
+        # to play nicely with MSVC inside a cibuildwheel isolated env
+        # needs an MSYS2 / rtools-45 setup we haven't validated yet.
+        os: [ubuntu-latest, macos-13, macos-14]
         python: ['310', '311', '312', '313', '314']
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Install gfortran (Linux/macOS)
-        if: runner.os != 'Windows'
         shell: bash
         run: |
           if [[ "$RUNNER_OS" == "Linux" ]]; then
@@ -69,22 +71,21 @@ jobs:
             brew install gcc
           fi
 
-      - name: Install rtools (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: choco install rtools -y --no-progress --version=45
-
-      - uses: pypa/cibuildwheel@v2.21
+      - uses: pypa/cibuildwheel@v3.0
         env:
           CIBW_BUILD: cp${{ matrix.python }}-*
           # Skip 32-bit (i686), musllinux, and PyPy.
           CIBW_SKIP: "*-musllinux_* *-manylinux_i686 *_i686 pp*"
+          # Opt into Python 3.14 (still tagged "prerelease" in some
+          # cibuildwheel versions).
+          CIBW_ENABLE: cpython-prerelease
           CIBW_ARCHS_LINUX: x86_64
           CIBW_ARCHS_MACOS: ${{ matrix.os == 'macos-14' && 'arm64' || 'x86_64' }}
-          CIBW_ARCHS_WINDOWS: AMD64
           CIBW_BUILD_FRONTEND: build
-          CIBW_ENVIRONMENT_WINDOWS: >-
-            PATH="C:\\rtools45\\x86_64-w64-mingw32.static.posix\\bin;C:\\rtools45\\usr\\bin;$PATH"
+          # cibuildwheel runs the build in an isolated env that doesn't
+          # inherit the runner's PATH. macOS gfortran lives under
+          # Homebrew (/opt/homebrew on arm64, /usr/local on Intel).
+          CIBW_ENVIRONMENT_MACOS: 'PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"'
           # Smoke-test the wheel: import the package and call the new
           # Fortran extension once. A broken extension fails here, not
           # in PyPI users' hands.

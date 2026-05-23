@@ -75,6 +75,19 @@ optical = DataProcess(method='Optical', path_out=Path('./results'))
 # Available methods: 'Chemistry', 'Optical', 'SizeDistr', 'VOC'
 ```
 
+## Interactive timeseries
+
+`AeroViz.plot.timeseries_interactive(df)` gives a quick interactive (Plotly)
+look at a reader result: one trace per column, click the legend to toggle
+columns. Defaults to numeric, non-size-bin columns (size bins / `QC_Flag`
+excluded); `save='x.html'` exports a standalone file; `columns=[...]` picks
+specific columns.
+
+```python
+from AeroViz.plot import timeseries_interactive
+timeseries_interactive(df, columns=['eBC', 'AAE'])   # show=True by default
+```
+
 ## Output Columns by Instrument
 
 ### AE33/AE43

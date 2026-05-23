@@ -263,6 +263,18 @@ from AeroViz import plot
 # Time series, diurnal patterns, wind rose, polar plots, etc.
 ```
 
+Quick interactive look at a reader result (Plotly) — one trace per column, click
+the legend to toggle which columns are shown:
+
+```python
+from AeroViz import RawDataReader
+from AeroViz.plot import timeseries_interactive
+
+df = RawDataReader('AE33', '/data/AE33')              # native resolution, full coverage
+timeseries_interactive(df, columns=['eBC', 'BC1', 'BC6', 'AAE'])
+timeseries_interactive(df, save='ae33.html', show=False)   # export standalone HTML
+```
+
 ## File Structure
 
 AeroViz expects data organized by station and instrument:

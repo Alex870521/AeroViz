@@ -207,6 +207,59 @@ def read_with_string_time():
 
 
 # =============================================================================
+# 範例 9: 可選時間範圍 + 原解析度(新行為)
+# =============================================================================
+
+def read_full_coverage():
+    """省略 start/end 與 mean_freq → 回傳檔案全部 coverage、原解析度(不 resample)。"""
+
+    # start/end 皆可省略;不給 mean_freq 就不 resample(回傳儀器原頻率)
+    df = RawDataReader('AE33', path=DATA_PATH / 'TP_AE33')
+
+    print("=== 全 coverage(原解析度)===")
+    print(f"資料涵蓋: {df.attrs.get('coverage_start')} ~ {df.attrs.get('coverage_end')}")
+    print(f"原始頻率: {df.attrs.get('raw_freq')} | 列數: {len(df)}")
+    return df
+
+
+# =============================================================================
+# 範例 10: 讀取結果的中繼資料(df.attrs)
+# =============================================================================
+
+def inspect_metadata():
+    """每次讀取都會在 df.attrs 附上 provenance / coverage / QC 統計。"""
+
+    df = RawDataReader('AE33', path=DATA_PATH / 'TP_AE33',
+                       start=START, end=END, mean_freq='1h')
+
+    a = df.attrs
+    print("=== df.attrs ===")
+    print(f"instrument : {a.get('instrument')}")
+    print(f"coverage   : {a.get('coverage_start')} ~ {a.get('coverage_end')}")
+    print(f"requested  : {a.get('requested_start')} ~ {a.get('requested_end')}")
+    print(f"raw_freq   : {a.get('raw_freq')} (mixed={a.get('freq_mixed')})")
+    print(f"rates      : acquisition {a.get('acquisition_rate')}% / total {a.get('total_rate')}%")
+    return df
+
+
+# =============================================================================
+# 範例 11: fill_missing — pad 到請求範圍 vs 夾到 coverage
+# =============================================================================
+
+def read_padded_vs_clamped():
+    """fill_missing=True(預設)pad 到 [start, end];False 夾到實際 coverage(不膨脹)。"""
+
+    padded = RawDataReader('AE33', path=DATA_PATH / 'TP_AE33',
+                           start=START, end=END, mean_freq='1h')                # 預設 True
+    clamped = RawDataReader('AE33', path=DATA_PATH / 'TP_AE33',
+                            start=START, end=END, mean_freq='1h', fill_missing=False)
+
+    print(f"padded  列數: {len(padded)}  ({padded.index[0]} ~ {padded.index[-1]})")
+    print(f"clamped 列數: {len(clamped)}  ({clamped.index[0]} ~ {clamped.index[-1]})")
+    return padded, clamped
+
+
+# =============================================================================
 # 主程式
 # =============================================================================
 
@@ -221,3 +274,6 @@ if __name__ == '__main__':
     # df_igac = read_igac()
     # df_xact = read_with_string_time()
     # df = read_TEOM()
+    # df_full = read_full_coverage()       # 省略範圍/頻率 → 全 coverage、原解析度
+    # df_meta = inspect_metadata()         # 看 df.attrs
+    # read_padded_vs_clamped()             # fill_missing 行為對比

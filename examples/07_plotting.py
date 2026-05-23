@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from AeroViz.plot import scatter, regression, box, bar, violin, pie
+from AeroViz.plot import scatter, regression, box, bar, violin, pie, timeseries_interactive
 
 # =============================================================================
 # 設定
@@ -224,6 +224,22 @@ def multi_panel_example():
 # 範例 9: 使用真實數據繪圖
 # =============================================================================
 
+def interactive_timeseries_example():
+    """互動式時序圖(Plotly):一欄一條 trace,點 legend 切換欄位,可存成 HTML。"""
+    idx = pd.date_range('2024-01-01', periods=24 * 14, freq='h', name='time')
+    df = pd.DataFrame({
+        'eBC': np.random.gamma(2, 500, len(idx)),
+        'BC1': np.random.gamma(2, 600, len(idx)),
+        'BC6': np.random.gamma(2, 450, len(idx)),
+        'AAE': np.random.normal(1.2, 0.2, len(idx)),
+    }, index=idx)
+
+    out = OUTPUT_PATH / 'timeseries_interactive.html'
+    # save= 匯出獨立 HTML;show=False 避免在「全部執行」時開瀏覽器
+    timeseries_interactive(df, save=str(out), show=False)
+    print(f"已儲存: {out}(用瀏覽器開啟,點 legend 切換欄位)")
+
+
 def plot_real_data():
     """使用 RawDataReader 讀取真實數據並繪圖"""
 
@@ -234,7 +250,7 @@ def plot_real_data():
     START = datetime(2024, 1, 1)
     END = datetime(2024, 3, 31)
 
-    # 讀取數據
+    # 讀取數據(start/end/mean_freq 皆可省略;省略 mean_freq 回傳原解析度)
     # df_ae33 = RawDataReader(
     #     instrument='AE33',
     #     path=DATA_PATH / 'AE33',
@@ -243,7 +259,11 @@ def plot_real_data():
     #     mean_freq='1h'
     # )
 
-    # 繪製時間序列
+    # 互動式時序圖(Plotly):點 legend 切換欄位
+    # timeseries_interactive(df_ae33, columns=['eBC', 'BC1', 'BC6', 'AAE'])
+    # timeseries_interactive(df_ae33, save='ae33.html', show=False)  # 存成 HTML
+
+    # 或用 matplotlib 繪製靜態時間序列
     # import matplotlib.pyplot as plt
     # fig, ax = plt.subplots(figsize=(12, 4))
     # ax.plot(df_ae33.index, df_ae33['BC_880'], 'b-', alpha=0.7)
@@ -271,5 +291,6 @@ if __name__ == '__main__':
     violin_plot_example()
     pie_chart_example()
     multi_panel_example()
+    interactive_timeseries_example()
 
     print(f"\n所有圖表已儲存至: {OUTPUT_PATH}")

@@ -60,4 +60,9 @@ jobs:
           fi
 
       - name: Push commit and tag
-        run: git push --follow-tags origin main
+        # Push the bump commit and the new tag. Use --tags (not --follow-tags)
+        # so the vX.Y.Z tag is pushed even if it is lightweight — otherwise the
+        # Release workflow never triggers. (cz also makes annotated tags now.)
+        run: |
+          git push origin main
+          git push origin --tags

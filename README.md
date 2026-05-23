@@ -20,6 +20,19 @@ AeroViz is a Python toolkit for reading, processing, and visualizing aerosol mea
 pip install AeroViz
 ```
 
+Pre-built wheels are published for Linux, macOS (Apple Silicon) and Windows, so
+a normal install needs no compiler. Building **from source** — including an
+editable `pip install -e .` for development, or any platform without a wheel —
+compiles the bundled ISORROPIA II Fortran extension and therefore requires a
+Fortran compiler (`gfortran`) plus `meson`/`ninja`:
+
+```bash
+# macOS:          brew install gcc
+# Debian/Ubuntu:  sudo apt-get install gfortran
+# Windows:        use the MSYS2 / mingw-w64 toolchain
+pip install -e ".[test]"
+```
+
 ## Quick Start
 
 ```python
@@ -213,6 +226,25 @@ AeroViz expects data organized by station and instrument:
 ## Contributing
 
 Contributions are welcome! Please see our [GitHub Issues](https://github.com/Alex870521/AeroViz/issues) for bug reports and feature requests.
+
+### Development setup
+
+AeroViz builds a native Fortran extension, so an editable install needs
+`gfortran` (see [Installation](#installation)) in addition to the Python tools:
+
+```bash
+pip install -e ".[test,dev]"
+pytest
+```
+
+### Commits & releases
+
+Commit messages follow [Conventional Commits](https://www.conventionalcommits.org/)
+(`type(scope): subject`, e.g. `fix(reader): ...`). Releases are cut with
+[Commitizen](https://commitizen-tools.github.io/commitizen/), which derives the
+next version from the commit history, updates `docs/CHANGELOG.md`, and tags
+`vX.Y.Z` — run the **Bump version** workflow (or `cz bump` locally). Pushing the
+tag triggers the Release workflow, which builds and publishes the wheels.
 
 ## License
 

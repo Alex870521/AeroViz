@@ -61,6 +61,8 @@ df = RawDataReader(
 | `qc` | bool/str | True=apply QC, 'MS'=monthly stats |
 | `reset` | bool/str | True=reprocess, 'append'=add new data |
 | `size_range` | tuple | (min_nm, max_nm) for SMPS/APS only |
+| `fill_missing` | bool | True (default)=pad to requested range; False=clamp to data coverage |
+| `raw_freq` | str | Override auto-detected resolution (e.g. '6min'); skips detection |
 
 ## Data Processing
 
@@ -109,6 +111,54 @@ Data quality is indicated by `QC_Flag` column:
 - `Status Error`: Instrument status error
 - `Invalid BC` / `Invalid Number Conc`: Out of range values
 - `Spike`: Detected sudden value changes
+
+## Reader Metadata (`df.attrs`)
+
+Every `RawDataReader` result carries metadata in `df.attrs`. With the default
+`fill_missing=True` the output is padded to the *requested* range, so the frame
+can be mostly NaN — use `df.attrs['coverage_*']` to learn what the files
+**actually** contained without scanning for non-null rows (or pass
+`fill_missing=False` to clamp the grid to that coverage).
+
+```python
+df = RawDataReader('AE33', '/data/NZ_AE33', start='2024-01-01', end='2024-12-31')
+
+df.attrs['coverage_start']   # Timestamp — first row with real data
+df.attrs['coverage_end']     # Timestamp — last row with real data (None if no data in range)
+df.attrs['requested_start']  # what you asked for
+df.attrs['n_files']          # how many raw files were read
+df.attrs['total_rate']       # overall % valid (QC path only)
+```
+
+| Key | When | Meaning |
+|-----|------|---------|
+| `instrument`, `station`, `source_path`, `n_files` | always | provenance |
+| `coverage_start` / `coverage_end` | always | real data span (ignores NaN padding) |
+| `requested_start` / `requested_end` | always | the range you passed |
+| `raw_freq` | always | native frequency, auto-detected per file (config is fallback) |
+| `freq_mixed` | always | True if files had differing resolutions (most-common was used) |
+| `fill_missing` | always | whether the grid was padded to the request or clamped to coverage |
+| `aeroviz_version`, `processed_at` | always | build / run stamp |
+| `mean_freq`, `qc_applied`, `qc_freq` | qc on | output frequency + QC mode |
+| `acquisition_rate`, `yield_rate`, `total_rate` | qc on | overall rates (%) |
+
+`attrs` survive `to_pickle`/`read_pickle` and `resample` (pandas >= 2), but are
+dropped by `concat` of frames with conflicting attrs — re-stamp if you merge.
+
+**Caching:** with `reset=False` (default) the parsed result is cached as a pkl
+under `{instrument}_outputs/`. The cache stores the *canonical* frame — data on
+its native grid over the files' own coverage, **not** padded to any range — so
+a cache hit still applies the current call's `start`/`end` and `fill_missing`
+and re-stamps `df.attrs`. Pre-existing pkls from older versions are detected as
+stale and re-parsed automatically.
+
+**Frequency detection:** each file's resolution is auto-detected (regular
+`inferred_freq`, else median timestamp delta); `meta['freq']` in the instrument
+config is only a last-resort fallback. If files in one batch disagree, the
+most-common resolution is used and `freq_mixed` is set with a warning — pass
+`raw_freq=` to force one. Off-grid timestamps (e.g. 08:20 on an hourly grid) are
+snapped by rounding each row to its nearest grid bin, so a single reading is
+never duplicated across two slots.
 
 ## Example Workflows
 

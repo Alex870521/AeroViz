@@ -211,6 +211,92 @@ class BaseReaderTest(ABC):
             assert col in df.columns, f"Expected column '{col}' not found"
 
     # =========================================================================
+    # Metadata (df.attrs) Tests
+    # =========================================================================
+
+    def test_attrs_provenance(self, data_path, date_range, temp_output_dir):
+        """Returned frame carries provenance + coverage in df.attrs."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = self.read_data(normal_path, date_range)
+
+        attrs = df.attrs
+        assert attrs.get('instrument') == self.INSTRUMENT
+        assert attrs.get('source_path')
+        assert attrs.get('raw_freq')
+        assert isinstance(attrs.get('requested_start'), pd.Timestamp)
+        assert isinstance(attrs.get('requested_end'), pd.Timestamp)
+
+        # Coverage reflects the real file span and sits inside the request
+        cov_start, cov_end = attrs.get('coverage_start'), attrs.get('coverage_end')
+        if cov_start is not None and cov_end is not None:
+            assert cov_start <= cov_end
+            assert cov_start >= attrs['requested_start']
+            assert cov_end <= attrs['requested_end']
+
+    def test_attrs_qc_rates(self, data_path, date_range, temp_output_dir):
+        """QC path adds overall rates + output frequency to df.attrs."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = self.read_data(normal_path, date_range, qc=True)
+
+        attrs = df.attrs
+        assert attrs.get('qc_applied') is True
+        assert attrs.get('mean_freq')
+        for rate in ('acquisition_rate', 'yield_rate', 'total_rate'):
+            assert rate in attrs, f"{rate} missing from df.attrs"
+            assert 0 <= attrs[rate] <= 100
+
+    def test_attrs_provenance_only_without_qc(self, data_path, date_range, temp_output_dir):
+        """qc=False stamps provenance but no QC-rate keys."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = self.read_data(normal_path, date_range, qc=False)
+
+        attrs = df.attrs
+        assert attrs.get('instrument') == self.INSTRUMENT
+        assert 'qc_applied' not in attrs
+        assert 'total_rate' not in attrs
+
+    def test_attrs_survive_resample(self, data_path, date_range, temp_output_dir):
+        """df.attrs persists through a downstream resample (pandas >= 2)."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = self.read_data(normal_path, date_range)
+        resampled = df.resample('1D').mean()
+        assert resampled.attrs.get('instrument') == self.INSTRUMENT
+
+    def test_attrs_freq_mixed_flag(self, data_path, date_range, temp_output_dir):
+        """Single-resolution fixtures expose freq_mixed=False in df.attrs."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = self.read_data(normal_path, date_range)
+        assert isinstance(df.attrs.get('freq_mixed'), bool)
+
+    def test_fill_missing_false_not_larger(self, data_path, date_range, temp_output_dir):
+        """fill_missing=False clamps to coverage, never larger than the padded grid."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df_true = self.read_data(normal_path, date_range)                    # default True
+        df_false = self.read_data(normal_path, date_range, fill_missing=False)
+
+        assert df_false.attrs.get('fill_missing') is False
+        assert len(df_false) <= len(df_true)
+        assert df_false.index.max() <= df_true.index.max()
+
+    # =========================================================================
     # Edge Case Tests (override in subclass if instrument has specific cases)
     # =========================================================================
 

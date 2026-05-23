@@ -12,10 +12,18 @@ from rich.progress import Progress, TextColumn, BarColumn, SpinnerColumn, TaskPr
 
 from AeroViz.rawDataReader.config.supported_instruments import meta
 from AeroViz.rawDataReader.core.logger import ReaderLogger
+from AeroViz.rawDataReader.core.metadata import aeroviz_version, data_coverage, stamp_attrs
 from AeroViz.rawDataReader.core.qc import QualityControl, QCRule, QCFlagBuilder
+from AeroViz.rawDataReader.core.time_grid import detect_freq, resolve_freq, to_grid
 from AeroViz.rawDataReader.core.report import calculate_rates, process_rates_report, process_timeline_report, print_timeline_visual
 
 __all__ = ['AbstractReader', 'QCRule', 'QCFlagBuilder']
+
+# Bumped when the cached pkl layout/semantics change. v2 = canonical frames
+# (snapped to native grid over the files' own coverage, NOT padded to a
+# requested range) carrying parse provenance in df.attrs. Pre-v2 pkls (padded,
+# no marker) are treated as stale and re-parsed.
+CACHE_FORMAT = 2
 
 
 class AbstractReader(ABC):
@@ -107,7 +115,14 @@ class AbstractReader(ABC):
         self.qc = qc  # if qc, then calculate rate
         self.qc_freq = qc if isinstance(qc, str) else None
         self.raw_freq = kwargs.get('raw_freq', None)
+        self.fill_missing = kwargs.get('fill_missing', True)
         self.kwargs = kwargs
+
+        # Metadata collected during a run, stamped onto df.attrs before return
+        self._n_files = None          # number of raw files read this run
+        self._resolved_freq = None    # native frequency resolved from the files
+        self._freq_mixed = False      # True if files had differing resolutions
+        self.overall_rates = None     # overall acquisition/yield/total rates dict
 
         # Selective output control
         self.save_pkl = kwargs.get('save_pkl', True)
@@ -156,7 +171,8 @@ class AbstractReader(ABC):
 
         _f_raw, _f_qc = self._run(start, end)
 
-        if not self.qc: return _f_raw
+        if not self.qc:
+            return self._stamp(_f_raw, start, end, with_qc=False)
 
         # Extract QC_Flag before processing
         qc_flag = _f_qc['QC_Flag'].copy() if 'QC_Flag' in _f_qc else None
@@ -191,7 +207,44 @@ class AbstractReader(ABC):
             with open(self.report_out, 'w') as f:
                 json.dump(report_dict, f, indent=4)
 
-        return _f_qc
+        return self._stamp(_f_qc, start, end, mean_freq=mean_freq, with_qc=True)
+
+    def _stamp(self, df: pd.DataFrame, start, end, *, mean_freq=None, with_qc=False) -> pd.DataFrame:
+        """Attach reader metadata to ``df.attrs`` just before returning.
+
+        Always records provenance (instrument, station, coverage, requested
+        range, native frequency). When ``with_qc`` is True it additionally
+        records the output frequency and the overall QC rates; the plain raw
+        path (``qc=False``) gets provenance only.
+
+        See ``core.metadata`` for why this is the single, final stamping point.
+        """
+        cov_start, cov_end = data_coverage(df)
+        meta = dict(
+            instrument=self.nam,
+            station=self.path.name[:2],
+            source_path=str(self.path),
+            n_files=self._n_files,
+            coverage_start=cov_start,
+            coverage_end=cov_end,
+            requested_start=pd.Timestamp(start),
+            requested_end=pd.Timestamp(end),
+            raw_freq=self._resolved_freq or self.meta.get('freq'),
+            freq_mixed=self._freq_mixed,
+            fill_missing=self.fill_missing,
+            aeroviz_version=aeroviz_version(),
+            processed_at=datetime.now().isoformat(timespec='seconds'),
+        )
+        if with_qc:
+            meta.update(
+                mean_freq=mean_freq,
+                qc_applied=True,
+                qc_freq=self.qc_freq,
+                **(self.overall_rates or {}),
+            )
+        # Drop the internal cache marker carried over from the canonical frame.
+        df.attrs.pop('cache_format', None)
+        return stamp_attrs(df, **meta)
 
     @abstractmethod
     def _raw_reader(self, file):
@@ -298,8 +351,11 @@ class AbstractReader(ABC):
                         f"{_sub_raw_data.index[-1].strftime('%Y-%m-%d')}{self.logger.RESET}")
 
                     calculate_rates(self.logger, _sub_raw_data, _sub_qc_flag, with_log=True)
+
+                # Overall rates across the whole period (for df.attrs); not re-logged
+                self.overall_rates = calculate_rates(self.logger, raw_data, qc_flag, with_log=False)
             else:
-                calculate_rates(self.logger, raw_data, qc_flag, with_log=True)
+                self.overall_rates = calculate_rates(self.logger, raw_data, qc_flag, with_log=True)
 
             # 使用 Grouper 對數據按週和月進行分組
             current_time = datetime.now()
@@ -350,7 +406,10 @@ class AbstractReader(ABC):
 
         Notes
         -----
-        Handles time range filtering and data appending.
+        Frequency is resolved once per run in ``_read_raw_files`` (per-file
+        detection, see ``self._resolved_freq``); this method only places the
+        data on that grid via ``to_grid`` — snapping off-grid timestamps to
+        their nearest bin without the duplicate-fill of ``method='nearest'``.
         """
         # Ensure index is DatetimeIndex
         if not isinstance(_df.index, pd.DatetimeIndex):
@@ -358,49 +417,19 @@ class AbstractReader(ABC):
             # Filter out rows with invalid timestamps (NaT)
             _df = _df.loc[_df.index.notna()]
 
-        # Round timestamps and remove duplicates
-        _df = _df.groupby(_df.index.floor('1min')).first()
-
-        # Determine frequency: user override > inferred > median interval > config fallback
-        if self.raw_freq is not None:
-            freq = self.raw_freq
-            self.logger.debug(f"Using user-specified raw_freq: {freq}")
-        else:
-            freq = _df.index.inferred_freq
-            if freq is None and len(_df.index) >= 2:
-                median_delta = pd.Series(_df.index).diff().dropna().median()
-                # Round to nearest minute to avoid odd offsets like 1min55s
-                freq_minutes = max(1, round(median_delta.total_seconds() / 60))
-                freq = f'{freq_minutes}min'
-                self.logger.debug(f"Inferred frequency from median interval: {freq}")
-            freq = freq or self.meta['freq']
+        freq = self._resolved_freq or self.meta['freq']
 
         # Append new data if provided
         if append_df is not None:
-            append_df.index = append_df.index.round('1min')
             _df = pd.concat([append_df.dropna(how='all'), _df.dropna(how='all')])
             _df = _df.loc[~_df.index.duplicated()]
 
-        # Determine time range, align start to freq grid
-        df_start, df_end = _df.index.sort_values()[[0, -1]]
-        start = user_start or df_start.floor(freq)
-        end = user_end or df_end
-        new_index = pd.date_range(start, end, freq=freq, name='time')
+        # Log how many timestamps were off the grid (now snapped, not dropped)
+        n_off_grid = int((_df.index != _df.index.round(freq)).sum())
+        if n_off_grid:
+            self.logger.debug(f"Snapped {n_off_grid} off-grid timestamps to the {freq} grid.")
 
-        # Warn if data timestamps are misaligned with the freq grid
-        offset = _df.index - _df.index.floor(freq)
-        misaligned = offset > pd.Timedelta(0)
-        if misaligned.any():
-            n_misaligned = misaligned.sum()
-            example = _df.index[misaligned][0]
-            self.logger.warning(
-                f"Time misalignment: {n_misaligned} timestamps not on {freq} grid "
-                f"(e.g. {example}). Data will be snapped to nearest grid point."
-            )
-
-        # Reindex with tolerance = half the frequency interval
-        tolerance = pd.Timedelta(pd.tseries.frequencies.to_offset(freq)) / 2
-        return _df.reindex(new_index, method='nearest', tolerance=tolerance)
+        return to_grid(_df, freq, start=user_start, end=user_end, fill_missing=self.fill_missing)
 
     def _outlier_process(self, _df):
         """
@@ -533,7 +562,9 @@ class AbstractReader(ABC):
         if not files:
             raise FileNotFoundError(f"No files in '{self.path}' could be read. Please check the current path.")
 
+        self._n_files = len(files)
         df_list = []
+        per_file_freq = {}
 
         # Context manager for progress bar display
         with self.progress_reading(files) as (progress, task):
@@ -543,6 +574,9 @@ class AbstractReader(ABC):
                 try:
                     if (df := self._raw_reader(file)) is not None and not df.empty:
                         df_list.append(df)
+                        # Detect each file's native resolution before they are merged,
+                        # so a mixed-resolution batch can be flagged.
+                        per_file_freq[file.name] = detect_freq(df.index)
                     else:
                         self.logger.debug(f"File {file.name} produced an empty DataFrame or None.")
 
@@ -551,6 +585,15 @@ class AbstractReader(ABC):
 
         if not df_list:
             raise ValueError(f"\033[41m\033[97mAll files were either empty or failed to read.\033[0m")
+
+        # Resolve one grid frequency from the per-file detections (logger is
+        # restored here, so a mixed-resolution warning surfaces normally).
+        self._resolved_freq, self._freq_mixed = resolve_freq(
+            per_file_freq,
+            override=self.raw_freq,
+            fallback=self.meta.get('freq'),
+            logger=self.logger,
+        )
 
         raw_data = pd.concat(df_list, axis=0).groupby(level=0).first()
 
@@ -616,47 +659,88 @@ class AbstractReader(ABC):
 
         Returns
         -------
-        pd.DataFrame
-            Processed data for the specified time range
+        tuple[pd.DataFrame, pd.DataFrame]
+            Raw and quality-controlled frames for the requested range.
 
         Notes
         -----
-        Coordinates the entire data processing workflow.
+        Two layers. ``_load_or_parse`` returns the *canonical* parsed frames
+        (from the pkl cache when valid, else by reading the raw files). The
+        presentation step below — grid placement to the requested range, with
+        ``fill_missing`` — runs on **every** call, so a cache hit honours the
+        current call's range/``fill_missing`` instead of replaying whatever was
+        stored. Parse provenance restored by ``_load_or_parse`` feeds the
+        ``df.attrs`` stamp in ``__call__``.
         """
-        # read pickle if pickle file exists and 'reset=False' or process raw data or append new data
-        if self.pkl_nam_raw.exists() and self.pkl_nam.exists() and not self.reset:
-            self.logger.info_box(f"Reading {self.nam} PICKLE from {user_start} to {user_end}")
+        raw_base, qc_base = self._load_or_parse()
 
-            _f_raw_done, _f_qc_done = pd.read_pickle(self.pkl_nam_raw), pd.read_pickle(self.pkl_nam)
-
-            if self.append:
-                self.logger.info_box(f"Appending New data from {user_start} to {user_end}")
-
-                _f_raw_new, _f_qc_new = self._read_raw_files()
-                _f_raw = self._timeIndex_process(_f_raw_done, append_df=_f_raw_new)
-                _f_qc = self._timeIndex_process(_f_qc_done, append_df=_f_qc_new)
-
-            else:
-                _f_raw, _f_qc = _f_raw_done, _f_qc_done
-
-                return _f_raw, _f_qc
-
-        else:
-            self.logger.info_box(f"Reading {self.nam} RAW DATA from {user_start} to {user_end}")
-
-            _f_raw, _f_qc = self._read_raw_files()
-
-        # process time index
-        _f_raw = self._timeIndex_process(_f_raw, user_start, user_end)
-        _f_qc = self._timeIndex_process(_f_qc, user_start, user_end)
-
-        # process outlier
+        # Presentation layer (applied every call, cache hit or fresh)
+        _f_raw = self._timeIndex_process(raw_base, user_start, user_end)
+        _f_qc = self._timeIndex_process(qc_base, user_start, user_end)
         _f_qc = self._outlier_process(_f_qc)
 
-        # save
-        self._save_data(_f_raw, _f_qc)
-
         return _f_raw, _f_qc
+
+    def _load_or_parse(self) -> tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        Return the canonical parsed (raw, qc) frames, using the pkl cache when
+        it exists and is current.
+
+        Canonical = snapped to the native grid over the files' own coverage,
+        NOT padded to any requested range. Parse provenance (``n_files``,
+        ``raw_freq``, ``freq_mixed``) is persisted in ``df.attrs`` so a cache
+        hit restores it onto ``self``. The requested range / ``fill_missing``
+        is applied later, in ``_run``.
+        """
+        cache_exists = self.pkl_nam_raw.exists() and self.pkl_nam.exists() and not self.reset
+
+        if cache_exists:
+            raw = pd.read_pickle(self.pkl_nam_raw)
+            qc = pd.read_pickle(self.pkl_nam)
+
+            if self._cache_is_current(raw) and self._cache_is_current(qc):
+                self.logger.info_box(f"Reading {self.nam} PICKLE")
+                self._restore_parse_meta(raw)
+
+                if not self.append:
+                    return raw, qc
+
+                self.logger.info_box(f"Appending new {self.nam} data")
+                raw_new, qc_new = self._read_raw_files()
+                raw = self._timeIndex_process(raw, append_df=raw_new)
+                qc = self._timeIndex_process(qc, append_df=qc_new)
+                self._stamp_parse_meta(raw)
+                self._stamp_parse_meta(qc)
+                self._save_data(raw, qc)
+                return raw, qc
+
+            self.logger.warning(
+                f"{self.nam} cache is an older format; re-reading raw data.")
+
+        # Fresh parse — produces canonical frames (gridded over their own span)
+        self.logger.info_box(f"Reading {self.nam} RAW DATA")
+        raw, qc = self._read_raw_files()
+        self._stamp_parse_meta(raw)
+        self._stamp_parse_meta(qc)
+        self._save_data(raw, qc)
+        return raw, qc
+
+    def _cache_is_current(self, df: pd.DataFrame) -> bool:
+        """True if the cached frame was written by the current cache format."""
+        return df.attrs.get('cache_format') == CACHE_FORMAT
+
+    def _stamp_parse_meta(self, df: pd.DataFrame) -> None:
+        """Persist parse provenance into df.attrs so it survives the pkl cache."""
+        df.attrs['cache_format'] = CACHE_FORMAT
+        df.attrs['n_files'] = self._n_files
+        df.attrs['raw_freq'] = self._resolved_freq
+        df.attrs['freq_mixed'] = self._freq_mixed
+
+    def _restore_parse_meta(self, df: pd.DataFrame) -> None:
+        """Pull parse provenance off a cached frame back onto self (cache hit)."""
+        self._n_files = df.attrs.get('n_files')
+        self._resolved_freq = df.attrs.get('raw_freq')
+        self._freq_mixed = df.attrs.get('freq_mixed', False)
 
     @staticmethod
     def reorder_dataframe_columns(df, order_lists: list[list], keep_others: bool = False):

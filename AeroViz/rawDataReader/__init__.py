@@ -18,6 +18,7 @@ def RawDataReader(instrument: str,
                   end: datetime | str = None,
                   mean_freq: str = '1h',
                   size_range: tuple[float, float] | None = None,
+                  fill_missing: bool = True,
                   output_dir: Path | str | None = None,
                   output_prefix: str | None = None,
                   save_pkl: bool = True,
@@ -67,6 +68,15 @@ def RawDataReader(instrument: str,
     size_range : tuple[float, float], optional
         Size range in nanometers (min_size, max_size) for SMPS/APS data filtering
 
+    fill_missing : bool, default=True
+        Time-grid coverage of the output:
+        True - reindex/pad out to the full requested [start, end] range
+            (historical behaviour; a short file can become a large mostly-NaN
+            frame).
+        False - clamp the grid to the data's actual coverage, so the output
+            never extends past what the files contain. Use ``df.attrs`` for the
+            requested-vs-actual range.
+
     output_dir : Path or str, optional
         Directory for all output files (pkl, csv, log, report).
         Default: ``path/{instrument}_outputs/``
@@ -98,7 +108,19 @@ def RawDataReader(instrument: str,
     Returns
     -------
     pd.DataFrame
-        Processed data with specified QC and time range
+        Processed data with specified QC and time range.
+
+        Reader metadata is attached to ``df.attrs`` (survives pickling and
+        ``resample`` in pandas >= 2):
+
+        - Always: ``instrument``, ``station``, ``source_path``, ``n_files``,
+          ``coverage_start`` / ``coverage_end`` (the real file span, ignoring
+          NaN padding), ``requested_start`` / ``requested_end``, ``raw_freq``,
+          ``aeroviz_version``, ``processed_at``.
+        - When ``qc`` is enabled, additionally: ``mean_freq``, ``qc_applied``,
+          ``qc_freq``, ``acquisition_rate``, ``yield_rate``, ``total_rate``.
+
+        ``coverage_*`` is ``None`` when no data falls in the requested range.
 
     Raises
     ------
@@ -226,6 +248,7 @@ def RawDataReader(instrument: str,
         kwargs.update({'size_range': size_range})
 
     kwargs.update({
+        'fill_missing': fill_missing,
         'output_dir': output_dir,
         'output_prefix': output_prefix,
         'save_pkl': save_pkl,

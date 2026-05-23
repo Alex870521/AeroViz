@@ -56,11 +56,14 @@ def RawDataReader(instrument: str,
             'YS' - Year start rates
             Can add number prefix (e.g., '2MS' for bi-monthly)
 
-    start : datetime
-        Start time for filtering the data
+    start : datetime or str, optional
+        Start time for filtering the data. If omitted, starts at the first
+        timestamp the files contain.
 
-    end : datetime
-        End time for filtering the data
+    end : datetime or str, optional
+        End time for filtering the data. If omitted, ends at the last timestamp
+        the files contain. Omit both ``start`` and ``end`` to get full coverage;
+        check ``df.attrs['coverage_start'/'coverage_end']`` for what was found.
 
     mean_freq : str
         Resampling frequency for averaging the data (e.g., '1h' for hourly mean)
@@ -194,11 +197,9 @@ def RawDataReader(instrument: str,
             raise ValueError(f"Invalid frequency: {qc}. Must be one of: "
                              f"W (week), MS (month start), QS (quarter start), YS (year start)")
 
-    # Convert and verify input times
-    if not (start and end):
-        raise ValueError("Both start and end times must be provided.")
-
-    # Convert start time if it's a string
+    # Convert and verify input times. Both are optional: omit both to get the
+    # files' full coverage, or pass just one side to bound only that end.
+    # (string -> datetime conversion is naturally skipped when the value is None)
     if isinstance(start, str):
         try:
             start = datetime.fromisoformat(start.replace('Z', '+00:00'))
@@ -206,7 +207,6 @@ def RawDataReader(instrument: str,
             raise ValueError(
                 f"Invalid start time format. Please use ISO format (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS): {e}")
 
-    # Convert end time if it's a string
     if isinstance(end, str):
         try:
             end = datetime.fromisoformat(end.replace('Z', '+00:00'))
@@ -214,10 +214,12 @@ def RawDataReader(instrument: str,
             raise ValueError(
                 f"Invalid end time format. Please use ISO format (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS): {e}")
 
-    if end <= start:
+    if start is not None and end is not None and end <= start:
         raise ValueError(f"Invalid time range: start {start} is after end {end}")
 
-    end = end.replace(hour=23, minute=59, second=59) if end.hour == 0 and end.minute == 0 else end
+    # Treat a bare end date (midnight) as end-of-day so the final day is included.
+    if end is not None and end.hour == 0 and end.minute == 0:
+        end = end.replace(hour=23, minute=59, second=59)
 
     # Verify that mean_freq format
     try:

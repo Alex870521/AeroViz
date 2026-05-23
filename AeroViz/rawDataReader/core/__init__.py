@@ -143,8 +143,8 @@ class AbstractReader(ABC):
         self.report_out = output_folder / 'report.json'
 
     def __call__(self,
-                 start: datetime,
-                 end: datetime,
+                 start: datetime = None,
+                 end: datetime = None,
                  mean_freq: str = '1h',
                  ) -> pd.DataFrame:
         """
@@ -152,10 +152,10 @@ class AbstractReader(ABC):
 
         Parameters
         ----------
-        start : datetime
-            Start time for data processing
-        end : datetime
-            End time for data processing
+        start : datetime, optional
+            Start time for data processing; defaults to the data's first timestamp
+        end : datetime, optional
+            End time for data processing; defaults to the data's last timestamp
         mean_freq : str, default='1h'
             Frequency for resampling the data
 
@@ -227,8 +227,8 @@ class AbstractReader(ABC):
             n_files=self._n_files,
             coverage_start=cov_start,
             coverage_end=cov_end,
-            requested_start=pd.Timestamp(start),
-            requested_end=pd.Timestamp(end),
+            requested_start=pd.Timestamp(start) if start is not None else None,
+            requested_end=pd.Timestamp(end) if end is not None else None,
             raw_freq=self._resolved_freq or self.meta.get('freq'),
             freq_mixed=self._freq_mixed,
             fill_missing=self.fill_missing,

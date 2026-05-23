@@ -224,7 +224,9 @@ print(xrf[['Fe', 'Zn', 'Pb']].describe())
 
 ## Tips for AI
 
-1. Always specify `start` and `end` dates
+1. `start` / `end` are optional — omit to read the files' full coverage (one
+   side may be given to bound just that end); `df.attrs['coverage_*']` reports
+   what was actually found
 2. Use `qc=True` for quality-controlled data
 3. Use `reset=True` only when reprocessing is needed
 4. Check `QC_Flag` column for data quality

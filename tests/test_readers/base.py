@@ -297,6 +297,46 @@ class BaseReaderTest(ABC):
         assert df_false.index.max() <= df_true.index.max()
 
     # =========================================================================
+    # Optional date range (start/end may be omitted)
+    # =========================================================================
+
+    def test_optional_range_full_coverage(self, data_path, date_range, temp_output_dir):
+        """Omitting start/end returns full coverage; coverage stamped, requested absent."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = RawDataReader(self.INSTRUMENT, normal_path, reset=True, quiet=True)
+
+        assert not df.empty
+        # No range was requested, so requested_* must be absent (not NaT)
+        assert 'requested_start' not in df.attrs
+        assert 'requested_end' not in df.attrs
+        # Coverage is stamped whenever the fixture has any QC-valid data
+        # (some fixtures intentionally QC to all-NaN, leaving coverage None).
+        if len(df.dropna(how='all')) > 0:
+            assert df.attrs.get('coverage_start') is not None
+            assert df.attrs.get('coverage_end') is not None
+
+    def test_optional_range_start_only(self, data_path, date_range, temp_output_dir):
+        """Passing only start bounds the lower end; the upper end follows the data."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        full = RawDataReader(self.INSTRUMENT, normal_path, reset=True, quiet=True)
+        cov_start, cov_end = full.attrs.get('coverage_start'), full.attrs.get('coverage_end')
+        if cov_start is None or cov_end is None or cov_start == cov_end:
+            pytest.skip('insufficient coverage span to bound')
+
+        midway = cov_start + (cov_end - cov_start) / 2
+        df = RawDataReader(self.INSTRUMENT, normal_path, start=midway, reset=True, quiet=True)
+
+        assert df.attrs.get('requested_start') is not None
+        assert df.attrs.get('requested_end') is None   # end omitted
+        assert len(df) <= len(full)
+
+    # =========================================================================
     # Edge Case Tests (override in subclass if instrument has specific cases)
     # =========================================================================
 

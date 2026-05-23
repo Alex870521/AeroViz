@@ -101,8 +101,11 @@ class Reader(AbstractReader):
         # Step 2: Convert all values below MDL to MDL_NUMBER (-999)
         df_mdl = df.mask(mdl_mask, MDL_NUMBER)
 
-        # Step 3: Apply time_aware_IQR_QC (excluding MDL_NUMBER values)
-        df_qc = self.time_aware_IQR_QC(df_mdl.mask(df_mdl == MDL_NUMBER))
+        # Step 3: Apply time-aware rolling IQR QC (excluding MDL_NUMBER values).
+        # Note: self.time_aware_IQR_QC was removed in the QCFlagBuilder refactor
+        # (88ad2466) and left this call broken; time_aware_rolling_iqr is its
+        # successor (24h window, returns values with outliers masked to NaN).
+        df_qc = self.QC_control().time_aware_rolling_iqr(df_mdl.mask(df_mdl == MDL_NUMBER))
 
         # Step 4: Handle values below MDL according to specified method
         if MDL_replace == '0.5 * MDL':

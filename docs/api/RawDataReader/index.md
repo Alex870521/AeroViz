@@ -13,19 +13,53 @@ scientific instruments. It automatically handles data loading, quality control, 
 
 ## Basic Usage
 
+`start`, `end`, and `mean_freq` are all optional. Omit `start`/`end` to read the
+files' full coverage, and omit `mean_freq` to keep the data at its native
+resolution (no resampling — this is the default):
+
 ```python
 from pathlib import Path
 from datetime import datetime
 from AeroViz import RawDataReader
 
+# Minimal — full coverage, native resolution
 data = RawDataReader(
     instrument='AE33',
     path=Path('/path/to/data'),
-    start=datetime(2024, 2, 1),
-    end=datetime(2024, 8, 31),
-    mean_freq='1h'
+)
+
+# Bounded range with hourly averaging
+data = RawDataReader(
+    instrument='AE33',
+    path=Path('/path/to/data'),
+    start=datetime(2024, 2, 1),  # optional
+    end=datetime(2024, 8, 31),   # optional
+    mean_freq='1h'               # optional — resample to hourly means
 )
 ```
+
+!!! warning "Behaviour change"
+    `mean_freq` no longer defaults to `'1h'`. The default is now **no
+    resampling** (native resolution); pass `mean_freq` explicitly to average.
+    `start` / `end` are also optional now.
+
+### Result metadata (`df.attrs`)
+
+Every result carries provenance and coverage metadata in `df.attrs` (full list
+in the function signature above). With the default `fill_missing=True` the frame
+is padded to the requested range, so `df.attrs['coverage_*']` is the quickest way
+to see what the files actually contained:
+
+```python
+df.attrs['coverage_start']   # first row backed by real data
+df.attrs['coverage_end']     # last row backed by real data (None if none in range)
+df.attrs['requested_start']  # what you asked for (omitted when not given)
+df.attrs['n_files']          # how many raw files were read
+df.attrs['raw_freq']         # native resolution, auto-detected per file
+```
+
+Pass `fill_missing=False` to clamp the output grid to that coverage instead of
+padding it to the requested range.
 
 ## More Examples
 

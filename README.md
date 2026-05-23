@@ -42,15 +42,25 @@ from AeroViz import RawDataReader
 df = RawDataReader(
     instrument='AE33',
     path='/path/to/data',
-    start='2024-01-01',
-    end='2024-12-31',
-    mean_freq='1h',  # Hourly averages
-    qc=True          # Apply quality control
+    start='2024-01-01',  # optional — omit to read the files' full coverage
+    end='2024-12-31',    # optional
+    mean_freq='1h',      # optional — '1h' resamples to hourly; omit for native resolution
+    qc=True              # Apply quality control
 )
 
 # Output: DataFrame with columns like BC1-BC7, abs_370-abs_950, AAE, eBC
 print(df[['eBC', 'AAE']].describe())
+
+# Read everything the files contain, at native resolution (no date range, no resample)
+df_all = RawDataReader('AE33', '/path/to/data')
+print(df_all.attrs['coverage_start'], '→', df_all.attrs['coverage_end'])
 ```
+
+> [!IMPORTANT]
+> **Behaviour change:** `mean_freq` no longer defaults to `'1h'`. The default is
+> now **no resampling** — data is returned at its native resolution. Pass
+> `mean_freq='1h'` (or `'30min'`, `'1D'`) explicitly if you want averaging.
+> `start` / `end` are also optional now (previously required).
 
 ## Supported Instruments
 
@@ -145,12 +155,17 @@ print(f"Pb: {xrf['Pb'].mean():.2f} ng/m³")
 |-----------|------|-------------|---------|
 | `instrument` | str | Instrument name (see tables above) | Required |
 | `path` | str/Path | Directory containing raw data files | Required |
-| `start` | str/datetime | Start date (`'2024-01-01'` or `datetime`) | Required |
-| `end` | str/datetime | End date | Required |
-| `mean_freq` | str | Output frequency: `'1h'`, `'30min'`, `'1D'` | `'1h'` |
+| `start` | str/datetime | Start date (`'2024-01-01'` or `datetime`); omit to start at the files' first record | `None` (optional) |
+| `end` | str/datetime | End date; omit to end at the files' last record | `None` (optional) |
+| `mean_freq` | str | Output frequency: `'1h'`, `'30min'`, `'1D'`. Omit for native resolution (no resampling) | `None` (no resample) |
 | `qc` | bool/str | Quality control: `True`, `False`, or `'MS'` for monthly stats | `True` |
 | `reset` | bool/str | `True` to reprocess, `'append'` to add new data | `False` |
 | `size_range` | tuple | Size range in nm for SMPS/APS: `(min, max)` | `None` |
+| `fill_missing` | bool | `True` pads the output to the requested `[start, end]` range; `False` clamps the grid to the data's actual coverage (no NaN blow-up) | `True` |
+
+> `start`, `end`, and `mean_freq` are all optional. Omit `start`/`end` to read
+> the files' full coverage (pass just one side to bound only that end), and omit
+> `mean_freq` to keep the native resolution.
 
 ## Quality Control
 
@@ -172,6 +187,52 @@ print(df['QC_Flag'].value_counts())
 # Valid          8000
 # Insufficient    300
 # Status Error     60
+```
+
+## Reader Metadata (`df.attrs`)
+
+Every `RawDataReader` result carries provenance and coverage metadata in
+`df.attrs`. With the default `fill_missing=True` the frame is padded to the
+*requested* range and can be mostly NaN, so `df.attrs['coverage_*']` is the
+quickest way to learn what the files **actually** contained:
+
+```python
+df = RawDataReader('AE33', '/data/AE33', start='2024-01-01', end='2024-12-31')
+
+df.attrs['coverage_start']   # first row backed by real data
+df.attrs['coverage_end']     # last row backed by real data (None if none in range)
+df.attrs['requested_start']  # what you asked for (omitted when not given)
+df.attrs['n_files']          # how many raw files were read
+df.attrs['raw_freq']         # native resolution, auto-detected per file
+df.attrs['total_rate']       # overall % valid (only when qc is on)
+```
+
+| Key | When | Meaning |
+|-----|------|---------|
+| `instrument`, `station`, `source_path`, `n_files` | always | provenance |
+| `coverage_start` / `coverage_end` | always | real data span (ignores NaN padding) |
+| `requested_start` / `requested_end` | always | the range you passed (omitted when not given) |
+| `raw_freq`, `freq_mixed` | always | native frequency + whether files disagreed |
+| `fill_missing` | always | grid padded to the request, or clamped to coverage |
+| `aeroviz_version`, `processed_at` | always | build / run stamp |
+| `mean_freq`, `qc_applied`, `qc_freq` | qc on | output frequency + QC mode |
+| `acquisition_rate`, `yield_rate`, `total_rate` | qc on | overall rates (%) |
+
+`attrs` survive `to_pickle`/`read_pickle` and `resample` (pandas >= 2) but are
+dropped by a `concat` of frames with conflicting attrs — re-stamp if you merge.
+
+### `fill_missing`: pad vs. clamp
+
+```python
+# Default: pad the output to the full requested range (NaN where files have gaps)
+padded = RawDataReader('AE33', '/data/AE33', start='2024-01-01', end='2024-12-31')
+
+# Clamp the grid to the data's actual coverage — no leading/trailing NaN rows
+trimmed = RawDataReader(
+    'AE33', '/data/AE33',
+    start='2024-01-01', end='2024-12-31',
+    fill_missing=False,
+)
 ```
 
 ## Data Processing

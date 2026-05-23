@@ -68,7 +68,7 @@ For getting-started usage see the [RawDataReader Tutorial](rawdatareader.md).
                                         ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  8. Final output                                                            │
-│     ├─ resample(mean_freq) — default 1h                                     │
+│     ├─ resample(mean_freq) — only if mean_freq given (default: no resample) │
 │     ├─ output_{inst}.csv                                                    │
 │     ├─ output_{inst}_dN/dS/dVdlogDp.csv (SMPS/APS)                          │
 │     ├─ report.json                                                          │

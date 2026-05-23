@@ -141,14 +141,6 @@ print(f"Fe: {xrf['Fe'].mean():.1f} ng/m³")
 print(f"Pb: {xrf['Pb'].mean():.2f} ng/m³")
 ```
 
-### Other Instruments
-
-| Instrument | Description |
-|------------|-------------|
-| **VOC** | Volatile Organic Compounds Analyzer |
-| **EPA** | Taiwan EPA Air Quality Data |
-| **Minion** | Low-cost Sensor Network |
-
 ## Key Parameters
 
 | Parameter | Type | Description | Default |

@@ -92,10 +92,10 @@ class Reader(AbstractReader):
         anion_sum = df_qc[anion_cols].sum(axis=1, min_count=1) if anion_cols else Series(1, index=df_qc.index)
         ca_ratio = cation_sum / anion_sum.replace(0, float('nan'))
 
-        # Calculate IQR bounds for ion balance
-        q1, q3 = ca_ratio.quantile(0.25), ca_ratio.quantile(0.75)
-        iqr = q3 - q1
-        ca_lower, ca_upper = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+        # Flag ratios outside 1.5*IQR via the shared helper. iqr() masks
+        # outliers to NaN, so .isna() == (out of bounds) | (already missing) —
+        # exactly the previous (ca < lower) | (ca > upper) | isna condition.
+        ca_outlier = self.QC_control().iqr(ca_ratio.to_frame('ca'))['ca'].isna()
 
         # Build QC rules declaratively
         qc = QCFlagBuilder()
@@ -123,7 +123,7 @@ class Reader(AbstractReader):
             ),
             QCRule(
                 name='Ion Balance',
-                condition=lambda df: (ca_ratio < ca_lower) | (ca_ratio > ca_upper) | ca_ratio.isna(),
+                condition=lambda df: ca_outlier,
                 description='Cation/Anion ratio outside valid range'
             ),
         ])

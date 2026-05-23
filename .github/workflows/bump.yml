@@ -1,0 +1,63 @@
+name: Bump version
+
+# Cut a release: derive the next version from the conventional-commit history,
+# update docs/CHANGELOG.md and pyproject version, commit, and push the vX.Y.Z
+# tag. The tag push triggers the "Release" workflow (wheels.yml), which builds
+# and publishes the wheels to PyPI.
+#
+# Manual only (workflow_dispatch) — releasing on every push to main would be
+# too aggressive. Run it from the Actions tab when you want to publish.
+#
+# IMPORTANT: a tag pushed with the default GITHUB_TOKEN does NOT trigger other
+# workflows (GitHub suppresses this to avoid loops). To auto-fire the Release
+# workflow, add a Personal Access Token with `contents: write` as the
+# `RELEASE_PAT` secret. Without it the bump still lands, but you must run the
+# Release workflow manually (it also has workflow_dispatch).
+
+on:
+  workflow_dispatch:
+    inputs:
+      increment:
+        description: "Version bump (PATCH keeps 0.3.x; auto follows commit types)"
+        type: choice
+        default: PATCH
+        options:
+          - PATCH
+          - MINOR
+          - MAJOR
+          - auto
+
+jobs:
+  bump:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # full history + tags for version inference
+          token: ${{ secrets.RELEASE_PAT || secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install commitizen
+        run: pip install commitizen
+
+      - name: Configure git
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump version, update changelog, tag
+        run: |
+          if [ "${{ inputs.increment }}" = "auto" ]; then
+            cz bump --yes              # increment derived from commit types
+          else
+            cz bump --yes --increment "${{ inputs.increment }}"
+          fi
+
+      - name: Push commit and tag
+        run: git push --follow-tags origin main

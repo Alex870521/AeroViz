@@ -84,6 +84,7 @@ dev = [
     "mypy>=1.5.0",
     "build",
     "twine",
+    "commitizen>=3.0",
 ]
 docs = [
     "mkdocs>=1.4.0",

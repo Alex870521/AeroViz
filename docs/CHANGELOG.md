@@ -1,4 +1,19 @@
-## Unreleased
+## v0.3.1 (2026-05-23)
+
+### Feat
+
+- **plot**: add interactive timeseries viewer (Plotly)
+- **reader**: make resampling opt-in via mean_freq
+- **reader**: make start and end optional
+- **reader**: time-grid overhaul, df.attrs metadata, and canonical cache
+
+### Fix
+
+- **reader**: repair Minion's broken time_aware_IQR_QC call
+
+### Refactor
+
+- **reader**: use shared QualityControl.iqr for IGAC ion balance
 
 ## v0.3.0 (2026-05-21)
 

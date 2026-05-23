@@ -125,7 +125,12 @@ class BaseReaderTest(ABC):
         override wins over the ``date_range`` argument — keeps the raw
         pickle tight for instruments whose scenarios span widely
         separated months.
+
+        Defaults to ``mean_freq='1h'`` so the bulk of tests run on the small
+        hourly grid (the product default is now no-resample). Pass
+        ``mean_freq=None`` explicitly to exercise the native-resolution path.
         """
+        kwargs.setdefault('mean_freq', '1h')
         effective_range = self.SCENARIO_DATE_RANGES.get(path.name, date_range)
         return _cached_reader_call(
             self.INSTRUMENT, path, effective_range, **kwargs,
@@ -242,14 +247,28 @@ class BaseReaderTest(ABC):
         if not normal_path.exists():
             normal_path = data_path
 
-        df = self.read_data(normal_path, date_range, qc=True)
+        df = self.read_data(normal_path, date_range, qc=True, mean_freq='1h')
 
         attrs = df.attrs
         assert attrs.get('qc_applied') is True
-        assert attrs.get('mean_freq')
+        assert attrs.get('mean_freq') == '1h'
         for rate in ('acquisition_rate', 'yield_rate', 'total_rate'):
             assert rate in attrs, f"{rate} missing from df.attrs"
             assert 0 <= attrs[rate] <= 100
+
+    def test_mean_freq_optional(self, data_path, date_range, temp_output_dir):
+        """Omitting mean_freq returns native resolution; passing it resamples."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        native = self.read_data(normal_path, date_range, mean_freq=None)     # explicit no-resample
+        hourly = self.read_data(normal_path, date_range, mean_freq='1h')
+
+        assert 'mean_freq' not in native.attrs        # not resampled
+        assert hourly.attrs.get('mean_freq') == '1h'
+        # Native is at the instrument's own (>=hourly-fine) resolution
+        assert len(native) >= len(hourly)
 
     def test_attrs_provenance_only_without_qc(self, data_path, date_range, temp_output_dir):
         """qc=False stamps provenance but no QC-rate keys."""

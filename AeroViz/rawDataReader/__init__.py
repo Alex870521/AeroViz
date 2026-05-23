@@ -16,7 +16,7 @@ def RawDataReader(instrument: str,
                   qc: bool | str = True,
                   start: datetime | str = None,
                   end: datetime | str = None,
-                  mean_freq: str = '1h',
+                  mean_freq: str | None = None,
                   size_range: tuple[float, float] | None = None,
                   fill_missing: bool = True,
                   output_dir: Path | str | None = None,
@@ -65,8 +65,11 @@ def RawDataReader(instrument: str,
         the files contain. Omit both ``start`` and ``end`` to get full coverage;
         check ``df.attrs['coverage_start'/'coverage_end']`` for what was found.
 
-    mean_freq : str
-        Resampling frequency for averaging the data (e.g., '1h' for hourly mean)
+    mean_freq : str, optional
+        Resampling frequency for averaging the output (e.g. '1h', '30min', '1D').
+        If omitted, the data is returned at its native resolution — no
+        resampling. Useful for already-aggregated / second-hand sources
+        (e.g. EPA, IGAC, Minion, VOC, BAM1020).
 
     size_range : tuple[float, float], optional
         Size range in nanometers (min_size, max_size) for SMPS/APS data filtering
@@ -221,12 +224,13 @@ def RawDataReader(instrument: str,
     if end is not None and end.hour == 0 and end.minute == 0:
         end = end.replace(hour=23, minute=59, second=59)
 
-    # Verify that mean_freq format
-    try:
-        Timedelta(mean_freq)
-    except ValueError:
-        raise ValueError(
-            f"Invalid mean_freq: '{mean_freq}'. It should be a valid frequency string (e.g., '1h', '30min', '1D').")
+    # Verify the mean_freq format (only when resampling is requested)
+    if mean_freq is not None:
+        try:
+            Timedelta(mean_freq)
+        except ValueError:
+            raise ValueError(
+                f"Invalid mean_freq: '{mean_freq}'. It should be a valid frequency string (e.g., '1h', '30min', '1D').")
 
     # Validate size range
     if size_range is not None:

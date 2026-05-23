@@ -46,7 +46,7 @@ class Reader(AbstractReader):
         super().__init__(*args, **kwargs)
         self._distributions = None  # Store distributions for separate file output
 
-    def __call__(self, start, end, mean_freq='1h'):
+    def __call__(self, start=None, end=None, mean_freq=None):
         """
         Process APS data and save size distributions to separate files.
 
@@ -358,8 +358,9 @@ class Reader(AbstractReader):
                 dist_df.loc[invalid_mask, numeric_cols] = np.nan
                 dist_df = dist_df.drop(columns=['QC_Flag'])
 
-            # Resample and save
-            dist_resampled = dist_df.resample(mean_freq).mean().round(4)
+            # Resample (only when a frequency is requested) and save
+            if mean_freq is not None:
+                dist_df = dist_df.resample(mean_freq).mean().round(4)
             output_path = output_folder / f'{self._output_prefix}_{dist_name}.csv'
-            dist_resampled.to_csv(output_path)
+            dist_df.to_csv(output_path)
             self.logger.info(f"Saved: {output_path.name}")

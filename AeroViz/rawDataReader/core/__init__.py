@@ -145,7 +145,7 @@ class AbstractReader(ABC):
     def __call__(self,
                  start: datetime = None,
                  end: datetime = None,
-                 mean_freq: str = '1h',
+                 mean_freq: str = None,
                  ) -> pd.DataFrame:
         """
         Process data for a specified time range.
@@ -156,8 +156,9 @@ class AbstractReader(ABC):
             Start time for data processing; defaults to the data's first timestamp
         end : datetime, optional
             End time for data processing; defaults to the data's last timestamp
-        mean_freq : str, default='1h'
-            Frequency for resampling the data
+        mean_freq : str, optional
+            Frequency for resampling the output; if None, no resampling is done
+            and the data is returned at its native resolution
 
         Returns
         -------
@@ -195,7 +196,10 @@ class AbstractReader(ABC):
                               _f_qc.apply(pd.to_numeric, errors='coerce'),
                               qc_flag=qc_flag)
 
-        _f_qc = _f_qc.resample(mean_freq).mean().__round__(4)
+        # Resample only when a frequency is requested; otherwise return the
+        # data at its native resolution (e.g. already-aggregated sources).
+        if mean_freq is not None:
+            _f_qc = _f_qc.resample(mean_freq).mean().__round__(4)
 
         _f_qc.to_csv(self.csv_out)
 

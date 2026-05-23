@@ -57,7 +57,7 @@ df = RawDataReader(
 | `path` | str/Path | Directory with raw data files |
 | `start` | str/datetime | Start date (ISO format) |
 | `end` | str/datetime | End date (ISO format) |
-| `mean_freq` | str | Averaging frequency: '1h', '30min', '1D' |
+| `mean_freq` | str | Averaging frequency ('1h', '30min', '1D'); omit for native resolution (no resampling) |
 | `qc` | bool/str | True=apply QC, 'MS'=monthly stats |
 | `reset` | bool/str | True=reprocess, 'append'=add new data |
 | `size_range` | tuple | (min_nm, max_nm) for SMPS/APS only |

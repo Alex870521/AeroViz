@@ -126,12 +126,15 @@ def bar_plot_example():
     """柱狀圖範例 - 成分貢獻"""
 
     # 模擬化學成分數據
+    # bar(data_set, data_std, labels, unit, ...)
+    # data_set: DataFrame，index=成分名稱，columns=類別名稱
+    # labels: 成分名稱清單（與 data_set.index 對應）
     components = ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS']
     values = [8.5, 6.2, 12.3, 3.1, 2.8, 1.9]
 
-    df = pd.Series(values, index=components)
+    data_set = pd.DataFrame({'PM2.5': values}, index=components)
 
-    fig, ax = bar(df, ylabel='Mass (μg/m³)', title='PM2.5 Chemical Composition')
+    fig, ax = bar(data_set, None, components, 'μg/m³', title='PM2.5 Chemical Composition')
     fig.savefig(OUTPUT_PATH / 'bar_plot.png', dpi=150, bbox_inches='tight')
     print(f"已儲存: {OUTPUT_PATH / 'bar_plot.png'}")
 
@@ -145,18 +148,18 @@ def bar_plot_example():
 def violin_plot_example():
     """小提琴圖範例"""
 
+    # violin(df, unit, ...)
+    # df: DataFrame，columns=類別名稱，每欄為該類別的所有觀測值
     np.random.seed(42)
 
     categories = ['Urban', 'Suburban', 'Rural']
-    data = []
-    for i, cat in enumerate(categories):
-        n = 100
-        values = np.random.lognormal(3 - i * 0.5, 0.5, n)
-        data.extend([(cat, v) for v in values])
+    n = 100
+    df = pd.DataFrame({
+        cat: np.random.lognormal(3 - i * 0.5, 0.5, n)
+        for i, cat in enumerate(categories)
+    })
 
-    df = pd.DataFrame(data, columns=['Site', 'BC'])
-
-    fig, ax = violin(df, x='Site', y='BC', title='BC Distribution by Site Type')
+    fig, ax = violin(df, 'ng/m³', title='BC Distribution by Site Type')
     fig.savefig(OUTPUT_PATH / 'violin_plot.png', dpi=150, bbox_inches='tight')
     print(f"已儲存: {OUTPUT_PATH / 'violin_plot.png'}")
 
@@ -170,10 +173,13 @@ def violin_plot_example():
 def pie_chart_example():
     """圓餅圖範例 - 成分比例"""
 
+    # pie(data_set, labels, unit, style, ...)
+    # data_set: dict {類別名稱: [各成分數值]}，或 DataFrame（index=類別，columns=成分）
+    # labels: 成分名稱清單（與 data_set 的值長度相同）
     labels = ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS']
     values = [25, 18, 35, 9, 8, 5]
 
-    fig, ax = pie(values, labels=labels, title='PM2.5 Composition (%)')
+    fig, ax = pie({'PM2.5': values}, labels, '%', 'donut')
     fig.savefig(OUTPUT_PATH / 'pie_chart.png', dpi=150, bbox_inches='tight')
     print(f"已儲存: {OUTPUT_PATH / 'pie_chart.png'}")
 

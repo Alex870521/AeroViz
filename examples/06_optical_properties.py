@@ -309,7 +309,7 @@ if __name__ == '__main__':
 
     # df_neph, df_ae33 = read_optical_data()
     # improve = improve_extinction()
-    # ext, sca, abs = mie_extinction()
+    # optics = mie_extinction()
     # mixing = compare_mixing_modes()
     # ri = retrieve_refractive_index()
     # derived_optical_parameters()

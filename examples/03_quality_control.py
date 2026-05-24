@@ -233,7 +233,7 @@ def logging_settings():
         end=END,
         mean_freq='1h',
         log_level='WARNING',
-        suppress_warnings=True  # 抑制警告
+        quiet=True  # 抑制所有 console 輸出
     )
 
     return df_debug

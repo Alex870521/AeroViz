@@ -80,3 +80,17 @@ class TestMergePsd:
             out = merge_psd(smps_like, aps_like, version=1,
                             smps_overlap_lowbound=200, density_range=dr)
             assert {'data', 'density'} <= set(out)
+
+    def test_v5_requires_pm1(self, smps_like, aps_like):
+        """EXPERIMENTAL v5 needs a PM1 reference (and warns)."""
+        with pytest.warns(UserWarning, match="EXPERIMENTAL"):
+            with pytest.raises(ValueError, match="df_pm1"):
+                merge_psd(smps_like, aps_like, version=5)
+
+    def test_v5_experimental_runs(self, smps_like, aps_like):
+        """EXPERIMENTAL v5 (測試中): mass-anchored density returns its keys + warns."""
+        pm1 = pd.Series(15.0, index=smps_like.index)
+        with pytest.warns(UserWarning, match="EXPERIMENTAL"):
+            out = merge_psd(smps_like, aps_like, version=5, df_pm1=pm1,
+                            smps_overlap_lowbound=200)
+        assert {'data', 'density', 'density_hourly', 'density_unc'} <= set(out)

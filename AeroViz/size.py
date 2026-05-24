@@ -1,7 +1,7 @@
 """Top-level size-distribution functions; convenience wrappers — see `AeroViz.dataProcess.SizeDistr.*` for full algorithm details."""
 
 from AeroViz.dataProcess.SizeDistr._size_dist import SizeDist
-from AeroViz.dataProcess.SizeDistr.merge import merge_v1, merge_v2, merge_v3, merge_v4
+from AeroViz.dataProcess.SizeDistr.merge import merge_v1, merge_v2, merge_v3, merge_v4, merge_v5
 
 __all__ = ['psd_stats', 'psd_distributions', 'merge_psd']
 
@@ -119,7 +119,7 @@ def psd_distributions(df_pnsd):
     }
 
 
-def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None,
+def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None, df_pm1=None,
               aps_unit: str = 'um',
               smps_overlap_lowbound: float = 500,
               aps_fit_highbound: float = 1000,
@@ -135,14 +135,21 @@ def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None,
     df_smps, df_aps : DataFrame
         SMPS and APS particle size distributions. Columns are diameters
         (SMPS in nm; APS in µm if ``aps_unit='um'``, else nm).
-    version : {1, 2, 3, 4}, default 4
+    version : {1, 2, 3, 4, 5}, default 4
         Algorithm version:
           1 — Original power-law fit with ``shift_mode`` parameter.
           2 — Simplified output, no QC filtering.
           3 — Multiprocessing + dN/dS/dV correlation algorithm.
           4 — PM2.5 fitness function + SMPS times correction (RECOMMENDED).
+          5 — ⚠️ EXPERIMENTAL / 測試中 ⚠️ mass-anchored density (PM1 mass closure,
+              daily) instead of the degenerate overlap. Requires ``df_pm1``.
+              Returns ``data`` + ``density`` / ``density_hourly`` / ``density_unc``.
+              API/behaviour not stable.
     df_pm25 : DataFrame, optional
         PM2.5 reference for fitness. **Required when ``version=4``.**
+    df_pm1 : Series or DataFrame, optional
+        PM1 mass reference (µg/m³). **Required when ``version=5``.** Prefer a
+        volatile-corrected PM1 (the dominant uncertainty in the density).
     aps_unit : {'um', 'nm'}, default 'um'
         Unit of the APS diameter columns.
     smps_overlap_lowbound : float, default 500
@@ -186,8 +193,8 @@ def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None,
     Raises
     ------
     ValueError
-        If ``version`` is not in ``{1, 2, 3, 4}``, or ``version=4`` is used
-        without ``df_pm25``.
+        If ``version`` is not in ``{1, 2, 3, 4, 5}``, ``version=4`` without
+        ``df_pm25``, or ``version=5`` without ``df_pm1``.
     """
     if version == 1:
         return merge_v1(df_smps, df_aps, aps_unit, shift_mode,
@@ -206,5 +213,16 @@ def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None,
         return merge_v4(df_smps, df_aps, df_pm25, aps_unit,
                         smps_overlap_lowbound, aps_fit_highbound,
                         dndsdv_alg, density_range, times_range)
+    if version == 5:
+        import warnings
+        warnings.warn("merge_psd(version=5) is EXPERIMENTAL / 測試中 — mass-anchored "
+                      "density; API and behaviour may change.", stacklevel=2)
+        if df_pm1 is None:
+            raise ValueError(
+                "merge_psd(version=5) requires df_pm1 (PM1 mass reference; prefer "
+                "a volatile-corrected PM1)."
+            )
+        return merge_v5(df_smps, df_aps, df_pm1, aps_unit,
+                        smps_overlap_lowbound, aps_fit_highbound)
 
-    raise ValueError(f"version must be one of {{1, 2, 3, 4}}, got {version}.")
+    raise ValueError(f"version must be one of {{1, 2, 3, 4, 5}}, got {version}.")

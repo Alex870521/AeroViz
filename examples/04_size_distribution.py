@@ -2,6 +2,16 @@
 04_size_distribution.py - 粒徑分布處理範例
 
 此範例展示如何使用 AeroViz 的 top-level functions 處理粒徑分布數據。
+
+重要：``RawDataReader('SMPS'/'APS')`` 回傳的是「粒徑分布矩陣」本身
+(dN/dlogDp，欄位為粒徑：SMPS 以 nm、APS 以 µm)，可直接餵給
+``psd_stats`` / ``psd_distributions`` / ``merge_psd`` / ``SizeDist``。
+總數量濃度、GMD、GSD 等「統計量」預設不在 reader 回傳值裡，而是：
+  * 由 ``psd_stats(df)`` 即時衍生（``result['other']``），或
+  * 直接讀每次讀檔自動產生的 ``{prefix}_stats.csv``。
+每次讀檔也會輸出 N/S/V 分布檔（``_dNdlogDp`` / ``_dSdlogDp`` / ``_dVdlogDp``）。
+若想把統計量「夾在分布後面」一起回傳，傳 ``append_stats=True``
+（注意：這樣回傳的 df 含字串欄，不能再直接餵給 psd_stats / merge_psd）。
 """
 
 from datetime import datetime
@@ -101,15 +111,19 @@ def mode_statistics():
     psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')
     stats = psd.mode_statistics()
 
-    print("=== 模態統計 ===")
-    print("\n各模態數量分布:")
-    for mode in ['Nucleation', 'Aitken', 'Accumulation', 'Coarse']:
-        if mode in stats['number']:
-            mean_conc = stats['number'][mode].mean().mean()
-            print(f"  {mode}: {mean_conc:.0f} #/cm³")
+    # Per-mode totals live in the 'statistics' summary frame as
+    # total_num_{mode} columns (the 'number' frame is the dN/dlogDp matrix).
+    summary = stats['statistics']
 
-    print("\n統計摘要:")
-    print(stats['statistics'])
+    print("=== 模態統計 ===")
+    print("\n各模態平均數量濃度:")
+    for mode in ['Nucleation', 'Aitken', 'Accumulation', 'Coarse']:
+        col = f'total_num_{mode}'
+        if col in summary.columns:
+            print(f"  {mode}: {summary[col].mean():.0f} #/cm³")
+
+    print("\n統計摘要欄位:")
+    print(list(summary.columns))
 
     return stats
 
@@ -142,15 +156,15 @@ def merge_smps_aps():
 
     # 合併 (v4 版本，含密度校正) — 需要 PM2.5 reference
     # 若沒有 PM2.5 可用 version=3 跳過 fitness 步驟
+    # density_range=(0.6, 2.6) 為品質門檻（有效密度 g/cm³）；放寬用 (0.3, 2.6)
     # result = merge_psd(df_smps, df_aps, df_pm25=df_pm25, version=4)
-    result = merge_psd(df_smps, df_aps, version=3)
+    result = merge_psd(df_smps, df_aps, version=3, density_range=(0.6, 2.6))
 
-    merged = result['data_dn']
+    # 所有版本都保證有 'data'（建議用的合併結果）與 'density' 兩個 key
+    merged = result['data']
     print(f"合併後粒徑範圍: {merged.columns[0]:.1f} ~ {merged.columns[-1]:.1f} nm")
     print(f"合併後通道數: {len(merged.columns)}")
-
-    if 'density' in result:
-        print(f"估算密度: {result['density'].mean():.2f} g/cm³")
+    print(f"估算密度: {result['density'].mean().mean():.2f} g/cm³")
 
     return result
 

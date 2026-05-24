@@ -30,6 +30,24 @@ aps = RawDataReader(
 )
 ```
 
+> **What the reader returns.** For `SMPS`/`APS`, `RawDataReader` returns the
+> **size distribution itself** — a `dN/dlogDp` DataFrame whose columns are
+> particle diameters (SMPS in nm, APS in µm). This is exactly the input that
+> `merge_psd`, `psd_stats`, `psd_distributions`, and `SizeDist` expect, so you
+> can pass `smps`/`aps` straight through. Summary statistics (total number,
+> GMD, GSD, mode fractions) are **derived** with `psd_stats(df)` — see below —
+> they are not columns in the reader output.
+>
+> **Files written.** Each read also saves, next to the main `{prefix}.csv`
+> (= dN/dlogDp): the `{prefix}_dNdlogDp.csv` / `_dSdlogDp.csv` / `_dVdlogDp.csv`
+> distributions and a QC-aligned `{prefix}_stats.csv` statistics file — so the
+> statistics are available without any extra call.
+>
+> **`append_stats=True`.** Pass this to `RawDataReader` to also append the
+> statistics columns to the returned frame. The default is `False`, which keeps
+> the return value a clean diameter-only matrix (an appended frame mixes string
+> stat columns in and can no longer be fed back into `psd_stats`/`merge_psd`).
+
 ---
 
 ## SMPS-APS Merging
@@ -43,15 +61,29 @@ from AeroViz import merge_psd
 result = merge_psd(
     smps,
     aps,
-    df_pm25=pm25_data,   # required for version=4
+    df_pm25=pm25_data,        # required for version=4
     version=4,
+    density_range=(0.6, 2.6),  # QC: plausible effective-density range (g/cm³)
 )
 
-# Output
-merged_pnsd = result['data_dn']       # Merged dN
-merged_dndsdv = result['data_dndsdv'] # dN, dS, dV distributions
-density = result['density']           # Estimated particle density
+# Output — every version guarantees 'data' + 'density'
+merged_pnsd = result['data']      # recommended merged dN/dlogDp (v3/v4 = cor_dndsdv)
+density = result['density']       # estimated effective density (g/cm³)
+
+# v3/v4 also expose the other algorithm variants:
+#   result['data_dn'], result['data_dndsdv'], result['data_cor_dn']
+# v2 exposes result['data_aero']; v4 also result['times'].
 ```
+
+> **Unified output.** All versions return a dict with `'data'` (the recommended
+> merged dN/dlogDp) and `'density'`. Saved via `DataProcess('SizeDistr')`, these
+> become `data.csv` / `density.csv` in the output folder, so filenames are
+> consistent across versions.
+>
+> **`density_range` (QC).** Each timestamp's shift² is its estimated effective
+> density; timestamps outside `density_range` (g/cm³) are dropped. Default
+> `(0.6, 2.6)` is strict; widen to `(0.3, 2.6)` for looser QC. Applied in every
+> version (replaces the old v1 `data_all` / `data_qc` split).
 
 ### Merging Parameter Description
 
@@ -59,6 +91,7 @@ density = result['density']           # Estimated particle density
 |-----------|-------------|
 | `version` | Algorithm version: 1, 2, 3, or 4 (default 4, recommended) |
 | `df_pm25` | PM2.5 reference DataFrame (required for `version=4`) |
+| `density_range` | QC: plausible effective-density range g/cm³ (default `(0.6, 2.6)`; `(0.3, 2.6)` = looser). Applied in every version |
 | `aps_unit` | `'um'` (default) or `'nm'` |
 | `smps_overlap_lowbound` | SMPS bin lower bound for overlap region (nm, default 500) |
 | `aps_fit_highbound` | APS bin upper bound for power-law fit (nm, default 1000) |
@@ -94,21 +127,27 @@ print(f"GSD: {props['GSD_n']:.2f}")
 # Calculate mode statistics
 stats = psd.mode_statistics()
 
-# Mode distributions
-nucleation = stats['number']['Nucleation']   # 10-25 nm
-aitken = stats['number']['Aitken']           # 25-100 nm
-accumulation = stats['number']['Accumulation']  # 100-1000 nm
-coarse = stats['number']['Coarse']           # 1000-2500 nm
-
-# Statistical summary
+# stats['number'] / ['surface'] / ['volume'] are the dN/dS/dV-dlogDp matrices
+# (columns = diameters). The per-mode summary lives in stats['statistics'] as
+# wide columns named {total|GMD|GSD|mode}_{num|surf|vol}_{mode}, where mode is
+# one of: all, Nucleation (10-25 nm), Aitken (25-100 nm),
+# Accumulation (100-1000 nm), Coarse (1000-2500 nm; absent if out of range).
 summary = stats['statistics']
-print(summary)
-#                 GMD    GSD   total    mode
-# Nucleation     18.2   1.45    2500    17.5
-# Aitken         52.3   1.62    5200    48.0
-# Accumulation  185.0   1.85    1800   160.0
-# Coarse        1850    2.10     120  1500.0
+
+# Per-mode number concentration (time-averaged)
+for mode in ['Nucleation', 'Aitken', 'Accumulation', 'Coarse']:
+    col = f'total_num_{mode}'
+    if col in summary.columns:
+        print(f"{mode}: {summary[col].mean():.0f} #/cm3")
+
+# Whole-distribution number-weighted stats:
+#   total_num_all, GMD_num_all, GSD_num_all, mode_num_all
+print(summary[['total_num_all', 'GMD_num_all', 'GSD_num_all']].mean())
 ```
+
+> **Tip.** The top-level `psd_stats(df)` is a one-call shortcut: it returns the
+> same statistics frame under the `'other'` key, plus the number/surface/volume
+> distributions — no need to build a `SizeDist` yourself.
 
 ---
 
@@ -206,7 +245,7 @@ pm25 = RawDataReader('TEOM', Path('./data/teom'),
 
 # 2. Merge SMPS-APS (v4 requires PM2.5 reference)
 merged = merge_psd(smps, aps, df_pm25=pm25, version=4)
-df_pnsd = merged['data_dn']
+df_pnsd = merged['data']   # recommended merged dN/dlogDp
 
 # 3. Create SizeDist object
 psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')

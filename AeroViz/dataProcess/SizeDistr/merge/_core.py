@@ -8,6 +8,8 @@ files; they live here once so every version shares a single implementation:
 * ``_shift_residual_s2`` — per-shift-candidate S² kernel (v3/v4 grid search).
 * ``_corr_fc`` / ``_corr_with_dNdSdV`` — dN/dS/dV correlation shift finder
   (v3/v4).
+* ``merge_data`` — blend SMPS + shifted APS onto a 230-bin log grid (all
+  versions); ``with_corr`` toggles the APS correction factor output.
 """
 from datetime import datetime as dtm
 from functools import partial
@@ -15,7 +17,7 @@ from multiprocessing import Pool, cpu_count
 
 import numpy as np
 from pandas import DataFrame, concat, DatetimeIndex
-from scipy.interpolate import UnivariateSpline as unvpline
+from scipy.interpolate import UnivariateSpline as unvpline, interp1d
 
 
 def powerlaw_shift_fit(_smps, _aps):
@@ -137,3 +139,103 @@ def _corr_with_dNdSdV(_smps, _aps, _alg_type):
     min_shft = S2_table.idxmin(axis=1).values
 
     return DataFrame(_shift_val[min_shft.astype(int)], index=S2_table.index).astype(float).reindex(_smps.index)
+
+
+def merge_data(_smps_ori, _aps_ori, _shift_ori, _smps_lb, _aps_hb, _shift_mode='mobility',
+               _alg_type='', *, with_corr=True):
+    """Blend SMPS + shifted APS into one dN/dlogDp on a 230-bin log grid.
+
+    Shared by every merge version. ``_shift_mode`` chooses which instrument is
+    moved onto the other's diameter basis (``'mobility'`` shifts APS,
+    ``'aerodynamic'`` shifts SMPS). Rows are computed only for timestamps present
+    in SMPS, APS *and* a valid (non-NaN) shift, then reindexed back to the SMPS
+    time axis (so QC-rejected timestamps become NaN).
+
+    Parameters
+    ----------
+    _smps_ori, _aps_ori : pandas.DataFrame
+        Full SMPS / APS distributions (diameters in nm as columns).
+    _shift_ori : pandas.DataFrame
+        Per-timestamp shift factor (NaN where QC-rejected).
+    _smps_lb, _aps_hb : float
+        Overlap-fit bounds (nm).
+    _shift_mode : {'mobility', 'aerodynamic'}
+    _alg_type : str
+        Label for the log line only (e.g. 'cor_dndsdv'); no effect on output.
+    with_corr : bool, keyword-only, default True
+        If True, also return the APS correction factor (needed by the
+        iterative-correction versions v2/v3/v4); v1 passes ``False``.
+
+    Returns
+    -------
+    tuple
+        ``(merge, density, corr)`` — each reindexed to the SMPS time axis;
+        ``density`` is ``shift²`` (g/cm³); ``corr`` is ``None`` when
+        ``with_corr=False``.
+    """
+    _tag = _shift_mode + (f" and {_alg_type}" if _alg_type else "")
+    print(f"\t\t{dtm.now().strftime('%m/%d %X')} : \033[92mcreate merge data : {_tag}\033[0m")
+
+    _ori_idx = _smps_ori.index
+
+    _corr_aps_cond = _aps_ori.keys() < 700
+    _corr_aps_ky = _aps_ori.keys()[_corr_aps_cond]
+
+    # 3-way merge index: timestamps present in SMPS, APS and a valid shift.
+    _merge_idx = (_smps_ori.dropna(how='all').index
+                  .intersection(_aps_ori.dropna(how='all').index)
+                  .intersection(_shift_ori.dropna(how='all').index))
+
+    _smps, _aps, _shift = _smps_ori.loc[_merge_idx], _aps_ori.loc[_merge_idx], _shift_ori.loc[_merge_idx].values
+
+    _smps_key, _aps_key = _smps.keys()._data.astype(float), _aps.keys()._data.astype(float)
+
+    _cntr = 1000
+    _bin_lb = _smps_key[-1]
+
+    _smps_bin = np.full(_smps.shape, _smps_key)
+    _aps_bin = np.full(_aps.shape, _aps_key)
+
+    _std_bin = np.geomspace(_smps_key[0], _aps_key[-1], 230)
+    _std_bin_merge = _std_bin[(_std_bin < _cntr) & (_std_bin > _bin_lb)]
+    _std_bin_inte1 = _std_bin[_std_bin <= _bin_lb]
+    _std_bin_inte2 = _std_bin[_std_bin >= _cntr]
+
+    if _shift_mode == 'mobility':
+        _aps_bin /= _shift
+    elif _shift_mode == 'aerodynamic':
+        _smps_bin *= _shift
+
+    _merge_lst, _corr_lst = [], []
+    for _bin_smps, _bin_aps, _dt_smps, _dt_aps, _sh in zip(_smps_bin, _aps_bin, _smps.values, _aps.values, _shift):
+        ## keep complete smps bins; drop aps bins below the last smps bin
+        _condi = _bin_aps >= _bin_smps[-1]
+
+        _merge_bin = np.hstack((_bin_smps, _bin_aps[_condi]))
+        _merge_dt = np.hstack((_dt_smps, _dt_aps[_condi]))
+
+        _merge_fit_loc = (_merge_bin < 1500) & (_merge_bin > _smps_lb)
+
+        _unvpl_fc = unvpline(np.log(_merge_bin[_merge_fit_loc]), np.log(_merge_dt[_merge_fit_loc]), s=50)
+        _inte_fc = interp1d(_merge_bin, _merge_dt, kind='linear', fill_value='extrapolate')
+
+        _merge_dt_fit = np.hstack((_inte_fc(_std_bin_inte1), np.exp(_unvpl_fc(np.log(_std_bin_merge))),
+                                   _inte_fc(_std_bin_inte2)))
+
+        _merge_lst.append(_merge_dt_fit)
+        if with_corr:
+            _corr_lst.append(interp1d(_std_bin, _merge_dt_fit)(_bin_aps[_corr_aps_cond]))
+
+    _df_merge = DataFrame(_merge_lst, columns=_std_bin, index=_merge_idx)
+    _df_merge = _df_merge.mask(_df_merge < 0)
+
+    def _out_df(*_df_arg, **_df_kwarg):
+        _df = DataFrame(*_df_arg, **_df_kwarg).reindex(_ori_idx)
+        _df.index.name = 'time'
+        return _df
+
+    if with_corr:
+        _df_corr = DataFrame(_corr_lst, columns=_corr_aps_ky, index=_merge_idx) / _aps_ori.loc[_merge_idx, _corr_aps_ky]
+        return _out_df(_df_merge), _out_df(_shift_ori ** 2), _out_df(_df_corr)
+
+    return _out_df(_df_merge), _out_df(_shift_ori ** 2), None

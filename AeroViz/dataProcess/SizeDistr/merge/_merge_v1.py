@@ -1,12 +1,10 @@
 from datetime import datetime as dtm
 
 import numpy as np
-from pandas import DataFrame, to_datetime, concat
-# from scipy.interpolate import interp1d
-from scipy.interpolate import UnivariateSpline as unvpline, interp1d
+from pandas import DataFrame, concat
 
 from AeroViz.dataProcess.core import union_index
-from ._core import powerlaw_shift_fit, _shift_residual_s2
+from ._core import powerlaw_shift_fit, _shift_residual_s2, merge_data as _merge_data
 from ._debug_plot import plot_overlap, plot_nsv  # noqa: F401 -- optional debug plots, callable from any version
 
 __all__ = ['_merge_SMPS_APS']
@@ -73,89 +71,8 @@ def _shift_data_process(_shift, density_range=(0.6, 2.6)):
 # return _smps.loc[~_big_shift], _aps.loc[~_big_shift], _shift[~_big_shift].reshape(-1,1)
 
 
-## Create merge data
-##  shift all smps bin and remove the aps bin which smaller than the latest old smps bin
-## Return : merge bins, merge data, density
-def _merge_data(_smps_ori, _aps_ori, _shift_ori, _shift_mode, _smps_lb, _aps_hb, _coe):
-    print(f"\t\t{dtm.now().strftime('%m/%d %X')} : \033[92mcreate merge data\033[0m")
-
-    _ori_idx = _smps_ori.index
-    _merge_idx = _smps_ori.loc[_aps_ori.dropna(how='all').index].dropna(how='all').index
-
-    _uni_idx, _count = np.unique(np.hstack((_smps_ori.dropna(how='all').index, _aps_ori.dropna(how='all').index,
-                                            _shift_ori.dropna(how='all').index)), return_counts=True)
-
-    _merge_idx = to_datetime(np.unique(_uni_idx[_count == 3]))
-
-    _smps, _aps, _shift = _smps_ori.loc[_merge_idx], _aps_ori.loc[_merge_idx], _shift_ori.loc[_merge_idx].values
-
-    ## parameter
-    _coeA, _coeB = _coe[0].loc[_merge_idx], _coe[1].loc[_merge_idx]
-    _smps_key, _aps_key = _smps.keys()._data.astype(float), _aps.keys()._data.astype(float)
-
-    _test = 1000
-
-    # _cntr = (_smps_lb+_aps_hb)/2
-    _cntr = _test
-    _bin_lb = _smps_key[-1]
-
-    ## make shift bins
-    _smps_bin = np.full(_smps.shape, _smps_key)
-    _aps_bin = np.full(_aps.shape, _aps_key)
-    # _std_bin  = _smps_key.tolist()+_aps_key[_aps_key>_smps_key[-1]].tolist()
-    _std_bin = np.geomspace(_smps_key[0], _aps_key[-1], 230)
-    _std_bin_merge = _std_bin[(_std_bin < _cntr) & (_std_bin > _bin_lb)]
-    _std_bin_inte1 = _std_bin[_std_bin <= _bin_lb]
-    _std_bin_inte2 = _std_bin[_std_bin >= _cntr]
-
-    if _shift_mode == 'mobility':
-        _aps_bin /= _shift
-
-    elif _shift_mode == 'aerodynamic':
-        _smps_bin *= _shift
-
-    ## merge
-    _merge_lst = []
-    for _bin_smps, _bin_aps, _dt_smps, _dt_aps, _sh in zip(_smps_bin, _aps_bin, _smps.values, _aps.values, _shift):
-        ## remove
-
-        ## keep complete smps bins and data
-        ## remove the aps bin data lower than smps bin
-        _condi = _bin_aps >= _bin_smps[-1]
-
-        _merge_bin = np.hstack((_bin_smps, _bin_aps[_condi]))
-        _merge_dt = np.hstack((_dt_smps, _dt_aps[_condi]))
-
-        # _merge_fit_loc = (_merge_bin<_aps_hb)&(_merge_bin>_smps_lb)
-        _merge_fit_loc = (_merge_bin < 1500) & (_merge_bin > _smps_lb)
-
-        ## coeA and coeB
-        _unvpl_fc = unvpline(np.log(_merge_bin[_merge_fit_loc]), np.log(_merge_dt[_merge_fit_loc]), s=50)
-        # _unvpl_fc = unvpline(_merge_bin[_merge_fit_loc],_merge_dt[_merge_fit_loc],s=150)
-        # _inte_log_fc = interp1d(n.log10(_merge_bin[_merge_fit_loc]),n.log10(_merge_dt[_merge_fit_loc]),
-        # kind='linear',fill_value='extrapolate')
-        _inte_fc = interp1d(_merge_bin, _merge_dt, kind='linear', fill_value='extrapolate')
-
-        __merge = np.exp(_unvpl_fc(np.log(_std_bin_merge)))
-        # __merge = _unvpl_fc(_std_bin_merge)
-
-        _merge_dt_fit = np.hstack((_inte_fc(_std_bin_inte1), __merge, _inte_fc(_std_bin_inte2)))
-        # _merge_dt_fit = __merge
-        # plot_overlap(_bin_smps,_dt_smps,_bin_aps,_dt_aps,_std_bin,_merge_dt_fit,_merge_bin,_merge_dt,_sh)
-
-        _merge_lst.append(_merge_dt_fit)
-
-    _df_merge = DataFrame(_merge_lst, columns=_std_bin, index=_merge_idx)
-    _df_merge = _df_merge.mask(_df_merge < 0)
-
-    ## process output df
-    ## average, align with index
-    def _out_df(*_df_arg, **_df_kwarg):
-        _df = DataFrame(*_df_arg, **_df_kwarg).reindex(_ori_idx)
-        _df.index.name = 'time'
-        return _df
-
-    return _out_df(_df_merge), _out_df(_shift_ori ** 2)
+# _merge_data (SMPS + shifted-APS blend) moved to _core.py
+# v1 uses with_corr=False (no APS correction / no _df_corr output).
 
 
 ## aps_fit_highbound : the diameter I choose randomly
@@ -184,7 +101,8 @@ def _merge_SMPS_APS(df_smps, df_aps, aps_unit, shift_mode, smps_overlap_lowbound
     shift = _shift_data_process(shift, density_range)
 
     ## merge aps and smps..
-    merge_data, density = _merge_data(smps, aps, shift, shift_mode, smps_overlap_lowbound, aps_fit_highbound, coe)
+    merge_data, density, _ = _merge_data(smps, aps, shift, smps_overlap_lowbound, aps_fit_highbound, shift_mode,
+                                         with_corr=False)
     density.columns = ['density']
 
     ## out — unified keys: 'data' (merged dN/dlogDp) + 'density'

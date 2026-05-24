@@ -14,7 +14,7 @@ from AeroViz.rawDataReader.config.supported_instruments import meta
 from AeroViz.rawDataReader.core.logger import ReaderLogger
 from AeroViz.rawDataReader.core.metadata import aeroviz_version, data_coverage, stamp_attrs
 from AeroViz.rawDataReader.core.qc import QualityControl, QCRule, QCFlagBuilder
-from AeroViz.rawDataReader.core.time_grid import detect_freq, resolve_freq, to_grid
+from AeroViz.rawDataReader.core.time_grid import detect_freq, resolve_freq, detect_isolated_dates, to_grid
 from AeroViz.rawDataReader.core.report import calculate_rates, process_rates_report, process_timeline_report, print_timeline_visual
 
 __all__ = ['AbstractReader', 'QCRule', 'QCFlagBuilder']
@@ -82,6 +82,12 @@ class AbstractReader(ABC):
                 raw_freq : str
                     Override raw data frequency (e.g., '6min', '1h').
                     If not set, frequency is auto-inferred from the data.
+                drop_outlier_dates : bool, default=False
+                    Stray timestamps far outside the data's bulk (e.g. a
+                    year-2000 row in 2023 data) are always detected and warned
+                    about, since they balloon the native grid. By default they
+                    are kept (the warning explains how to fix the source); set
+                    True to drop them automatically before the grid is built.
                 log_level : str
                     Logging level for the log file
                 quiet : bool
@@ -388,6 +394,48 @@ class AbstractReader(ABC):
                 weekly_flag_groups, monthly_flag_groups
             )
 
+    def _flag_outlier_dates(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Detect and warn about stray timestamps; drop them only if asked.
+
+        A single bad row — e.g. a ``2000-01-01`` stamp in otherwise-2023 data —
+        stretches the canonical native grid (built over the data's own min->max
+        in ``_read_raw_files``, *before* any requested range applies) across the
+        whole bogus span, inflating the cached frame to millions of NaN rows
+        even when the caller only asked for 2023. Such stamps are almost always
+        a source-data error, so by default we *warn and tell the user how to fix
+        it* rather than silently changing their data; pass
+        ``drop_outlier_dates=True`` to have them excluded automatically.
+        """
+        if df.empty:
+            return df
+
+        mask = detect_isolated_dates(df.index)
+        if not mask.any():
+            return df
+
+        strays = pd.DatetimeIndex(df.index[mask])
+        kept = pd.DatetimeIndex(df.index[~mask])
+        shown = ', '.join(s.isoformat() for s in strays[:5])
+        if len(strays) > 5:
+            shown += f', ... (+{len(strays) - 5} more)'
+
+        self.logger.warning(
+            f"Detected {len(strays)} isolated timestamp(s) far outside the data "
+            f"bulk ({kept.min()} ~ {kept.max()}): {shown}.")
+
+        if self.kwargs.get('drop_outlier_dates', False):
+            self.logger.warning(
+                "Excluding them from the grid (drop_outlier_dates=True).")
+            return df.loc[~mask]
+
+        self.logger.warning(
+            f"These are almost certainly bad timestamps in the source files. "
+            f"Left as-is, the native grid will span {df.index.min()} ~ "
+            f"{df.index.max()} (mostly NaN), bloating the output and cache. "
+            f"Fix the timestamp(s) in the raw file, or pass drop_outlier_dates=True "
+            f"to drop them automatically.")
+        return df
+
     def _timeIndex_process(self, _df, user_start=None, user_end=None, append_df=None):
         """
         Process time index of the DataFrame.
@@ -600,6 +648,11 @@ class AbstractReader(ABC):
         )
 
         raw_data = pd.concat(df_list, axis=0).groupby(level=0).first()
+
+        # Warn about stray timestamps (e.g. a single year-2000 row in 2023 data)
+        # that would otherwise stretch the canonical native grid across a bogus
+        # span; only dropped when the caller opts in via drop_outlier_dates=True.
+        raw_data = self._flag_outlier_dates(raw_data)
 
         if self.nam in ['SMPS', 'APS', 'GRIMM']:
             # Separate numeric and non-numeric columns

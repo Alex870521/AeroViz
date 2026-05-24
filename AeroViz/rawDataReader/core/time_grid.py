@@ -19,9 +19,10 @@ from __future__ import annotations
 
 from collections import Counter
 
+import numpy as np
 import pandas as pd
 
-__all__ = ['detect_freq', 'resolve_freq', 'snap_to_grid', 'to_grid']
+__all__ = ['detect_freq', 'resolve_freq', 'detect_isolated_dates', 'snap_to_grid', 'to_grid']
 
 
 def detect_freq(index) -> str | None:
@@ -87,6 +88,48 @@ def resolve_freq(per_file: dict[str, str | None], *,
             f"Mixed time resolution across files ({breakdown}); using most common "
             f"'{chosen}'. Pass raw_freq= to override.")
     return chosen, True
+
+
+def detect_isolated_dates(index, *, k: float = 10.0,
+                          max_frac: float = 0.05,
+                          min_rows: int = 10) -> np.ndarray:
+    """Flag timestamps sitting far outside the bulk of ``index``.
+
+    A single bad row — e.g. a ``2000-01-01`` stamp in otherwise-2023 data —
+    would stretch the native grid across the whole bogus span, ballooning the
+    canonical/cached frame into millions of NaN rows even when the caller only
+    asked for 2023. This finds such strays with a median / MAD score (robust to
+    the strays themselves, unlike a mean or a quantile at small ``n``): a point
+    is flagged when its distance from the median timestamp exceeds ``k`` MADs.
+    For data spread evenly over a span the edge points score ~2, so the default
+    ``k=10`` only trips on genuinely detached stamps.
+
+    Returns a boolean ``np.ndarray`` aligned to ``index`` (True = outlier).
+    Flags **nothing** (all-False) when there are too few rows to judge
+    (``< min_rows``), when the spread is degenerate, or when the flagged set
+    would exceed ``max_frac`` of all rows — that last case being ambiguous
+    (legitimately wide or multi-cluster data, not a stray), so it is left alone.
+    """
+    idx = pd.DatetimeIndex(pd.to_datetime(index, errors='coerce'))
+    valid = np.asarray(idx.notna())
+    n = int(valid.sum())
+    no_outliers = np.zeros(len(idx), dtype=bool)
+    if n < min_rows:
+        return no_outliers
+
+    vals = idx.asi8.astype('float64')  # ns since epoch (NaT -> sentinel, masked out)
+    med = np.median(vals[valid])
+    mad = np.median(np.abs(vals[valid] - med))
+    if mad <= 0:
+        return no_outliers
+
+    score = np.zeros(len(idx), dtype='float64')
+    score[valid] = np.abs(vals[valid] - med) / mad
+    mask = score > k
+
+    if not mask.any() or mask.sum() > max_frac * n:
+        return no_outliers
+    return mask
 
 
 def snap_to_grid(df: pd.DataFrame, freq: str) -> pd.DataFrame:

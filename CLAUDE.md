@@ -63,6 +63,7 @@ df = RawDataReader(
 | `size_range` | tuple | (min_nm, max_nm) for SMPS/APS only |
 | `fill_missing` | bool | True (default)=pad to requested range; False=clamp to data coverage |
 | `raw_freq` | str | Override auto-detected resolution (e.g. '6min'); skips detection |
+| `drop_outlier_dates` | bool | Stray timestamps far outside the data bulk (e.g. a year-2000 row in 2023 data) are always detected and warned about. False (default)=keep them (warning tells you how to fix the source); True=drop them automatically before gridding |
 
 ## Data Processing
 

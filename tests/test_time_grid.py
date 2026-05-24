@@ -5,6 +5,7 @@ import pytest
 
 from AeroViz.rawDataReader.core.time_grid import (
     detect_freq,
+    detect_isolated_dates,
     resolve_freq,
     snap_to_grid,
     to_grid,
@@ -58,6 +59,47 @@ class TestResolveFreq:
 
         resolve_freq({'a': '1min', 'b': '6min'}, logger=_Logger())
         assert warnings and 'Mixed time resolution' in warnings[0]
+
+
+# ------------------------------------------------------- detect_isolated_dates
+class TestDetectIsolatedDates:
+    def _year(self, n=500, freq='6min'):
+        return pd.date_range('2023-01-01', periods=n, freq=freq)
+
+    def test_leading_stray_is_flagged(self):
+        # The reported bug: one year-2000 row in front of a year of 6-min data.
+        idx = pd.DatetimeIndex(['2000-01-01 00:00']).append(self._year())
+        mask = detect_isolated_dates(idx)
+        assert mask[0] and not mask[1:].any()
+
+    def test_trailing_stray_is_flagged(self):
+        idx = self._year().append(pd.DatetimeIndex(['2099-01-01 00:00']))
+        mask = detect_isolated_dates(idx)
+        assert mask[-1] and not mask[:-1].any()
+
+    def test_clean_data_flags_nothing(self):
+        assert not detect_isolated_dates(self._year()).any()
+
+    def test_edges_of_evenly_spread_data_not_flagged(self):
+        # Points at the extremes of a normal span score ~2 MADs, well under k=10.
+        assert not detect_isolated_dates(self._year(n=2000)).any()
+
+    def test_two_legit_clusters_not_flagged(self):
+        # A 2019 campaign + a 2023 campaign (each substantial) is legitimately
+        # wide data, not a stray — must be left alone.
+        idx = pd.date_range('2019-01-01', periods=300, freq='1h').append(
+            pd.date_range('2023-01-01', periods=300, freq='1h'))
+        assert not detect_isolated_dates(idx).any()
+
+    def test_too_few_rows_flags_nothing(self):
+        idx = pd.DatetimeIndex(['2000-01-01', '2023-01-01', '2023-01-02'])
+        assert not detect_isolated_dates(idx).any()
+
+    def test_nat_rows_never_flagged(self):
+        idx = pd.DatetimeIndex(['2000-01-01']).append(self._year()).append(
+            pd.DatetimeIndex([pd.NaT]))
+        mask = detect_isolated_dates(idx)
+        assert mask[0] and not mask[-1]  # stray flagged, NaT left to the parser
 
 
 # --------------------------------------------------------------- snap_to_grid

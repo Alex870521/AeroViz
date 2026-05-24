@@ -64,7 +64,7 @@ def violin(df: DataFrame | dict,
         violin.set_alpha(alpha)
         violin.set_edgecolor(None)
 
-    plt.scatter(x_position, data.mean(), marker='o', facecolor='white', edgecolor='k', s=10)
+    plt.scatter(x_position, data.mean(axis=0), marker='o', facecolor='white', edgecolor='k', s=10)
 
     xlim = kwargs.get('xlim') or (x_position[0] - (width / 2 + block), x_position[-1] + (width / 2 + block))
     ylim = kwargs.get('ylim') or (0, None)

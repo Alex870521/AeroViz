@@ -4,54 +4,47 @@
 
 ## 版本演進
 
+> v0 / v0.1 已移除（死碼）。v0 是 v1 的嚴格子集；v0.1 的特色（APS 迭代校正、
+> mobility+aerodynamic 雙輸出）已分別保留在 v2/v3/v4，故一併刪除。
+
 | 版本 | 檔案 | 主要特點 |
 |------|------|----------|
-| v0 | `_merge_v0.py` | 最原始版本，無 `union_index` 索引對齊 |
-| v0.1 | `_merge_v0_1.py` | 加入 `union_index` 索引對齊功能 |
-| v1 | `_merge_v1.py` | 加入 `shift_mode` 參數 (mobility/aerodynamic) |
-| v2 | `_merge_v2.py` | 簡化輸出，移除 qc_cond 過濾 |
+| v1 | `_merge_v1.py` | 基礎 power-law fit 合併 + `union_index` 對齊 + `shift_mode` (mobility/aerodynamic) |
+| v2 | `_merge_v2.py` | APS 迭代校正 + mobility/aerodynamic 雙輸出，移除 qc_cond 過濾 |
 | v3 | `_merge_v3.py` | 加入 multiprocessing 平行運算 + dN/dS/dV 演算法 |
 | v4 | `_merge_v4.py` | 加入 PM2.5 fitness 函數 + SMPS times 校正 |
 
+## 統一輸出與品質控制
+
+所有版本都回傳 dict，並保證有兩個共通 key（存成 CSV 即 `data.csv` / `density.csv`，跨版本檔名一致）：
+
+- **`data`**：建議使用的合併 dN/dlogDp（欄=直徑 nm）。v1＝單一 power-law 合併；v2＝mobility 合併；v3/v4＝APS 校正後的 dN/dS/dV（`cor_dndsdv`）。
+- **`density`**：推估有效密度（g/cm³）。
+
+品質控制統一用參數 **`density_range`（g/cm³，預設 `(0.6, 2.6)`）**：每個時間點的 `shift²` 即推估有效密度，超出範圍 → 該列遮成 NaN。放寬用 `(0.3, 2.6)`、收緊自訂。（取代舊 v1 的 `data_all`/`data_qc` 雙輸出。）
+
 ## 版本詳細說明
 
-### v0 (原始版本)
-- 基本的 power law fitting 密度估算
-- 使用 UnivariateSpline 進行重疊區域平滑
-- rho 閾值: 0.3 < ρ² < 2.0
-- 輸出: `data_all`, `data_qc`, `density_all`, `density_qc`
-
-### v0.1
-- 加入 `union_index` 確保 SMPS 與 APS 時間索引對齊
-- 導出函數名稱改為 `merge_SMPS_APS`（無底線前綴）
-
-### v1
-- 加入 `shift_mode` 參數，支援：
-  - `'mobility'`: 移動 APS 粒徑到 mobility diameter
-  - `'aerodynamic'`: 移動 SMPS 粒徑到 aerodynamic diameter
-- rho 閾值放寬: 0.3 < ρ² < 2.6
+### v1 (基礎版本)
+- 基本的 power law fitting 密度估算 + UnivariateSpline 重疊區平滑
+- `union_index` 對齊 SMPS/APS 時間索引
+- `shift_mode`：`'mobility'`（移 APS 到電移動度徑）/ `'aerodynamic'`（移 SMPS 到空氣動力徑）
+- 輸出: `data`, `density`
 
 ### v2
-- 移除 `shift_mode` 參數（固定使用 mobility）
-- 簡化輸出結構，移除 `_qc` 過濾版本
-- 加入 APS 校正迭代（2次）
-- 輸出: `data_all`, `data_all_aer`, `density_all`
+- 固定 mobility + APS 校正迭代（2 次）
+- 同時輸出 mobility 與 aerodynamic 兩種合併
+- 輸出: `data`(mobility), `data_aero`, `density`
 
 ### v3
 - 引入 multiprocessing 平行運算加速
 - 新增 dN/dS/dV 相關性演算法 (`_corr_with_dNdSdV`)
-- 同時計算多種演算法結果：
-  - `dn`: 純 power law fitting
-  - `dndsdv`: dN/dS/dV 相關性
-  - `cor_dn`: APS 校正後的 power law
-  - `cor_dndsdv`: APS 校正後的 dN/dS/dV
-- 輸出: `data_dn`, `data_dndsdv`, `data_cor_dn`, `data_cor_dndsdv`, `density`
+- 同時計算四種演算法：`dn`(純 power-law) / `dndsdv` / `cor_dn`(APS 校正) / `cor_dndsdv`(校正+dNdSdV)
+- 輸出: `data`(=cor_dndsdv), `data_dn`, `data_dndsdv`, `data_cor_dn`, `density`(4 欄)
 
 ### v4 (最新版本)
-- 加入 PM2.5 質量約束的 fitness 函數
-- 引入 SMPS times 校正因子（搜尋最佳倍率）
-- 參數 `times_range`: SMPS 數據乘數範圍 (預設 0.8~1.25)
-- 輸出新增 `times` 欄位記錄各時間點的最佳校正倍率
+- v3 + PM2.5 質量約束 fitness 函數 + SMPS times 校正（`times_range` 搜尋最佳倍率，預設 0.8~1.25）
+- 輸出: 同 v3 ＋ `times`（各演算法每個時間點選用的倍率）
 
 ## 使用方式
 

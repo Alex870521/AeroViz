@@ -125,6 +125,7 @@ def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None,
               aps_fit_highbound: float = 1000,
               shift_mode: str = 'mobility',
               dndsdv_alg: bool = True,
+              density_range: tuple = (0.6, 2.6),
               times_range: tuple = (0.8, 1.25, 0.05)):
     """
     Merge SMPS and APS particle size distributions into a continuous PSD.
@@ -153,16 +154,34 @@ def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None,
     dndsdv_alg : bool, default True
         Apply dN/dS/dV correlation refinement. Only used when
         ``version >= 3``.
+    density_range : tuple of float, default (0.6, 2.6)
+        Plausible effective-density range (g/cm³) for quality control.
+        Each timestamp's shift² is its estimated effective density;
+        timestamps outside this range are dropped (set to NaN). Widen for
+        looser QC (e.g. ``(0.3, 2.6)``), narrow for stricter. Applied in
+        every version.
     times_range : tuple of 3 floats, default (0.8, 1.25, 0.05)
         ``(start, stop, step)`` for the SMPS-times grid search. Only used
         when ``version=4``.
 
     Returns
     -------
-    dict | DataFrame
-        Shape depends on ``version``; see the underlying ``merge_v{N}`` for
-        details. v3 and v4 return a dict with merged distributions and
-        density; v2 returns a DataFrame.
+    dict
+        Every version returns a dict keyed consistently. Two keys are always
+        present:
+
+        - ``'data'``    : the recommended merged dN/dlogDp (diameters in nm as
+          columns). v1 → the single power-law merge; v2 → mobility merge;
+          v3/v4 → the APS-corrected dN/dS/dV merge (``cor_dndsdv``).
+        - ``'density'`` : estimated effective density (g/cm³).
+
+        Version-specific extras:
+
+        - v2 : ``'data_aero'`` (aerodynamic-diameter merge).
+        - v3 : ``'data_dn'``, ``'data_dndsdv'``, ``'data_cor_dn'`` (the other
+          algorithm variants); ``'density'`` has one column per variant.
+        - v4 : same variants as v3 plus ``'times'`` (the chosen SMPS-times
+          multiplier per algorithm).
 
     Raises
     ------
@@ -172,13 +191,13 @@ def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None,
     """
     if version == 1:
         return merge_v1(df_smps, df_aps, aps_unit, shift_mode,
-                        smps_overlap_lowbound, aps_fit_highbound)
+                        smps_overlap_lowbound, aps_fit_highbound, density_range)
     if version == 2:
         return merge_v2(df_smps, df_aps, aps_unit,
-                        smps_overlap_lowbound, aps_fit_highbound)
+                        smps_overlap_lowbound, aps_fit_highbound, density_range)
     if version == 3:
         return merge_v3(df_smps, df_aps, aps_unit,
-                        smps_overlap_lowbound, aps_fit_highbound, dndsdv_alg)
+                        smps_overlap_lowbound, aps_fit_highbound, dndsdv_alg, density_range)
     if version == 4:
         if df_pm25 is None:
             raise ValueError(
@@ -186,6 +205,6 @@ def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None,
             )
         return merge_v4(df_smps, df_aps, df_pm25, aps_unit,
                         smps_overlap_lowbound, aps_fit_highbound,
-                        dndsdv_alg, times_range)
+                        dndsdv_alg, density_range, times_range)
 
     raise ValueError(f"version must be one of {{1, 2, 3, 4}}, got {version}.")

@@ -10,16 +10,12 @@ from pandas import DataFrame, concat, DatetimeIndex
 # from scipy.interpolate import interp1d
 from scipy.interpolate import UnivariateSpline as unvpline, interp1d
 
+from ._core import powerlaw_shift_fit, _shift_residual_s2, _corr_with_dNdSdV
+from ._debug_plot import plot_overlap, plot_nsv  # noqa: F401 -- optional debug plots, callable from any version
+
 warnings.filterwarnings("ignore")
 
 __all__ = ['merge_SMPS_APS']
-
-
-def _powerlaw_fit(_coeA, _coeB, _aps, _idx, _factor):
-    # breakpoint()
-
-    _smps_fit_df = _coeA * (_aps.keys().values / _factor) ** _coeB
-    return DataFrame(((_smps_fit_df.copy() - _aps.copy()) ** 2).sum(axis=1), columns=[_idx])
 
 
 ## Calculate S2
@@ -28,7 +24,7 @@ def _powerlaw_fit(_coeA, _coeB, _aps, _idx, _factor):
 ## 3. calculate S2
 ## return : S2
 # def _S2_calculate_dN(_smps, _aps):
-def _powerlaw_fit_dN(_smps, _aps, _alg_type):
+def _powerlaw_fit_dN(_smps, _aps, _alg_type, density_range=(0.6, 2.6)):
     print(f"\t\t\t{dtm.now().strftime('%m/%d %X')} : \033[92moverlap range fitting : {_alg_type}\033[0m")
 
     ## overlap fitting
@@ -40,24 +36,8 @@ def _powerlaw_fit_dN(_smps, _aps, _alg_type):
     ## ref : http://mathworld.wolfram.com/LeastSquaresFittingPowerLaw.html
     ## power law fit to SMPS num conc at upper bins to log curve
 
-    ## coefficient A, B
-    _smps_qc_cond = ((_smps != 0) & np.isfinite(_smps))
-    _smps_qc = _smps.where(_smps_qc_cond)
-
-    _size = _smps_qc_cond.sum(axis=1)
-    _size = _size.where(_size != 0.).copy()
-
-    _logx, _logy = np.log(_smps_qc.keys()._data.astype(float)), np.log(_smps_qc)
-    _x, _y, _xy, _xx = _logx.sum(), _logy.sum(axis=1), (_logx * _logy).sum(axis=1), (_logx ** 2).sum()
-
-    _coeB = ((_size * _xy - _x * _y) / (_size * _xx - _x ** 2.))
-    _coeA = np.exp((_y - _coeB * _x) / _size).values.reshape(-1, 1)
-    _coeB = _coeB.values.reshape(-1, 1)
-
-    ## rebuild shift smps data by coe. A, B
-    ## x_shift = (y_ori/A)**(1/B)
-    _aps_shift_x = (_aps / _coeA) ** (1 / _coeB)
-    _aps_shift_x = _aps_shift_x.where(np.isfinite(_aps_shift_x))
+    ## power-law fit (A, B) + implied mobility-equivalent APS diameters (shared core)
+    _coeA, _coeB, _aps_shift_x = powerlaw_shift_fit(_smps, _aps)
 
     ## the least squares of diameter
     ## the shift factor which the closest to 1
@@ -81,7 +61,7 @@ def _powerlaw_fit_dN(_smps, _aps, _alg_type):
 
     pool = Pool(cpu_count())
 
-    _S2 = pool.starmap(partial(_powerlaw_fit, _coeA, _coeB, _aps), list(enumerate(_shift_val)))
+    _S2 = pool.starmap(partial(_shift_residual_s2, _coeA, _coeB, _aps), list(enumerate(_shift_val)))
 
     pool.close()
     pool.join()
@@ -93,81 +73,14 @@ def _powerlaw_fit_dN(_smps, _aps, _alg_type):
         _shift_factor.loc[_dropna_idx].values[range(len(_dropna_idx)), S2.loc[_dropna_idx].idxmin(axis=1).values],
         index=_dropna_idx).reindex(_dt_indx).astype(float)
 
-    shift_factor_dN = shift_factor_dN.mask((shift_factor_dN ** 2 < 0.6) | (shift_factor_dN ** 2 > 2.6))
+    # shift² == estimated effective density (g/cm³); drop out-of-range timestamps
+    _rho_min, _rho_max = density_range
+    shift_factor_dN = shift_factor_dN.mask((shift_factor_dN ** 2 < _rho_min) | (shift_factor_dN ** 2 > _rho_max))
 
     return shift_factor_dN
 
 
-def _corr_fc(_aps_dia, _smps_dia, _smps_dn, _aps_dn, _smooth, _idx, _sh):
-    ds_fc = lambda _dt: _dt * _dt.index ** 2 * np.pi
-    dv_fc = lambda _dt: _dt * _dt.index ** 3 * np.pi / 6
-
-    _aps_sh = _aps_dia / _sh
-    _aps_sh_inp = _aps_sh.where((_aps_sh >= 500) & (_aps_sh <= 1500.)).copy()
-    _aps_sh_corr = _aps_sh.where((_aps_sh >= _smps_dia[-1]) & (_aps_sh <= 1500.)).copy()
-
-    corr_x = np.append(_smps_dia, _aps_sh_corr.dropna())
-
-    input_x = np.append(_smps_dia, _aps_sh_inp.dropna())
-    input_y = concat([_smps_dn, _aps_dn.iloc[:, ~np.isnan(_aps_sh_inp)]], axis=1)
-    input_y.columns = input_x
-
-    input_x.sort()
-    input_y = input_y[input_x]
-    corr_y = input_y[corr_x]
-
-    S2_lst = []
-    for (_tm, _inp_y_dn), (_tm, _cor_y_dn) in zip(input_y.dropna(how='all').iterrows(),
-                                                  corr_y.dropna(how='all').iterrows()):
-        ## corr(spec_data, spec_spline)
-        _spl_dt = [unvpline(input_x, _inp_y, s=_smooth)(corr_x) for _inp_y in
-                   [_inp_y_dn, ds_fc(_inp_y_dn), dv_fc(_inp_y_dn)]]
-        _cor_dt = [_cor_y_dn, ds_fc(_cor_y_dn), dv_fc(_cor_y_dn)]
-
-        _cor_all = sum([np.corrcoef(_cor, _spl)[0, 1] for _cor, _spl in zip(_cor_dt, _spl_dt)])
-
-        S2_lst.append((3 - _cor_all) / 3)
-
-    return DataFrame(S2_lst, columns=[_idx])
-
-
-# def _S2_calculate_dSdV(_smps, _aps, _shft_dn, _S2, smps_ori, aps_ori):
-# def _S2_calculate_dSdV(_smps, _aps, smps_ori=None):
-def _corr_with_dNdSdV(_smps, _aps, _alg_type):
-    print(f"\t\t\t{dtm.now().strftime('%m/%d %X')} : \033[92moverlap range correlation : {_alg_type}\033[0m")
-
-    _smps_dia = _smps.keys().astype(float)
-    _aps_dia = _aps.keys().astype(float)
-
-    all_index = _smps.index.copy()
-    qc_index = DatetimeIndex(set(_smps.dropna(how='all').index) & set(_aps.dropna(how='all').index)).sort_values()
-
-    _smps_dn = _smps.loc[qc_index].copy()
-    _aps_dn = _aps.loc[qc_index].copy()
-
-    ds_fc = lambda _dt: _dt * _dt.index ** 2 * np.pi
-    dv_fc = lambda _dt: _dt * _dt.index ** 3 * np.pi / 6
-
-    _std_bin = np.geomspace(11.8, 19810, 230)
-    _merge_bin = _std_bin[(_std_bin >= _smps_dia[-1]) & (_std_bin < 1500)].copy()
-
-    _smooth = 50
-
-    _shift_val = np.arange(0.9, 2.65, .05) ** .5
-
-    ## spline fitting with shift aps and smps
-    pool = Pool(cpu_count())
-
-    S2_lst = pool.starmap(partial(_corr_fc, _aps_dia, _smps_dia, _smps_dn, _aps_dn, _smooth),
-                          list(enumerate(_shift_val)))
-
-    pool.close()
-    pool.join()
-
-    S2_table = concat(S2_lst, axis=1).set_index(qc_index)[np.arange(_shift_val.size)].astype(float).dropna()
-    min_shft = S2_table.idxmin(axis=1).values
-
-    return DataFrame(_shift_val[min_shft.astype(int)], index=S2_table.index).astype(float).reindex(_smps.index)
+# _corr_fc / _corr_with_dNdSdV (dN/dS/dV correlation shift finder) moved to _core.py
 
 
 ## Create merge data
@@ -253,7 +166,7 @@ def _fitness_func(psd, rho, pm25):
 
 
 def merge_SMPS_APS(df_smps, df_aps, df_pm25, aps_unit='um', smps_overlap_lowbound=500, aps_fit_highbound=1000,
-                   dndsdv_alg=True, times_range=(0.8, 1.25, .05)):
+                   dndsdv_alg=True, density_range=(0.6, 2.6), times_range=(0.8, 1.25, .05)):
     # merge_data, merge_data_dn, merge_data_dsdv, merge_data_cor_dn, density, density_dn, density_dsdv, density_cor_dn = [DataFrame([np.nan])] * 8
 
     ## set to the same units
@@ -287,7 +200,7 @@ def merge_SMPS_APS(df_smps, df_aps, df_pm25, aps_unit='um', smps_overlap_lowboun
             ## original
             if _count == 0:
                 alg_type = 'dn'
-                shift = _powerlaw_fit_dN(smps_over, aps_over, alg_type)
+                shift = _powerlaw_fit_dN(smps_over, aps_over, alg_type, density_range)
 
                 if dndsdv_alg:
                     shift_dsdv = _corr_with_dNdSdV(smps_over, aps_over, 'dndsdv').mask(shift.isna())
@@ -295,7 +208,7 @@ def merge_SMPS_APS(df_smps, df_aps, df_pm25, aps_unit='um', smps_overlap_lowboun
             ## aps correct
             else:
                 alg_type = 'cor_dndsdv'
-                shift_cor = _powerlaw_fit_dN(smps_over, aps_over, 'cor_dn')
+                shift_cor = _powerlaw_fit_dN(smps_over, aps_over, 'cor_dn', density_range)
 
                 if dndsdv_alg:
                     shift = _corr_with_dNdSdV(smps_over, aps_over, alg_type).mask(shift_cor.isna())
@@ -394,7 +307,9 @@ def merge_SMPS_APS(df_smps, df_aps, df_pm25, aps_unit='um', smps_overlap_lowboun
 
     # breakpoint()
 
-    ## out
+    ## out — unified keys: primary 'data' (= cor_dndsdv) + variant data_* + density + times
+    if 'data_cor_dndsdv' in out_dic:
+        out_dic = {'data': out_dic.pop('data_cor_dndsdv'), **out_dic}
     out_dic.update(dict(density=out_rho, times=out_times))
 
     # out_dic = {

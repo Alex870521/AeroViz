@@ -72,41 +72,47 @@ class SizeDistr(Writer):
     @run_process('SizeDistr - merge_SMPS_APS_v4', 'distr_merge')
     def merge_SMPS_APS_v4(self, df_smps, df_aps, df_pm25, aps_unit='um',
                           smps_overlap_lowbound=500, aps_fit_highbound=1000, dndsdv_alg=True,
-                          times_range=(0.8, 1.25, .05)):
+                          density_range=(0.6, 2.6), times_range=(0.8, 1.25, .05)):
         from .merge import merge_v4
 
         out = merge_v4(df_smps, df_aps, df_pm25, aps_unit, smps_overlap_lowbound, aps_fit_highbound, dndsdv_alg,
-                       times_range)
+                       density_range, times_range)
 
         return self, out
 
     # merge
     @run_process('SizeDistr - merge_SMPS_APS_v3', 'distr_merge')
     def merge_SMPS_APS_v3(self, df_smps, df_aps, aps_unit='um',
-                          smps_overlap_lowbound=500, aps_fit_highbound=1000, dndsdv_alg=True):
+                          smps_overlap_lowbound=500, aps_fit_highbound=1000, dndsdv_alg=True,
+                          density_range=(0.6, 2.6)):
         from .merge import merge_v3
 
-        out = merge_v3(df_smps, df_aps, aps_unit, smps_overlap_lowbound, aps_fit_highbound, dndsdv_alg)
+        out = merge_v3(df_smps, df_aps, aps_unit, smps_overlap_lowbound, aps_fit_highbound, dndsdv_alg,
+                       density_range)
 
         return self, out
 
     # merge
     @run_process('SizeDistr - merge_SMPS_APS_v2', 'distr_merge')
     def merge_SMPS_APS_v2(self, df_smps, df_aps, aps_unit='um',
-                          smps_overlap_lowbound=500, aps_fit_highbound=1000):
+                          smps_overlap_lowbound=500, aps_fit_highbound=1000,
+                          density_range=(0.6, 2.6)):
         from .merge import merge_v2
 
-        out = merge_v2(df_smps, df_aps, aps_unit, smps_overlap_lowbound, aps_fit_highbound)
+        out = merge_v2(df_smps, df_aps, aps_unit, smps_overlap_lowbound, aps_fit_highbound,
+                       density_range)
 
         return self, out
 
     # merge
     @run_process('SizeDistr - merge_SMPS_APS_v1', 'distr_merge')
     def merge_SMPS_APS(self, df_smps, df_aps, aps_unit='um', shift_mode='mobility',
-                       smps_overlap_lowbound=523, aps_fit_highbound=800):
+                       smps_overlap_lowbound=523, aps_fit_highbound=800,
+                       density_range=(0.6, 2.6)):
         from .merge import merge_v1
 
-        out = merge_v1(df_smps, df_aps, aps_unit, shift_mode, smps_overlap_lowbound, aps_fit_highbound)
+        out = merge_v1(df_smps, df_aps, aps_unit, shift_mode, smps_overlap_lowbound, aps_fit_highbound,
+                       density_range)
 
         return self, out
 

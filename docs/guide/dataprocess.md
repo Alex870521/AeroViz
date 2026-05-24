@@ -68,9 +68,9 @@ from AeroViz import merge_psd
 # v4 (recommended, requires PM2.5 reference)
 result = merge_psd(smps_data, aps_data, df_pm25=pm25_data, version=4)
 
-merged   = result['data_dn']         # Merged dN
-all_dist = result['data_dndsdv']     # dN, dS, dV
-density  = result['density']         # Estimated density
+merged   = result['data']            # recommended merged dN/dlogDp (every version)
+density  = result['density']         # estimated effective density (g/cm³)
+# v3/v4 variants: result['data_dn'], result['data_dndsdv'], result['data_cor_dn']
 ```
 
 `version` selects the algorithm: 1 (original power-law), 2 (simplified), 3 (dN/dS/dV refinement), 4 (PM2.5 fitness, default and recommended). v4 requires `df_pm25`.

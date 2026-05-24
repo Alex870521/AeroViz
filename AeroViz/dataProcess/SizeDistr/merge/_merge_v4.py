@@ -2,13 +2,11 @@
 
 import warnings
 from datetime import datetime as dtm
-from functools import partial
-from multiprocessing import Pool, cpu_count
 
 import numpy as np
 from pandas import DataFrame, concat
 
-from ._core import powerlaw_shift_fit, _shift_residual_s2, _corr_with_dNdSdV, merge_data as _merge_data
+from ._core import _powerlaw_fit_dN, _corr_with_dNdSdV, merge_data as _merge_data
 from ._debug_plot import plot_overlap, plot_nsv  # noqa: F401 -- optional debug plots, callable from any version
 
 warnings.filterwarnings("ignore")
@@ -16,68 +14,7 @@ warnings.filterwarnings("ignore")
 __all__ = ['merge_SMPS_APS']
 
 
-## Calculate S2
-## 1. SMPS and APS power law fitting
-## 2. shift factor from 0.5 ~ 3
-## 3. calculate S2
-## return : S2
-# def _S2_calculate_dN(_smps, _aps):
-def _powerlaw_fit_dN(_smps, _aps, _alg_type, density_range=(0.6, 2.6)):
-    print(f"\t\t\t{dtm.now().strftime('%m/%d %X')} : \033[92moverlap range fitting : {_alg_type}\033[0m")
-
-    ## overlap fitting
-    ## parmeter
-    _dt_indx = _smps.index
-
-    ## use SMPS data apply power law fitting
-    ## y = Ax^B, A = e**coefa, B = coefb, x = logx, y = logy
-    ## ref : http://mathworld.wolfram.com/LeastSquaresFittingPowerLaw.html
-    ## power law fit to SMPS num conc at upper bins to log curve
-
-    ## power-law fit (A, B) + implied mobility-equivalent APS diameters (shared core)
-    _coeA, _coeB, _aps_shift_x = powerlaw_shift_fit(_smps, _aps)
-
-    ## the least squares of diameter
-    ## the shift factor which the closest to 1
-    _shift_val = np.arange(0.3, 3.05, .05) ** .5
-    # _shift_val = np.arange(0.9, 1.805, .005)**.5
-
-    _shift_factor = DataFrame(columns=range(_shift_val.size), index=_aps_shift_x.index)
-    _shift_factor.loc[:, :] = _shift_val
-
-    # _dropna_idx = _shift_factor.dropna(how='all').index.copy()
-    _dropna_idx = _aps_shift_x.dropna(how='all').index.copy()
-
-    ## use the target function to get the similar aps and smps bin
-    ## S2 = sum( (smps_fit_line(dia) - aps(dia*shift_factor) )**2 )
-    ## assumption : the same diameter between smps and aps should get the same conc.
-
-    ## be sure they art in log value
-    _S2 = DataFrame(index=_aps_shift_x.index)
-    _dia_table = DataFrame(np.full(_aps_shift_x.shape, _aps_shift_x.keys()),
-                           columns=_aps_shift_x.keys(), index=_aps_shift_x.index)
-
-    pool = Pool(cpu_count())
-
-    _S2 = pool.starmap(partial(_shift_residual_s2, _coeA, _coeB, _aps), list(enumerate(_shift_val)))
-
-    pool.close()
-    pool.join()
-
-    S2 = concat(_S2, axis=1)[np.arange(_shift_val.size)]
-    # S2 /= S2.max(axis=1).to_frame().values
-
-    shift_factor_dN = DataFrame(
-        _shift_factor.loc[_dropna_idx].values[range(len(_dropna_idx)), S2.loc[_dropna_idx].idxmin(axis=1).values],
-        index=_dropna_idx).reindex(_dt_indx).astype(float)
-
-    # shift² == estimated effective density (g/cm³); drop out-of-range timestamps
-    _rho_min, _rho_max = density_range
-    shift_factor_dN = shift_factor_dN.mask((shift_factor_dN ** 2 < _rho_min) | (shift_factor_dN ** 2 > _rho_max))
-
-    return shift_factor_dN
-
-
+# _powerlaw_fit_dN (grid-search shift finder) +
 # _corr_fc / _corr_with_dNdSdV (dN/dS/dV correlation shift finder) moved to _core.py
 
 

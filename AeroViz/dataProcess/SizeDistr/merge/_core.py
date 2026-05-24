@@ -12,6 +12,7 @@ files; they live here once so every version shares a single implementation:
   versions); ``with_corr`` toggles the APS correction factor output.
 * ``_overlap_fitting`` / ``_shift_data_process`` — data-derived shift finder +
   effective-density QC used by v1/v2.
+* ``_powerlaw_fit_dN`` — fixed-grid (parallel) shift finder used by v3/v4.
 """
 from datetime import datetime as dtm
 from functools import partial
@@ -295,3 +296,45 @@ def _shift_data_process(_shift, density_range=(0.6, 2.6)):
     _shift = _shift.mask((~np.isfinite(_shift)) | (_rho < _rho_min) | (_rho > _rho_max))
 
     return _shift
+
+
+def _powerlaw_fit_dN(_smps, _aps, _alg_type, density_range=(0.6, 2.6)):
+    """Grid-search shift finder used by v3/v4 (family B).
+
+    Same power-law fit + S² objective as :func:`_overlap_fitting` (family A), but
+    searches a FIXED density grid (0.3-3.0 g/cm³) in parallel instead of
+    data-derived per-bin candidates, and applies the density-range QC inline.
+
+    Returns the per-timestamp shift factor (NaN where QC-rejected).
+    """
+    print(f"\t\t{dtm.now().strftime('%m/%d %X')} : \033[92moverlap range fitting : {_alg_type}\033[0m")
+
+    _dt_indx = _smps.index
+
+    _coeA, _coeB, _aps_shift_x = powerlaw_shift_fit(_smps, _aps)
+
+    ## fixed density grid of candidate shift factors (vs family A's data-derived)
+    _shift_val = np.arange(0.3, 3.05, .05) ** .5
+
+    _shift_factor = DataFrame(columns=range(_shift_val.size), index=_aps_shift_x.index)
+    _shift_factor.loc[:, :] = _shift_val
+
+    _dropna_idx = _aps_shift_x.dropna(how='all').index.copy()
+
+    ## S² per candidate, evaluated in parallel
+    pool = Pool(cpu_count())
+    _S2 = pool.starmap(partial(_shift_residual_s2, _coeA, _coeB, _aps), list(enumerate(_shift_val)))
+    pool.close()
+    pool.join()
+
+    S2 = concat(_S2, axis=1)[np.arange(_shift_val.size)]
+
+    shift_factor_dN = DataFrame(
+        _shift_factor.loc[_dropna_idx].values[range(len(_dropna_idx)), S2.loc[_dropna_idx].idxmin(axis=1).values],
+        index=_dropna_idx).reindex(_dt_indx).astype(float)
+
+    # shift² == estimated effective density (g/cm³); drop out-of-range timestamps
+    _rho_min, _rho_max = density_range
+    shift_factor_dN = shift_factor_dN.mask((shift_factor_dN ** 2 < _rho_min) | (shift_factor_dN ** 2 > _rho_max))
+
+    return shift_factor_dN

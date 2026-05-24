@@ -10,6 +10,8 @@ files; they live here once so every version shares a single implementation:
   (v3/v4).
 * ``merge_data`` — blend SMPS + shifted APS onto a 230-bin log grid (all
   versions); ``with_corr`` toggles the APS correction factor output.
+* ``_overlap_fitting`` / ``_shift_data_process`` — data-derived shift finder +
+  effective-density QC used by v1/v2.
 """
 from datetime import datetime as dtm
 from functools import partial
@@ -239,3 +241,57 @@ def merge_data(_smps_ori, _aps_ori, _shift_ori, _smps_lb, _aps_hb, _shift_mode='
         return _out_df(_df_merge), _out_df(_shift_ori ** 2), _out_df(_df_corr)
 
     return _out_df(_df_merge), _out_df(_shift_ori ** 2), None
+
+
+def _overlap_fitting(_smps_ori, _aps_ori, _smps_lb, _aps_hb):
+    """Data-derived shift finder used by v1/v2 (family A).
+
+    Power-law fits the SMPS tail, derives per-bin candidate shift factors from
+    the data, and picks the one minimising S² against APS. (v3/v4 instead search
+    a fixed shift grid via ``_powerlaw_fit_dN``.)
+
+    Returns ``(shift_factor, (coeA, coeB))`` aligned to the SMPS time axis.
+    """
+    print(f"\t\t{dtm.now().strftime('%m/%d %X')} : \033[92moverlap range fitting\033[0m")
+
+    _dt_indx = _smps_ori.index
+
+    ## overlap diameter data
+    _aps = _aps_ori[_aps_ori.keys()[_aps_ori.keys() < _aps_hb]].copy()
+    _smps = _smps_ori[_smps_ori.keys()[_smps_ori.keys() > _smps_lb]].copy()
+
+    ## power-law fit (A, B) + implied mobility-equivalent APS diameters
+    _coeA, _coeB, _aps_shift_x = powerlaw_shift_fit(_smps, _aps)
+
+    ## candidate shift factors derived per-bin from the data (vs v3/v4's grid)
+    _shift_factor = (_aps_shift_x.keys()._data.astype(float) / _aps_shift_x)
+    _shift_factor.columns = range(len(_aps_shift_x.keys()))
+
+    _dropna_idx = _shift_factor.dropna(how='all').index.copy()
+
+    ## S² per candidate (shared kernel); pick the argmin
+    _S2 = concat([_shift_residual_s2(_coeA, _coeB, _aps, _idx, _factor.to_frame().values)
+                  for _idx, _factor in _shift_factor.items()], axis=1)
+
+    _least_squ_idx = _S2.idxmin(axis=1).loc[_dropna_idx]
+
+    _shift_factor_out = DataFrame(_shift_factor.loc[_dropna_idx].values[range(len(_dropna_idx)), _least_squ_idx.values],
+                                  index=_dropna_idx).reindex(_dt_indx)
+
+    return _shift_factor_out, (DataFrame(_coeA, index=_dt_indx), DataFrame(_coeB, index=_dt_indx))
+
+
+def _shift_data_process(_shift, density_range=(0.6, 2.6)):
+    """Quality-control the shift factor by plausible effective density (v1/v2).
+
+    ``shift² == effective density (g/cm³)``; timestamps whose density falls
+    outside ``density_range`` (or are non-finite) are masked to NaN. Wider range
+    = looser QC.
+    """
+    print(f"\t\t{dtm.now().strftime('%m/%d %X')} : \033[92mshift-data quality control\033[0m")
+
+    _rho = _shift ** 2
+    _rho_min, _rho_max = density_range
+    _shift = _shift.mask((~np.isfinite(_shift)) | (_rho < _rho_min) | (_rho > _rho_max))
+
+    return _shift

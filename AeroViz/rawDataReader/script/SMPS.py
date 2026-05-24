@@ -1,9 +1,10 @@
 import csv
 
 import numpy as np
-from pandas import to_datetime, to_numeric, read_csv, Series, concat, DataFrame
+from pandas import to_datetime, read_csv, Series, concat
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
+from AeroViz.rawDataReader.script._size_dist_output import finalize_size_dist
 
 
 class Reader(AbstractReader):
@@ -30,45 +31,18 @@ class Reader(AbstractReader):
     STATUS_COLUMN = 'Status Flag'
     STATUS_OK = 'Normal Scan'  # Normal status text
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._distributions = None  # Store distributions for separate file output
-
     def __call__(self, start=None, end=None, mean_freq=None):
+        """Return the dN/dlogDp distribution; write S/V + a stats sidecar.
+
+        The parent pipeline produces the QC-applied, resampled dN/dlogDp frame
+        (diameters in nm as columns) and stamps ``df.attrs``. We then write the
+        number / surface / volume distributions and a QC-aligned statistics file
+        next to the main output. Pass ``append_stats=True`` to also append the
+        statistics columns to the returned frame (default keeps it a clean PSD
+        matrix for ``psd_stats`` / ``merge_psd`` / ``SizeDist``).
         """
-        Process SMPS data and save size distributions to separate files.
-
-        Overrides AbstractReader.__call__ to add distribution file saving
-        and filter out size bins from main output.
-
-        Parameters
-        ----------
-        start : datetime
-            Start time for data processing
-        end : datetime
-            End time for data processing
-        mean_freq : str, default='1h'
-            Frequency for resampling the data
-
-        Returns
-        -------
-        pd.DataFrame
-            Processed and resampled data (statistics only, no size bins)
-        """
-        # Call parent __call__ for standard processing
-        result = super().__call__(start, end, mean_freq)
-
-        # Save distributions to separate files
-        self._save_distributions(mean_freq)
-
-        # Filter out size bins from main output, keep only statistics
-        stat_cols = [col for col in result.columns if not isinstance(col, (int, float))]
-        result_stats = result[stat_cols]
-
-        # Re-save filtered output to CSV
-        result_stats.to_csv(self.csv_out)
-
-        return result_stats
+        dist = super().__call__(start, end, mean_freq)
+        return finalize_size_dist(self, dist, unit='nm')
 
     def _raw_reader(self, file):
         """Read and parse raw SMPS data files.
@@ -232,166 +206,26 @@ class Reader(AbstractReader):
         return df_qc.reindex(_index)
 
     def _process(self, _df):
-        """
-        Calculate size distribution statistics from QC'd SMPS data.
+        """Return the QC'd dN/dlogDp size bins (plus ``QC_Flag``).
 
-        Processing Steps
-        ----------------
-        1. Calculate dlogDp from bin diameters
-        2. Calculate number, surface, volume distributions (all in dX/dlogDp)
-        3. Calculate total, GMD, GSD, mode for each weighting
-        4. Calculate mode contributions (ultra, accum, coarse fractions)
-        5. Store distributions for separate file output
-
-        Parameters
-        ----------
-        _df : pd.DataFrame
-            Quality-controlled DataFrame with size bin columns and QC_Flag
-
-        Returns
-        -------
-        pd.DataFrame
-            Original size bins (dN/dlogDp) + calculated statistics + QC_Flag
+        The size distribution itself is the canonical SMPS product. Summary
+        statistics (total / GMD / GSD / mode, mode fractions) and the surface
+        and volume distributions are *derived* quantities — compute them on
+        demand with :func:`AeroViz.psd_stats` / :func:`AeroViz.psd_distributions`
+        rather than baking them into the reader output. This keeps the reader's
+        return type a plain dN/dlogDp DataFrame (diameters as columns), which is
+        exactly what ``psd_stats`` / ``merge_psd`` / ``SizeDist`` consume.
         """
         _index = _df.index.copy()
 
-        # Separate QC_Flag from size bins
         qc_flag = _df['QC_Flag'].copy() if 'QC_Flag' in _df.columns else Series('Valid', index=_df.index)
-
-        # Get numeric columns (size bins)
         bin_cols = [col for col in _df.columns if isinstance(col, (int, float))]
-        df_bins = _df[bin_cols].copy()  # This is dN/dlogDp
-        dp = np.array(bin_cols, dtype=float)
 
-        # Input is already dN/dlogDp, calculate dS/dlogDp and dV/dlogDp
-        dN_dlogDp = df_bins.copy()
-        dS_dlogDp = dN_dlogDp * np.pi * dp ** 2  # Surface area distribution (nm²·cm⁻³)
-        dV_dlogDp = dN_dlogDp * np.pi * (dp ** 3) / 6  # Volume distribution (nm³·cm⁻³)
-
-        # Store distributions for separate file output (with QC_Flag)
-        self._distributions = {
-            'dNdlogDp': concat([dN_dlogDp, qc_flag], axis=1),
-            'dSdlogDp': concat([dS_dlogDp, qc_flag], axis=1),
-            'dVdlogDp': concat([dV_dlogDp, qc_flag], axis=1),
-        }
-
-        # For statistics calculation, convert to absolute values (dX = dX/dlogDp * dlogDp)
-        dlogDp = np.diff(np.log10(dp))
-        dlogDp = np.append(dlogDp, dlogDp[-1])
-        dN = dN_dlogDp * dlogDp
-        dS = dS_dlogDp * dlogDp
-        dV = dV_dlogDp * dlogDp
-
-        # Calculate statistics for all particles
-        stats = DataFrame(index=_df.index)
-
-        # Calculate for each weighting type
-        for weight_name, dist in [('num', dN), ('surf', dS), ('vol', dV)]:
-            total, gmd, gsd = self._geometric_prop(dp, dist)
-            stats[f'total_{weight_name}'] = total
-            stats[f'GMD_{weight_name}'] = gmd
-            stats[f'GSD_{weight_name}'] = gsd
-
-            # Calculate mode (diameter with maximum concentration)
-            mask = dist.notna().any(axis=1)
-            stats.loc[mask, f'mode_{weight_name}'] = dist.loc[mask].idxmax(axis=1)
-
-            # Calculate mode contributions
-            if weight_name == 'num':
-                total_sum = dist.sum(axis=1)
-                total_sum = total_sum.where(total_sum > 0)
-
-                # Ultrafine: < 100 nm
-                ultra_bins = [c for c in dist.columns if c < 100]
-                if ultra_bins:
-                    stats[f'ultra_{weight_name}'] = dist[ultra_bins].sum(axis=1) / total_sum
-
-                # Accumulation: 100-1000 nm
-                accum_bins = [c for c in dist.columns if 100 <= c < 1000]
-                if accum_bins:
-                    stats[f'accum_{weight_name}'] = dist[accum_bins].sum(axis=1) / total_sum
-
-                # Coarse: >= 1000 nm (if available in SMPS range)
-                coarse_bins = [c for c in dist.columns if c >= 1000]
-                if coarse_bins:
-                    stats[f'coarse_{weight_name}'] = dist[coarse_bins].sum(axis=1) / total_sum
-
-        # Combine: size bins + statistics + QC_Flag
-        # (bins are kept for rate calculation, filtered out when saving to CSV)
-        df_out = concat([df_bins, stats, qc_flag], axis=1)
-
-        # Log QC summary
-        if hasattr(self, '_qc_summary') and self._qc_summary is not None:
+        # Log the QC summary collected in _QC()
+        if getattr(self, '_qc_summary', None) is not None:
             self.logger.info(f"{self.nam} QC Summary:")
             for _, row in self._qc_summary.iterrows():
                 self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
 
-        return df_out.reindex(_index)
-
-    def _save_distributions(self, mean_freq: str = '1h') -> None:
-        """
-        Save size distributions to separate CSV files.
-
-        Output Files
-        ------------
-        - output_smps_dNdlogDp.csv : Number distribution (dN/dlogDp)
-        - output_smps_dSdlogDp.csv : Surface distribution (dS/dlogDp)
-        - output_smps_dVdlogDp.csv : Volume distribution (dV/dlogDp)
-
-        Parameters
-        ----------
-        mean_freq : str, default='1h'
-            Frequency for resampling the data
-        """
-        if not hasattr(self, '_distributions') or self._distributions is None:
-            self.logger.warning("No distributions to save. Run _process() first.")
-            return
-
-        output_folder = self._output_folder
-        self.logger.info("")
-
-        for dist_name, dist_df in self._distributions.items():
-            # Process QC_Flag: set invalid rows to NaN
-            if 'QC_Flag' in dist_df.columns:
-                invalid_mask = dist_df['QC_Flag'] != 'Valid'
-                numeric_cols = [c for c in dist_df.columns if c != 'QC_Flag']
-                dist_df.loc[invalid_mask, numeric_cols] = np.nan
-                dist_df = dist_df.drop(columns=['QC_Flag'])
-
-            # Resample (only when a frequency is requested) and save
-            if mean_freq is not None:
-                dist_df = dist_df.resample(mean_freq).mean().round(4)
-            output_path = output_folder / f'{self._output_prefix}_{dist_name}.csv'
-            dist_df.to_csv(output_path)
-            self.logger.info(f"Saved: {output_path.name}")
-
-    @staticmethod
-    def _geometric_prop(dp, dist):
-        """
-        Calculate geometric mean diameter and geometric standard deviation.
-
-        Parameters
-        ----------
-        dp : np.ndarray
-            Particle diameters (nm)
-        dist : pd.DataFrame
-            Distribution data (dN, dS, or dV)
-
-        Returns
-        -------
-        tuple
-            (total, GMD, GSD) as pandas Series
-        """
-        # Total concentration
-        total = dist.sum(axis=1, min_count=1)
-        total_valid = total.where(total > 0)
-
-        # GMD calculation (in log space)
-        log_dp = np.log(dp)
-        gmd_log = (dist * log_dp).sum(axis=1) / total_valid
-
-        # GSD calculation
-        dp_mesh, gmd_mesh = np.meshgrid(log_dp, gmd_log)
-        gsd_log = np.sqrt(((dp_mesh - gmd_mesh) ** 2 * dist.values).sum(axis=1) / total_valid)
-
-        return total, np.exp(gmd_log), np.exp(gsd_log)
+        # Keep only the size bins + QC_Flag (drop the raw Status Flag column)
+        return concat([_df[bin_cols], qc_flag], axis=1).reindex(_index)

@@ -42,28 +42,67 @@ class TestSMPSReader(BaseReaderTest):
         },
     }
 
-    # SMPS __call__ filters out size bins, returning only statistics
-    EXPECTED_COLUMNS = [
-        'total_num', 'GMD_num', 'GSD_num',
-        'total_surf', 'GMD_surf', 'GSD_surf',
-        'total_vol', 'GMD_vol', 'GSD_vol',
-    ]
+    # The reader returns the dN/dlogDp size distribution (diameters as float
+    # columns); summary statistics are derived on demand via psd_stats().
+    EXPECTED_COLUMNS = None
 
-    def test_statistics_calculated(self, data_path, date_range, temp_output_dir):
-        """Test that size distribution statistics are calculated."""
+    def test_returns_size_distribution(self, data_path, date_range, temp_output_dir):
+        """Reader returns dN/dlogDp with float-diameter columns (no stats baked in)."""
         normal_path = data_path / 'normal'
         if not normal_path.exists():
             normal_path = data_path
 
         df = self.read_data(normal_path, date_range)
 
-        for stat in ['total_num', 'GMD_num', 'GSD_num', 'mode_num']:
-            assert stat in df.columns, f"{stat} column not found"
+        assert len(df.columns) > 0
+        # Every column is a numeric particle diameter (nm)
+        assert all(isinstance(c, (int, float)) for c in df.columns), \
+            f"Expected float-diameter columns, got {list(df.columns[:5])}"
+        # Statistics are no longer baked into the reader output
+        assert 'total_num' not in df.columns
 
-        # total_num should be positive
-        valid = df['total_num'].dropna()
+    def test_statistics_via_psd_stats(self, data_path, date_range, temp_output_dir):
+        """psd_stats() derives the size-distribution statistics from the reader output."""
+        from AeroViz import psd_stats
+
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = self.read_data(normal_path, date_range)
+        stats = psd_stats(df)['other']
+
+        assert any('total_num' in str(c) for c in stats.columns), "total_num stat not found"
+        valid = stats.filter(like='total_num').dropna(how='all')
         if len(valid) > 0:
-            assert valid.min() > 0, "total_num should be positive"
+            assert (valid.fillna(0).to_numpy() >= 0).all(), "total_num should be non-negative"
+
+    def test_output_files_written(self, data_path, date_range, temp_output_dir):
+        """Reader writes N/S/V distribution files + a statistics sidecar."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        self.read_data(normal_path, date_range)
+
+        out = normal_path / 'smps_outputs'
+        for name in ('output_smps_dNdlogDp.csv', 'output_smps_dSdlogDp.csv',
+                     'output_smps_dVdlogDp.csv', 'output_smps_stats.csv'):
+            assert (out / name).exists(), f"{name} not written"
+
+    def test_append_stats(self, data_path, date_range, temp_output_dir):
+        """append_stats=True appends stat columns; default keeps a clean PSD matrix."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        clean = self.read_data(normal_path, date_range)
+        fat = self.read_data(normal_path, date_range, append_stats=True)
+
+        assert all(isinstance(c, (int, float)) for c in clean.columns)
+        # Appended frame keeps the bins and gains string-named stat columns
+        assert any(isinstance(c, (int, float)) for c in fat.columns)
+        assert any(isinstance(c, str) and 'total_num' in c for c in fat.columns)
 
     def test_raw_data_has_all_columns(self, data_path, date_range, temp_output_dir):
         """Test that raw pickle preserves all original columns (size bins + metadata)."""

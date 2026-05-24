@@ -98,11 +98,23 @@ timeseries_interactive(df, columns=['eBC', 'AAE'])   # show=True by default
 - `eBC`: Equivalent black carbon
 
 ### SMPS/APS
-- Size bins (e.g., `11.8`, `13.6`, ... nm for SMPS)
-- `total_num`: Total number concentration (#/cm³)
-- `total_surf`: Total surface area (μm²/cm³)
-- `total_vol`: Total volume (μm³/cm³)
-- `GMD_num`, `GSD_num`: Geometric mean diameter and std
+The reader returns the **size distribution itself** — a `dN/dlogDp` DataFrame
+whose columns are particle diameters (SMPS in nm, e.g. `11.8`, `13.6`, ...;
+APS in µm). There are no statistics columns in the reader output.
+
+Derive statistics with `psd_stats(df)` (see `AeroViz.size`):
+- `psd_stats(df)['other']`: stats frame — `total_num_all`, `GMD_num_all`,
+  `GSD_num_all`, `mode_num_all`, plus per-mode `*_{num,surf,vol}_{Nucleation,
+  Aitken,Accumulation,Coarse}`
+- `psd_stats(df)['number'|'surface'|'volume']`: dN/dS/dV-dlogDp distributions
+- `merge_psd(smps, aps, ...)`: merge SMPS+APS into a continuous PSD
+
+Each read also writes, alongside `{prefix}.csv` (= dN/dlogDp): the
+`{prefix}_dNdlogDp.csv` / `_dSdlogDp.csv` / `_dVdlogDp.csv` distributions and a
+QC-aligned `{prefix}_stats.csv` (same columns as `psd_stats(df)['other']`).
+Pass `append_stats=True` to `RawDataReader` to append the stat columns to the
+returned frame (default False keeps it a clean PSD matrix for the functions
+above).
 
 ### TEOM
 - `PM_NV`: Non-volatile PM (μg/m³)
@@ -194,7 +206,9 @@ print(bc_data[['eBC', 'AAE']].describe())
 
 ### Size Distribution Analysis
 ```python
-# Read SMPS data with size range filter
+from AeroViz import RawDataReader, psd_stats
+
+# Read SMPS data with size range filter — returns dN/dlogDp (diameters as columns)
 smps = RawDataReader(
     instrument='SMPS',
     path='/data/SMPS',
@@ -203,8 +217,9 @@ smps = RawDataReader(
     size_range=(10, 500)  # nm
 )
 
-# Total number concentration
-print(smps['total_num'].mean())
+# Derive statistics from the distribution
+stats = psd_stats(smps)['other']
+print(stats['total_num_all'].mean())   # total number concentration (#/cm³)
 ```
 
 ### Heavy Metal Analysis

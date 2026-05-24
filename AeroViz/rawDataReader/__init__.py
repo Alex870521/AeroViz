@@ -74,6 +74,16 @@ def RawDataReader(instrument: str,
     size_range : tuple[float, float], optional
         Size range in nanometers (min_size, max_size) for SMPS/APS data filtering
 
+    append_stats : bool, default=False
+        SMPS/APS only. The reader returns the dN/dlogDp distribution (diameters
+        as columns). When True, the derived summary statistics (total / GMD /
+        GSD / mode, per weighting and mode) are appended as extra columns of the
+        returned frame. The default (False) keeps the return value a clean PSD
+        matrix so it can be passed straight to ``psd_stats`` / ``merge_psd`` /
+        ``SizeDist``; the statistics are always also written to
+        ``{prefix}_stats.csv`` alongside the ``_dNdlogDp`` / ``_dSdlogDp`` /
+        ``_dVdlogDp`` distribution files.
+
     fill_missing : bool, default=True
         Time-grid coverage of the output:
         True - reindex/pad out to the full requested [start, end] range

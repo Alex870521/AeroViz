@@ -5,7 +5,7 @@ AeroViz is an aerosol data processing and visualization toolkit for air quality 
 ## Quick Start
 
 ```python
-from AeroViz import RawDataReader, DataProcess
+from AeroViz import RawDataReader
 
 # Read instrument data with automatic QC
 df = RawDataReader(
@@ -67,14 +67,61 @@ df = RawDataReader(
 
 ## Data Processing
 
+Post-processing is a flat set of **top-level functions**, grouped into four
+namespaces — `chemistry`, `optical`, `size`, `voc`. Each call is self-contained:
+pass a DataFrame (or a few), get a DataFrame or dict back. No processor object,
+no `path_out` — call `.to_csv()` yourself if you want a file.
+
 ```python
-from AeroViz import DataProcess
+from AeroViz import reconstruct_mass, mie, improve, merge_psd, psd_stats, voc_potentials
 
-# Create processor for optical calculations
-optical = DataProcess(method='Optical', path_out=Path('./results'))
-
-# Available methods: 'Chemistry', 'Optical', 'SizeDistr', 'VOC'
+mass = reconstruct_mass(df_chem)              # chemistry
+ext  = mie(df_pnsd, df_RI, wavelength=550)    # optical
+imp  = improve(df_mass, df_RH, method='revised')
+ofp  = voc_potentials(df_voc)                 # voc
 ```
+
+> **`DataProcess(method=..., path_out=...)` is DEPRECATED** (emits
+> `DeprecationWarning`, will be removed). Migrate to the top-level functions:
+
+| Old (deprecated) | New (top-level) |
+|------------------|-----------------|
+| `DataProcess('Chemistry').ReConstrc_basic(df)` | `reconstruct_mass(df)` |
+| `DataProcess('Optical').IMPROVE(df_mass, df_RH, method='revised')` | `improve(df_mass, df_RH, method='revised')` |
+| `DataProcess('Optical').Mie(df_psd, df_m)` | `mie(df_psd, df_m)` |
+| `DataProcess('SizeDistr').basic(df)` | `psd_stats(df)` |
+| `DataProcess('SizeDistr').distributions(df)` | `psd_distributions(df)` |
+| `DataProcess('SizeDistr').merge_SMPS_APS_v4(smps, aps, pm25)` | `merge_psd(smps, aps, df_pm25=pm25, version=4)` |
+| `DataProcess('VOC').VOC_basic(df)` | `voc_potentials(df)` |
+
+### Size distribution (`SizeDistr` replacement)
+
+The `'SizeDistr'` method maps onto three top-level functions plus the `SizeDist`
+class (the engine, NOT deprecated) for the rest:
+
+```python
+from AeroViz import psd_stats, psd_distributions, merge_psd
+from AeroViz.dataProcess.SizeDistr import SizeDist
+
+stats = psd_stats(df_pnsd)['other']        # was .basic(df)  → total_num/GMD/GSD/mode_*
+dists = psd_distributions(df_pnsd)         # was .distributions(df) → number/surface/volume
+
+# Merge SMPS + APS (every version returns {'data', 'density', ...})
+merged  = merge_psd(smps, aps, version=4, df_pm25=pm25)   # v4 needs PM2.5
+merged3 = merge_psd(smps, aps, version=3)                 # v3 needs no mass ref
+pnsd    = merged['data']                                  # recommended merged dN/dlogDp
+
+# Everything else goes through SizeDist directly:
+psd  = SizeDist(pnsd, state='dlogdp', weighting='n')
+surf = psd.to_surface(); vol = psd.to_volume()
+dry  = psd.to_dry(df_gRH)                                 # was .dry_psd(...)
+extd = psd.to_extinction(df_RI, method='internal')       # was .extinction_distribution(...)
+modes = psd.mode_statistics()                             # per-mode stats
+lung  = psd.lung_deposition(activity='light')
+```
+
+> Top-level `merge_psd` also supports `density_range=` (QC) and an EXPERIMENTAL
+> `version=5` (mass-anchored density, needs `df_pm1=`, emits a warning).
 
 ## Interactive timeseries
 

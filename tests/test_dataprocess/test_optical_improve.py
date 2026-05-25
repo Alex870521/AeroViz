@@ -49,6 +49,30 @@ def test_wet_extinction_exceeds_dry(mass_df):
     assert (out['fRH'].dropna() >= 1.0).all()
 
 
+def test_df_RH_accepts_single_column_dataframe(mass_df):
+    """A 1-column RH DataFrame is accepted and matches the Series result."""
+    rh_series = pd.Series(np.full(len(mass_df), 80.0), index=mass_df.index, name='RH')
+    rh_frame = rh_series.to_frame()
+
+    out_series = improve(mass_df, df_RH=rh_series, method='revised')
+    out_frame = improve(mass_df, df_RH=rh_frame, method='revised')
+
+    np.testing.assert_allclose(
+        out_frame['wet']['total'].to_numpy(),
+        out_series['wet']['total'].to_numpy(),
+    )
+
+
+def test_df_RH_multicolumn_raises(mass_df):
+    """A multi-column RH DataFrame fails with a clear message (not an opaque index error)."""
+    bad_rh = pd.DataFrame(
+        {'RH': np.full(len(mass_df), 80.0), 'RH2': np.full(len(mass_df), 70.0)},
+        index=mass_df.index,
+    )
+    with pytest.raises(ValueError, match="single RH column"):
+        improve(mass_df, df_RH=bad_rh, method='revised')
+
+
 def test_invalid_method_raises(mass_df):
     with pytest.raises(ValueError, match="method must be"):
         improve(mass_df, method='bogus')

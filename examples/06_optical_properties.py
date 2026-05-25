@@ -201,7 +201,13 @@ def retrieve_refractive_index():
 
     # 讀取光學測量
     df_neph, df_ae33 = read_optical_data()
-    df_optical = pd.concat([df_neph, df_ae33], axis=1)
+    # retrieve_ri 需要 df_optical 含 Extinction / Scattering / Absorption（大寫）
+    # NEPH 提供 sca_550、AE33 提供 abs_550（皆小寫），在此組成所需欄位
+    df_optical = pd.DataFrame({
+        'Scattering': df_neph['sca_550'],
+        'Absorption': df_ae33['abs_550'],
+        'Extinction': df_neph['sca_550'] + df_ae33['abs_550'],
+    })
 
     # 讀取粒徑分布
     df_pnsd = RawDataReader(

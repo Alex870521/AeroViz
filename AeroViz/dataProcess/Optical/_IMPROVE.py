@@ -93,6 +93,16 @@ def get_fRH_factors(rh_data, fRH_table):
     if rh_data is None:
         return 1, 1, 1, 1
 
+    # Accept a single-column DataFrame as well as a Series — indexing the lookup
+    # table with a 2-D key raises "Cannot index with multidimensional key".
+    if isinstance(rh_data, DataFrame):
+        if rh_data.shape[1] != 1:
+            raise ValueError(
+                "df_RH must be a single RH column (a Series or 1-column DataFrame), "
+                f"got {rh_data.shape[1]} columns."
+            )
+        rh_data = rh_data.iloc[:, 0]
+
     rh_clipped = rh_data.mask(rh_data > 95, 95).round(0)
     return fRH_table.loc[rh_clipped].values.T
 

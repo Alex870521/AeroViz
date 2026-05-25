@@ -1,0 +1,5481 @@
+<!-- docs/overrides/main.html -->
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://alex870521.github.io/AeroViz/MANUAL/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/icon.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>AeroViz User Manual - AeroViz</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=-apple-system,"BlinkMacSystemFont","Segoe+UI","Helvetica+Neue","Arial",sans-serif,"Apple+Color+Emoji","Segoe+UI+Emoji","Segoe+UI+Symbol":300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"-apple-system,"BlinkMacSystemFont","Segoe UI","Helvetica Neue","Arial",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol"";--md-code-font:"JetBrains Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+      <link rel="stylesheet" href="../stylesheets/claude-code-navigation.css">
+    
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#aeroviz-user-manual" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+        <aside class="md-banner">
+          <div class="md-banner__inner md-grid md-typeset">
+            
+              <button class="md-banner__button md-icon" aria-label="Don't show this again">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+              </button>
+            
+            
+<!-- docs/overrides/announce.html -->
+<div class="md-banner">
+    <div class="md-banner__inner md-grid">
+        <div class="carousel-container">
+            <div class="carousel-track">
+                <div class="carousel-slide">
+                    <span>New AeroViz version released!</span>
+                    <a href="https://alex870521.github.io/AeroViz/guide/" class="md-banner__link">
+                        See new features!
+                    </a>
+                </div>
+                <div class="carousel-slide">
+                    <span>New visualization features available</span>
+                    <a href="https://alex870521.github.io/AeroViz/guide/plot/" class="md-banner__link">
+                        Explore now
+                    </a>
+                </div>
+                <div class="carousel-slide">
+                    <span>Multiple instrument support added</span>
+                    <a href="https://alex870521.github.io/AeroViz/guide/instruments/" class="md-banner__link">
+                        Learn more
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+          </div>
+          
+            <script>var el=document.querySelector("[data-md-component=announce]");if(el){var content=el.querySelector(".md-typeset");__md_hash(content.innerHTML)===__md_get("__announce")&&(el.hidden=!0)}</script>
+          
+        </aside>
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="AeroViz" class="md-header__button md-logo" aria-label="AeroViz" data-md-component="logo">
+      
+  <img src="../assets/icon.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AeroViz
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AeroViz User Manual
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/alex870521/AeroViz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    alex870521/AeroViz
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href=".." class="md-tabs__link">
+          
+  
+  
+    
+  
+  Home
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../guide/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../theory/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Theory
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://aeroviz.org/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  About
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="AeroViz" class="md-nav__button md-logo" aria-label="AeroViz" data-md-component="logo">
+      
+  <img src="../assets/icon.svg" alt="logo">
+
+    </a>
+    AeroViz
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/alex870521/AeroViz" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    alex870521/AeroViz
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href=".." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Home
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CHANGELOG/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../guide/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/rawdatareader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/rawdatareader-internals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/dataprocess/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataProcess
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/visualization/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visualization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Examples
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/size_distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Size Distribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/optical_closure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optical Closure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/chemical_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chemical Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/voc_analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VOC Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../theory/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theory
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Theory
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory/mie/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mie Theory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory/improve/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IMPROVE Equation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory/lognormal/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Log-Normal Distribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory/icrp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ICRP 66 Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory/kappa/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    κ-Köhler Theory
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory/mass_reconstruction/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mass Reconstruction
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../theory/ofp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OFP/SOAP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api/RawDataReader/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    RawDataReader
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/AbstractReader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AbstractReader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/QualityControl/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Quality Control
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api/instruments/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported Instruments
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_2_4" id="__nav_4_2_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Supported Instruments
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4_2" id="__nav_4_2_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aethalometers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Aethalometers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/aethalometers/AE33/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AE33
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/aethalometers/AE43/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AE43
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/aethalometers/BC1054/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BC1054
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/aethalometers/MA350/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MA350
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4_3" id="__nav_4_2_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Nephelometers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Nephelometers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/nephelometers/Aurora/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Aurora
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/nephelometers/NEPH/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    NEPH
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4_4" id="__nav_4_2_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Particle Sizers
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Particle Sizers
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/particle-sizers/SMPS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SMPS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/particle-sizers/APS/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    APS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/particle-sizers/GRIMM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GRIMM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4_5" id="__nav_4_2_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chemical
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Chemical
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/chemical/IGAC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    IGAC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/chemical/OCEC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCEC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/chemical/VOC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VOC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/chemical/Xact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Xact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4_6" id="__nav_4_2_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Mass
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Mass
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/mass/TEOM/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    TEOM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/instruments/mass/BAM1020/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    BAM1020
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api/DataProcess/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DataProcess
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    DataProcess
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/DataProcess/SizeDistr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SizeDistr
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/DataProcess/Chemistry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Chemistry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/DataProcess/Optical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/DataProcess/VOC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VOC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../api/plot/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plotting
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Plotting
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_2" id="__nav_4_4_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Basic
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/basic/scatter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    scatter
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/basic/regression/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    regression
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/basic/box/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    box
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/basic/bar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    bar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/basic/violin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    violin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/basic/pie/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    pie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/basic/radar/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    radar
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_3" id="__nav_4_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time Series
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Time Series
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/timeseries/timeseries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    timeseries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_4" id="__nav_4_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Distribution
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Distribution
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/distribution/distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    distribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meteorology
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Meteorology
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/meteorology/wind_rose/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wind_rose
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/meteorology/CBPF/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CBPF
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/meteorology/hysplit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    hysplit
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_4_6" id="__nav_4_4_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optical
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_4_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Optical
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/plot/optical/optical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    optical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://aeroviz.org/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#table-of-contents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Table of Contents
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick Start
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core-concepts-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Concepts / Architecture
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#reading-raw-data-rawdatareader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reading Raw Data (RawDataReader)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Reading Raw Data (RawDataReader)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signature-and-parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signature and parameters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#supported-instruments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported instruments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-each-read-writes-to-disk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What each read writes to disk
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#reader-metadata-dfattrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Reader metadata (df.attrs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-smpsaps-dndlogdp-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The SMPS/APS dN/dlogDp contract
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#quality-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quality Control
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#size-distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Size Distribution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Size Distribution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#psd_stats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        psd_stats
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#psd_distributions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        psd_distributions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merge_psd-smps-aps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        merge_psd (SMPS + APS)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-sizedist-class" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The SizeDist class
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#chemical-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chemical Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chemical Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#reconstruct_mass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        reconstruct_mass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#volume_ri" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        volume_ri
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#growth_factor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        growth_factor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kappa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kappa
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#partition_ratios" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        partition_ratios
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#split_oc_ec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        split_oc_ec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isoropia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isoropia
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#optical-properties" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Optical Properties
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Optical Properties">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bulk-extinction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bulk extinction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bulk extinction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#optical_basic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        optical_basic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#improve-improve-extinction-reconstruction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        improve (IMPROVE extinction reconstruction)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gas_extinction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        gas_extinction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#brown_carbon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        brown_carbon
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mie-theory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mie theory
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Mie theory">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mie
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mie_lognormal-mie_multimodal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mie_lognormal / mie_multimodal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-shell-mie-aden-kerker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core-shell Mie (Aden-Kerker)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#angular-scattering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Angular scattering
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#refractive-index-retrieval-inverse-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Refractive-index retrieval (inverse problems)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#voc-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VOC Analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#visualization-aerovizplot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Visualization (AeroViz.plot)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilities-database-dataclassifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utilities / DataBase / DataClassifier
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Utilities / DataBase / DataClassifier">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DataBase
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dataclassifier" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DataClassifier
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#legacy-dataprocess" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Legacy: DataProcess
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-faq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting / FAQ
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#further-reading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Further Reading
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="aeroviz-user-manual">AeroViz User Manual</h1>
+<p>AeroViz is an aerosol data-processing and visualization toolkit for air-quality
+and atmospheric-science research. It provides a single, consistent interface to:</p>
+<ul>
+<li><strong>Read and quality-control raw instrument data</strong> from 20+ atmospheric
+  instruments (black-carbon monitors, size-distribution sizers, mass monitors,
+  nephelometers, OC/EC analyzers, XRF, ion chromatographs, VOC, …) through one
+  <code>RawDataReader</code> factory.</li>
+<li><strong>Analyze size distributions</strong> — derive number/surface/volume statistics from
+  SMPS/APS dN/dlogDp matrices, merge SMPS + APS into a continuous PSD, convert
+  weightings, compute mode statistics, hygroscopic drying, lung deposition, and
+  per-bin extinction.</li>
+<li><strong>Reconstruct chemistry and mass</strong> — convert measured ions to reconstructed
+  species (AS, AN, OM, Soil, SS, EC), compute volumes, refractive index,
+  hygroscopic growth, kappa, gas-particle partitioning, OC/EC splitting, and run
+  ISORROPIA II for aerosol thermodynamics.</li>
+<li><strong>Compute optical properties</strong> — Mie theory (homogeneous, core-shell,
+  lognormal, multimodal), bulk extinction/SSA/Ångström exponents, IMPROVE
+  extinction reconstruction, nephelometer truncation correction, brown-carbon
+  separation, and refractive-index retrieval.</li>
+<li><strong>Analyze VOCs</strong> — ozone-formation potential (OFP), SOA potential (SOAP), and
+  OH-reactivity from VOC concentrations.</li>
+<li><strong>Visualize</strong> — a large <code>AeroViz.plot</code> library covering time series,
+  distributions, optical plots, regressions, correlation matrices, and
+  meteorology (wind rose, CBPF, HYSPLIT).</li>
+</ul>
+<p>It is aimed at researchers and engineers who process field-campaign aerosol data
+and need reproducible, QC-aware pipelines from raw files to publication figures.</p>
+<blockquote>
+<p><strong>Version covered:</strong> AeroViz <code>0.3.1</code>. The API surface below was verified
+against the installed source; signatures and return keys are taken directly
+from the code.</p>
+</blockquote>
+<hr />
+<h2 id="table-of-contents">Table of Contents</h2>
+<ul>
+<li><a href="#installation">Installation</a></li>
+<li><a href="#quick-start">Quick Start</a></li>
+<li><a href="#core-concepts--architecture">Core Concepts / Architecture</a></li>
+<li><a href="#reading-raw-data-rawdatareader">Reading Raw Data (<code>RawDataReader</code>)</a></li>
+<li><a href="#signature-and-parameters">Signature and parameters</a></li>
+<li><a href="#supported-instruments">Supported instruments</a></li>
+<li><a href="#what-each-read-writes-to-disk">What each read writes to disk</a></li>
+<li><a href="#reader-metadata-dfattrs">Reader metadata (<code>df.attrs</code>)</a></li>
+<li><a href="#the-smpsaps-dndlogdp-contract">The SMPS/APS dN/dlogDp contract</a></li>
+<li><a href="#quality-control">Quality Control</a></li>
+<li><a href="#size-distribution">Size Distribution</a></li>
+<li><a href="#psd_stats"><code>psd_stats</code></a></li>
+<li><a href="#psd_distributions"><code>psd_distributions</code></a></li>
+<li><a href="#merge_psd-smps--aps"><code>merge_psd</code> (SMPS + APS)</a></li>
+<li><a href="#the-sizedist-class">The <code>SizeDist</code> class</a></li>
+<li><a href="#chemical-analysis">Chemical Analysis</a></li>
+<li><a href="#optical-properties">Optical Properties</a></li>
+<li><a href="#voc-analysis">VOC Analysis</a></li>
+<li><a href="#visualization-aerovizplot">Visualization (<code>AeroViz.plot</code>)</a></li>
+<li><a href="#utilities--database--dataclassifier">Utilities / DataBase / DataClassifier</a></li>
+<li><a href="#troubleshooting--faq">Troubleshooting / FAQ</a></li>
+<li><a href="#further-reading">Further Reading</a></li>
+</ul>
+<hr />
+<h2 id="installation">Installation</h2>
+<p>AeroViz is published on PyPI as <strong><code>AeroViz</code></strong>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>AeroViz
+</code></pre></div>
+<ul>
+<li><strong>Python:</strong> requires Python <strong>&gt;= 3.10</strong> (wheels are built for 3.10–3.14).</li>
+<li>AeroViz ships pre-built binary wheels (the ISORROPIA II Fortran extension is
+  compiled cross-platform via <code>meson-python</code> + <code>cibuildwheel</code>), so no Fortran
+  toolchain is needed for a normal install.</li>
+</ul>
+<p><strong>Core dependencies</strong> (installed automatically): <code>pandas &gt;= 2.2</code>,
+<code>numpy &gt;= 2.0</code>, <code>matplotlib</code>, <code>scipy</code>, <code>seaborn</code>, <code>scikit-learn</code>, <code>windrose</code>,
+<code>cartopy</code>, <code>tabulate</code>, <code>rich</code>, <code>numba</code>, <code>plotly</code>.</p>
+<p><strong>Optional extras:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;AeroViz[test]&quot;</span><span class="w">   </span><span class="c1"># pytest + coverage</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;AeroViz[dev]&quot;</span><span class="w">    </span><span class="c1"># black, isort, flake8, mypy, build, twine, commitizen</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>pip<span class="w"> </span>install<span class="w"> </span><span class="s2">&quot;AeroViz[docs]&quot;</span><span class="w">   </span><span class="c1"># mkdocs + material + mkdocstrings</span>
+</code></pre></div>
+<p>To build from source you need a C and Fortran compiler (gfortran) plus
+<code>meson-python</code>; see <code>CONTRIBUTING.md</code>.</p>
+<hr />
+<h2 id="quick-start">Quick Start</h2>
+<blockquote>
+<p><strong>Start here:</strong> new users should (1) <code>pip install AeroViz</code>, (2) read a dataset
+with <code>RawDataReader</code> (below), then (3) pass the resulting DataFrame to a
+processing function (<code>reconstruct_mass</code>, <code>improve</code>, <code>merge_psd</code>, …) or a plot.
+No data of your own? Run the bundled examples in demo mode:
+<code>python examples/01_basic_reading.py --demo</code> and
+<code>python examples/04_size_distribution.py --demo</code>.</p>
+</blockquote>
+<p>A minimal end-to-end example: read a black-carbon dataset with QC and inspect
+the result.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">RawDataReader</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Read AE33 aethalometer data, hourly-averaged, with automatic QC</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">df</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span>          <span class="c1"># instrument name (see supported list)</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">path</span><span class="o">=</span><span class="s1">&#39;/data/NZ_AE33&#39;</span><span class="p">,</span>       <span class="c1"># directory containing the raw files</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span>         <span class="c1"># ISO date (optional)</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">end</span><span class="o">=</span><span class="s1">&#39;2024-06-30&#39;</span><span class="p">,</span>           <span class="c1"># ISO date (optional)</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">mean_freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">,</span>             <span class="c1"># output frequency; omit for native resolution</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>    <span class="n">qc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>                    <span class="c1"># apply quality control</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="p">)</span>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">[[</span><span class="s1">&#39;eBC&#39;</span><span class="p">,</span> <span class="s1">&#39;AAE&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">describe</span><span class="p">())</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="c1"># Expected output: a time-indexed DataFrame with columns BC1-BC7,</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="c1"># abs_370-abs_950, AAE, eBC, QC_Flag — here .describe() prints count/mean/std/...</span>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="c1"># for the eBC and AAE columns.</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="c1"># Reader metadata is on df.attrs</span>
+<a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;coverage_start&#39;</span><span class="p">],</span> <span class="s1">&#39;→&#39;</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;coverage_end&#39;</span><span class="p">])</span>
+<a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;valid %:&#39;</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;total_rate&#39;</span><span class="p">))</span>
+</code></pre></div>
+<p>A size-distribution example using the current API:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">RawDataReader</span><span class="p">,</span> <span class="n">psd_stats</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># SMPS reader returns the dN/dlogDp matrix (diameters are the columns)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;SMPS&#39;</span><span class="p">,</span> <span class="s1">&#39;/data/NZ_SMPS&#39;</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>                     <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;2024-06-30&#39;</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>                     <span class="n">mean_freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">,</span> <span class="n">size_range</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">500</span><span class="p">))</span>   <span class="c1"># nm</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">stats</span> <span class="o">=</span> <span class="n">psd_stats</span><span class="p">(</span><span class="n">smps</span><span class="p">)</span>            <span class="c1"># derive statistics</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="n">total_num</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;other&#39;</span><span class="p">][</span><span class="s1">&#39;total_num_all&#39;</span><span class="p">]</span>     <span class="c1"># #/cm³ per timestamp</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="nb">print</span><span class="p">(</span><span class="n">total_num</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+</code></pre></div>
+<hr />
+<h2 id="core-concepts-architecture">Core Concepts / Architecture</h2>
+<p>AeroViz exposes a <strong>flat functional API</strong> plus a few sub-namespaces. All entry
+points resolve to the same implementations; pick the import style you prefer:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">RawDataReader</span><span class="p">,</span> <span class="n">reconstruct_mass</span><span class="p">,</span> <span class="n">mie</span><span class="p">,</span> <span class="n">psd_stats</span>   <span class="c1"># flat</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">chemistry</span><span class="p">,</span> <span class="n">optical</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">voc</span>                     <span class="c1"># namespaces</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.optical</span><span class="w"> </span><span class="kn">import</span> <span class="n">improve</span><span class="p">,</span> <span class="n">mie</span>                              <span class="c1"># explicit</span>
+</code></pre></div>
+<p>The main building blocks:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What it is</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>RawDataReader</code></strong></td>
+<td>Factory that reads + QCs raw instrument files into a tidy time-indexed <code>DataFrame</code>.</td>
+<td><code>RawDataReader('SMPS', path, ...)</code></td>
+</tr>
+<tr>
+<td><strong>Top-level functions</strong></td>
+<td>Direct, return-a-result analysis functions (no on-disk boilerplate).</td>
+<td><code>reconstruct_mass</code>, <code>merge_psd</code>, <code>improve</code>, <code>mie</code>, <code>voc_potentials</code></td>
+</tr>
+<tr>
+<td><strong>Sub-namespaces</strong></td>
+<td>The same functions grouped by domain.</td>
+<td><code>AeroViz.chemistry</code>, <code>AeroViz.optical</code>, <code>AeroViz.size</code>, <code>AeroViz.voc</code></td>
+</tr>
+<tr>
+<td><strong>Classes</strong></td>
+<td>Stateful helpers for richer workflows.</td>
+<td><code>SizeDist</code>, <code>DataBase</code>, <code>DataClassifier</code></td>
+</tr>
+<tr>
+<td><strong><code>AeroViz.plot</code></strong></td>
+<td>Plotting library.</td>
+<td><code>plot.timeseries</code>, <code>plot.distribution.heatmap</code>, <code>plot.meteorology.wind_rose</code></td>
+</tr>
+<tr>
+<td><strong><code>DataProcess</code></strong></td>
+<td><strong>Deprecated</strong> legacy factory; prefer the top-level functions.</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data conventions:</strong></p>
+<ul>
+<li>DataFrames are <strong>time-indexed</strong> (a <code>DatetimeIndex</code>), with one column per
+  measured quantity (or per diameter bin for size distributions).</li>
+<li>Size-distribution frames are <strong><code>dN/dlogDp</code></strong> matrices whose <em>column labels are
+  the particle diameters</em> (SMPS in nm, APS in µm).</li>
+<li>Concentrations are in instrument-native physical units (e.g. µg/m³, #/cm³,
+  Mm⁻¹); the relevant unit is noted per function.</li>
+</ul>
+<p><strong>Output-folder convention:</strong> by default, reading writes processed artifacts to
+<code>{path}/{instrument}_outputs/</code> (a pkl cache, intermediate CSVs, a log, and a
+<code>report.json</code>). A typical campaign directory looks like:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>/data/
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>├── NZ_AE33/             # convention: Station_Instrument
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>│   ├── *.dat            # raw files
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>│   └── ae33_outputs/    # processed outputs
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>├── NZ_SMPS/
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>└── NZ_TEOM/
+</code></pre></div>
+<hr />
+<h2 id="reading-raw-data-rawdatareader">Reading Raw Data (<code>RawDataReader</code>)</h2>
+<p><code>RawDataReader</code> is a factory: it picks the right reader for the instrument,
+parses the matching raw files, optionally applies QC, resamples, fills the time
+grid, caches the result, and returns a <code>DataFrame</code>.</p>
+<h3 id="signature-and-parameters">Signature and parameters</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">RawDataReader</span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">instrument</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">reset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">qc</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">start</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">end</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="n">mean_freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>    <span class="n">size_range</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="n">fill_missing</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>    <span class="n">output_prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>    <span class="n">save_pkl</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>    <span class="n">save_intermediate_csv</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>    <span class="n">save_report</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>    <span class="n">quiet</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>    <span class="n">log_level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;DEBUG&#39;</span><span class="p">,</span> <span class="s1">&#39;INFO&#39;</span><span class="p">,</span> <span class="s1">&#39;WARNING&#39;</span><span class="p">,</span> <span class="s1">&#39;ERROR&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;INFO&#39;</span><span class="p">,</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pandas</span><span class="o">.</span><span class="n">DataFrame</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>instrument</code></td>
+<td>str</td>
+<td>—</td>
+<td>Instrument key (see <a href="#supported-instruments">Supported instruments</a>).</td>
+</tr>
+<tr>
+<td><code>path</code></td>
+<td>str / Path</td>
+<td>—</td>
+<td>Directory containing the raw data files. Must exist.</td>
+</tr>
+<tr>
+<td><code>reset</code></td>
+<td>bool / str</td>
+<td><code>False</code></td>
+<td><code>False</code>=use cached processed data if available; <code>True</code>=force full reprocess from raw; <code>'append'</code>=add new data to existing.</td>
+</tr>
+<tr>
+<td><code>qc</code></td>
+<td>bool / str</td>
+<td><code>True</code></td>
+<td><code>True</code>=apply QC and compute overall rates; <code>False</code>=raw data only; a frequency string computes rate stats at intervals (<code>'W'</code>, <code>'MS'</code>, <code>'QS'</code>, <code>'YS'</code>, e.g. <code>'2MS'</code>).</td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td>datetime / str</td>
+<td><code>None</code></td>
+<td>Start of the range. ISO string (<code>'YYYY-MM-DD'</code> or with time) or <code>datetime</code>. Omit to start at the first file timestamp.</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td>datetime / str</td>
+<td><code>None</code></td>
+<td>End of the range. A bare midnight date is treated as end-of-day. Omit to end at the last timestamp.</td>
+</tr>
+<tr>
+<td><code>mean_freq</code></td>
+<td>str</td>
+<td><code>None</code></td>
+<td>Resample frequency (<code>'1h'</code>, <code>'30min'</code>, <code>'1D'</code>). <strong>Omit for native resolution (no resampling).</strong></td>
+</tr>
+<tr>
+<td><code>size_range</code></td>
+<td>tuple</td>
+<td><code>None</code></td>
+<td><code>(min, max)</code> in nm; <strong>only valid for SMPS / APS / GRIMM</strong>. SMPS range 1–1000 nm; APS range 500–20000 nm.</td>
+</tr>
+<tr>
+<td><code>fill_missing</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td><code>True</code>=reindex/pad to the full requested <code>[start, end]</code> (can yield a mostly-NaN frame); <code>False</code>=clamp the grid to actual data coverage.</td>
+</tr>
+<tr>
+<td><code>output_dir</code></td>
+<td>Path / str</td>
+<td><code>None</code></td>
+<td>Output directory. Default <code>path/{instrument}_outputs/</code>.</td>
+</tr>
+<tr>
+<td><code>output_prefix</code></td>
+<td>str</td>
+<td><code>None</code></td>
+<td>Output filename prefix. Default <code>output_{instrument}</code>.</td>
+</tr>
+<tr>
+<td><code>save_pkl</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Whether to write the pkl cache. (Existing pkls are still read when <code>reset=False</code>.)</td>
+</tr>
+<tr>
+<td><code>save_intermediate_csv</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Whether to write intermediate <code>_read_*</code> CSVs.</td>
+</tr>
+<tr>
+<td><code>save_report</code></td>
+<td>bool</td>
+<td><code>True</code></td>
+<td>Whether to write <code>report.json</code>.</td>
+</tr>
+<tr>
+<td><code>quiet</code></td>
+<td>bool</td>
+<td><code>False</code></td>
+<td>Suppress console output (log file still written).</td>
+</tr>
+<tr>
+<td><code>log_level</code></td>
+<td>str</td>
+<td><code>'INFO'</code></td>
+<td>Log-file verbosity.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Selected <code>**kwargs</code></strong> (instrument-specific, passed through):</p>
+<table>
+<thead>
+<tr>
+<th>Kwarg</th>
+<th>Applies to</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>append_stats</code></td>
+<td>SMPS / APS</td>
+<td><code>False</code> (default) returns the clean dN/dlogDp matrix; <code>True</code> appends derived statistics columns to the returned frame. See <a href="#the-smpsaps-dndlogdp-contract">the dN/dlogDp contract</a>.</td>
+</tr>
+<tr>
+<td><code>raw_freq</code></td>
+<td>all</td>
+<td>Override the auto-detected native resolution (e.g. <code>'6min'</code>); skips per-file frequency detection.</td>
+</tr>
+<tr>
+<td><code>drop_outlier_dates</code></td>
+<td>all</td>
+<td><code>False</code> (default) keeps stray off-bulk timestamps (with a warning); <code>True</code> drops them automatically before gridding.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Caching:</strong> with <code>reset=False</code> the parsed result is cached as a pkl under
+<code>{instrument}_outputs/</code>. The cache stores the <em>canonical</em> frame (native grid over
+the files' own coverage, <strong>not</strong> padded to any range), so a cache hit still
+applies the current call's <code>start</code>/<code>end</code>/<code>fill_missing</code> and re-stamps
+<code>df.attrs</code>. Pre-existing pkls from older versions are detected as stale and
+re-parsed automatically.</p>
+<h3 id="supported-instruments">Supported instruments</h3>
+<p>The instrument key must be one of the following (grouped by measurement type).
+The file-glob pattern and native frequency come from the instrument config.</p>
+<p><strong>Black-carbon / absorption monitors</strong></p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+<th>Native freq</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>AE33</code></td>
+<td>Aethalometer, 7-wavelength BC (370–950 nm)</td>
+<td>1 min</td>
+</tr>
+<tr>
+<td><code>AE43</code></td>
+<td>Aethalometer, 7-wavelength BC</td>
+<td>1 min</td>
+</tr>
+<tr>
+<td><code>BC1054</code></td>
+<td>10-wavelength black-carbon monitor</td>
+<td>1 min</td>
+</tr>
+<tr>
+<td><code>MA350</code></td>
+<td>MicroAeth portable BC monitor</td>
+<td>1 min</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Size distribution</strong></p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+<th>Native freq</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SMPS</code></td>
+<td>Scanning Mobility Particle Sizer (nm)</td>
+<td>6 min</td>
+</tr>
+<tr>
+<td><code>APS</code></td>
+<td>Aerodynamic Particle Sizer (µm)</td>
+<td>6 min</td>
+</tr>
+<tr>
+<td><code>GRIMM</code></td>
+<td>Optical particle counter</td>
+<td>6 min</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mass concentration</strong></p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+<th>Native freq</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TEOM</code></td>
+<td>Tapered Element Oscillating Microbalance</td>
+<td>6 min</td>
+</tr>
+<tr>
+<td><code>BAM1020</code></td>
+<td>Beta Attenuation Monitor</td>
+<td>1 h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optical (scattering)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+<th>Native freq</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>NEPH</code></td>
+<td>TSI integrating nephelometer</td>
+<td>5 min</td>
+</tr>
+<tr>
+<td><code>Aurora</code></td>
+<td>Aurora 3000 nephelometer (RGB)</td>
+<td>1 min</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Chemical composition</strong></p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+<th>Native freq</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>OCEC</code></td>
+<td>Sunset OC/EC analyzer (LCRes files)</td>
+<td>1 h</td>
+</tr>
+<tr>
+<td><code>IGAC</code></td>
+<td>Ion chromatograph — water-soluble ions/gases</td>
+<td>1 h</td>
+</tr>
+<tr>
+<td><code>Xact</code></td>
+<td>XRF heavy metals (with built-in MDLs)</td>
+<td>1 h</td>
+</tr>
+<tr>
+<td><code>Q-ACSM</code></td>
+<td>Aerosol Chemical Speciation Monitor</td>
+<td>30 min</td>
+</tr>
+<tr>
+<td><code>VOC</code></td>
+<td>Volatile organic compounds</td>
+<td>1 h</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Other / aggregated sources</strong></p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Description</th>
+<th>Native freq</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EPA</code></td>
+<td>Taiwan EPA air-quality data</td>
+<td>1 h</td>
+</tr>
+<tr>
+<td><code>Minion</code></td>
+<td>Minion sensor</td>
+<td>1 h</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Note: <code>IGAC</code>, <code>Minion</code>, <code>EPA</code>, <code>VOC</code>, and <code>BAM1020</code> are typically read from
+pre-aggregated / second-hand data — pass <code>mean_freq=None</code> to keep their native
+resolution.</p>
+</blockquote>
+<p>You can always confirm the current list at runtime:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.rawDataReader.config.supported_instruments</span><span class="w"> </span><span class="kn">import</span> <span class="n">meta</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nb">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">meta</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
+</code></pre></div>
+<h3 id="what-each-read-writes-to-disk">What each read writes to disk</h3>
+<p>Inside <code>{instrument}_outputs/</code> (unless suppressed):</p>
+<ul>
+<li><code>{prefix}.pkl</code> — cached canonical frame (<code>save_pkl=True</code>).</li>
+<li>Intermediate <code>_read_*_qc.csv</code> / <code>_read_*_raw.csv</code> (<code>save_intermediate_csv=True</code>).</li>
+<li><code>report.json</code> (<code>save_report=True</code>).</li>
+<li>A log file (always, even with <code>quiet=True</code>).</li>
+</ul>
+<p>For <strong>SMPS / APS</strong>, each read additionally writes, alongside
+<code>{prefix}.csv</code> (= dN/dlogDp):</p>
+<ul>
+<li><code>{prefix}_dNdlogDp.csv</code>, <code>{prefix}_dSdlogDp.csv</code>, <code>{prefix}_dVdlogDp.csv</code>
+  (number / surface / volume distributions), and</li>
+<li><code>{prefix}_stats.csv</code> (QC-aligned summary statistics; same columns as
+  <code>psd_stats(df)['other']</code>).</li>
+</ul>
+<h3 id="reader-metadata-dfattrs">Reader metadata (<code>df.attrs</code>)</h3>
+<p>Every result carries provenance and coverage metadata in <code>df.attrs</code>. Because
+<code>fill_missing=True</code> can pad the frame with NaNs, use <code>coverage_*</code> to learn what
+the files actually contained.</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>When</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>instrument</code>, <code>station</code>, <code>source_path</code>, <code>n_files</code></td>
+<td>always</td>
+<td>provenance</td>
+</tr>
+<tr>
+<td><code>coverage_start</code> / <code>coverage_end</code></td>
+<td>always</td>
+<td>real data span (ignores NaN padding; <code>None</code> if no data in range)</td>
+</tr>
+<tr>
+<td><code>requested_start</code> / <code>requested_end</code></td>
+<td>always</td>
+<td>the range you passed</td>
+</tr>
+<tr>
+<td><code>raw_freq</code></td>
+<td>always</td>
+<td>native frequency (auto-detected per file)</td>
+</tr>
+<tr>
+<td><code>freq_mixed</code></td>
+<td>always</td>
+<td><code>True</code> if files had differing resolutions</td>
+</tr>
+<tr>
+<td><code>fill_missing</code></td>
+<td>always</td>
+<td>whether the grid was padded or clamped</td>
+</tr>
+<tr>
+<td><code>aeroviz_version</code>, <code>processed_at</code></td>
+<td>always</td>
+<td>build / run stamp</td>
+</tr>
+<tr>
+<td><code>mean_freq</code>, <code>qc_applied</code>, <code>qc_freq</code></td>
+<td>qc on</td>
+<td>output frequency + QC mode</td>
+</tr>
+<tr>
+<td><code>acquisition_rate</code>, <code>yield_rate</code>, <code>total_rate</code></td>
+<td>qc on</td>
+<td>overall rates (%)</td>
+</tr>
+</tbody>
+</table>
+<p><code>attrs</code> survive <code>to_pickle</code>/<code>read_pickle</code> and <code>resample</code> (pandas &gt;= 2) but are
+dropped by <code>concat</code> of frames with conflicting attrs — re-stamp if you merge.</p>
+<h3 id="the-smpsaps-dndlogdp-contract">The SMPS/APS dN/dlogDp contract</h3>
+<p>This is the most important current-API detail for size-distribution work:</p>
+<ul>
+<li><strong><code>RawDataReader('SMPS' | 'APS', ...)</code> returns the size-distribution matrix
+  itself</strong> — a <code>dN/dlogDp</code> <code>DataFrame</code> whose <strong>columns are particle diameters</strong>
+  (SMPS as float nm such as <code>11.8</code>, <code>13.6</code>, …; APS in µm). <strong>There are no
+  summary-statistics columns in the reader output.</strong></li>
+<li><strong>Derive statistics</strong> with the top-level <a href="#psd_stats"><code>psd_stats(df)</code></a>, which
+  returns a dict; the summary frame is under the <code>'other'</code> key.</li>
+<li>Pass <strong><code>append_stats=True</code></strong> to <code>RawDataReader</code> to append the statistics
+  columns to the returned frame. <em>Caveat:</em> this mixes string-typed columns into
+  the frame, so the result can no longer be passed straight to <code>psd_stats</code> /
+  <code>merge_psd</code> / <code>SizeDist</code>. Default <code>False</code> keeps it a clean numeric PSD matrix.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;SMPS&#39;</span><span class="p">,</span> <span class="s1">&#39;/data/NZ_SMPS&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;2024-06-30&#39;</span><span class="p">)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="c1"># smps is dN/dlogDp; columns are diameters in nm</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">smps</span><span class="o">.</span><span class="n">columns</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>     <span class="c1"># e.g. [11.8, 12.2, 12.6, ...]</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">stats</span> <span class="o">=</span> <span class="n">psd_stats</span><span class="p">(</span><span class="n">smps</span><span class="p">)</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;other&#39;</span><span class="p">][</span><span class="s1">&#39;total_num_all&#39;</span><span class="p">]</span>      <span class="c1"># total number concentration (#/cm³)</span>
+</code></pre></div>
+<hr />
+<h2 id="quality-control">Quality Control</h2>
+<p>QC is applied when <code>qc=True</code> (the default) or with a frequency string. The
+quality-control engine (<code>AeroViz.rawDataReader.core.qc</code>) builds a per-row
+<code>QC_Flag</code> column and computes overall rates that are stored in <code>df.attrs</code>.</p>
+<ul>
+<li><strong><code>qc=True</code></strong> — apply all instrument-appropriate QC rules and compute overall
+  acquisition / yield / total rates.</li>
+<li><strong><code>qc=False</code></strong> — return raw, un-QC'd data (no rate calculation).</li>
+<li><strong><code>qc='W' | 'MS' | 'QS' | 'YS'</code></strong> (optionally prefixed with a number, e.g.
+  <code>'2MS'</code>) — apply QC and report rate statistics at that interval.</li>
+</ul>
+<p>The <code>QC_Flag</code> column indicates per-row data quality. Typical values:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Valid</code></td>
+<td>Passed all QC checks</td>
+</tr>
+<tr>
+<td><code>Insufficient</code></td>
+<td>Not enough data points in the period</td>
+</tr>
+<tr>
+<td><code>Status Error</code></td>
+<td>Instrument status error</td>
+</tr>
+<tr>
+<td><code>Invalid BC</code> / <code>Invalid Number Conc</code></td>
+<td>Out-of-range values</td>
+</tr>
+<tr>
+<td><code>Spike</code></td>
+<td>Sudden value change detected</td>
+</tr>
+</tbody>
+</table>
+<p>Overall rates (<code>acquisition_rate</code>, <code>yield_rate</code>, <code>total_rate</code>, all in %) are
+written to <code>df.attrs</code> whenever QC is enabled.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">df</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="s1">&#39;/data/NZ_AE33&#39;</span><span class="p">,</span> <span class="n">qc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mean_freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">)</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">valid</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;QC_Flag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Valid&#39;</span><span class="p">]</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;total_rate&#39;</span><span class="p">],</span> <span class="s1">&#39;% valid overall&#39;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="size-distribution">Size Distribution</h2>
+<p>The size-distribution API lives in <code>AeroViz.size</code> (re-exported at the top
+level) and the <code>SizeDist</code> class in
+<code>AeroViz.dataProcess.SizeDistr</code>.</p>
+<h3 id="psd_stats"><code>psd_stats</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">psd_stats</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">hybrid_bin_start_loc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">&#39;nm&#39;</span><span class="p">,</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>          <span class="n">bin_range</span><span class="o">=</span><span class="p">(</span><span class="mf">11.8</span><span class="p">,</span> <span class="mi">19810</span><span class="p">),</span> <span class="n">input_type</span><span class="o">=</span><span class="s1">&#39;dlogdp&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<p>Computes number / surface / volume distributions and mode statistics from a PSD
+matrix (column labels must be diameters convertible to <code>float</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>df</code></td>
+<td>—</td>
+<td>PSD matrix (dN/dlogDp by default).</td>
+</tr>
+<tr>
+<td><code>hybrid_bin_start_loc</code></td>
+<td><code>None</code></td>
+<td>Column index where bin spacing changes (for merged SMPS+APS hybrid grids). <code>None</code>=single mean <code>dlogdp</code>.</td>
+</tr>
+<tr>
+<td><code>unit</code></td>
+<td><code>'nm'</code></td>
+<td>Diameter unit (<code>'nm'</code> or <code>'um'</code>).</td>
+</tr>
+<tr>
+<td><code>bin_range</code></td>
+<td><code>(11.8, 19810)</code></td>
+<td>Inclusive <code>(min, max)</code> diameter range to keep (in <code>unit</code>).</td>
+</tr>
+<tr>
+<td><code>input_type</code></td>
+<td><code>'dlogdp'</code></td>
+<td><code>'dlogdp'</code>/<code>'norm'</code>=already normalized; otherwise raw counts (divided by <code>dlogdp</code>).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Returns</strong> a dict with keys <code>'number'</code>, <code>'surface'</code>, <code>'volume'</code> (distribution
+DataFrames keyed by diameter) and <strong><code>'other'</code></strong> (the statistics summary frame).
+The <code>'other'</code> frame includes columns such as <code>total_num_all</code>, <code>GMD_num_all</code>,
+<code>GSD_num_all</code>, <code>mode_num_all</code>, plus per-mode columns
+(<code>total_{num,surf,vol}_{Nucleation,Aitken,Accumulation,Coarse}</code>, etc.).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">stats</span> <span class="o">=</span> <span class="n">psd_stats</span><span class="p">(</span><span class="n">smps</span><span class="p">)</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;other&#39;</span><span class="p">][</span><span class="s1">&#39;total_num_all&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;other&#39;</span><span class="p">][</span><span class="s1">&#39;total_num_Accumulation&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="psd_distributions"><code>psd_distributions</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">psd_distributions</span><span class="p">(</span><span class="n">df_pnsd</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<p>Convenience wrapper computing the three weighted distributions and their
+properties from a number size distribution (dN/dlogDp; diameter columns in nm).</p>
+<p><strong>Returns</strong> <code>{'number', 'surface', 'volume', 'properties'}</code> — the first three
+are DataFrames keyed by diameter; <code>'properties'</code> concatenates per-distribution
+properties (GMD, GSD, mode, …).</p>
+<h3 id="merge_psd-smps-aps"><code>merge_psd</code> (SMPS + APS)</h3>
+<p>Merge SMPS and APS distributions into a single continuous PSD.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">merge_psd</span><span class="p">(</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="n">df_smps</span><span class="p">,</span> <span class="n">df_aps</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">version</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">df_pm25</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">df_pm1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="n">aps_unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;um&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="n">smps_overlap_lowbound</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="n">aps_fit_highbound</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="n">shift_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;mobility&#39;</span><span class="p">,</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>    <span class="n">dndsdv_alg</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>    <span class="n">density_range</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">2.6</span><span class="p">),</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>    <span class="n">times_range</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">),</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>df_smps</code>, <code>df_aps</code></td>
+<td>—</td>
+<td>SMPS (nm) and APS (µm by default) dN/dlogDp matrices.</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td><code>4</code></td>
+<td>Algorithm version <code>{1, 2, 3, 4, 5}</code> (see below).</td>
+</tr>
+<tr>
+<td><code>df_pm25</code></td>
+<td><code>None</code></td>
+<td>PM2.5 reference for the fitness function. <strong>Required for <code>version=4</code>.</strong></td>
+</tr>
+<tr>
+<td><code>df_pm1</code></td>
+<td><code>None</code></td>
+<td>PM1 mass reference (µg/m³; prefer a volatile-corrected PM1). <strong>Required for <code>version=5</code>.</strong></td>
+</tr>
+<tr>
+<td><code>aps_unit</code></td>
+<td><code>'um'</code></td>
+<td>Unit of the APS diameter columns (<code>'um'</code> or <code>'nm'</code>).</td>
+</tr>
+<tr>
+<td><code>smps_overlap_lowbound</code></td>
+<td><code>500</code></td>
+<td>SMPS bin lower bound for the overlap region (nm).</td>
+</tr>
+<tr>
+<td><code>aps_fit_highbound</code></td>
+<td><code>1000</code></td>
+<td>APS bin upper bound for the power-law fit region (nm).</td>
+</tr>
+<tr>
+<td><code>shift_mode</code></td>
+<td><code>'mobility'</code></td>
+<td><code>'mobility'</code> or <code>'aerodynamic'</code>. <strong>Only used by <code>version=1</code>.</strong></td>
+</tr>
+<tr>
+<td><code>dndsdv_alg</code></td>
+<td><code>True</code></td>
+<td>Apply dN/dS/dV correlation refinement. <strong>Only used by <code>version &gt;= 3</code>.</strong></td>
+</tr>
+<tr>
+<td><code>density_range</code></td>
+<td><code>(0.6, 2.6)</code></td>
+<td>Effective-density QC range (g/cm³); timestamps whose estimated density (shift²) falls outside are set to NaN. Applied in <strong>every</strong> version. Widen (e.g. <code>(0.3, 2.6)</code>) for looser QC.</td>
+</tr>
+<tr>
+<td><code>times_range</code></td>
+<td><code>(0.8, 1.25, 0.05)</code></td>
+<td><code>(start, stop, step)</code> SMPS-times grid search. <strong>Only used by <code>version=4</code>.</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Unified output (every version):</strong> the returned dict always contains:</p>
+<ul>
+<li><strong><code>'data'</code></strong> — the recommended merged dN/dlogDp (diameters in nm as columns).</li>
+<li><strong><code>'density'</code></strong> — the estimated effective density (g/cm³).</li>
+</ul>
+<p><strong>Version behaviour and version-specific extra keys:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>What <code>'data'</code> is</th>
+<th>Extra keys</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>single power-law merge</td>
+<td>—</td>
+<td>base method with <code>shift_mode</code>.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>mobility merge</td>
+<td><code>'data_aero'</code> (aerodynamic-diameter merge)</td>
+<td>APS iterative correction + dual output.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>APS-corrected dN/dS/dV merge (<code>cor_dndsdv</code>)</td>
+<td><code>'data_dn'</code>, <code>'data_dndsdv'</code>, <code>'data_cor_dn'</code>; <code>'density'</code> has one column per variant</td>
+<td>multiprocessing + dN/dS/dV correlation.</td>
+</tr>
+<tr>
+<td>4 <em>(default, recommended)</em></td>
+<td>same as v3</td>
+<td>v3 keys <strong>plus</strong> <code>'times'</code> (chosen SMPS-times multiplier per algorithm)</td>
+<td>adds PM2.5 fitness + SMPS-times correction. <strong>Needs <code>df_pm25</code>.</strong></td>
+</tr>
+<tr>
+<td>5 <em>(EXPERIMENTAL)</em></td>
+<td>mass-anchored merge</td>
+<td><code>'density_hourly'</code>, <code>'density_unc'</code></td>
+<td>mass-anchored density via PM1 closure (daily). <strong>Emits a <code>UserWarning</code>; needs <code>df_pm1</code>. API/behaviour not stable.</strong></td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">RawDataReader</span><span class="p">,</span> <span class="n">merge_psd</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;SMPS&#39;</span><span class="p">,</span> <span class="s1">&#39;/data/SMPS&#39;</span><span class="p">,</span> <span class="n">mean_freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">,</span> <span class="n">size_range</span><span class="o">=</span><span class="p">(</span><span class="mf">11.8</span><span class="p">,</span> <span class="mf">593.5</span><span class="p">))</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">aps</span>  <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;APS&#39;</span><span class="p">,</span>  <span class="s1">&#39;/data/APS&#39;</span><span class="p">,</span>  <span class="n">mean_freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">)</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="c1"># Recommended: v4 needs a PM2.5 reference</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="n">result</span> <span class="o">=</span> <span class="n">merge_psd</span><span class="p">(</span><span class="n">smps</span><span class="p">,</span> <span class="n">aps</span><span class="p">,</span> <span class="n">df_pm25</span><span class="o">=</span><span class="n">df_pm25</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="n">merged</span>  <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>        <span class="c1"># continuous dN/dlogDp, columns in nm</span>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a><span class="n">density</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;density&#39;</span><span class="p">]</span>      <span class="c1"># g/cm³</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a><span class="c1"># No PM2.5 available? use v3</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="n">result3</span> <span class="o">=</span> <span class="n">merge_psd</span><span class="p">(</span><span class="n">smps</span><span class="p">,</span> <span class="n">aps</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">density_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">2.6</span><span class="p">))</span>
+</code></pre></div>
+<blockquote>
+<p><strong><code>ValueError</code></strong> is raised if <code>version</code> is not in <code>{1,2,3,4,5}</code>, if
+<code>version=4</code> is called without <code>df_pm25</code>, or if <code>version=5</code> is called without
+<code>df_pm1</code>.</p>
+</blockquote>
+<h3 id="the-sizedist-class">The <code>SizeDist</code> class</h3>
+<p>For richer, stateful workflows, build a <code>SizeDist</code> object directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess.SizeDistr</span><span class="w"> </span><span class="kn">import</span> <span class="n">SizeDist</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">SizeDist</span><span class="p">(</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">data</span><span class="p">:</span> <span class="n">DataFrame</span><span class="p">,</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="n">state</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;dN&#39;</span><span class="p">,</span> <span class="s1">&#39;ddp&#39;</span><span class="p">,</span> <span class="s1">&#39;dlogdp&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;dlogdp&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="n">weighting</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s1">&#39;n&#39;</span><span class="p">,</span> <span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="s1">&#39;v&#39;</span><span class="p">,</span> <span class="s1">&#39;ext_in&#39;</span><span class="p">,</span> <span class="s1">&#39;ext_ex&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;n&#39;</span><span class="p">,</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">)</span>
+</code></pre></div>
+<p>Attributes: <code>data</code>, <code>dp</code> (diameters), <code>dlogdp</code>, <code>index</code>, <code>state</code>, <code>weighting</code>.</p>
+<p><strong>Methods:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Returns</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>to_surface()</code></td>
+<td>DataFrame</td>
+<td>Surface-area distribution (dS/dlogDp).</td>
+</tr>
+<tr>
+<td><code>to_volume()</code></td>
+<td>DataFrame</td>
+<td>Volume distribution (dV/dlogDp).</td>
+</tr>
+<tr>
+<td><code>properties()</code></td>
+<td>DataFrame</td>
+<td>GMD, GSD, mode, mode contributions, totals (e.g. <code>total_n</code>, <code>GMD_n</code>, <code>GSD_n</code>).</td>
+</tr>
+<tr>
+<td><code>mode_statistics(unit='nm')</code></td>
+<td>dict</td>
+<td>Per-mode number/surface/volume distributions + GMD/GSD/total/mode. Summary frame is under <code>'statistics'</code>.</td>
+</tr>
+<tr>
+<td><code>to_extinction(RI, method='internal', result_type='extinction')</code></td>
+<td>DataFrame</td>
+<td>Per-bin extinction/scattering/absorption (Mm⁻¹) via Mie theory. <code>method</code> ∈ {<code>'internal'</code>, <code>'external'</code>, <code>'core_shell'</code>, <code>'sensitivity'</code>}. <code>RI</code> needs <code>n</code> and <code>k</code> columns.</td>
+</tr>
+<tr>
+<td><code>to_dry(df_gRH, uniform=True)</code></td>
+<td>DataFrame</td>
+<td>Convert ambient (wet) PSD to dry PSD using a growth factor (<code>df_gRH</code> has a <code>gRH</code> column).</td>
+</tr>
+<tr>
+<td><code>lung_deposition(activity='light')</code></td>
+<td>dict</td>
+<td>ICRP 66 deposition; <code>activity</code> ∈ {<code>'sleep'</code>, <code>'sitting'</code>, <code>'light'</code>, <code>'heavy'</code>}. Returns <code>'DF'</code> (HA/TB/AL/Total fractions) and <code>'total_dose'</code>.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="n">psd</span> <span class="o">=</span> <span class="n">SizeDist</span><span class="p">(</span><span class="n">df_pnsd</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">&#39;dlogdp&#39;</span><span class="p">,</span> <span class="n">weighting</span><span class="o">=</span><span class="s1">&#39;n&#39;</span><span class="p">)</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">props</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="nb">print</span><span class="p">(</span><span class="n">props</span><span class="p">[</span><span class="s1">&#39;total_n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">props</span><span class="p">[</span><span class="s1">&#39;GMD_n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">props</span><span class="p">[</span><span class="s1">&#39;GSD_n&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">dep</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">lung_deposition</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="s1">&#39;light&#39;</span><span class="p">)</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="n">dep</span><span class="p">[</span><span class="s1">&#39;DF&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>      <span class="c1"># HA, TB, AL, Total deposition fractions</span>
+</code></pre></div>
+<blockquote>
+<p>Note on <code>mode_statistics</code>: the per-mode summary frame is under the
+<code>'statistics'</code> key when called on a <code>SizeDist</code> instance; the top-level
+<code>psd_stats</code> wrapper renames that key to <code>'other'</code>.</p>
+</blockquote>
+<hr />
+<h2 id="chemical-analysis">Chemical Analysis</h2>
+<p>All chemistry functions are in <code>AeroViz.chemistry</code> and re-exported at the top
+level. They return DataFrames / dicts directly (no on-disk side effects).</p>
+<h3 id="reconstruct_mass"><code>reconstruct_mass</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">reconstruct_mass</span><span class="p">(</span><span class="o">*</span><span class="n">df_chem</span><span class="p">,</span> <span class="n">df_ref</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">df_water</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">df_density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>                 <span class="n">nam_lst</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">split_om</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">oa_oc_ratio</span><span class="o">=</span><span class="mf">1.8</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<p>Reconstructs aerosol mass and volume from chemical composition: converts ionic
+species to reconstructed species (AS, AN, OM, Soil, SS, EC) given the ammonium
+neutralization status, and computes volumes, density, and refractive index.
+Multiple input DataFrames are concatenated along columns and renamed to
+<code>nam_lst</code> (default
+<code>['NH4+', 'SO42-', 'NO3-', 'Fe', 'Na+', 'OC', 'EC']</code>). With <code>split_om=True</code> it
+also splits OM into POA/SOA via the EC-tracer method (<code>oa_oc_ratio</code>).</p>
+<p><strong>Returns</strong> a dict with keys: <code>mass</code>, <code>volume</code>, <code>vol_cal</code>, <code>eq</code>, <code>NH4_status</code>,
+<code>density_mat</code>, <code>density_rec</code>, <code>RI_550</code>, <code>RI_450</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">,</span> <span class="n">df_ref</span><span class="o">=</span><span class="n">df_pm25</span><span class="p">)</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="n">df_mass</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">]</span>              <span class="c1"># AS, AN, OM, Soil, SS, EC, total</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">df_mass</span><span class="p">[</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>                      <span class="c1"># reconstructed PM mass (sum of species)</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="n">result</span><span class="p">[</span><span class="s1">&#39;NH4_status&#39;</span><span class="p">][</span><span class="s1">&#39;status&#39;</span><span class="p">]</span>        <span class="c1"># ammonium status: Enough / Deficiency</span>
+</code></pre></div>
+<h3 id="volume_ri"><code>volume_ri</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">volume_ri</span><span class="p">(</span><span class="n">df_volume</span><span class="p">,</span> <span class="n">df_alwc</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span>
+</code></pre></div>
+<p>Volume-average refractive index (dry &amp; ambient) and gRH at 550 nm using the
+volume-mixing rule. <code>df_volume</code> needs <code>total_dry</code> plus at least one species
+volume column (<code>AS_volume</code>, <code>AN_volume</code>, <code>OM_volume</code>, <code>Soil_volume</code>,
+<code>SS_volume</code>, <code>EC_volume</code>). <strong>Returns</strong> columns <code>n_dry</code>, <code>k_dry</code>, <code>n_amb</code>,
+<code>k_amb</code>, <code>gRH</code> (ambient values are NaN unless <code>df_alwc</code> is supplied).</p>
+<h3 id="growth_factor"><code>growth_factor</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">growth_factor</span><span class="p">(</span><span class="n">df_volume</span><span class="p">,</span> <span class="n">df_alwc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span>
+</code></pre></div>
+<p>Hygroscopic growth factor <code>gRH = (V_wet / V_dry)^(1/3)</code>. <code>df_volume</code> needs
+<code>total_dry</code>; <code>df_alwc</code> needs <code>ALWC</code>. <strong>Returns</strong> a single <code>gRH</code> column.</p>
+<h3 id="kappa"><code>kappa</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">kappa</span><span class="p">(</span><span class="n">df_data</span><span class="p">,</span> <span class="n">diameter</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span>
+</code></pre></div>
+<p>Hygroscopicity parameter kappa. <code>df_data</code> needs <code>gRH</code>, <code>AT</code> (°C), <code>RH</code> (%);
+<code>diameter</code> is the dry diameter in µm. <strong>Returns</strong> a single <code>kappa_chem</code> column.</p>
+<h3 id="partition_ratios"><code>partition_ratios</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">partition_ratios</span><span class="p">(</span><span class="n">df_data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span>
+</code></pre></div>
+<p>Gas-particle partitioning ratios. Requires a <code>temp</code> (°C) column plus at least
+one species pair (e.g. <code>SO42-</code>+<code>SO2</code> → SOR, <code>NO3-</code>+<code>NO2</code> → NOR, <code>NH4+</code>+<code>NH3</code> →
+NTR, <code>Cl-</code>+<code>HCl</code>). <strong>Returns</strong> columns including <code>SOR</code>, <code>NOR</code>, <code>NOR_2</code>, <code>NTR</code>,
+<code>epls_SO42-</code>, <code>epls_NO3-</code>, <code>epls_NH4+</code>, <code>epls_Cl-</code>.</p>
+<h3 id="split_oc_ec"><code>split_oc_ec</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">split_oc_ec</span><span class="p">(</span><span class="n">df_lcres</span><span class="p">,</span> <span class="n">df_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ocec_ratio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ocec_ratio_month</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>            <span class="n">hr_lim</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">least_square_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>            <span class="n">WISOC_OC_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<p>Splits OC into primary (POC) and secondary (SOC) using the EC-tracer / MRS
+method, for both Thermal and Optical analyses, plus WSOC/WISOC and status flags.
+<code>df_lcres</code> (OC/EC level results) must include <code>OC1</code>–<code>OC4</code>, <code>PC</code>, <code>Thermal_OC</code>,
+<code>Thermal_EC</code>, <code>Optical_OC</code>, <code>Optical_EC</code>, <code>Sample_Volume</code>. <strong>Returns</strong> a dict
+with <code>basic</code> (OC/EC data + status flags) and <code>ratio</code> (per-species PM/OC ratios).</p>
+<h3 id="isoropia"><code>isoropia</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="n">isoropia</span><span class="p">(</span><span class="o">*</span><span class="n">df_chem</span><span class="p">,</span> <span class="n">path_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">nam_lst</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<p>Runs <strong>ISORROPIA II</strong> (native cross-platform f2py extension; works on macOS,
+Linux, Windows) to compute aerosol pH, ALWC, and gas-particle partitioning.
+Inputs are concatenated and renamed to <code>nam_lst</code> (default
+<code>['Na+', 'SO42-', 'NH4+', 'NO3-', 'Cl-', 'Ca2+', 'K+', 'Mg2+', 'NH3', 'HNO3',
+'HCl', 'RH', 'temp']</code>). <code>path_out</code> is retained for backward compatibility but
+no longer used. <strong>Returns</strong> <code>{'input', 'output'}</code> where <code>output</code> has pH, ALWC,
+and gas/aerosol-phase NH3/HNO3/HCl/NH4+/NO3-/Cl-.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">reconstruct_mass</span><span class="p">,</span> <span class="n">isoropia</span><span class="p">,</span> <span class="n">volume_ri</span><span class="p">,</span> <span class="n">kappa</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="n">rec</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">,</span> <span class="n">df_ref</span><span class="o">=</span><span class="n">df_pm25</span><span class="p">)</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="n">iso</span> <span class="o">=</span> <span class="n">isoropia</span><span class="p">(</span><span class="n">df_ions</span><span class="p">,</span> <span class="n">df_meteo</span><span class="p">)</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="n">ri</span>  <span class="o">=</span> <span class="n">volume_ri</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;volume&#39;</span><span class="p">],</span> <span class="n">df_alwc</span><span class="o">=</span><span class="n">df_alwc</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="optical-properties">Optical Properties</h2>
+<p>Optical functions live in <code>AeroViz.optical</code> (re-exported at top level).</p>
+<h3 id="bulk-extinction">Bulk extinction</h3>
+<h4 id="optical_basic"><code>optical_basic</code></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">optical_basic</span><span class="p">(</span><span class="n">df_sca</span><span class="p">,</span> <span class="n">df_abs</span><span class="p">,</span> <span class="n">df_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">df_no2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">df_temp</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span>
+</code></pre></div>
+<p>Computes basic optical properties (extinction, SSA, mass efficiencies MEE/MSE/MAE,
+Ångström exponents) from measured scattering and absorption (Mm⁻¹). Optional
+<code>df_mass</code> (µg/m³) enables mass efficiencies; <code>df_no2</code> (ppb) + <code>df_temp</code> (°C)
+subtract gas absorption.</p>
+<p><strong>Required columns:</strong> <code>df_sca</code> needs <code>['sca_550', 'SAE']</code> (NEPH output);
+<code>df_abs</code> needs <code>['abs_550', 'AAE', 'eBC']</code> (AE33 output). All column names are
+lowercase. <strong>Returns</strong> a DataFrame with <code>['abs', 'sca', 'ext', 'SSA', 'SAE',
+'AAE', 'eBC']</code> (SSA = sca / ext).</p>
+<h4 id="improve-improve-extinction-reconstruction"><code>improve</code> (IMPROVE extinction reconstruction)</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="n">improve</span><span class="p">(</span><span class="n">df_mass</span><span class="p">,</span> <span class="n">df_RH</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;revised&#39;</span><span class="p">,</span> <span class="n">df_nh4_status</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>        <span class="n">df_ext</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">oa_oc_ratio</span><span class="o">=</span><span class="mf">1.8</span><span class="p">,</span> <span class="n">upper_bounds</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<p>Reconstructs extinction from species mass using the IMPROVE equation.
+<code>method</code> ∈ {<code>'revised'</code>, <code>'modified'</code>, <code>'localized'</code>}. <code>'revised'</code>/<code>'modified'</code>
+need AS, AN, OM, Soil, SS, EC; <code>'localized'</code> needs AS, AN, POC, SOC, Soil, SS,
+EC <strong>and</strong> <code>df_ext</code> (with <code>Scattering</code>/<code>Absorption</code> columns) to fit POA/SOA mass
+scattering efficiencies via MLR. <strong>Returns</strong> a dict with <code>dry</code>, <code>wet</code>, <code>ALWC</code>,
+<code>fRH</code> (and for <code>'localized'</code>: <code>coefficients</code>, <code>regression</code>).</p>
+<blockquote>
+<p><strong><code>df_RH</code> must be a <code>Series</code></strong> (e.g. <code>met['RH']</code>), not a single-column
+DataFrame — passing <code>met[['RH']]</code> raises <code>ValueError</code>.</p>
+</blockquote>
+<p>The <code>dry</code> and <code>wet</code> frames have one column per species <strong>plus</strong> a <code>total</code>
+column (the per-species sum): <code>AS, AN, OM, Soil, SS, EC, total</code> (lowercase
+<code>total</code>, no <code>_ext</code> suffix). The total dry/wet extinction is the <code>total</code>
+column — do <strong>not</strong> <code>.sum(axis=1)</code> (that double-counts the <code>total</code> column):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="n">ext</span> <span class="o">=</span> <span class="n">improve</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">],</span> <span class="n">df_RH</span><span class="o">=</span><span class="n">met</span><span class="p">[</span><span class="s1">&#39;RH&#39;</span><span class="p">],</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;revised&#39;</span><span class="p">)</span>
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="n">ext</span><span class="p">[</span><span class="s1">&#39;dry&#39;</span><span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>     <span class="c1"># total dry extinction (Mm⁻¹)</span>
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a><span class="n">ext</span><span class="p">[</span><span class="s1">&#39;wet&#39;</span><span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>     <span class="c1"># total wet (ambient) extinction (Mm⁻¹)</span>
+</code></pre></div>
+<h4 id="gas_extinction"><code>gas_extinction</code></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a><span class="n">gas_extinction</span><span class="p">(</span><span class="n">df_no2</span><span class="p">,</span> <span class="n">df_temp</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span>
+</code></pre></div>
+<p>Gas contribution to extinction (Rayleigh + NO2 absorption). <code>df_no2</code> in ppb,
+<code>df_temp</code> in °C. <strong>Returns</strong> <code>ScatteringByGas</code>, <code>AbsorptionByGas</code>,
+<code>ExtinctionByGas</code> (Mm⁻¹).</p>
+<h4 id="brown_carbon"><code>brown_carbon</code></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="n">brown_carbon</span><span class="p">(</span><span class="n">df_abs</span><span class="p">,</span> <span class="n">wavelengths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ref_wavelength</span><span class="o">=</span><span class="mi">880</span><span class="p">,</span> <span class="n">aae_bc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span>
+</code></pre></div>
+<p>Separates BC and BrC absorption via the AAE approach. <code>df_abs</code> has multi-λ
+absorption columns named like <code>abs_370</code>, <code>abs_470</code>, …, <code>abs_880</code>. Default
+<code>wavelengths=[370, 470, 520, 590, 660]</code>. <strong>Returns</strong> BC/BrC absorption, BrC
+fraction per wavelength, and <code>AAE_BrC</code>.</p>
+<h3 id="mie-theory">Mie theory</h3>
+<h4 id="mie"><code>mie</code></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="n">mie</span><span class="p">(</span><span class="n">df_psd</span><span class="p">,</span> <span class="n">ri</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">mixing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<p>Mie optics from a PSD (<code>df_psd</code>: rows=time, columns=diameters in nm). <code>ri</code> is
+either a <strong>Series of complex</strong> RI (single material) or a <strong>DataFrame with
+<code>*_volume_ratio</code> columns</strong> (species mixing table). For a mixing table, <code>mixing</code>
+∈ {<code>'internal'</code>, <code>'external'</code>, <code>'both'</code>}. With <code>distribution=False</code> returns a
+DataFrame of total ext/sca/abs (Mm⁻¹) per row; with <code>distribution=True</code> returns
+a dict of per-bin distributions <code>{'ext', 'sca', 'abs'}</code> (each a DataFrame keyed
+by diameter). <code>mixing='both'</code> returns <code>{'internal', 'external'}</code>.</p>
+<h4 id="mie_lognormal-mie_multimodal"><code>mie_lognormal</code> / <code>mie_multimodal</code></h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="n">mie_lognormal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">geo_mean</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">geo_std</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>              <span class="n">total_number</span><span class="o">=</span><span class="mf">1e6</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+<a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a><span class="n">mie_multimodal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">modes</span><span class="p">,</span>
+<a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a>               <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<p>One-shot Mie optics from a synthetic lognormal (or multi-mode) PSD. For
+<code>mie_multimodal</code>, <code>modes</code> is a sequence of <code>(geo_mean, geo_std, total_number)</code>
+tuples. Both <strong>return</strong> <code>{'ext', 'sca', 'abs'}</code> (Mm⁻¹).</p>
+<h4 id="core-shell-mie-aden-kerker">Core-shell Mie (Aden-Kerker)</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a><span class="n">mie_core_shell</span><span class="p">(</span><span class="n">m_core</span><span class="p">,</span> <span class="n">m_shell</span><span class="p">,</span> <span class="n">d_core</span><span class="p">,</span> <span class="n">d_total</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+<a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a><span class="n">mie_core_shell_sd</span><span class="p">(</span><span class="n">m_core</span><span class="p">,</span> <span class="n">m_shell</span><span class="p">,</span> <span class="n">dp_core</span><span class="p">,</span> <span class="n">dp_total</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span>
+<a id="__codelineno-33-3" name="__codelineno-33-3" href="#__codelineno-33-3"></a>                  <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">psd_type</span><span class="o">=</span><span class="s1">&#39;dNdlogDp&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<p><code>mie_core_shell</code> returns single-particle efficiencies <code>Q_ext</code>, <code>Q_sca</code>,
+<code>Q_abs</code>, <code>g</code>, <code>Q_pr</code>, <code>Q_back</code>, <code>Q_ratio</code>. <code>mie_core_shell_sd</code> is
+PSD-integrated and returns <code>ext</code>, <code>sca</code>, <code>abs</code> (Mm⁻¹) plus <code>g_eff</code>.</p>
+<h3 id="angular-scattering">Angular scattering</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="n">scattering_function</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s1">&#39;theta&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+<a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a><span class="n">scattering_function_sd</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s1">&#39;theta&#39;</span><span class="p">,</span>
+<a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>                       <span class="n">psd_type</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+<a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a><span class="n">phase_matrix</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+<a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a><span class="n">nephelometer_truncation_correction</span><span class="p">(</span><span class="n">sae</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;NEPH&#39;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li><code>scattering_function</code> / <code>scattering_function_sd</code> return the Mie phase function
+  (<code>angles</code>, <code>SL</code>, <code>SR</code>, <code>SU</code>); the <code>_sd</code> variant is PSD-integrated.</li>
+<li><code>phase_matrix</code> returns the Mueller phase-matrix elements (<code>mu</code>, <code>S11</code>, <code>S12</code>,
+  <code>S33</code>, <code>S34</code>).</li>
+<li><code>nephelometer_truncation_correction</code> returns the Anderson &amp; Ogren (1998)
+  multiplicative correction factor for an integrating nephelometer (TSI 3563
+  default; Aurora 3000 also tabulated). <code>sae</code> is the scattering Ångström
+  exponent.</li>
+</ul>
+<h3 id="refractive-index-retrieval-inverse-problems">Refractive-index retrieval (inverse problems)</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-35-1" name="__codelineno-35-1" href="#__codelineno-35-1"></a><span class="n">retrieve_ri</span><span class="p">(</span><span class="n">df_optical</span><span class="p">,</span> <span class="n">df_pnsd</span><span class="p">,</span> <span class="n">dlogdp</span><span class="o">=</span><span class="mf">0.014</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DataFrame</span>
+<a id="__codelineno-35-2" name="__codelineno-35-2" href="#__codelineno-35-2"></a><span class="n">iterative_inversion</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">lognormal_params</span><span class="p">,</span>
+<a id="__codelineno-35-3" name="__codelineno-35-3" href="#__codelineno-35-3"></a>                    <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">n_initial</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">k_initial</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+<a id="__codelineno-35-4" name="__codelineno-35-4" href="#__codelineno-35-4"></a><span class="n">iterative_inversion_sd</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span>
+<a id="__codelineno-35-5" name="__codelineno-35-5" href="#__codelineno-35-5"></a>                       <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">n_initial</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">k_initial</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+<a id="__codelineno-35-6" name="__codelineno-35-6" href="#__codelineno-35-6"></a><span class="n">contour_intersection</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">lognormal_params</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span>
+<a id="__codelineno-35-7" name="__codelineno-35-7" href="#__codelineno-35-7"></a>                     <span class="n">n_range</span><span class="o">=</span><span class="p">(</span><span class="mf">1.3</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="n">k_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">grid</span><span class="o">=</span><span class="mi">51</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<ul>
+<li><code>retrieve_ri</code> retrieves the complex RI from co-located optical
+  (<code>Extinction</code>/<code>Scattering</code>/<code>Absorption</code>) and PSD data; <strong>returns</strong> columns
+  <code>re_real</code>, <code>re_imaginary</code>.</li>
+<li><code>iterative_inversion</code> / <code>iterative_inversion_sd</code> use Newton-Raphson on
+  measured (Bext, Bsca, Babs); <code>lognormal_params</code> is a dict with <code>geo_mean</code>,
+  <code>geo_std</code>, <code>total_number</code>. <strong>Returns</strong> <code>n</code>, <code>k</code>, <code>iterations</code>, <code>converged</code>,
+  <code>residuals</code>.</li>
+<li><code>contour_intersection</code> is the Sumlin (2018) contour-intersection retrieval.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-36-1" name="__codelineno-36-1" href="#__codelineno-36-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">improve</span><span class="p">,</span> <span class="n">mie</span><span class="p">,</span> <span class="n">reconstruct_mass</span>
+<a id="__codelineno-36-2" name="__codelineno-36-2" href="#__codelineno-36-2"></a>
+<a id="__codelineno-36-3" name="__codelineno-36-3" href="#__codelineno-36-3"></a><span class="n">rec</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">)</span>
+<a id="__codelineno-36-4" name="__codelineno-36-4" href="#__codelineno-36-4"></a><span class="n">ext</span> <span class="o">=</span> <span class="n">improve</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s1">&#39;mass&#39;</span><span class="p">],</span> <span class="n">df_RH</span><span class="o">=</span><span class="n">df_rh</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;revised&#39;</span><span class="p">)</span>   <span class="c1"># df_rh is a Series</span>
+<a id="__codelineno-36-5" name="__codelineno-36-5" href="#__codelineno-36-5"></a><span class="n">ext</span><span class="p">[</span><span class="s1">&#39;dry&#39;</span><span class="p">][</span><span class="s1">&#39;total&#39;</span><span class="p">]</span>           <span class="c1"># total dry extinction (Mm⁻¹)</span>
+</code></pre></div>
+<hr />
+<h2 id="voc-analysis">VOC Analysis</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-37-1" name="__codelineno-37-1" href="#__codelineno-37-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
+<a id="__codelineno-37-2" name="__codelineno-37-2" href="#__codelineno-37-2"></a>
+<a id="__codelineno-37-3" name="__codelineno-37-3" href="#__codelineno-37-3"></a><span class="n">voc_potentials</span><span class="p">(</span><span class="n">df_voc</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span>
+</code></pre></div>
+<p>Computes VOC reactivity potentials and concentration summaries. For each species
+in <code>df_voc</code> (concentrations in <strong>ppb</strong>), it uses the bundled <code>support_voc.json</code>
+parameter table (MW, MIR, SOAP, KOH) to compute:</p>
+<ul>
+<li>Mass concentrations (µg/m³)</li>
+<li><strong>Ozone Formation Potential (OFP)</strong> (µg O₃/m³ via MIR × ppb)</li>
+<li><strong>Secondary Organic Aerosol Potential (SOAP)</strong></li>
+<li><strong>OH-reactivity</strong> (KOH × concentration)</li>
+</ul>
+<p>Species are aggregated into chemistry classes (alkane, alkene, aromatic, alkyne,
+OVOC, ClVOC). Column names in <code>df_voc</code> must match the supported species; an
+unrecognized column raises <code>KeyError</code>.</p>
+<p><strong>Returns</strong> a dict of four time-indexed DataFrames:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Quantity</th>
+<th>Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>'Conc'</code></td>
+<td>Mass concentration</td>
+<td>µg/m³</td>
+</tr>
+<tr>
+<td><code>'OFP'</code></td>
+<td>Ozone Formation Potential</td>
+<td>µg O₃/m³</td>
+</tr>
+<tr>
+<td><code>'SOAP'</code></td>
+<td>Secondary Organic Aerosol Potential</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>'LOH'</code></td>
+<td>OH-reactivity (loss rate)</td>
+<td>s⁻¹</td>
+</tr>
+</tbody>
+</table>
+<p>Each frame's columns are the individual species, <strong>plus</strong> per-class totals named
+<code>&lt;class&gt;_total</code> (e.g. <code>aromatic_total</code>, <code>alkane_total</code>), <strong>plus</strong> a grand
+<code>Total</code> column. So the grand total OFP is <code>result['OFP']['Total']</code> (a Series):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-38-1" name="__codelineno-38-1" href="#__codelineno-38-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df_voc</span><span class="p">)</span>
+<a id="__codelineno-38-2" name="__codelineno-38-2" href="#__codelineno-38-2"></a><span class="n">result</span><span class="p">[</span><span class="s1">&#39;OFP&#39;</span><span class="p">][</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>          <span class="c1"># mean total OFP (µg O₃/m³)</span>
+<a id="__codelineno-38-3" name="__codelineno-38-3" href="#__codelineno-38-3"></a><span class="c1"># Rank individual species (exclude the aggregate columns):</span>
+<a id="__codelineno-38-4" name="__codelineno-38-4" href="#__codelineno-38-4"></a><span class="n">ofp</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;OFP&#39;</span><span class="p">]</span>
+<a id="__codelineno-38-5" name="__codelineno-38-5" href="#__codelineno-38-5"></a><span class="n">species</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">ofp</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s1">&#39;Total&#39;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">c</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_total&#39;</span><span class="p">)]</span>
+<a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a><span class="n">ofp</span><span class="p">[</span><span class="n">species</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="n">voc</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;VOC&#39;</span><span class="p">,</span> <span class="s1">&#39;/data/VOC&#39;</span><span class="p">,</span> <span class="n">mean_freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">)</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="n">result</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">voc</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="visualization-aerovizplot">Visualization (<code>AeroViz.plot</code>)</h2>
+<p><code>AeroViz.plot</code> is a large matplotlib-based library. Most functions take a
+<code>DataFrame</code> and return a <code>(fig, ax)</code> tuple, accept an optional <code>ax=</code> to compose
+into subplots, and pass extra <code>**kwargs</code> through. There is also a Plotly-based
+interactive viewer.</p>
+<p><strong>Time series</strong></p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>timeseries(df, y, y2=None, yi=None, ...)</code></td>
+<td>Multi-series time-series plot (primary/secondary axes, rolling smoothing, scatter/bar/line/arrow styles).</td>
+</tr>
+<tr>
+<td><code>timeseries_stacked(df, y, yi, label, plot_type='both', ...)</code></td>
+<td>Stacked time series (absolute / percentage / both).</td>
+</tr>
+<tr>
+<td><code>timeseries_interactive(df, columns=None, *, save=None, show=True, title=None)</code></td>
+<td>Interactive Plotly viewer; one trace per column, legend toggling, <code>save='x.html'</code> exports standalone.</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-40-1" name="__codelineno-40-1" href="#__codelineno-40-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.plot</span><span class="w"> </span><span class="kn">import</span> <span class="n">timeseries</span><span class="p">,</span> <span class="n">timeseries_interactive</span>
+<a id="__codelineno-40-2" name="__codelineno-40-2" href="#__codelineno-40-2"></a><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">timeseries</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;eBC&#39;</span><span class="p">,</span> <span class="n">y2</span><span class="o">=</span><span class="s1">&#39;AAE&#39;</span><span class="p">)</span>
+<a id="__codelineno-40-3" name="__codelineno-40-3" href="#__codelineno-40-3"></a><span class="n">timeseries_interactive</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;eBC&#39;</span><span class="p">,</span> <span class="s1">&#39;AAE&#39;</span><span class="p">])</span>    <span class="c1"># interactive HTML</span>
+</code></pre></div>
+<p><strong>Distributions</strong> (<code>AeroViz.plot.distribution</code>)</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>heatmap(data, unit, ...)</code></td>
+<td>PSD heatmap (<code>unit</code> ∈ Number/Surface/Volume/Extinction).</td>
+</tr>
+<tr>
+<td><code>heatmap_tms(data, unit, ...)</code></td>
+<td>Time-series PSD heatmap.</td>
+</tr>
+<tr>
+<td><code>three_dimension(data, unit, ...)</code></td>
+<td>3-D distribution plot.</td>
+</tr>
+<tr>
+<td><code>plot_dist(data, ...)</code></td>
+<td>Average distribution curve (with std / enhancement / error options).</td>
+</tr>
+<tr>
+<td><code>curve_fitting(dp, dist, ...)</code></td>
+<td>Fit and overlay lognormal modes.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Optical</strong> (<code>AeroViz.plot.optical</code>)</p>
+<p><code>Q_plot</code>, <code>RI_couple</code>, <code>RRI_2D</code>, <code>response_surface</code>, <code>scattering_phase</code> — Mie
+efficiency curves, refractive-index couplings, 2-D real-RI response surfaces, and
+single-particle scattering phase functions.</p>
+<p><strong>Regression / correlation</strong></p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>scatter(df, x, y, ...)</code></td>
+<td>Scatter (optional regression line / 1:1 diagonal / color/size mapping).</td>
+</tr>
+<tr>
+<td><code>linear_regression(df, x, y, ...)</code></td>
+<td>Simple linear regression.</td>
+</tr>
+<tr>
+<td><code>multiple_linear_regression(df, x, y, ...)</code></td>
+<td>Multiple linear regression.</td>
+</tr>
+<tr>
+<td><code>corr_matrix(data, ...)</code> / <code>cross_corr_matrix(data1, data2, ...)</code></td>
+<td>Correlation heatmaps.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Categorical / composition</strong></p>
+<p><code>bar</code>, <code>box</code>, <code>violin</code>, <code>pie</code>, <code>donuts</code>, <code>radar</code>, <code>diurnal_pattern</code>,
+<code>metal_heatmap</code> / <code>metal_heatmaps</code>, <code>koschmieder</code> (visibility vs extinction),
+<code>ammonium_rich</code>.</p>
+<p><strong>Meteorology</strong> (<code>AeroViz.plot.meteorology</code>)</p>
+<table>
+<thead>
+<tr>
+<th>Function</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>wind_rose(df, WS, WD, val=None, typ='scatter', ...)</code></td>
+<td>Wind rose (bar or scatter).</td>
+</tr>
+<tr>
+<td><code>CBPF(df, WS, WD, val=None, ...)</code></td>
+<td>Conditional bivariate probability function (pollution-rose-style).</td>
+</tr>
+<tr>
+<td><code>hysplit(file=..., savefig=None)</code></td>
+<td>Plot HYSPLIT back-trajectories.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Helpers:</strong> <code>set_figure</code>, <code>combine_legends</code>, <code>auto_label_pct</code>, <code>Color</code>,
+<code>Unit</code>.</p>
+<hr />
+<h2 id="utilities-database-dataclassifier">Utilities / DataBase / DataClassifier</h2>
+<h3 id="database"><code>DataBase</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-41-1" name="__codelineno-41-1" href="#__codelineno-41-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataBase</span>
+<a id="__codelineno-41-2" name="__codelineno-41-2" href="#__codelineno-41-2"></a>
+<a id="__codelineno-41-3" name="__codelineno-41-3" href="#__codelineno-41-3"></a><span class="n">DataBase</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">load_data</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">load_PSD</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<p>A helper class for loading bundled / project datasets (and PSD data). Construct
+it pointing at a file and toggle <code>load_data</code> / <code>load_PSD</code> to pull the
+corresponding tables.</p>
+<h3 id="dataclassifier"><code>DataClassifier</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-42-1" name="__codelineno-42-1" href="#__codelineno-42-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataClassifier</span>
+<a id="__codelineno-42-2" name="__codelineno-42-2" href="#__codelineno-42-2"></a>
+<a id="__codelineno-42-3" name="__codelineno-42-3" href="#__codelineno-42-3"></a><span class="n">DataClassifier</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">by</span><span class="p">,</span> <span class="n">df_support</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">qcut</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-42-4" name="__codelineno-42-4" href="#__codelineno-42-4"></a>               <span class="n">labels</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">]</span>
+</code></pre></div>
+<p>Groups a DataFrame and returns summary statistics. <code>by</code> can be a built-in
+grouping (<code>'Hour'</code>, <code>'State'</code>, <code>'Season'</code>, <code>'Season_state'</code>) or a column name;
+use <code>cut_bins</code>/<code>qcut</code>/<code>labels</code> for custom binning. If <code>by</code> is not a column,
+provide <code>df_support</code> to supply the grouping variable. <strong>Returns</strong> a tuple of
+two DataFrames (e.g. group means and standard deviations), commonly fed straight
+into <code>AeroViz.plot.bar</code> / <code>box</code> / <code>violin</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-43-1" name="__codelineno-43-1" href="#__codelineno-43-1"></a><span class="n">mean_df</span><span class="p">,</span> <span class="n">std_df</span> <span class="o">=</span> <span class="n">DataClassifier</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s1">&#39;Season&#39;</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="legacy-dataprocess">Legacy: <code>DataProcess</code></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-44-1" name="__codelineno-44-1" href="#__codelineno-44-1"></a><span class="n">DataProcess</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">path_out</span><span class="p">,</span> <span class="n">excel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">csv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>   <span class="c1"># DEPRECATED</span>
+</code></pre></div>
+<p>The old method-based factory (<code>method</code> ∈ <code>'Chemistry'</code>, <code>'Optical'</code>,
+<code>'SizeDistr'</code>, <code>'VOC'</code>) is <strong>deprecated</strong> and will be removed. Use the top-level
+functions instead. Migration cheatsheet:</p>
+<table>
+<thead>
+<tr>
+<th>Old</th>
+<th>New</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DataProcess('Chemistry', ...).ReConstrc_basic(df, ...)</code></td>
+<td><code>reconstruct_mass(df, ...)</code></td>
+</tr>
+<tr>
+<td><code>DataProcess('Optical', ...).IMPROVE(df_mass, df_RH, method='revised')</code></td>
+<td><code>improve(df_mass, df_RH, method='revised')</code></td>
+</tr>
+<tr>
+<td><code>DataProcess('Optical', ...).Mie(df_psd, df_m)</code></td>
+<td><code>mie(df_psd, df_m)</code></td>
+</tr>
+<tr>
+<td><code>DataProcess('SizeDistr', ...).merge_SMPS_APS_v4(df_smps, df_aps, df_pm25)</code></td>
+<td><code>merge_psd(df_smps, df_aps, df_pm25=df_pm25, version=4)</code></td>
+</tr>
+<tr>
+<td><code>DataProcess('VOC', ...).VOC_basic(df_voc)</code></td>
+<td><code>voc_potentials(df_voc)</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="troubleshooting-faq">Troubleshooting / FAQ</h2>
+<p><strong>My SMPS/APS DataFrame no longer has <code>total_num</code> (or other statistic) columns.</strong>
+That is intentional. <code>RawDataReader('SMPS' | 'APS', ...)</code> now returns the raw
+<strong>dN/dlogDp matrix</strong> (diameters as columns). Derive statistics with
+<code>psd_stats(df)['other']</code>, or pass <code>append_stats=True</code> to the reader to append
+them. The per-read <code>{prefix}_stats.csv</code> sidecar also has them.</p>
+<p><strong><code>append_stats=True</code> broke <code>psd_stats</code> / <code>merge_psd</code>.</strong> When you append stats,
+the frame gains string-typed columns and is no longer a pure numeric PSD matrix.
+Keep <code>append_stats=False</code> (default) for anything you'll feed to <code>psd_stats</code>,
+<code>merge_psd</code>, or <code>SizeDist</code>, and read the stats from the dedicated functions or
+the <code>_stats.csv</code> sidecar.</p>
+<p><strong><code>merge_psd(..., version=4)</code> raises <code>ValueError</code> about <code>df_pm25</code>.</strong> Version 4
+uses a PM2.5 fitness function, so it <strong>requires</strong> <code>df_pm25</code>. Either pass a PM2.5
+reference DataFrame, or use <code>version=3</code> to skip the fitness step.</p>
+<p><strong><code>merge_psd(..., version=5)</code> prints a UserWarning.</strong> Version 5 is
+<strong>EXPERIMENTAL</strong> (mass-anchored density via PM1 closure) and emits a
+<code>UserWarning</code>; it also <strong>requires <code>df_pm1</code></strong>. Prefer <code>version=4</code> for production
+work.</p>
+<p><strong>My merged density column is mostly NaN.</strong> Each timestamp's estimated effective
+density (shift²) is QC'd against <code>density_range</code> (default <code>(0.6, 2.6)</code> g/cm³);
+out-of-range timestamps are set to NaN. Widen the range, e.g.
+<code>density_range=(0.3, 2.6)</code>, for looser QC.</p>
+<p><strong>My reader frame is huge and mostly NaN.</strong> With <code>fill_missing=True</code> (default)
+the grid is padded to the full requested <code>[start, end]</code>. Use
+<code>df.attrs['coverage_start'/'coverage_end']</code> to see what the files actually
+contained, or pass <code>fill_missing=False</code> to clamp the grid to real coverage.</p>
+<p><strong><code>size_range</code> raised an error.</strong> <code>size_range</code> is only valid for <code>SMPS</code>, <code>APS</code>,
+<code>GRIMM</code>. SMPS values must be within 1–1000 nm; APS within 500–20000 nm.</p>
+<p>**<code>KeyError: 'Instrument name ... is not valid'.** The instrument key is not
+recognized. Check the exact spelling against the
+[supported list](#supported-instruments) (note the hyphen in</code>Q-ACSM`).</p>
+<p><strong>Metadata (<code>df.attrs</code>) disappeared after <code>concat</code>.</strong> pandas drops <code>attrs</code> when
+concatenating frames with conflicting attrs. <code>attrs</code> survive pickling and
+<code>resample</code> (pandas &gt;= 2) but you must re-stamp after a merge.</p>
+<hr />
+<h2 id="further-reading">Further Reading</h2>
+<ul>
+<li><strong>Guides:</strong> <code>docs/guide/</code> — <code>rawdatareader.md</code>, <code>size_distribution.md</code>,
+  <code>chemical_analysis.md</code>, <code>optical_closure.md</code>, <code>voc_analysis.md</code>,
+  <code>visualization.md</code>, <code>dataprocess.md</code>, <code>rawdatareader-internals.md</code>.</li>
+<li><strong>Theory:</strong> <code>docs/theory/</code> — <code>mie.md</code>, <code>improve.md</code>, <code>mass_reconstruction.md</code>,
+  <code>kappa.md</code>, <code>lognormal.md</code>, <code>icrp.md</code>, <code>ofp.md</code>.</li>
+<li><strong>API reference:</strong> <code>docs/api/</code> and the published docs at
+  <a href="https://alex870521.github.io/AeroViz/">https://alex870521.github.io/AeroViz/</a>.</li>
+<li><strong>Runnable examples:</strong> <code>examples/01_basic_reading.py</code> …
+  <code>examples/07_plotting.py</code>.</li>
+<li><strong>SMPS–APS merge details:</strong> <code>AeroViz/dataProcess/SizeDistr/merge/README.md</code>.</li>
+<li><strong>Project / repo:</strong> <a href="https://github.com/Alex870521/AeroViz">https://github.com/Alex870521/AeroViz</a>.
+</content>
+</invoke></li>
+</ul>
+
+
+
+
+
+
+
+  
+    
+  
+  
+    
+  
+
+
+  <aside class="md-source-file">
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Last update">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 25, 2026 04:09:10 UTC">May 25, 2026</span>
+  </span>
+
+    
+    
+      
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Created">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
+    </span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 24, 2026 20:45:29 UTC">May 24, 2026</span>
+  </span>
+
+    
+    
+    
+  </aside>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/alex870521/AeroViz" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://pypi.org/project/AeroViz" target="_blank" rel="noopener" title="pypi.org" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.8 200.5c-7.7-30.9-22.3-54.2-53.4-54.2h-40.1v47.4c0 36.8-31.2 67.8-66.8 67.8H172.7c-29.2 0-53.4 25-53.4 54.3v101.8c0 29 25.2 46 53.4 54.3 33.8 9.9 66.3 11.7 106.8 0 26.9-7.8 53.4-23.5 53.4-54.3v-40.7H226.2v-13.6h160.2c31.1 0 42.6-21.7 53.4-54.2 11.2-33.5 10.7-65.7 0-108.6M286.2 444.7a20.4 20.4 0 1 1 0-40.7 20.4 20.4 0 1 1 0 40.7M167.8 248.1h106.8c29.7 0 53.4-24.5 53.4-54.3V91.9c0-29-24.4-50.7-53.4-55.6-35.8-5.9-74.7-5.6-106.8.1-45.2 8-53.4 24.7-53.4 55.6v40.7h106.9v13.6h-147c-31.1 0-58.3 18.7-66.8 54.2-9.8 40.7-10.2 66.1 0 108.6 7.6 31.6 25.7 54.2 56.8 54.2H101v-48.8c0-35.3 30.5-66.4 66.8-66.4m-6.6-183.4a20.4 20.4 0 1 1 0 40.8 20.4 20.4 0 1 1 0-40.8"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+      <div class="md-progress" data-md-component="progress" role="progressbar"></div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

@@ -1895,6 +1895,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader._flag_outlier_dates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _flag_outlier_dates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._generate_report" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4438,6 +4449,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader._flag_outlier_dates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _flag_outlier_dates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._generate_report" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4931,6 +4953,12 @@ If str, specifies the frequency for QC calculations</p>
     raw_freq : str
         Override raw data frequency (e.g., '6min', '1h').
         If not set, frequency is auto-inferred from the data.
+    drop_outlier_dates : bool, default=False
+        Stray timestamps far outside the data's bulk (e.g. a
+        year-2000 row in 2023 data) are always detected and warned
+        about, since they balloon the native grid. By default they
+        are kept (the warning explains how to fix the source); set
+        True to drop them automatically before the grid is built.
     log_level : str
         Logging level for the log file
     quiet : bool
@@ -5799,6 +5827,34 @@ and the data is returned at its native resolution</p>
     <div class="doc doc-contents ">
 
         <p>True if the cached frame was written by the current cache format.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader._flag_outlier_dates" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_flag_outlier_dates</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_flag_outlier_dates</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Detect and warn about stray timestamps; drop them only if asked.</p>
+<p>A single bad row — e.g. a <code>2000-01-01</code> stamp in otherwise-2023 data —
+stretches the canonical native grid (built over the data's own min-&gt;max
+in <code>_read_raw_files</code>, <em>before</em> any requested range applies) across the
+whole bogus span, inflating the cached frame to millions of NaN rows
+even when the caller only asked for 2023. Such stamps are almost always
+a source-data error, so by default we <em>warn and tell the user how to fix
+it</em> rather than silently changing their data; pass
+<code>drop_outlier_dates=True</code> to have them excluded automatically.</p>
 
 
     </div>

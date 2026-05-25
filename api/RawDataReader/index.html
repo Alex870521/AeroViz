@@ -3753,6 +3753,29 @@ resampling. Useful for already-aggregated / second-hand sources
           </tr>
           <tr class="doc-section-item">
             <td>
+                <code>append_stats</code>
+            </td>
+            <td>
+                  <code><span title="bool">bool</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>SMPS/APS only. The reader returns the dN/dlogDp distribution (diameters
+as columns). When True, the derived summary statistics (total / GMD /
+GSD / mode, per weighting and mode) are appended as extra columns of the
+returned frame. The default (False) keeps the return value a clean PSD
+matrix so it can be passed straight to <code>psd_stats</code> / <code>merge_psd</code> /
+<code>SizeDist</code>; the statistics are always also written to
+<code>{prefix}_stats.csv</code> alongside the <code>_dNdlogDp</code> / <code>_dSdlogDp</code> /
+<code>_dVdlogDp</code> distribution files.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
                 <code>fill_missing</code>
             </td>
             <td>

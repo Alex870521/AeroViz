@@ -3467,6 +3467,16 @@
 
     <div class="doc doc-contents first">
 
+        <p>Grouped box plot of <code>y</code> against <code>x</code>.</p>
+<p>Two modes, chosen automatically:</p>
+<ul>
+<li><strong>Categorical</strong> — when <code>x</code> is non-numeric (e.g. a 'season' column) or
+  <code>x_bins</code> is omitted: one box per unique <code>x</code> value.</li>
+<li><strong>Binned</strong> — when <code>x</code> is numeric and <code>x_bins</code> is given: <code>x</code> is cut
+  into the supplied bin edges (any width, integer or float) and one box is
+  drawn per bin.</li>
+</ul>
+
 
     </div>
 

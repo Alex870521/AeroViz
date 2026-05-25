@@ -2091,17 +2091,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._distributions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _distributions
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -2157,28 +2146,6 @@
     <span class="md-ellipsis">
       
         _process
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._save_distributions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _save_distributions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._geometric_prop" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _geometric_prop
       
     </span>
   </a>
@@ -3857,17 +3824,6 @@
   
 </li>
         
-          <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._distributions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _distributions
-      
-    </span>
-  </a>
-  
-</li>
-        
       </ul>
     </nav>
   
@@ -3923,28 +3879,6 @@
     <span class="md-ellipsis">
       
         _process
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._save_distributions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _save_distributions
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._geometric_prop" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        _geometric_prop
       
     </span>
   </a>
@@ -4105,7 +4039,7 @@
 
 
 </h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">Reader</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">Reader</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n"><span title="pathlib.Path">Path</span></span> <span class="o">|</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">reset</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">|</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">qc</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">|</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents first">
@@ -4322,28 +4256,6 @@ on supported formats and QC procedures.</p>
 
 </div>
 
-<div class="doc doc-object doc-attribute">
-
-
-
-<h4 id="AeroViz.rawDataReader.script.SMPS.Reader._distributions" class="doc doc-heading">
-            <span class="doc doc-object-name doc-attribute-name">_distributions</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
-  </span>
-
-</h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_distributions</span> <span class="o">=</span> <span class="kc">None</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-    </div>
-
-</div>
-
 
 <h3 id="AeroViz.rawDataReader.script.SMPS.Reader-functions">Functions</h3>
 
@@ -4360,95 +4272,13 @@ on supported formats and QC procedures.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Process SMPS data and save size distributions to separate files.</p>
-<p>Overrides AbstractReader.<strong>call</strong> to add distribution file saving
-and filter out size bins from main output.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>start</code>
-            </td>
-            <td>
-                  <code><span title="datetime.datetime">datetime</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Start time for data processing</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>end</code>
-            </td>
-            <td>
-                  <code><span title="datetime.datetime">datetime</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>End time for data processing</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>mean_freq</code>
-            </td>
-            <td>
-                  <code><span title="str">str</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Frequency for resampling the data</p>
-              </div>
-            </td>
-            <td>
-                  <code>&#39;1h&#39;</code>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="pd.DataFrame">DataFrame</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Processed and resampled data (statistics only, no size bins)</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+        <p>Return the dN/dlogDp distribution; write S/V + a stats sidecar.</p>
+<p>The parent pipeline produces the QC-applied, resampled dN/dlogDp frame
+(diameters in nm as columns) and stamps <code>df.attrs</code>. We then write the
+number / surface / volume distributions and a QC-aligned statistics file
+next to the main output. Pass <code>append_stats=True</code> to also append the
+statistics columns to the returned frame (default keeps it a clean PSD
+matrix for <code>psd_stats</code> / <code>merge_psd</code> / <code>SizeDist</code>).</p>
 
 
     </div>
@@ -4524,226 +4354,14 @@ to _QC() and _process() stages.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Calculate size distribution statistics from QC'd SMPS data.</p>
-
-
-<details class="processing-steps" open>
-  <summary>Processing Steps</summary>
-  <ol>
-<li>Calculate dlogDp from bin diameters</li>
-<li>Calculate number, surface, volume distributions (all in dX/dlogDp)</li>
-<li>Calculate total, GMD, GSD, mode for each weighting</li>
-<li>Calculate mode contributions (ultra, accum, coarse fractions)</li>
-<li>Store distributions for separate file output</li>
-</ol>
-</details>
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>_df</code>
-            </td>
-            <td>
-                  <code><span title="pd.DataFrame">DataFrame</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Quality-controlled DataFrame with size bin columns and QC_Flag</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="pd.DataFrame">DataFrame</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Original size bins (dN/dlogDp) + calculated statistics + QC_Flag</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h4 id="AeroViz.rawDataReader.script.SMPS.Reader._save_distributions" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">_save_distributions</span>
-
-
-</h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_save_distributions</span><span class="p">(</span><span class="n">mean_freq</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;1h&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Save size distributions to separate CSV files.</p>
-
-
-<details class="output-files" open>
-  <summary>Output Files</summary>
-  <ul>
-<li>output_smps_dNdlogDp.csv : Number distribution (dN/dlogDp)</li>
-<li>output_smps_dSdlogDp.csv : Surface distribution (dS/dlogDp)</li>
-<li>output_smps_dVdlogDp.csv : Volume distribution (dV/dlogDp)</li>
-</ul>
-</details>
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>mean_freq</code>
-            </td>
-            <td>
-                  <code><span title="str">str</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Frequency for resampling the data</p>
-              </div>
-            </td>
-            <td>
-                  <code>&#39;1h&#39;</code>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h4 id="AeroViz.rawDataReader.script.SMPS.Reader._geometric_prop" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">_geometric_prop</span>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
-  </span>
-
-</h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_geometric_prop</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">dist</span><span class="p">)</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Calculate geometric mean diameter and geometric standard deviation.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>dp</code>
-            </td>
-            <td>
-                  <code><span title="numpy.ndarray">ndarray</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Particle diameters (nm)</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>dist</code>
-            </td>
-            <td>
-                  <code><span title="pd.DataFrame">DataFrame</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Distribution data (dN, dS, or dV)</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="tuple">tuple</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>(total, GMD, GSD) as pandas Series</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
+        <p>Return the QC'd dN/dlogDp size bins (plus <code>QC_Flag</code>).</p>
+<p>The size distribution itself is the canonical SMPS product. Summary
+statistics (total / GMD / GSD / mode, mode fractions) and the surface
+and volume distributions are <em>derived</em> quantities — compute them on
+demand with :func:<code>AeroViz.psd_stats</code> / :func:<code>AeroViz.psd_distributions</code>
+rather than baking them into the reader output. This keeps the reader's
+return type a plain dN/dlogDp DataFrame (diameters as columns), which is
+exactly what <code>psd_stats</code> / <code>merge_psd</code> / <code>SizeDist</code> consume.</p>
 
 
     </div>

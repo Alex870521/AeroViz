@@ -3402,10 +3402,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#time_series" class="md-nav__link">
+  <a href="#timeseries" class="md-nav__link">
     <span class="md-ellipsis">
       
-        time_series()
+        timeseries()
       
     </span>
   </a>
@@ -3435,10 +3435,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#histogram" class="md-nav__link">
+  <a href="#diurnal_pattern" class="md-nav__link">
     <span class="md-ellipsis">
       
-        histogram()
+        diurnal_pattern()
       
     </span>
   </a>
@@ -3535,10 +3535,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#box-plot-by-month" class="md-nav__link">
+  <a href="#box-plot-by-2-month-bins" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Box Plot by Month
+        Box Plot by 2-month Bins
       
     </span>
   </a>
@@ -3585,7 +3585,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#timeseries" class="md-nav__link">
+  <a href="#timeseries_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Timeseries
@@ -3660,98 +3660,93 @@ plot types commonly used in aerosol science.</p>
 <h2 id="basic-usage">Basic Usage</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Create a time series plot</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">plot</span><span class="o">.</span><span class="n">time_series</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;BC&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Create a time series plot (y = column name or list of columns)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">plot</span><span class="o">.</span><span class="n">timeseries</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;BC&#39;</span><span class="p">)</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Create a scatter plot</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">plot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;PM2.5&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Create a scatter plot (x / y are column names)</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">plot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;PM2.5&#39;</span><span class="p">)</span>
 </code></pre></div>
+<p>All plot functions take a time-indexed <code>DataFrame</code> and return <code>(fig, ax)</code>.</p>
 <h2 id="available-plot-types">Available Plot Types</h2>
-<h3 id="time_series">time_series()</h3>
-<p>Create a time series plot of specified variables.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">time_series</span><span class="p">(</span>
+<h3 id="timeseries">timeseries()</h3>
+<p>Create a time series plot of one or more columns.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">timeseries</span><span class="p">(</span>
 <a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="n">data</span><span class="p">,</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;PM2.5&#39;</span><span class="p">],</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">end</span><span class="o">=</span><span class="s1">&#39;2024-12-31&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Time Series of BC and PM2.5&#39;</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">)</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;PM2.5&#39;</span><span class="p">],</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="p">)</span>
 </code></pre></div>
 <h3 id="scatter">scatter()</h3>
-<p>Create a scatter plot of two variables.</p>
+<p>Create a scatter plot of two variables (<code>c</code> colors points, <code>s</code> sizes them).</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">data</span><span class="p">,</span>
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">x</span><span class="o">=</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span>
 <a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    <span class="n">y</span><span class="o">=</span><span class="s1">&#39;PM2.5&#39;</span><span class="p">,</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;PM2.5&#39;</span><span class="p">,</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">size</span><span class="o">=</span><span class="s1">&#39;BC&#39;</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">c</span><span class="o">=</span><span class="s1">&#39;PM2.5&#39;</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">s</span><span class="o">=</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span>
 <a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="p">)</span>
 </code></pre></div>
 <h3 id="box">box()</h3>
-<p>Create a box plot of specified variables.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">box</span><span class="p">(</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">data</span><span class="p">,</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;PM2.5&#39;</span><span class="p">],</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">by</span><span class="o">=</span><span class="s1">&#39;month&#39;</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">)</span>
+<p>Box plot of <code>y</code> grouped by <strong>numeric</strong> <code>x</code> binned with <code>x_bins</code> (use integer
+edges of width &gt;= 2). It does not accept a categorical/string x-axis.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">plot</span><span class="o">.</span><span class="n">box</span><span class="p">(</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">x</span><span class="o">=</span><span class="s1">&#39;WS&#39;</span><span class="p">,</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">y</span><span class="o">=</span><span class="s1">&#39;PM2.5&#39;</span><span class="p">,</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="n">x_bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="p">)</span>
 </code></pre></div>
-<h3 id="histogram">histogram()</h3>
-<p>Create a histogram of specified variables.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">data</span><span class="p">,</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BC&#39;</span><span class="p">],</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">bins</span><span class="o">=</span><span class="mi">50</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="p">)</span>
+<h3 id="diurnal_pattern">diurnal_pattern()</h3>
+<p>Mean (+/- spread) by hour of day.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">diurnal_pattern</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;BC&#39;</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="parameters">Parameters</h2>
 <h3 id="common-parameters">Common Parameters</h3>
 <ul>
-<li><code>data</code> (DataFrame): Input data</li>
-<li><code>variables</code> (list): Variables to plot</li>
-<li><code>title</code> (str): Plot title</li>
-<li><code>figsize</code> (tuple): Figure size</li>
-<li><code>style</code> (str): Plot style</li>
+<li><code>data</code> / <code>df</code> (DataFrame): time-indexed input data</li>
+<li><code>ax</code> (Axes): existing axis to draw into (optional)</li>
+<li><code>title</code> (str): plot title</li>
 </ul>
 <h3 id="time-series-parameters">Time Series Parameters</h3>
 <ul>
-<li><code>start</code> (str): Start date</li>
-<li><code>end</code> (str): End date</li>
-<li><code>freq</code> (str): Time frequency</li>
+<li><code>y</code> (str | list): column(s) on the primary axis</li>
+<li><code>y2</code> (str | list): column(s) on a secondary axis</li>
+<li><code>rolling</code> (int | str): rolling-window smoothing</li>
 </ul>
 <h3 id="scatter-parameters">Scatter Parameters</h3>
 <ul>
-<li><code>x</code> (str): X-axis variable</li>
-<li><code>y</code> (str): Y-axis variable</li>
-<li><code>color</code> (str): Color variable</li>
-<li><code>size</code> (str): Size variable</li>
+<li><code>x</code> (str): X-axis column</li>
+<li><code>y</code> (str): Y-axis column</li>
+<li><code>c</code> (str): color column</li>
+<li><code>s</code> (str): size column</li>
 </ul>
 <h2 id="examples">Examples</h2>
 <h3 id="time-series-with-multiple-variables">Time Series with Multiple Variables</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">time_series</span><span class="p">(</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">timeseries</span><span class="p">(</span>
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">data</span><span class="p">,</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;PM2.5&#39;</span><span class="p">,</span> <span class="s1">&#39;PM10&#39;</span><span class="p">],</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="n">end</span><span class="o">=</span><span class="s1">&#39;2024-12-31&#39;</span><span class="p">,</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Aerosol Components Time Series&#39;</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="p">)</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>    <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span> <span class="s1">&#39;PM2.5&#39;</span><span class="p">,</span> <span class="s1">&#39;PM10&#39;</span><span class="p">],</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p">)</span>
 </code></pre></div>
 <h3 id="scatter-plot-with-color-and-size">Scatter Plot with Color and Size</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="n">data</span><span class="p">,</span>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">x</span><span class="o">=</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">y</span><span class="o">=</span><span class="s1">&#39;PM2.5&#39;</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">color</span><span class="o">=</span><span class="s1">&#39;PM10&#39;</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">size</span><span class="o">=</span><span class="s1">&#39;PM1&#39;</span><span class="p">,</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;BC vs PM2.5&#39;</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="p">)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>    <span class="n">c</span><span class="o">=</span><span class="s1">&#39;PM10&#39;</span><span class="p">,</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="n">s</span><span class="o">=</span><span class="s1">&#39;PM1&#39;</span><span class="p">,</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">)</span>
 </code></pre></div>
-<h3 id="box-plot-by-month">Box Plot by Month</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">plot</span><span class="o">.</span><span class="n">box</span><span class="p">(</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>    <span class="n">data</span><span class="p">,</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;BC&#39;</span><span class="p">],</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>    <span class="n">by</span><span class="o">=</span><span class="s1">&#39;month&#39;</span><span class="p">,</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">title</span><span class="o">=</span><span class="s1">&#39;Monthly BC Distribution&#39;</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="p">)</span>
+<h3 id="box-plot-by-2-month-bins">Box Plot by 2-month Bins</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">data</span><span class="p">[</span><span class="s1">&#39;month&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">month</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">plot</span><span class="o">.</span><span class="n">box</span><span class="p">(</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">data</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">x</span><span class="o">=</span><span class="s1">&#39;month&#39;</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="n">y</span><span class="o">=</span><span class="s1">&#39;BC&#39;</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>    <span class="n">x_bins</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="p">)</span>
 </code></pre></div>
 <h2 id="notes">Notes</h2>
 <ul>
@@ -3785,7 +3780,7 @@ plot types commonly used in aerosol science.</p>
 <a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="n">plot</span><span class="o">.</span><span class="n">multiple_linear_regression</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;AS&#39;</span><span class="p">,</span> <span class="s1">&#39;AN&#39;</span><span class="p">,</span> <span class="s1">&#39;OM&#39;</span><span class="p">,</span> <span class="s1">&#39;EC&#39;</span><span class="p">,</span> <span class="s1">&#39;SS&#39;</span><span class="p">,</span> <span class="s1">&#39;Soil&#39;</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Extinction&#39;</span><span class="p">])</span>
 <a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="n">plot</span><span class="o">.</span><span class="n">multiple_linear_regression</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;NO&#39;</span><span class="p">,</span> <span class="s1">&#39;NO2&#39;</span><span class="p">,</span> <span class="s1">&#39;CO&#39;</span><span class="p">,</span> <span class="s1">&#39;PM1&#39;</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;PM25&#39;</span><span class="p">])</span>
 </code></pre></div>
-<h3 id="timeseries"><div align="center">Timeseries</div></h3>
+<h3 id="timeseries_1"><div align="center">Timeseries</div></h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot</span><span class="p">,</span> <span class="n">DataBase</span>
 <a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
 <a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">df</span> <span class="o">=</span> <span class="n">DataBase</span><span class="p">()</span>  <span class="c1"># build default data, uers can use their own data</span>
@@ -3887,7 +3882,7 @@ chemical composition data can also be used to calculate particle extinction thro
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="April 14, 2025 06:24:53 UTC">April 14, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 25, 2026 04:09:10 UTC">May 25, 2026</span>
   </span>
 
     

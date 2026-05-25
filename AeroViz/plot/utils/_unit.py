@@ -9,13 +9,17 @@ class Unit:
     data = None
 
     def __new__(cls, unit: str):
-        cls.data = cls.load_jsonfile()
-        try:
-            value = cls.data[unit]
-            return r'${}$'.format(value.replace(' ', r'\ '))
-        except KeyError:
-            print(f"Attribute '{unit}' not found. Using default value.")
-            return r'${}$'.format(unit.replace(' ', r'\ ')) if unit is not None else 'None'
+        cls.data = cls.load_jsonfile() or {}
+        if unit is None:
+            return ''
+        # Unknown labels fall back to the label itself (no console noise — a
+        # label simply not being in units.json is normal, not an error).
+        value = cls.data.get(unit, unit)
+        # '%' starts a comment in matplotlib mathtext, so a bare '%' inside the
+        # $...$ wrapper raises a ParseException (e.g. unit='%' or 'OM ratio (%)').
+        # Escape it so the label renders literally.
+        value = value.replace(' ', r'\ ').replace('%', r'\%')
+        return r'${}$'.format(value)
 
     @classmethod
     def load_jsonfile(cls):

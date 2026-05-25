@@ -27,20 +27,22 @@ from AeroViz import (
 )
 
 # Read optical data
+# NOTE: pass dates as start=/end= keywords. RawDataReader's 3rd/4th positional
+# args are reset/qc, so positional datetimes would be misinterpreted.
 neph = RawDataReader('NEPH', Path('./data/neph'),
-                     datetime(2024,1,1), datetime(2024,3,31))
+                     start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))
 ae33 = RawDataReader('AE33', Path('./data/ae33'),
-                     datetime(2024,1,1), datetime(2024,3,31))
+                     start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))
 
 # Read size distribution
 smps = RawDataReader('SMPS', Path('./data/smps'),
-                     datetime(2024,1,1), datetime(2024,3,31))
+                     start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))
 
 # Read chemical composition
 igac = RawDataReader('IGAC', Path('./data/igac'),
-                     datetime(2024,1,1), datetime(2024,3,31))
+                     start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))
 ocec = RawDataReader('OCEC', Path('./data/ocec'),
-                     datetime(2024,1,1), datetime(2024,3,31))
+                     start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))
 ```
 
 ---
@@ -61,8 +63,8 @@ df_mass = mass_result['mass']  # AS, AN, OM, Soil, SS, EC
 ### IMPROVE Extinction Calculation
 
 ```python
-# Get RH data
-df_RH = met_data[['RH']]
+# Get RH data — df_RH must be a Series, not a single-column DataFrame
+df_RH = met_data['RH']
 
 # IMPROVE calculation
 improve_result = improve(
@@ -71,7 +73,8 @@ improve_result = improve(
     method='revised',     # 'revised' | 'modified' | 'localized'
 )
 
-# Output
+# Output. Each frame's columns are: AS, AN, OM, Soil, SS, EC, total
+# (lowercase 'total', the per-species sum — no '_ext' suffix).
 ext_dry = improve_result['dry']   # Dry extinction
 ext_wet = improve_result['wet']   # Wet extinction
 alwc = improve_result['ALWC']     # Aerosol liquid water contribution
@@ -83,11 +86,11 @@ fRH = improve_result['fRH']       # Hygroscopic factor
 ```python
 import matplotlib.pyplot as plt
 
-# Measured extinction
-ext_measured = neph['Sca_550'] + ae33['Abs_880']
+# Measured extinction (NEPH 'sca_550' + AE33 'abs_550', both lowercase)
+ext_measured = neph['sca_550'] + ae33['abs_550']
 
-# Calculated extinction
-ext_calculated = ext_wet['Total_ext']
+# Calculated extinction ('total' column = sum over species)
+ext_calculated = ext_wet['total']
 
 # Plot comparison
 fig, ax = plt.subplots(figsize=(8, 8))
@@ -184,16 +187,21 @@ print(f"Retrieved RI: {n_retrieved.mean():.3f} + {k_retrieved.mean():.4f}i")
 
 ```python
 # Compute derived optical properties (extinction, SSA, MEE/MSE/MAE, Ångström, etc.)
+# Required columns:
+#   df_sca : ['sca_550', 'SAE']         (from NEPH; lowercase)
+#   df_abs : ['abs_550', 'AAE', 'eBC']  (from AE33; lowercase)
 derived = optical_basic(
-    df_sca=neph[['Sca_550']],
-    df_abs=ae33[['Abs_880']],
-    df_mass=df_chem[['PM25']],
-    df_no2=gas[['NO2']],
-    df_temp=met[['Temp']],
+    df_sca=neph[['sca_550', 'SAE']],
+    df_abs=ae33[['abs_550', 'AAE', 'eBC']],
+    df_mass=df_chem[['PM25']],          # optional: enables mass efficiencies
+    df_no2=gas[['NO2']],                # optional: subtracts gas absorption
+    df_temp=met[['Temp']],              # optional
 )
 
-# Single scattering albedo
-SSA = derived['Scattering'] / (derived['Scattering'] + derived['Absorption'])
+# Returns columns: ['abs', 'sca', 'ext', 'SSA', 'SAE', 'AAE', 'eBC']
+# Single scattering albedo is already provided as 'SSA' (= sca / ext):
+SSA = derived['SSA']
+# (equivalently: derived['sca'] / derived['ext'])
 ```
 
 ---
@@ -213,28 +221,31 @@ from AeroViz import (
 )
 from AeroViz.dataProcess.SizeDistr import SizeDist
 
-# 1. Read all data
-neph = RawDataReader('NEPH', Path('./data'), ...)
-ae33 = RawDataReader('AE33', Path('./data'), ...)
-smps = RawDataReader('SMPS', Path('./data'), ...)
+# 1. Read all data (pass dates as start=/end= keywords)
+neph = RawDataReader('NEPH', Path('./data/neph'),
+                     start='2024-01-01', end='2024-03-31', mean_freq='1h')
+ae33 = RawDataReader('AE33', Path('./data/ae33'),
+                     start='2024-01-01', end='2024-03-31', mean_freq='1h')
+smps = RawDataReader('SMPS', Path('./data/smps'),
+                     start='2024-01-01', end='2024-03-31', mean_freq='1h')
 df_chem = pd.read_csv('chemistry.csv', parse_dates=['time'], index_col='time')
-df_RH = pd.read_csv('met.csv', parse_dates=['time'], index_col='time')[['RH']]
+df_RH = pd.read_csv('met.csv', parse_dates=['time'], index_col='time')['RH']  # Series
 
 # 2. Mass reconstruction and refractive index
 mass_result = reconstruct_mass(df_chem)
 mass = mass_result['mass']
 ri   = volume_ri(mass_result['volume'])
 
-# 3. IMPROVE closure
+# 3. IMPROVE closure ('wet' total extinction is the 'total' column)
 improve_result = improve(mass, df_RH, method='revised')
-ext_improve = improve_result['wet']['Total_ext']
+ext_improve = improve_result['wet']['total']
 
 # 4. Mie closure
 psd = SizeDist(smps, state='dlogdp', weighting='n')
 ext_mie = psd.to_extinction(ri, method='internal').sum(axis=1)
 
-# 5. Measured extinction
-ext_measured = neph['Sca_550'] + ae33['Abs_880']
+# 5. Measured extinction (lowercase column names)
+ext_measured = neph['sca_550'] + ae33['abs_550']
 
 # 6. Compare results
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))

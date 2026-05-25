@@ -86,10 +86,11 @@ from AeroViz import voc_potentials
 # Calculate OFP and SOAP
 result = voc_potentials(df_voc)
 
-# Output
-result['OFP']    # OFP contribution per species (ug O3/m3)
-result['SOAP']   # SOAP contribution per species
-result['total']  # Total OFP/SOAP
+# Output: dict with keys 'Conc', 'OFP', 'SOAP', 'LOH' (each a DataFrame)
+result['OFP']           # OFP per species (ug O3/m3)
+result['SOAP']          # SOAP per species
+# Each frame also has per-class '*_total' columns and a grand 'Total' column:
+result['OFP']['Total']  # total OFP across all species (a time-indexed Series)
 ```
 
 ### Input Format

@@ -10,101 +10,95 @@ plot types commonly used in aerosol science.
 ```python
 from AeroViz import plot
 
-# Create a time series plot
-plot.time_series(data, 'BC')
+# Create a time series plot (y = column name or list of columns)
+plot.timeseries(data, y='BC')
 
-# Create a scatter plot
-plot.scatter(data, 'BC', 'PM2.5')
+# Create a scatter plot (x / y are column names)
+plot.scatter(data, x='BC', y='PM2.5')
 ```
+
+All plot functions take a time-indexed `DataFrame` and return `(fig, ax)`.
 
 ## Available Plot Types
 
-### time_series()
+### timeseries()
 
-Create a time series plot of specified variables.
+Create a time series plot of one or more columns.
 
 ```python
-plot.time_series(
+plot.timeseries(
     data,
-    variables=['BC', 'PM2.5'],
-    start='2024-01-01',
-    end='2024-12-31',
-    title='Time Series of BC and PM2.5'
+    y=['BC', 'PM2.5'],
 )
 ```
 
 ### scatter()
 
-Create a scatter plot of two variables.
+Create a scatter plot of two variables (`c` colors points, `s` sizes them).
 
 ```python
 plot.scatter(
     data,
     x='BC',
     y='PM2.5',
-    color='PM2.5',
-    size='BC'
+    c='PM2.5',
+    s='BC',
 )
 ```
 
 ### box()
 
-Create a box plot of specified variables.
+Box plot of `y` grouped by **numeric** `x` binned with `x_bins` (use integer
+edges of width >= 2). It does not accept a categorical/string x-axis.
 
 ```python
+import numpy as np
+
 plot.box(
     data,
-    variables=['BC', 'PM2.5'],
-    by='month'
+    x='WS',
+    y='PM2.5',
+    x_bins=np.arange(0, 11, 2),
 )
 ```
 
-### histogram()
+### diurnal_pattern()
 
-Create a histogram of specified variables.
+Mean (+/- spread) by hour of day.
 
 ```python
-plot.histogram(
-    data,
-    variables=['BC'],
-    bins=50
-)
+plot.diurnal_pattern(data, y='BC')
 ```
 
 ## Parameters
 
 ### Common Parameters
 
-- `data` (DataFrame): Input data
-- `variables` (list): Variables to plot
-- `title` (str): Plot title
-- `figsize` (tuple): Figure size
-- `style` (str): Plot style
+- `data` / `df` (DataFrame): time-indexed input data
+- `ax` (Axes): existing axis to draw into (optional)
+- `title` (str): plot title
 
 ### Time Series Parameters
 
-- `start` (str): Start date
-- `end` (str): End date
-- `freq` (str): Time frequency
+- `y` (str | list): column(s) on the primary axis
+- `y2` (str | list): column(s) on a secondary axis
+- `rolling` (int | str): rolling-window smoothing
 
 ### Scatter Parameters
 
-- `x` (str): X-axis variable
-- `y` (str): Y-axis variable
-- `color` (str): Color variable
-- `size` (str): Size variable
+- `x` (str): X-axis column
+- `y` (str): Y-axis column
+- `c` (str): color column
+- `s` (str): size column
 
 ## Examples
 
 ### Time Series with Multiple Variables
 
 ```python
-plot.time_series(
+plot.timeseries(
     data,
-    variables=['BC', 'PM2.5', 'PM10'],
-    start='2024-01-01',
-    end='2024-12-31',
-    title='Aerosol Components Time Series'
+    y=['BC', 'PM2.5', 'PM10'],
 )
 ```
 
@@ -115,20 +109,22 @@ plot.scatter(
     data,
     x='BC',
     y='PM2.5',
-    color='PM10',
-    size='PM1',
-    title='BC vs PM2.5'
+    c='PM10',
+    s='PM1',
 )
 ```
 
-### Box Plot by Month
+### Box Plot by 2-month Bins
 
 ```python
+import numpy as np
+
+data['month'] = data.index.month
 plot.box(
     data,
-    variables=['BC'],
-    by='month',
-    title='Monthly BC Distribution'
+    x='month',
+    y='BC',
+    x_bins=np.arange(0, 13, 2),
 )
 ```
 

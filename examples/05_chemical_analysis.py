@@ -77,22 +77,23 @@ def mass_reconstruction():
     result = reconstruct_mass(df_chem, df_ref=df_pm25)
 
     # 重建質量
+    # df_mass 欄位：AS, AN, OM, Soil, SS, EC, total（'total' = 重建總質量；無 'PM25_rc'）
     df_mass = result['mass']
     print("\n=== 質量重建結果 ===")
     print(f"欄位: {df_mass.columns.tolist()}")
     print("\n平均質量濃度 (μg/m³):")
-    for col in ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS', 'PM25_rc']:
+    for col in ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS', 'total']:
         if col in df_mass.columns:
             print(f"  {col}: {df_mass[col].mean():.2f}")
 
-    # 銨根狀態
+    # 銨根狀態：result['NH4_status'] 是含 'ratio'/'status' 欄的 DataFrame
     nh4_status = result['NH4_status']
     print(f"\n銨根狀態分布:")
-    print(nh4_status.value_counts())
+    print(nh4_status['status'].value_counts())
 
-    # 閉合度
-    if 'PM25' in df_chem.columns and 'PM25_rc' in df_mass.columns:
-        closure = df_mass['PM25_rc'] / df_chem['PM25'] * 100
+    # 閉合度（用重建總質量 'total' 對比量測 PM2.5）
+    if 'PM25' in df_chem.columns:
+        closure = df_mass['total'] / df_chem['PM25'] * 100
         print(f"\n閉合度: {closure.mean():.1f} ± {closure.std():.1f}%")
 
     return result
@@ -218,12 +219,12 @@ def full_chemical_analysis():
     # 3. 折射率 (從質量重建拿 df_volume)
     df_RI = volume_ri(mass_result['volume'])
 
-    # 5. 成分貢獻比例
+    # 5. 成分貢獻比例（以重建總質量 'total' 為分母）
     components = ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS']
     available = [c for c in components if c in df_mass.columns]
 
-    if available and 'PM25_rc' in df_mass.columns:
-        contribution = df_mass[available].div(df_mass['PM25_rc'], axis=0) * 100
+    if available and 'total' in df_mass.columns:
+        contribution = df_mass[available].div(df_mass['total'], axis=0) * 100
 
         print("\n=== 成分貢獻 (%) ===")
         for comp in available:

@@ -30,21 +30,22 @@ print(voc.columns.tolist())
 ### Basic Calculation
 
 ```python
-# Calculate ozone formation potential
+# Calculate VOC reactivity potentials
 result = voc_potentials(voc)
 
-# OFP for each species
+# Returns a dict with four DataFrames (each time-indexed):
+#   result['Conc'] - mass concentration (ug/m3)
+#   result['OFP']  - Ozone Formation Potential (ug O3/m3)
+#   result['SOAP'] - Secondary Organic Aerosol Potential
+#   result['LOH']  - OH-reactivity (loss rate)
+# Each frame's columns are the individual species PLUS per-class totals
+# (e.g. 'aromatic_total', 'alkane_total') and a grand 'Total' column.
 df_ofp = result['OFP']
-print(df_ofp.columns.tolist())
-# ['Ethane_OFP', 'Propane_OFP', 'Benzene_OFP', 'Toluene_OFP', ...]
-
-# SOAP for each species
 df_soap = result['SOAP']
 
-# Total OFP/SOAP
-df_total = result['total']
-print(f"Mean total OFP: {df_total['OFP'].mean():.1f} ug O3/m3")
-print(f"Mean total SOAP: {df_total['SOAP'].mean():.2f}")
+# Grand totals live in the 'Total' column of each frame:
+print(f"Mean total OFP: {df_ofp['Total'].mean():.1f} ug O3/m3")
+print(f"Mean total SOAP: {df_soap['Total'].mean():.2f}")
 ```
 
 ---
@@ -54,8 +55,13 @@ print(f"Mean total SOAP: {df_total['SOAP'].mean():.2f}")
 ### Top 10 Contributing Species
 
 ```python
+# Drop the aggregate columns ('Total' and the per-class '*_total' columns)
+# so we rank only individual species.
+species_cols = [c for c in df_ofp.columns
+                if c != 'Total' and not c.endswith('_total')]
+
 # Calculate mean OFP contribution for each species
-mean_ofp = df_ofp.mean().sort_values(ascending=False)
+mean_ofp = df_ofp[species_cols].mean().sort_values(ascending=False)
 
 # Top 10
 top10 = mean_ofp.head(10)
@@ -69,9 +75,9 @@ for species, value in top10.items():
 ```python
 import matplotlib.pyplot as plt
 
-# Calculate contribution ratio
-total_ofp = df_ofp.sum(axis=1)
-contribution = df_ofp.div(total_ofp, axis=0) * 100
+# Calculate contribution ratio (use the 'Total' column as the denominator,
+# and only individual species in the numerator)
+contribution = df_ofp[species_cols].div(df_ofp['Total'], axis=0) * 100
 
 # Mean contribution ratio
 mean_contrib = contribution.mean().sort_values(ascending=False)
@@ -127,7 +133,8 @@ plt.show()
 
 ```python
 # Calculate diurnal variation of total OFP
-hourly = df_total['OFP'].groupby(df_total.index.hour).agg(['mean', 'std'])
+total_ofp = df_ofp['Total']
+hourly = total_ofp.groupby(total_ofp.index.hour).agg(['mean', 'std'])
 
 fig, ax = plt.subplots(figsize=(10, 5))
 ax.plot(hourly.index, hourly['mean'], 'b-o')
@@ -146,7 +153,7 @@ plt.show()
 
 ```python
 # Monthly average
-monthly = df_total['OFP'].resample('M').mean()
+monthly = df_ofp['Total'].resample('ME').mean()
 
 fig, ax = plt.subplots(figsize=(10, 5))
 monthly.plot(kind='bar', ax=ax)
@@ -160,15 +167,19 @@ plt.show()
 ## OFP vs SOAP Relationship
 
 ```python
+total_ofp = result['OFP']['Total']
+total_soap = result['SOAP']['Total']
+
 fig, ax = plt.subplots(figsize=(8, 8))
-ax.scatter(df_total['OFP'], df_total['SOAP'], alpha=0.5)
+ax.scatter(total_ofp, total_soap, alpha=0.5)
 ax.set_xlabel('Total OFP (ug O3/m3)')
 ax.set_ylabel('Total SOAP')
 ax.set_title('OFP vs SOAP Relationship')
 
 # Correlation
 from scipy import stats
-r, p = stats.pearsonr(df_total['OFP'].dropna(), df_total['SOAP'].dropna())
+mask = total_ofp.notna() & total_soap.notna()
+r, p = stats.pearsonr(total_ofp[mask], total_soap[mask])
 ax.text(0.05, 0.95, f'r = {r:.3f}\np < 0.001' if p < 0.001 else f'r = {r:.3f}\np = {p:.3f}',
         transform=ax.transAxes, va='top')
 plt.show()
@@ -185,28 +196,31 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from AeroViz import RawDataReader, voc_potentials
 
-# 1. Read VOC data
+# 1. Read VOC data (pass dates as start=/end= keywords)
 voc = RawDataReader('VOC', Path('./data/voc'),
-                    datetime(2024, 1, 1), datetime(2024, 3, 31))
+                    start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))
 
 # 2. Calculate OFP/SOAP
 result = voc_potentials(voc)
 
-df_ofp = result['OFP']
+df_ofp = result['OFP']      # columns: species + '*_total' classes + 'Total'
 df_soap = result['SOAP']
-df_total = result['total']
+total_ofp = df_ofp['Total']   # grand total OFP, time-indexed Series
+total_soap = df_soap['Total']
 
-# 3. Species contribution analysis
-mean_ofp = df_ofp.mean().sort_values(ascending=False)
+# 3. Species contribution analysis (rank individual species only)
+species_cols = [c for c in df_ofp.columns
+                if c != 'Total' and not c.endswith('_total')]
+mean_ofp = df_ofp[species_cols].mean().sort_values(ascending=False)
 print("=== Top 5 OFP Contributors ===")
 for i, (species, value) in enumerate(mean_ofp.head(5).items(), 1):
-    pct = value / df_total['OFP'].mean() * 100
+    pct = value / total_ofp.mean() * 100
     print(f"{i}. {species}: {value:.1f} ug O3/m3 ({pct:.1f}%)")
 
 # 4. Output results summary
 print("\n=== VOC Analysis Summary ===")
-print(f"Total OFP: {df_total['OFP'].mean():.1f} +/- {df_total['OFP'].std():.1f} ug O3/m3")
-print(f"Total SOAP: {df_total['SOAP'].mean():.2f} +/- {df_total['SOAP'].std():.2f}")
+print(f"Total OFP: {total_ofp.mean():.1f} +/- {total_ofp.std():.1f} ug O3/m3")
+print(f"Total SOAP: {total_soap.mean():.2f} +/- {total_soap.std():.2f}")
 
 # 5. Plot contribution chart
 fig, axes = plt.subplots(1, 2, figsize=(14, 5))
@@ -215,12 +229,12 @@ fig, axes = plt.subplots(1, 2, figsize=(14, 5))
 top10_ofp = mean_ofp.head(10)
 axes[0].barh(range(10), top10_ofp.values)
 axes[0].set_yticks(range(10))
-axes[0].set_yticklabels([s.replace('_OFP', '') for s in top10_ofp.index])
+axes[0].set_yticklabels(list(top10_ofp.index))
 axes[0].set_xlabel('OFP (ug O3/m3)')
 axes[0].set_title('Top 10 OFP Contributors')
 
 # Diurnal variation
-hourly = df_total['OFP'].groupby(df_total.index.hour).mean()
+hourly = total_ofp.groupby(total_ofp.index.hour).mean()
 axes[1].plot(hourly.index, hourly.values, 'b-o')
 axes[1].set_xlabel('Hour')
 axes[1].set_ylabel('OFP (ug O3/m3)')

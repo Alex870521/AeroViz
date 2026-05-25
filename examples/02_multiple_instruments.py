@@ -49,11 +49,12 @@ def read_optical_instruments():
     df_optical = pd.concat([df_neph, df_ae33], axis=1)
 
     # 計算消光係數
-    if 'Sca_550' in df_optical.columns and 'Abs_550' in df_optical.columns:
-        df_optical['Ext_550'] = df_optical['Sca_550'] + df_optical['Abs_550']
+    # NEPH 散射欄位為 sca_550（小寫）；AE33 吸收欄位為 abs_550（小寫）
+    if 'sca_550' in df_optical.columns and 'abs_550' in df_optical.columns:
+        df_optical['ext_550'] = df_optical['sca_550'] + df_optical['abs_550']
 
         # 計算單次散射反照率 (SSA)
-        df_optical['SSA_550'] = df_optical['Sca_550'] / df_optical['Ext_550']
+        df_optical['SSA_550'] = df_optical['sca_550'] / df_optical['ext_550']
 
     print("=== 光學數據整合 ===")
     print(f"數據點數: {len(df_optical)}")

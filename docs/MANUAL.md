@@ -93,6 +93,13 @@ To build from source you need a C and Fortran compiler (gfortran) plus
 
 ## Quick Start
 
+> **Start here:** new users should (1) `pip install AeroViz`, (2) read a dataset
+> with `RawDataReader` (below), then (3) pass the resulting DataFrame to a
+> processing function (`reconstruct_mass`, `improve`, `merge_psd`, …) or a plot.
+> No data of your own? Run the bundled examples in demo mode:
+> `python examples/01_basic_reading.py --demo` and
+> `python examples/04_size_distribution.py --demo`.
+
 A minimal end-to-end example: read a black-carbon dataset with QC and inspect
 the result.
 
@@ -110,6 +117,9 @@ df = RawDataReader(
 )
 
 print(df[['eBC', 'AAE']].describe())
+# Expected output: a time-indexed DataFrame with columns BC1-BC7,
+# abs_370-abs_950, AAE, eBC, QC_Flag — here .describe() prints count/mean/std/...
+# for the eBC and AAE columns.
 
 # Reader metadata is on df.attrs
 print(df.attrs['coverage_start'], '→', df.attrs['coverage_end'])
@@ -590,8 +600,9 @@ also splits OM into POA/SOA via the EC-tracer method (`oa_oc_ratio`).
 
 ```python
 result = reconstruct_mass(df_chem, df_ref=df_pm25)
-df_mass = result['mass']          # AS, AN, OM, EC, Soil, SS, PM25_rc, ...
-result['NH4_status']              # ammonium neutralization status
+df_mass = result['mass']              # AS, AN, OM, Soil, SS, EC, total
+df_mass['total']                      # reconstructed PM mass (sum of species)
+result['NH4_status']['status']        # ammonium status: Enough / Deficiency
 ```
 
 ### `volume_ri`
@@ -690,6 +701,11 @@ Computes basic optical properties (extinction, SSA, mass efficiencies MEE/MSE/MA
 `df_mass` (µg/m³) enables mass efficiencies; `df_no2` (ppb) + `df_temp` (°C)
 subtract gas absorption.
 
+**Required columns:** `df_sca` needs `['sca_550', 'SAE']` (NEPH output);
+`df_abs` needs `['abs_550', 'AAE', 'eBC']` (AE33 output). All column names are
+lowercase. **Returns** a DataFrame with `['abs', 'sca', 'ext', 'SSA', 'SAE',
+'AAE', 'eBC']` (SSA = sca / ext).
+
 #### `improve` (IMPROVE extinction reconstruction)
 
 ```python
@@ -703,6 +719,20 @@ need AS, AN, OM, Soil, SS, EC; `'localized'` needs AS, AN, POC, SOC, Soil, SS,
 EC **and** `df_ext` (with `Scattering`/`Absorption` columns) to fit POA/SOA mass
 scattering efficiencies via MLR. **Returns** a dict with `dry`, `wet`, `ALWC`,
 `fRH` (and for `'localized'`: `coefficients`, `regression`).
+
+> **`df_RH` must be a `Series`** (e.g. `met['RH']`), not a single-column
+> DataFrame — passing `met[['RH']]` raises `ValueError`.
+
+The `dry` and `wet` frames have one column per species **plus** a `total`
+column (the per-species sum): `AS, AN, OM, Soil, SS, EC, total` (lowercase
+`total`, no `_ext` suffix). The total dry/wet extinction is the `total`
+column — do **not** `.sum(axis=1)` (that double-counts the `total` column):
+
+```python
+ext = improve(rec['mass'], df_RH=met['RH'], method='revised')
+ext['dry']['total']     # total dry extinction (Mm⁻¹)
+ext['wet']['total']     # total wet (ambient) extinction (Mm⁻¹)
+```
 
 #### `gas_extinction`
 
@@ -810,8 +840,8 @@ contour_intersection(b_ext, b_sca, b_abs, lognormal_params, wavelength=550,
 from AeroViz import improve, mie, reconstruct_mass
 
 rec = reconstruct_mass(df_chem)
-ext = improve(rec['mass'], df_RH=df_rh, method='revised')
-ext['dry'].sum(axis=1)        # total dry extinction (Mm⁻¹)
+ext = improve(rec['mass'], df_RH=df_rh, method='revised')   # df_rh is a Series
+ext['dry']['total']           # total dry extinction (Mm⁻¹)
 ```
 
 ---
@@ -834,9 +864,30 @@ parameter table (MW, MIR, SOAP, KOH) to compute:
 - **OH-reactivity** (KOH × concentration)
 
 Species are aggregated into chemistry classes (alkane, alkene, aromatic, alkyne,
-OVOC, ClVOC). **Returns** a dict of per-species and per-class summaries.
-Column names in `df_voc` must match the supported species; an unrecognized
-column raises `KeyError`.
+OVOC, ClVOC). Column names in `df_voc` must match the supported species; an
+unrecognized column raises `KeyError`.
+
+**Returns** a dict of four time-indexed DataFrames:
+
+| Key | Quantity | Unit |
+|-----|----------|------|
+| `'Conc'` | Mass concentration | µg/m³ |
+| `'OFP'` | Ozone Formation Potential | µg O₃/m³ |
+| `'SOAP'` | Secondary Organic Aerosol Potential | — |
+| `'LOH'` | OH-reactivity (loss rate) | s⁻¹ |
+
+Each frame's columns are the individual species, **plus** per-class totals named
+`<class>_total` (e.g. `aromatic_total`, `alkane_total`), **plus** a grand
+`Total` column. So the grand total OFP is `result['OFP']['Total']` (a Series):
+
+```python
+result = voc_potentials(df_voc)
+result['OFP']['Total'].mean()          # mean total OFP (µg O₃/m³)
+# Rank individual species (exclude the aggregate columns):
+ofp = result['OFP']
+species = [c for c in ofp.columns if c != 'Total' and not c.endswith('_total')]
+ofp[species].mean().sort_values(ascending=False).head(10)
+```
 
 ```python
 voc = RawDataReader('VOC', '/data/VOC', mean_freq='1h')

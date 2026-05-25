@@ -1,7 +1,11 @@
 # RawDataReader Pipeline (Internals)
 
+> **Who is this for?** Contributors and advanced users who want to understand or
+> modify how the reader works internally. If you just want to *use* the reader,
+> start with the [RawDataReader Tutorial](rawdatareader.md) — you don't need
+> anything on this page.
+
 How `RawDataReader` turns raw instrument files into the final resampled DataFrame.
-For getting-started usage see the [RawDataReader Tutorial](rawdatareader.md).
 
 ---
 

@@ -90,7 +90,8 @@ def improve_extinction():
     df_mass = mass_result['mass']
 
     # RH 數據 (假設)
-    df_RH = pd.DataFrame({'RH': 70}, index=df_mass.index)
+    # 重要：df_RH 必須是 Series（不可傳單欄 DataFrame，會 crash）
+    df_RH = pd.Series(70.0, index=df_mass.index, name='RH')
 
     # IMPROVE 計算
     result = improve(
@@ -99,15 +100,16 @@ def improve_extinction():
         method='revised'  # 'revised' / 'modified' / 'localized'
     )
 
+    # result['dry'] / ['wet'] 欄位為：AS, AN, OM, Soil, SS, EC, total（小寫 total）
     print("\n=== IMPROVE 消光 ===")
     print("乾燥消光成分 (Mm⁻¹):")
-    for col in ['AS_ext', 'AN_ext', 'OM_ext', 'EC_ext', 'Soil_ext', 'SS_ext']:
+    for col in ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS']:
         if col in result['dry'].columns:
             print(f"  {col}: {result['dry'][col].mean():.1f}")
 
-    print(f"\n總乾燥消光: {result['dry']['Total_ext'].mean():.1f} Mm⁻¹")
-    print(f"總濕消光: {result['wet']['Total_ext'].mean():.1f} Mm⁻¹")
-    print(f"ALWC 貢獻: {result['ALWC']['Total_ext'].mean():.1f} Mm⁻¹")
+    print(f"\n總乾燥消光: {result['dry']['total'].mean():.1f} Mm⁻¹")
+    print(f"總濕消光: {result['wet']['total'].mean():.1f} Mm⁻¹")
+    print(f"ALWC 貢獻: {result['ALWC']['total'].mean():.1f} Mm⁻¹")
 
     return result
 
@@ -267,19 +269,20 @@ def optical_closure():
     """光學閉合分析"""
 
     # 1. 測量消光
+    # NEPH 散射欄位為 sca_550（小寫）；AE33 吸收欄位為 abs_550（小寫）
     df_neph, df_ae33 = read_optical_data()
 
-    if 'Sca_550' in df_neph.columns and 'Abs_550' in df_ae33.columns:
-        ext_measured = df_neph['Sca_550'] + df_ae33['Abs_550']
+    if 'sca_550' in df_neph.columns and 'abs_550' in df_ae33.columns:
+        ext_measured = df_neph['sca_550'] + df_ae33['abs_550']
     else:
         # 使用其他波長
-        sca_col = [c for c in df_neph.columns if 'Sca' in c][0]
-        abs_col = [c for c in df_ae33.columns if 'Abs' in c][0]
+        sca_col = [c for c in df_neph.columns if c.startswith('sca')][0]
+        abs_col = [c for c in df_ae33.columns if c.startswith('abs')][0]
         ext_measured = df_neph[sca_col] + df_ae33[abs_col]
 
-    # 2. IMPROVE 計算消光
+    # 2. IMPROVE 計算消光（'wet' 的總消光欄位為 'total'）
     improve_result = improve_extinction()
-    ext_improve = improve_result['wet']['Total_ext']
+    ext_improve = improve_result['wet']['total']
 
     # 3. 對齊時間索引
     common_idx = ext_measured.index.intersection(ext_improve.index)

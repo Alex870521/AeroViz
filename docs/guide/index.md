@@ -68,11 +68,11 @@ result = reconstruct_mass(df_chem)
 ```python
 from AeroViz import plot
 
-# Time series plot
-plot.time_series(data, 'BC')
+# Time series plot (y = column name or list of columns)
+plot.timeseries(data, y='BC')
 
-# Scatter plot
-plot.scatter(data, 'BC', 'PM25')
+# Scatter plot (x / y are column names)
+plot.scatter(data, x='BC', y='PM25')
 ```
 
 ---
@@ -111,8 +111,8 @@ See [Post-Processing Functions Tutorial](dataprocess.md)
 The visualization module provides various chart types:
 
 - Basic charts: scatter, bar, box, violin, pie
-- Time analysis: time series, diurnal, seasonal
-- Advanced charts: polar, wind rose, contour
+- Time analysis: timeseries, timeseries_interactive, diurnal_pattern
+- Advanced charts: contour, corr_matrix, meteorology.wind_rose, meteorology.CBPF
 
 See [Visualization Tutorial](visualization.md)
 

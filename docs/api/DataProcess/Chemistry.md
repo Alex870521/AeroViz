@@ -48,8 +48,8 @@ result = dp.reconstruction_basic(df_chem)
 
 | 輸出 | 欄位 |
 |------|------|
-| `mass` | AS, AN, OM, EC, Soil, SS, PM25_rc |
-| `NH4_status` | Excess / Balance / Deficiency |
+| `mass` | AS, AN, OM, Soil, SS, EC, total（小寫 total = 重建總質量） |
+| `NH4_status` | DataFrame：欄位 `ratio`、`status`（status 為 Enough / Deficiency） |
 
 ### volume_RI
 

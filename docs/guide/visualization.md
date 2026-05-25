@@ -2,16 +2,18 @@
 
 AeroViz provides rich visualization tools for aerosol data analysis and publication.
 
+All plot functions take a time-indexed `DataFrame` and return `(fig, ax)`.
+
 ## Basic Usage
 
 ```python
 from AeroViz import plot
 
-# Scatter plot
+# Scatter plot (x / y are column names)
 plot.scatter(data, x='BC', y='PM25')
 
-# Time series
-plot.time_series(data, 'BC')
+# Time series (y is the column, or list of columns, to plot)
+plot.timeseries(data, y='BC')
 ```
 
 ---
@@ -36,54 +38,77 @@ scatter(data, x='BC', y='PM25', c='RH', cmap='viridis')
 ### Regression Analysis
 
 ```python
-from AeroViz.plot import regression
+from AeroViz.plot import linear_regression, multiple_linear_regression
 
-# Linear regression
-regression(data, x='BC', y='PM25', method='linear')
+# Linear regression (x, y are column names or lists of columns)
+linear_regression(data, x='BC', y='PM25')
 
-# Polynomial regression
-regression(data, x='BC', y='PM25', method='polynomial', degree=2)
+# Multiple linear regression (several predictors)
+multiple_linear_regression(data, x=['BC', 'NO2', 'O3'], y='PM25')
 ```
 
 ### Box Plot
 
+`box` bins a **numeric** x-axis column into intervals (via `x_bins`) and draws one
+box per bin — it does not accept a categorical/string x-axis. Provide a numeric
+column for `x` and the bin edges in `x_bins`. Note: edges are rounded to integers
+internally, so use **integer edges with a width of 2 or more** (e.g.
+`np.arange(0, 11, 2)`; width-1 bins collide after rounding).
+
 ```python
+import numpy as np
 from AeroViz.plot import box
 
-# Group by category
-box(data, x='season', y='BC')
+# Boxes of PM2.5 grouped by wind-speed bins (0-2, 2-4, ... m/s)
+box(data, x='WS', y='PM25', x_bins=np.arange(0, 11, 2))
 
-# By month
+# Boxes of PM2.5 grouped by 2-month bins
 data['month'] = data.index.month
-box(data, x='month', y='PM25')
+box(data, x='month', y='PM25', x_bins=np.arange(0, 13, 2))
 ```
+
+> To split by a true category (e.g. season label), use `violin` instead, which
+> takes a wide DataFrame with one column per category (see below).
 
 ### Bar Chart
 
+`bar(data_set, data_std, labels, unit, ...)` — `data_set` is a DataFrame indexed
+by component name, with one column per group; `data_std` is the matching error
+DataFrame (or `None`).
+
 ```python
+import pandas as pd
 from AeroViz.plot import bar
 
 # Component contributions
 components = ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS']
-bar(data[components].mean(), ylabel='Mass (ug/m3)')
+data_set = pd.DataFrame({'PM2.5': data[components].mean()})  # index = components
+bar(data_set, None, components, 'ug/m3')
 ```
 
 ### Violin Plot
 
+`violin(df, unit, ...)` — `df` is wide, with one column per category and each
+column holding that category's observations.
+
 ```python
 from AeroViz.plot import violin
 
-# Distribution comparison
-violin(data, x='season', y='BC')
+# Distribution comparison across site types (one column each)
+violin(data[['Urban', 'Suburban', 'Rural']], 'ng/m3')
 ```
 
 ### Pie Chart
 
+`pie(data_set, labels, unit, style, ...)` — `data_set` is a dict `{group: values}`
+(or a DataFrame), `style` is `'pie'` or `'donut'`.
+
 ```python
 from AeroViz.plot import pie
 
-# Component proportions
-pie(data[components].mean(), labels=components)
+# Component proportions. The unit string is rendered as a mathtext label, so
+# avoid a bare '%' (it fails to render) — use 'percent' or an escaped r'\%'.
+pie({'PM2.5': data[components].mean().tolist()}, components, 'percent', 'donut')
 ```
 
 ---
@@ -94,64 +119,56 @@ pie(data[components].mean(), labels=components)
 
 ```python
 # Single variable
-plot.time_series(data, 'BC')
+plot.timeseries(data, y='BC')
 
-# Multiple variables
-plot.time_series(data, ['BC', 'PM25', 'PM10'])
+# Multiple variables on the primary axis
+plot.timeseries(data, y=['BC', 'PM25', 'PM10'])
+
+# Quick interactive Plotly view (one trace per column; toggle via legend)
+plot.timeseries_interactive(data, columns=['BC', 'PM25'])
 ```
 
 ### Diurnal Variation
 
 ```python
-# Single variable diurnal pattern
-plot.diurnal(data, 'BC')
+# Single variable diurnal pattern (mean +/- spread by hour of day)
+plot.diurnal_pattern(data, y='BC')
 
 # Multiple variable comparison
-plot.diurnal(data, ['BC', 'PM25'])
-```
-
-### Weekly Variation
-
-```python
-plot.weekly(data, 'BC')
-```
-
-### Monthly Variation
-
-```python
-plot.monthly(data, 'BC')
+plot.diurnal_pattern(data, y=['BC', 'PM25'])
 ```
 
 ---
 
 ## Advanced Charts
 
-### Size Distribution
+### Contour
 
 ```python
-# Time-size contour plot
-plot.size_contour(df_pnsd)
-
-# Average distribution
-plot.size_distribution(df_pnsd.mean())
+# 2-D contour of a wide DataFrame (e.g. a size-distribution matrix:
+# index = time, columns = diameters)
+plot.contour(df_pnsd)
 ```
 
-### Polar Plots
+### Wind Rose
 
 ```python
-# Wind rose
-plot.wind_rose(data, ws='WS', wd='WD')
+# wind_rose lives in the meteorology submodule; WS / WD are column names
+plot.meteorology.wind_rose(data, WS='WS', WD='WD')
 
-# Polar pollutant plot
-plot.polar(data, pollutant='BC', ws='WS', wd='WD')
+# Color by a pollutant value
+plot.meteorology.wind_rose(data, WS='WS', WD='WD', val='BC')
+
+# Conditional bivariate probability function (pollutant by wind sector/speed)
+plot.meteorology.CBPF(data, WS='WS', WD='WD', val='BC')
 ```
 
 ### Correlation Matrix
 
 ```python
 # Correlation heatmap
-vars = ['BC', 'PM25', 'PM10', 'NO2', 'O3']
-plot.correlation_matrix(data[vars])
+cols = ['BC', 'PM25', 'PM10', 'NO2', 'O3']
+plot.corr_matrix(data[cols])
 ```
 
 ---
@@ -177,12 +194,14 @@ ax.set_ylabel('PM2.5 (ug/m3)')
 ### Multi-panel Figures
 
 ```python
+import numpy as np
+
 fig, axes = plt.subplots(2, 2, figsize=(12, 10))
 
-scatter(data, 'BC', 'PM25', ax=axes[0,0])
-box(data, 'season', 'BC', ax=axes[0,1])
-plot.diurnal(data, 'BC', ax=axes[1,0])
-plot.monthly(data, 'BC', ax=axes[1,1])
+scatter(data, x='BC', y='PM25', ax=axes[0, 0])
+box(data, x='month', y='BC', x_bins=np.arange(0, 13, 2), ax=axes[0, 1])
+plot.diurnal_pattern(data, y='BC', ax=axes[1, 0])
+plot.timeseries(data, y='BC', ax=axes[1, 1])
 
 plt.tight_layout()
 ```

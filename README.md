@@ -77,15 +77,22 @@ has the full parameter list, QC flags, and `df.attrs` reference.
 ## Data Processing & Visualization
 
 ```python
-from AeroViz import DataProcess, plot
+from AeroViz import reconstruct_mass, improve, mie, merge_psd, voc_potentials, plot
 from AeroViz.plot import timeseries_interactive
 ```
 
-- **`DataProcess`** — Chemistry (mass reconstruction, κ), Optical (Mie, IMPROVE,
-  RI retrieval), SizeDistr (SMPS–APS merge, mode fitting), VOC (OFP, SOAP).
-- **`plot`** — publication-ready matplotlib figures (time series, diurnal, wind rose, …).
+- **Top-level processing functions** — each takes a DataFrame (or a few) and
+  returns a DataFrame/dict: `reconstruct_mass` & `volume_ri`/`kappa` (chemistry),
+  `improve`/`mie`/`retrieve_ri` (optical), `merge_psd`/`psd_stats` (size
+  distribution), `voc_potentials` (OFP, SOAP). They are grouped under the
+  `chemistry`, `optical`, `size`, `voc` namespaces too.
+- **`plot`** — publication-ready matplotlib figures (`timeseries`,
+  `diurnal_pattern`, `scatter`, `meteorology.wind_rose`, …).
 - **`timeseries_interactive(df)`** — quick interactive Plotly viewer; click the
   legend to toggle columns, or `save='out.html'` for a standalone file.
+
+> **`DataProcess(...)` is deprecated** (it still works but emits a
+> `DeprecationWarning`); use the top-level functions above.
 
 See the [user guide](https://alex870521.github.io/AeroViz/) for details.
 

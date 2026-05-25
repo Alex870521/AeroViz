@@ -114,11 +114,13 @@ psd = SizeDist(merged_pnsd, state='dlogdp', weighting='n')
 surface = psd.to_surface()  # Surface area distribution (nm2/cm3)
 volume = psd.to_volume()    # Volume distribution (nm3/cm3)
 
-# Basic statistics
+# Basic statistics. props is a *time-indexed* DataFrame (one row per timestamp)
+# with columns total_n, GMD_n, GSD_n, mode_n, ultra_n, accum_n, coarse_n —
+# so each column is a Series; aggregate (e.g. .mean()) before formatting.
 props = psd.properties()
-print(f"Total N: {props['total_n']:.0f} #/cm3")
-print(f"GMD: {props['GMD_n']:.1f} nm")
-print(f"GSD: {props['GSD_n']:.2f}")
+print(f"Total N: {props['total_n'].mean():.0f} #/cm3")
+print(f"GMD: {props['GMD_n'].mean():.1f} nm")
+print(f"GSD: {props['GSD_n'].mean():.2f}")
 ```
 
 ### Mode Statistics
@@ -235,13 +237,14 @@ from pathlib import Path
 from AeroViz import RawDataReader, merge_psd
 from AeroViz.dataProcess.SizeDistr import SizeDist
 
-# 1. Read data
+# 1. Read data (pass dates as start=/end= keywords — positional args 3/4 are
+#    reset/qc, so positional datetimes would be misinterpreted)
 smps = RawDataReader('SMPS', Path('./data/smps'),
-                     datetime(2024,1,1), datetime(2024,3,31))
+                     start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))
 aps = RawDataReader('APS', Path('./data/aps'),
-                    datetime(2024,1,1), datetime(2024,3,31))
+                    start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))
 pm25 = RawDataReader('TEOM', Path('./data/teom'),
-                     datetime(2024,1,1), datetime(2024,3,31))[['PM_Total']]
+                     start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))[['PM_Total']]
 
 # 2. Merge SMPS-APS (v4 requires PM2.5 reference)
 merged = merge_psd(smps, aps, df_pm25=pm25, version=4)
@@ -254,7 +257,8 @@ psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')
 surface = psd.to_surface()
 volume = psd.to_volume()
 
-# 5. Statistical analysis
+# 5. Statistical analysis (props is time-indexed: one row per timestamp,
+#    so aggregate each column with .mean() etc. before printing)
 props = psd.properties()
 stats = psd.mode_statistics()
 

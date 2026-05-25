@@ -86,8 +86,8 @@ df_ae33 = RawDataReader(
 # reconstructed PM mass and RH); see the Guide for the full pipeline.
 # result = improve(df_mass, df_RH, method='revised')
 
-# Create visualization
-plot.time_series(df_ae33, 'BC')
+# Create visualization (y = column name or list of columns)
+plot.timeseries(df_ae33, y='eBC')
 ```
 
 For detailed tutorials and examples, see the [Getting Started Guide](guide/index.md).

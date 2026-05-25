@@ -108,10 +108,10 @@ lung = psd.lung_deposition(activity='light')
 from AeroViz import reconstruct_mass
 
 result = reconstruct_mass(df_chem, df_ref=df_pm25)
-# result['mass']        - Reconstructed mass (AS, AN, OM, EC, Soil, SS)
-# result['volume']      - Component volumes
-# result['NH4_status']  - Ammonium status (Excess / Balance / Deficiency)
-# result['RI_550']      - Refractive index at 550 nm
+# result['mass']        - Reconstructed mass (AS, AN, OM, Soil, SS, EC, total)
+# result['volume']      - Component volumes (*_volume + total_dry)
+# result['NH4_status']  - Ammonium status DataFrame ('ratio', 'status'); status is Enough / Deficiency
+# result['RI_550']      - Refractive index at 550 nm (RI_dry, RI_wet)
 # result['density_rec'] - Reconstructed density
 ```
 
@@ -181,9 +181,13 @@ basic = optical_basic(df_sca, df_abs, df_mass=df_mass, df_no2=df_no2, df_temp=df
 ```python
 from AeroViz import improve
 
+# df_RH must be a Series (e.g. met['RH']), not a single-column DataFrame.
 result = improve(df_mass, df_RH, method='revised')
 # method = 'revised' | 'modified' | 'localized'
 # result['dry'], result['wet'], result['ALWC'], result['fRH']
+# Expected: result['dry'] / result['wet'] have columns
+#   AS, AN, OM, Soil, SS, EC, total  (lowercase 'total' = the per-species sum)
+result['dry']['total'].mean()    # mean total dry extinction (Mm-1)
 ```
 
 ### Mie Calculation
@@ -240,9 +244,12 @@ bc_brc = brown_carbon(df_abs, ref_wavelength=880, aae_bc=1.0)
 from AeroViz import voc_potentials
 
 result = voc_potentials(df_voc)
-# result['OFP']    - OFP per species
-# result['SOAP']   - SOAP per species
-# result['total']  - Total OFP / SOAP
+# result['Conc']  - mass concentration per species (ug/m3)
+# result['OFP']   - Ozone Formation Potential per species (ug O3/m3)
+# result['SOAP']  - SOAP per species
+# result['LOH']   - OH-reactivity per species
+# Each frame also has per-class '*_total' columns and a grand 'Total' column,
+# so the grand total OFP is result['OFP']['Total'].
 ```
 
 ---

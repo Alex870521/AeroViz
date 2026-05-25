@@ -12,8 +12,15 @@
 每次讀檔也會輸出 N/S/V 分布檔（``_dNdlogDp`` / ``_dSdlogDp`` / ``_dVdlogDp``）。
 若想把統計量「夾在分布後面」一起回傳，傳 ``append_stats=True``
 （注意：這樣回傳的 df 含字串欄，不能再直接餵給 psd_stats / merge_psd）。
+
+How to run / 執行方式:
+  * Edit DATA_PATH then uncomment a call in __main__:
+        python examples/04_size_distribution.py
+  * Or run the synthetic demo (no data files needed):
+        python examples/04_size_distribution.py --demo
 """
 
+import sys
 from datetime import datetime
 from pathlib import Path
 
@@ -49,10 +56,16 @@ def basic_psd_processing():
     # 使用 top-level function
     result = psd_stats(df_pnsd)
 
+    # Expected output: a dict with keys
+    #   'number','number_norm','surface','surface_norm','volume','volume_norm','other'
+    #   - the *distribution* frames have diameters as columns (same shape as input)
+    #   - result['other'] holds the statistics: total_num_all, GMD_num_all,
+    #     GSD_num_all, mode_num_all, plus per-mode columns
     print("=== 基本處理結果 ===")
     print(f"數量分布: {result['number'].shape}")
     print(f"表面積分布: {result['surface'].shape}")
     print(f"體積分布: {result['volume'].shape}")
+    print(f"平均總數量濃度: {result['other']['total_num_all'].mean():.0f} #/cm³")
 
     return result
 
@@ -154,11 +167,14 @@ def merge_smps_aps():
         mean_freq='1h'
     )
 
-    # 合併 (v4 版本，含密度校正) — 需要 PM2.5 reference
-    # 若沒有 PM2.5 可用 version=3 跳過 fitness 步驟
+    # 版本選擇 / choosing a version:
+    #   * version=4 (推薦/recommended)：需要 PM2.5 reference (df_pm25)，多了
+    #     PM2.5 fitness + SMPS-times 校正。有 PM2.5 就用 4。
+    #   * version=3：不需要任何質量 reference，故本範例在沒有 PM2.5 時 fallback 用 3。
+    #   * version=5 (實驗性/experimental)：質量錨定密度，需 df_pm1。
     # density_range=(0.6, 2.6) 為品質門檻（有效密度 g/cm³）；放寬用 (0.3, 2.6)
-    # result = merge_psd(df_smps, df_aps, df_pm25=df_pm25, version=4)
-    result = merge_psd(df_smps, df_aps, version=3, density_range=(0.6, 2.6))
+    # result = merge_psd(df_smps, df_aps, df_pm25=df_pm25, version=4)  # 有 PM2.5 時
+    result = merge_psd(df_smps, df_aps, version=3, density_range=(0.6, 2.6))  # 無 PM2.5 fallback
 
     # 所有版本都保證有 'data'（建議用的合併結果）與 'density' 兩個 key
     merged = result['data']
@@ -242,11 +258,61 @@ def dry_psd():
 
 
 # =============================================================================
-# 主程式
+# 合成資料 Demo / Synthetic demo (no data files required)
+# =============================================================================
+
+def demo():
+    """Run the size-distribution functions on a synthetic SMPS dN/dlogDp matrix.
+
+    用合成的 SMPS dN/dlogDp 矩陣示範 psd_stats / SizeDist，不需要任何資料檔。
+    (這裡不示範 merge_psd，因為它較重且需要 SMPS+APS 與多進程。)
+    """
+    import numpy as np
+    import pandas as pd
+
+    print("=== AeroViz 粒徑分布 Demo (synthetic SMPS data) ===\n")
+
+    # Build a synthetic SMPS dN/dlogDp matrix: columns are diameters (nm),
+    # index is time. A single lognormal mode centered ~80 nm.
+    rng = np.random.default_rng(0)
+    diameters = np.logspace(np.log10(11.8), np.log10(593.5), 60)
+    idx = pd.date_range('2024-01-01', periods=48, freq='h', name='time')
+    lognorm = np.exp(-0.5 * ((np.log(diameters) - np.log(80)) / np.log(1.8)) ** 2)
+    base = np.outer(rng.uniform(8000, 12000, len(idx)), lognorm)
+    df_pnsd = pd.DataFrame(base * rng.uniform(0.8, 1.2, base.shape),
+                           index=idx, columns=diameters)
+
+    # 1) Top-level psd_stats (one-call statistics + distributions)
+    stats = psd_stats(df_pnsd)
+    print("psd_stats keys:", list(stats.keys()))
+    print(f"  mean total N : {stats['other']['total_num_all'].mean():.0f} #/cm³")
+    print(f"  mean GMD     : {stats['other']['GMD_num_all'].mean():.1f} nm")
+
+    # 2) SizeDist class (properties is time-indexed: one row per timestamp)
+    psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')
+    props = psd.properties()      # columns: total_n, GMD_n, GSD_n, mode_n, ...
+    print(f"\nSizeDist.properties() shape: {props.shape} (time-indexed)")
+    print(f"  mean GSD     : {props['GSD_n'].mean():.2f}")
+
+    # 3) Lung deposition (ICRP 66)
+    lung = psd.lung_deposition(activity='light')
+    print(f"\nLung deposition (light activity):")
+    print(f"  mean total deposition fraction: {lung['DF']['Total'].mean():.1%}")
+
+    print("\n(這是合成資料；要處理真實資料請編輯 DATA_PATH 並用上面的函式。)")
+    return df_pnsd
+
+
+# =============================================================================
+# 主程式 / Main
 # =============================================================================
 
 if __name__ == '__main__':
-    # 取消註解以執行對應範例
+    if '--demo' in sys.argv:
+        demo()
+        sys.exit(0)
+
+    # 取消註解以執行對應範例 / Uncomment a call to run it (edit DATA_PATH first)
 
     # result = basic_psd_processing()
     # psd, props = use_sizedist_class()
@@ -255,4 +321,5 @@ if __name__ == '__main__':
     # lung = lung_deposition()
     # dry = dry_psd()
 
-    print("請修改 DATA_PATH 後取消註解執行對應範例")
+    print("請修改 DATA_PATH 後取消註解執行對應範例，"
+          "或執行 `python examples/04_size_distribution.py --demo` 跑合成資料。")

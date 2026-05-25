@@ -49,10 +49,13 @@ result = dp.IMPROVE(df_mass, df_RH, method='revised')
 
 | 輸出 | 說明 |
 |------|------|
-| `dry` | 乾燥消光 (AS_ext, AN_ext, OM_ext, Soil_ext, SS_ext, EC_ext, Total_ext) |
-| `wet` | 濕消光 |
+| `dry` | 乾燥消光 (欄位：AS, AN, OM, Soil, SS, EC, total；小寫 total = 各成分加總) |
+| `wet` | 濕消光 (同上欄位) |
 | `ALWC` | 液態水貢獻 (wet - dry) |
 | `fRH` | 吸濕成長因子 |
+
+> `df_RH` 必須是 Series（例如 `met['RH']`），不可傳單欄 DataFrame。
+> 總消光請用 `dry['total']` / `wet['total']`，勿用 `.sum(axis=1)`（會把 total 欄重複計入）。
 
 ### Mie
 
@@ -96,16 +99,17 @@ result = dp.IMPROVE(df_mass, df_RH, method='revised')
 
 ## 輸入格式
 
-### 散射係數
+### 散射係數（NEPH 輸出；欄位小寫）
 
 ```python
-df_sca.columns = ['G_550', 'R_700', 'B_450']  # 或 ['Sca_550']
+df_sca.columns = ['sca_550', 'SAE']  # optical_basic 需要這兩欄
 ```
 
-### 吸收係數
+### 吸收係數（AE33 輸出；欄位小寫）
 
 ```python
-df_abs.columns = ['Abs_370', 'Abs_880', ...]  # Mm⁻¹
+df_abs.columns = ['abs_550', 'AAE', 'eBC']  # optical_basic 需要這三欄
+# AE33 也提供多波長 abs_370 ~ abs_950 (Mm⁻¹)
 ```
 
 ### 質量濃度（IMPROVE 用）

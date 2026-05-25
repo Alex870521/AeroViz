@@ -96,9 +96,9 @@ result = reconstruct_mass(df_chem, df_ref=df_chem[['PM25']])
 
 # Output
 result['mass']         # Reconstructed mass DataFrame
-#   AS, AN, OM, EC, Soil, SS, PM25_rc
+#   AS, AN, OM, Soil, SS, EC, total   ('total' = reconstructed PM mass)
 
-result['NH4_status']   # Ammonium status (Excess / Balance / Deficiency)
+result['NH4_status']   # DataFrame with 'ratio' and 'status' (status: Enough / Deficiency)
 result['volume']       # Component volumes (µm³/m³)
 result['density_rec']  # Reconstructed density
 result['RI_550']       # Volume-weighted refractive index at 550 nm

@@ -59,21 +59,21 @@ result = reconstruct_mass(df_chem, df_ref=df_chem[['PM25']])
 # Main component masses
 df_mass = result['mass']
 print(df_mass.columns)
-# ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS', 'PM25_rc']
+# ['AS', 'AN', 'OM', 'Soil', 'SS', 'EC', 'total']
+# 'total' = reconstructed PM mass (sum of species) — there is no 'PM25_rc' column
 
-# Ammonium status
+# Ammonium status: a DataFrame with 'ratio' and 'status' columns
 nh4_status = result['NH4_status']
-print(nh4_status.value_counts())
-# Balance      45
-# Excess       30
-# Deficiency   15
+print(nh4_status['status'].value_counts())
+# Enough        75
+# Deficiency    15
 ```
 
 ### Closure Check
 
 ```python
-# Calculate closure
-closure = df_mass['PM25_rc'] / df_chem['PM25'] * 100
+# Calculate closure ('total' is the reconstructed mass)
+closure = df_mass['total'] / df_chem['PM25'] * 100
 
 print(f"Mean closure: {closure.mean():.1f}%")
 print(f"Std closure: {closure.std():.1f}%")
@@ -93,7 +93,7 @@ plt.show()
 ```python
 # Calculate contribution ratios for each component
 components = ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS']
-contributions = df_mass[components].div(df_mass['PM25_rc'], axis=0) * 100
+contributions = df_mass[components].div(df_mass['total'], axis=0) * 100
 
 print("Average contribution (%):")
 print(contributions.mean())
@@ -145,13 +145,13 @@ print(f"Mean kappa: {df_kappa['kappa_chem'].mean():.3f}")
 fig, axes = plt.subplots(1, 3, figsize=(12, 4))
 
 # kappa vs SIA ratio
-sia_ratio = (df_mass['AS'] + df_mass['AN']) / df_mass['PM25_rc']
+sia_ratio = (df_mass['AS'] + df_mass['AN']) / df_mass['total']
 axes[0].scatter(sia_ratio, df_kappa['kappa_chem'], alpha=0.5)
 axes[0].set_xlabel('SIA / PM2.5')
 axes[0].set_ylabel('kappa')
 
 # kappa vs OM ratio
-om_ratio = df_mass['OM'] / df_mass['PM25_rc']
+om_ratio = df_mass['OM'] / df_mass['total']
 axes[1].scatter(om_ratio, df_kappa['kappa_chem'], alpha=0.5)
 axes[1].set_xlabel('OM / PM2.5')
 axes[1].set_ylabel('kappa')
@@ -239,9 +239,11 @@ from AeroViz import (
     growth_factor,
 )
 
-# 1. Read data
-igac = RawDataReader('IGAC', Path('./data'), ...)
-ocec = RawDataReader('OCEC', Path('./data'), ...)
+# 1. Read data (pass dates as start=/end= keywords)
+igac = RawDataReader('IGAC', Path('./data/igac'),
+                     start='2024-01-01', end='2024-03-31', mean_freq='1h')
+ocec = RawDataReader('OCEC', Path('./data/ocec'),
+                     start='2024-01-01', end='2024-03-31', mean_freq='1h')
 df_chem = pd.concat([igac, ocec], axis=1)
 met    = pd.read_csv('met.csv', index_col='time', parse_dates=True)
 df_alwc = met[['ALWC']]                                  # from ISOROPIA, e.g.
@@ -264,7 +266,7 @@ df_kappa = kappa(
 # 5. Output results summary
 print("=== Chemical Analysis Summary ===")
 print(f"PM2.5: {df_chem['PM25'].mean():.1f} +/- {df_chem['PM25'].std():.1f} ug/m3")
-print(f"Closure: {(df_mass['PM25_rc']/df_chem['PM25']*100).mean():.1f}%")
+print(f"Closure: {(df_mass['total']/df_chem['PM25']*100).mean():.1f}%")
 print(f"RI(dry): {df_RI['n_dry'].mean():.3f} + {df_RI['k_dry'].mean():.4f}i")
 print(f"kappa: {df_kappa['kappa_chem'].mean():.3f}")
 ```

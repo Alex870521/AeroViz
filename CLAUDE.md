@@ -169,8 +169,15 @@ above).
 - `Volatile_Fraction`: Volatile fraction (0-1)
 
 ### Aurora/NEPH
-- `scattering_R`, `scattering_G`, `scattering_B`: Scattering coefficients
-- `SAE`: Scattering Ångström Exponent
+- `sca_550`: Scattering coefficient at 550 nm (Mm⁻¹) — **primary output**
+- `SAE`: Scattering Ångström Exponent — **primary output**
+- Aurora also keeps the per-wavelength raw channels: `B`, `G`, `R` (0° total
+  scattering at blue/green/red) and `BB`, `BG`, `BR` (90° backscatter)
+- NEPH keeps the same `B`, `G`, `R`, `BB`, `BG`, `BR` channels plus any
+  ancillary columns (RH, pressure, temperatures, status)
+
+Note: column names are lowercase — `sca_550` (not `Sca_550`); AE33 absorption is
+`abs_550` / `abs_880` (not `Abs_550` / `Abs_880`).
 
 ### Xact
 - Element symbols: `Fe`, `Zn`, `Pb`, `Cu`, `Mn`, `Cr`, `Ni`, `As`, `Cd`, etc.

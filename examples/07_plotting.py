@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from AeroViz.plot import scatter, regression, box, bar, violin, pie, timeseries_interactive
+from AeroViz.plot import scatter, box, bar, violin, pie, timeseries_interactive
 
 # =============================================================================
 # 設定
@@ -97,21 +97,23 @@ def scatter_with_regression():
 # =============================================================================
 
 def box_plot_example():
-    """箱型圖範例"""
+    """箱型圖範例
+
+    注意：box() 需要「數值 x 軸 + x_bins（分箱邊界）」，不接受字串/類別 x 軸。
+    每個 bin 畫一個 box。若要依類別（如季節標籤）分組，請改用 violin()。
+    """
 
     np.random.seed(42)
 
-    # 模擬季節數據
-    seasons = ['Spring', 'Summer', 'Autumn', 'Winter']
-    data = []
-    for i, season in enumerate(seasons):
-        n = 50
-        values = np.random.normal(20 + i * 5, 5, n)
-        data.extend([(season, v) for v in values])
+    # 模擬 PM2.5 隨風速變化（風速為數值 x 軸）
+    n = 300
+    ws = np.random.uniform(0, 10, n)
+    pm25 = 40 - 2.5 * ws + np.random.normal(0, 5, n)  # 風速越大濃度越低
+    df = pd.DataFrame({'WS': ws, 'PM25': pm25})
 
-    df = pd.DataFrame(data, columns=['Season', 'PM25'])
-
-    fig, ax = box(df, x='Season', y='PM25', title='PM2.5 by Season')
+    # x 為數值欄位，x_bins 為分箱邊界
+    fig, ax = box(df, x='WS', y='PM25', x_bins=np.arange(0, 11, 2),
+                  title='PM2.5 by Wind Speed')
     fig.savefig(OUTPUT_PATH / 'box_plot.png', dpi=150, bbox_inches='tight')
     print(f"已儲存: {OUTPUT_PATH / 'box_plot.png'}")
 
@@ -179,7 +181,8 @@ def pie_chart_example():
     labels = ['AS', 'AN', 'OM', 'EC', 'Soil', 'SS']
     values = [25, 18, 35, 9, 8, 5]
 
-    fig, ax = pie({'PM2.5': values}, labels, '%', 'donut')
+    # 注意：unit 字串會被當成 mathtext 標籤，'%' 無法渲染（會 crash），改用 'percent'
+    fig, ax = pie({'PM2.5': values}, labels, 'percent', 'donut')
     fig.savefig(OUTPUT_PATH / 'pie_chart.png', dpi=150, bbox_inches='tight')
     print(f"已儲存: {OUTPUT_PATH / 'pie_chart.png'}")
 
@@ -197,12 +200,12 @@ def multi_panel_example():
 
     np.random.seed(42)
 
-    # 建立測試數據
-    n = 100
+    # 建立測試數據（WS 為數值欄位，供 box 分箱用）
+    n = 200
     df = pd.DataFrame({
         'BC': np.random.lognormal(2, 0.5, n),
         'PM25': np.random.lognormal(3, 0.4, n),
-        'Season': np.random.choice(['Spring', 'Summer', 'Autumn', 'Winter'], n)
+        'WS': np.random.uniform(0, 10, n),
     })
 
     fig, axes = plt.subplots(2, 2, figsize=(10, 8))
@@ -213,11 +216,11 @@ def multi_panel_example():
     # 帶迴歸線
     scatter(df, x='BC', y='PM25', regression=True, ax=axes[0, 1], title='With Regression')
 
-    # 箱型圖
-    box(df, x='Season', y='BC', ax=axes[1, 0], title='BC by Season')
+    # 箱型圖（數值 x + x_bins）
+    box(df, x='WS', y='BC', x_bins=np.arange(0, 11, 2), ax=axes[1, 0], title='BC by Wind Speed')
 
-    # 箱型圖
-    box(df, x='Season', y='PM25', ax=axes[1, 1], title='PM2.5 by Season')
+    # 箱型圖（數值 x + x_bins）
+    box(df, x='WS', y='PM25', x_bins=np.arange(0, 11, 2), ax=axes[1, 1], title='PM2.5 by Wind Speed')
 
     plt.tight_layout()
     fig.savefig(OUTPUT_PATH / 'multi_panel.png', dpi=150, bbox_inches='tight')

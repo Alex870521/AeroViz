@@ -1,3 +1,25 @@
+## v0.3.2 (2026-05-25)
+
+### Feat
+
+- **merge**: add EXPERIMENTAL v5 mass-anchored merge (測試中)
+- **reader**: SMPS/APS return dN/dlogDp; stats via psd_stats + sidecar
+- **reader**: warn on stray out-of-range timestamps before gridding
+
+### Fix
+
+- **optical**: improve() accepts single-column df_RH
+- **plot**: box categorical/float-bin support; escape % in Unit; silence noise
+- **plot**: use per-column mean in violin scatter
+- **examples**: correct stale API usage across examples
+
+### Refactor
+
+- **merge**: share v3/v4 _powerlaw_fit_dN via _core
+- **merge**: share v1/v2 overlap_fitting + shift_data_process via _core
+- **merge**: consolidate _merge_data into shared _core.merge_data
+- **merge**: unify SMPS-APS output, add density_range QC, dedup core
+
 ## v0.3.1 (2026-05-23)
 
 ### Feat

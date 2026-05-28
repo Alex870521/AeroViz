@@ -695,7 +695,8 @@ class QualityControl:
     
     @staticmethod
     def filter_error_status(_df, error_codes=None, special_codes=None, return_mask=True,
-                            status_column='Status', status_type='bitwise', ok_value=None):
+                            status_column='Status', status_type='bitwise', ok_value=None,
+                            ignored_values=None):
         """
         Filter data based on error status codes.
 
@@ -722,6 +723,15 @@ class QualityControl:
             The value indicating OK status (for 'numeric', 'text' types)
             - For 'numeric': typically 0
             - For 'text': typically 'Normal Scan'
+        ignored_values : list[str], optional
+            Status tokens to whitelist alongside ``ok_value`` (text mode only).
+            The status field is comma-split into tokens; a row passes when
+            every token is either ``ok_value`` or in ``ignored_values``. Use
+            this to suppress operator-known benign warnings (e.g. SMPS
+            ``'Low aerosol flow'``) without rewriting the raw files. A token
+            ``'Low aerosol flow'`` matches both the bare string and combined
+            statuses like ``'Low aerosol flow,Neutralizer not active'`` when
+            ``'Neutralizer not active'`` is also whitelisted.
 
         Returns
         -------
@@ -763,10 +773,30 @@ class QualityControl:
                 error_mask = (status_values != 0) & status_values.notna()
 
         elif status_type == 'text':
-            # Text comparison for SMPS
+            # Text comparison for SMPS. Three forms all mean "no status reported"
+            # and must NEVER be flagged as errors: empty string, the pandas
+            # NaN-stringified 'nan', and the Python-None-stringified 'None'.
+            # The last one arrives when a column is missing in some files of a
+            # multi-file concat (pd.concat fills the gap with Python None,
+            # which `astype(str)` turns into the string 'None').
+            EMPTY_SENTINELS = ('', 'nan', 'None')
             status_values = _df[status_column].astype(str).str.strip()
             if ok_value is not None:
-                error_mask = (status_values != ok_value) & (status_values != '') & (status_values != 'nan')
+                if ignored_values:
+                    # Token-level whitelist: split each row's status by ','
+                    # and require every token to be either the OK value or in
+                    # the whitelist. Empty statuses are never errors.
+                    ignored_set = {str(v).strip() for v in ignored_values}
+                    allowed = ignored_set | {ok_value}
+
+                    def _is_error(s):
+                        if s in EMPTY_SENTINELS:
+                            return False
+                        return not all(t.strip() in allowed for t in s.split(','))
+
+                    error_mask = status_values.apply(_is_error)
+                else:
+                    error_mask = (status_values != ok_value) & ~status_values.isin(EMPTY_SENTINELS)
             else:
                 # No ok_value specified, can't determine errors
                 error_mask = pd.Series(False, index=_df.index)

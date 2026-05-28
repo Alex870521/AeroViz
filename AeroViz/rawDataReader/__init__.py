@@ -19,6 +19,7 @@ def RawDataReader(instrument: str,
                   mean_freq: str | None = None,
                   size_range: tuple[float, float] | None = None,
                   fill_missing: bool = True,
+                  ignored_status_errors: list[str] | None = None,
                   output_dir: Path | str | None = None,
                   output_prefix: str | None = None,
                   save_pkl: bool = True,
@@ -92,6 +93,16 @@ def RawDataReader(instrument: str,
         False - clamp the grid to the data's actual coverage, so the output
             never extends past what the files contain. Use ``df.attrs`` for the
             requested-vs-actual range.
+
+    ignored_status_errors : list[str], optional
+        SMPS only. Status-flag tokens that should NOT be treated as Status
+        Error during QC, in addition to the normal "OK" value. The
+        ``Instrument Errors`` column on TSI SMPS exports is often a
+        comma-separated list of tokens (e.g. ``'Low aerosol flow,Neutralizer
+        not active'``); a row is accepted when every token is either the OK
+        value or in this whitelist. Use for operator-known benign warnings
+        — e.g. ``ignored_status_errors=['Low aerosol flow']`` on an
+        instrument running at a known-low sample-flow setting.
 
     output_dir : Path or str, optional
         Directory for all output files (pkl, csv, log, report).
@@ -265,6 +276,7 @@ def RawDataReader(instrument: str,
 
     kwargs.update({
         'fill_missing': fill_missing,
+        'ignored_status_errors': ignored_status_errors,
         'output_dir': output_dir,
         'output_prefix': output_prefix,
         'save_pkl': save_pkl,

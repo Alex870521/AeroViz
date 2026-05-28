@@ -27,9 +27,48 @@ class Reader(AbstractReader):
     MAX_LARGE_BIN_CONC = 4000      # Maximum concentration for >400nm bins (DMA water ingress indicator)
     LARGE_BIN_THRESHOLD = 400      # Size threshold for large bin filter (nm)
 
-    # Status Flag column name
+    # Primary status column — present on older AIM 10.3 sub-versions and on
+    # AIM 11.x. Values are a positive sentinel (`'Normal Scan'`) when OK; any
+    # other text (e.g. `'Conditioner Temperature Error'`) is an error.
     STATUS_COLUMN = 'Status Flag'
-    STATUS_OK = 'Normal Scan'  # Normal status text
+    STATUS_OK = 'Normal Scan'
+    # Secondary status column — on newer AIM 10.3 .TXT exports and AIM 11.x,
+    # the actual operational warnings ("Low aerosol flow", "Neutralizer not
+    # active", or comma-combined) live here, while `Status Flag` stays empty.
+    # Empty cell ↔ no error; any non-empty token that isn't on the user's
+    # `ignored_status_errors` whitelist is treated as a Status Error. Both
+    # columns are checked and their error masks OR'd in `_QC`.
+    SECONDARY_STATUS_COLUMN = 'Instrument Errors'
+
+    # =========================================================================
+    # AIM-version reconciliation (10.3 .TXT vs 11.x .CSV exports)
+    # =========================================================================
+    # The same physical SMPS can export at different size-bin grids depending
+    # on the host software version (AIM 10.3: 11.8–593.5 nm; AIM 11.x:
+    # 11.34–615.27 nm with shifted intermediate bins) AND re-labels many
+    # metadata columns. Two separate problems:
+    #
+    # 1. Mixed-bin-grid in one folder — handled by `_partition_compatible_scans`
+    #    (keep the dominant-row group, drop the minority with a warning).
+    # 2. AIM-version metadata column drift — `METADATA_ALIASES` rewrites the
+    #    AIM 11.x form to the AIM 10.3 form on every parsed file, so a folder
+    #    of either version (or a partitioned-down folder) produces a
+    #    consistent schema downstream. Only the unambiguous 1:1 physical
+    #    quantities are renamed; AIM 11.x cuts that have NO 10.3 equivalent
+    #    (4-way error split, granular DMA timings, etc.) are kept under their
+    #    AIM 11.x names because collapsing them would lose information.
+    METADATA_ALIASES = {
+        # AIM 11.x name -> AIM 10.3 canonical
+        'Total Concentration (#/cm³)': 'Total Conc. (#/cm)',
+        'Aerosol Temperature (C)': 'Sample Temp (C)',
+        'Aerosol Humidity (%)': 'Relative Humidity (%)',
+        'Aerosol Density (g/cm³)': 'Density (g/cm)',
+        'Impactor D50 (nm)': 'D50 (nm)',
+        'Test Name': 'Title',
+        'Geo. Std. Dev': 'Geo. Std. Dev.',                       # AIM 11.x drops the trailing period
+        'DMA Column transit time Tf (s)': 'tf (s)',
+        'DMA Exit to Optical Detector Td (s)': 'td + 0.5 (s)',   # AIM 10.3 also adds the +0.5 offset; treated as same quantity
+    }
 
     def __call__(self, start=None, end=None, mean_freq=None):
         """Return the dN/dlogDp distribution; write S/V + a stats sidecar.
@@ -134,7 +173,83 @@ class Reader(AbstractReader):
                           'Sample #', 'Scan Number', 'Diameter Midpoint', 'Diameter Midpoint (nm)']
             _df = _df.drop(columns=[c for c in index_cols if c in _df.columns], errors='ignore')
 
+            # AIM 11.x → AIM 10.3 metadata canonicalization so consumers see the
+            # same column names regardless of which host software exported the
+            # file. Only the unambiguous 1:1 physical quantities are renamed —
+            # see `METADATA_ALIASES` docstring above. A pre-existing AIM 10.3
+            # column with the same canonical name is rare in practice (the file
+            # is one AIM version or the other), but if it happens we keep the
+            # 10.3 form and drop the AIM 11.x duplicate.
+            rename = {old: new for old, new in self.METADATA_ALIASES.items()
+                      if old in _df.columns}
+            if rename:
+                drop_dup = [old for old, new in rename.items() if new in _df.columns]
+                if drop_dup:
+                    _df = _df.drop(columns=drop_dup)
+                    rename = {k: v for k, v in rename.items() if k not in drop_dup}
+                if rename:
+                    _df = _df.rename(columns=rename)
+
             return _df.loc[~_df.index.duplicated() & _df.index.notna()]
+
+    @staticmethod
+    def _bin_signature(df):
+        """Stable fingerprint of a file's size-bin grid (sorted tuple of
+        diameter columns, rounded to 2 decimals so trivial float jitter
+        doesn't split otherwise-identical scans into different groups)."""
+        return tuple(sorted(round(float(c), 2)
+                            for c in df.columns if isinstance(c, (int, float))))
+
+    def _partition_compatible_scans(self, df_list, files):
+        """Keep files whose size-bin grid matches the dominant group; drop
+        the rest so the concat sees one consistent schema.
+
+        The grouping fingerprint is the file's sorted size-bin tuple. The
+        "dominant" group is picked by total row count, not file count —
+        this stops a swarm of tiny files from outvoting one large-but-typical
+        file. The minority files are not silently discarded: every dropped
+        file is named in a warning, so the user can re-run them in isolation
+        (different folder, or with `size_range=`) if both grids are wanted.
+        """
+        if len(df_list) < 2:
+            return df_list
+
+        groups: dict = {}
+        for f, df in zip(files, df_list):
+            sig = self._bin_signature(df)
+            groups.setdefault(sig, []).append((f, df))
+
+        if len(groups) == 1:
+            return df_list  # homogeneous folder — no isolation needed.
+
+        # Pick the dominant group by total row count.
+        def total_rows(items):
+            return sum(len(df) for _, df in items)
+
+        sigs_ranked = sorted(groups.items(), key=lambda kv: total_rows(kv[1]), reverse=True)
+        dominant_sig, dominant_items = sigs_ranked[0]
+        kept = [df for _, df in dominant_items]
+
+        # Build a single readable warning naming every dropped file.
+        for sig, items in sigs_ranked[1:]:
+            dropped_names = [f.name for f, _ in items]
+            n_rows = total_rows(items)
+            shown = ', '.join(dropped_names[:5])
+            if len(dropped_names) > 5:
+                shown += f', ... (+{len(dropped_names) - 5} more)'
+            d_min, d_max = (min(sig), max(sig)) if sig else (None, None)
+            kept_min, kept_max = (min(dominant_sig), max(dominant_sig))
+            self.logger.warning(
+                f"Mixed-format SMPS folder: skipping {len(dropped_names)} "
+                f"file(s) ({n_rows} rows) on a different size-bin grid "
+                f"({d_min}–{d_max} nm, {len(sig)} bins) than the dominant "
+                f"group ({kept_min}–{kept_max} nm, {len(dominant_sig)} bins). "
+                f"Files: {shown}. "
+                f"Move them to a separate folder (or pass `size_range=`) to "
+                f"process them in their own run."
+            )
+
+        return kept
 
     def _QC(self, _df):
         """
@@ -167,13 +282,38 @@ class Reader(AbstractReader):
         # Build QC rules declaratively
         qc = QCFlagBuilder()
 
+        # Operator-supplied whitelist of benign status tokens (e.g.
+        # 'Low aerosol flow' on a known-noisy instrument). Defaults to None
+        # so existing pipelines see no behavioural change.
+        ignored_status_errors = self.kwargs.get('ignored_status_errors') or None
+
+        def _combined_status_error_mask(df):
+            """OR the error masks from `Status Flag` (positive 'Normal Scan'
+            sentinel) and `Instrument Errors` (empty-only OK). Either column
+            being missing is silently skipped (returns False from
+            `filter_error_status`), so older / mixed exports work without
+            extra configuration."""
+            qc_ctrl = self.QC_control()
+            mask = qc_ctrl.filter_error_status(
+                _df, status_column=self.STATUS_COLUMN, status_type='text',
+                ok_value=self.STATUS_OK, ignored_values=ignored_status_errors,
+            )
+            if self.SECONDARY_STATUS_COLUMN in _df.columns:
+                mask = mask | qc_ctrl.filter_error_status(
+                    _df, status_column=self.SECONDARY_STATUS_COLUMN, status_type='text',
+                    ok_value='', ignored_values=ignored_status_errors,
+                )
+            return mask
+
         qc.add_rules([
             QCRule(
                 name='Status Error',
-                condition=lambda df: self.QC_control().filter_error_status(
-                    _df, status_column=self.STATUS_COLUMN, status_type='text', ok_value=self.STATUS_OK
-                ),
-                description=f'Status flag is not "{self.STATUS_OK}"'
+                condition=_combined_status_error_mask,
+                description=(
+                    f'Status flag is not "{self.STATUS_OK}", or '
+                    f'`{self.SECONDARY_STATUS_COLUMN}` is non-empty'
+                    + (f' (ignoring: {ignored_status_errors})' if ignored_status_errors else '')
+                )
             ),
             QCRule(
                 name='Insufficient',

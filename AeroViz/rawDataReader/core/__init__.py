@@ -394,6 +394,23 @@ class AbstractReader(ABC):
                 weekly_flag_groups, monthly_flag_groups
             )
 
+    def _partition_compatible_scans(self, df_list: list, files: list) -> list:
+        """Drop frames whose scan schema differs from the dominant group.
+
+        Default is a no-op — overridden by readers (currently SMPS) where the
+        same instrument can export at *different* size-bin grids depending on
+        the host software version (AIM 10.3 .TXT vs AIM 11.x .CSV). The outer
+        join inside ``pd.concat`` happily concatenates frames with disjoint
+        columns, but the NaN holes break per-bin completeness QC. The
+        well-defined repair is to treat each grid as its own scan: keep the
+        majority group, drop the minority and tell the user which files were
+        skipped so they can re-run them in isolation if they want both.
+
+        ``df_list`` and ``files`` are aligned and contain only successfully
+        parsed entries.
+        """
+        return df_list
+
     def _flag_outlier_dates(self, df: pd.DataFrame) -> pd.DataFrame:
         """Detect and warn about stray timestamps; drop them only if asked.
 
@@ -616,6 +633,7 @@ class AbstractReader(ABC):
 
         self._n_files = len(files)
         df_list = []
+        parsed_files = []  # kept aligned with df_list for _partition_compatible_scans
         per_file_freq = {}
 
         # Context manager for progress bar display
@@ -626,6 +644,7 @@ class AbstractReader(ABC):
                 try:
                     if (df := self._raw_reader(file)) is not None and not df.empty:
                         df_list.append(df)
+                        parsed_files.append(file)
                         # Detect each file's native resolution before they are merged,
                         # so a mixed-resolution batch can be flagged.
                         per_file_freq[file.name] = detect_freq(df.index)
@@ -646,6 +665,14 @@ class AbstractReader(ABC):
             fallback=self.meta.get('freq'),
             logger=self.logger,
         )
+
+        # Drop files that belong to an incompatible scan group before they can
+        # contaminate the concat (default no-op; SMPS overrides). Two AIM
+        # versions of the same instrument produce different bin grids, and an
+        # outer-join concat fills the mismatched columns with NaN — which
+        # silently fails downstream completeness QC. Isolation up front is
+        # cleaner than trying to reconcile after the fact.
+        df_list = self._partition_compatible_scans(df_list, parsed_files)
 
         raw_data = pd.concat(df_list, axis=0).groupby(level=0).first()
 

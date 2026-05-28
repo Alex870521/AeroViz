@@ -46,6 +46,14 @@ class TestSMPSReader(BaseReaderTest):
     # columns); summary statistics are derived on demand via psd_stats().
     EXPECTED_COLUMNS = None
 
+    # The 'normal' fixture file (20250219.TXT) was captured with the TSI in
+    # a known-noisy operating mode — every scan carries
+    # 'Low aerosol flow,Neutralizer not active' in `Instrument Errors`. Our
+    # SMPS QC now reads that column (`SECONDARY_STATUS_COLUMN`), so without a
+    # whitelist every QC-running test would reject 100% of rows and assertions
+    # against derived statistics / output frames would fail spuriously.
+    NORMAL_FIXTURE_IGNORE = ['Low aerosol flow', 'Neutralizer not active']
+
     def test_returns_size_distribution(self, data_path, date_range, temp_output_dir):
         """Reader returns dN/dlogDp with float-diameter columns (no stats baked in)."""
         normal_path = data_path / 'normal'
@@ -96,8 +104,9 @@ class TestSMPSReader(BaseReaderTest):
         if not normal_path.exists():
             normal_path = data_path
 
-        clean = self.read_data(normal_path, date_range)
-        fat = self.read_data(normal_path, date_range, append_stats=True)
+        clean = self.read_data(normal_path, date_range, ignored_status_errors=self.NORMAL_FIXTURE_IGNORE)
+        fat = self.read_data(normal_path, date_range, append_stats=True,
+                             ignored_status_errors=self.NORMAL_FIXTURE_IGNORE)
 
         assert all(isinstance(c, (int, float)) for c in clean.columns)
         # Appended frame keeps the bins and gains string-named stat columns
@@ -162,3 +171,166 @@ class TestSMPSReader(BaseReaderTest):
         df = self.read_data(csv_path, date_range, size_range=(11.34, 615.27))
         assert df is not None
         assert not df.empty
+
+    def test_partition_compatible_scans(self):
+        """`_partition_compatible_scans` keeps the dominant grid and drops
+        files on a different size-bin grid, so the concat downstream sees one
+        consistent schema.
+
+        Mixing AIM 10.3 (.TXT, bins 11.8/13.6/593.5) with AIM 11.x (.CSV,
+        bins 11.34/13.10/615.27) in one folder is the failure mode this fix
+        targets. The dominant group is picked by total row count, not file
+        count, so a single large TXT export beats a swarm of tiny CSVs.
+        """
+        import pandas as pd
+        from pathlib import Path
+        from AeroViz.rawDataReader.script.SMPS import Reader
+
+        # 3 AIM 10.3 .TXT files (50 rows each = 150 rows) + 3 AIM 11.x .CSV
+        # files (10 rows each = 30 rows). TXT dominates by row count.
+        txt_files = [Path(f"260{i:02d}.TXT") for i in (1, 2, 3)]
+        csv_files = [Path(f"SMPS_3082001426002_2026020{i}.csv") for i in (5, 6, 7)]
+        txt_dfs = [
+            pd.DataFrame({11.8: range(50), 13.6: range(50), 593.5: range(50)},
+                         index=pd.date_range(f'2026-01-0{i}', periods=50, freq='6min'))
+            for i in (1, 2, 3)
+        ]
+        csv_dfs = [
+            pd.DataFrame({11.34: range(10), 13.10: range(10), 615.27: range(10)},
+                         index=pd.date_range(f'2026-02-0{i}', periods=10, freq='6min'))
+            for i in (5, 6, 7)
+        ]
+        files = txt_files + csv_files
+        df_list = txt_dfs + csv_dfs
+
+        # Instance method but uses only `self.logger` and the static
+        # `_bin_signature` — no real `__init__` needed.
+        reader = Reader.__new__(Reader)
+        import logging
+        reader.logger = logging.getLogger('test')
+
+        kept = reader._partition_compatible_scans(df_list, files)
+
+        # Only the 3 TXT frames survive; the 3 CSVs were dropped.
+        assert len(kept) == 3, f"Expected 3 TXT frames kept, got {len(kept)}"
+        all_kept_bins = set()
+        for df in kept:
+            all_kept_bins.update(c for c in df.columns if isinstance(c, (int, float)))
+        assert all_kept_bins == {11.8, 13.6, 593.5}, (
+            f"Expected dominant TXT bin grid {{11.8, 13.6, 593.5}}, got {all_kept_bins}"
+        )
+
+    def test_filter_error_status_ignored_values_token_split(self):
+        """`ignored_values` whitelists comma-separated tokens. A row passes
+        only when EVERY token is either the OK value or in the whitelist.
+
+        Verified at the QC primitive level (`filter_error_status`) because
+        the higher-level reader path is hard to invoke without raw files;
+        once this is correct, the SMPS reader change is just plumbing.
+        """
+        import pandas as pd
+        from AeroViz.rawDataReader.core.qc import QualityControl
+
+        # Build a status column covering realistic TP_SMPS shapes plus the
+        # three empty sentinels ('', 'nan', 'None') — the last enters the
+        # column post-concat when a file lacked that column and pandas filled
+        # with Python None, which `astype(str)` turns into 'None'.
+        statuses = [
+            'Normal Scan',                                    # ok
+            'Low aerosol flow',                               # ignored-only
+            'Low aerosol flow,Neutralizer not active',        # both ignored
+            'Low aerosol flow,Sheath flow error',             # one token NOT ignored
+            'Sheath flow error',                              # NOT in whitelist
+            '',                                               # empty -> never an error
+            'nan',                                            # NaN stringified -> never an error
+            'None',                                           # Python None stringified -> never an error
+        ]
+        df = pd.DataFrame({'Status Flag': statuses})
+
+        # Without a whitelist: only 'Normal Scan' and the three empty
+        # sentinels pass.
+        no_whitelist = QualityControl.filter_error_status(
+            df, status_column='Status Flag', status_type='text', ok_value='Normal Scan')
+        assert list(no_whitelist) == [False, True, True, True, True, False, False, False]
+
+        # With whitelist ['Low aerosol flow', 'Neutralizer not active']: the
+        # first three rows pass; combined statuses containing an un-whitelisted
+        # token still fail.
+        whitelisted = QualityControl.filter_error_status(
+            df, status_column='Status Flag', status_type='text', ok_value='Normal Scan',
+            ignored_values=['Low aerosol flow', 'Neutralizer not active'])
+        assert list(whitelisted) == [False, False, False, True, True, False, False, False]
+
+    def test_metadata_aliases_aim10_canonical(self, data_path, date_range, temp_output_dir):
+        """Reading an AIM 11.x .csv file should emit AIM 10.3 metadata column
+        names, so downstream consumers see one schema regardless of which host
+        software produced the file. AIM 11.x columns with no 10.3 equivalent
+        (4-way error split, granular DMA timings) are kept under their 11.x
+        names because collapsing them would lose information.
+        """
+        import shutil
+        import pandas as pd
+        from AeroViz import RawDataReader
+
+        csv_path = data_path / 'csv_format'
+        if not csv_path.exists():
+            pytest.skip('SMPS csv_format test data not available')
+
+        # Bypass the session-scoped reader cache (see base.py:_cached_reader_call)
+        # — we need the on-disk raw pkl, and a cache hit would skip writing it.
+        out = csv_path / 'smps_outputs'
+        if out.exists():
+            shutil.rmtree(out)
+        scenario = self.SCENARIO_DATE_RANGES.get('csv_format', date_range)
+        RawDataReader(
+            'SMPS', csv_path,
+            start=scenario['start'], end=scenario['end'],
+            reset=True, mean_freq='1h', size_range=(11.34, 615.27),
+            save_pkl=True, save_intermediate_csv=False, save_report=False,
+            quiet=True, log_level='ERROR',
+        )
+
+        raw_pkl = out / '_read_smps_raw.pkl'
+        assert raw_pkl.exists()
+        raw = pd.read_pickle(raw_pkl)
+        cols = set(raw.columns)
+
+        # Canonical (AIM 10.3) names must be present after rename.
+        assert 'Sample Temp (C)' in cols
+        assert 'Relative Humidity (%)' in cols
+        assert 'Density (g/cm)' in cols
+        assert 'Total Conc. (#/cm)' in cols
+        assert 'D50 (nm)' in cols
+        assert 'Title' in cols
+
+        # AIM 11.x original names must NOT survive the rename.
+        for old in (
+            'Aerosol Temperature (C)', 'Aerosol Humidity (%)',
+            'Aerosol Density (g/cm³)', 'Total Concentration (#/cm³)',
+            'Impactor D50 (nm)', 'Test Name',
+        ):
+            assert old not in cols, f"AIM 11.x column {old!r} should have been renamed"
+
+        # AIM 11.x-only metadata (no 10.3 equivalent) is intentionally preserved.
+        for kept in ('Classifier Errors', 'Detector Status', 'Sheath Pressure (kPa)'):
+            assert kept in cols, f"AIM 11.x-unique column {kept!r} should be kept"
+
+    def test_partition_compatible_scans_homogeneous_noop(self):
+        """When every file has the same bin grid, `_partition_compatible_scans`
+        is a no-op — neither dropping any frame nor emitting a warning."""
+        import pandas as pd
+        from pathlib import Path
+        from AeroViz.rawDataReader.script.SMPS import Reader
+
+        files = [Path(f"f{i}.TXT") for i in range(4)]
+        df_list = [
+            pd.DataFrame({11.8: range(10), 13.6: range(10)},
+                         index=pd.date_range(f'2026-01-0{i+1}', periods=10, freq='6min'))
+            for i in range(4)
+        ]
+        reader = Reader.__new__(Reader)
+        import logging
+        reader.logger = logging.getLogger('test')
+
+        kept = reader._partition_compatible_scans(df_list, files)
+        assert kept is df_list  # same object, no copy, no drops

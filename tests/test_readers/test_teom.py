@@ -84,3 +84,49 @@ class TestTEOMReader(BaseReaderTest):
         df = self.read_data(usb_path, date_range)
         assert df is not None
         assert not df.empty
+
+    def test_metadata_alias_maps_split(self):
+        """Both alias maps are present as class attrs and converge on the same
+        short canonical names — so applying them together is safe.
+        """
+        from AeroViz.rawDataReader.script.TEOM import Reader
+        # Each map exists, is non-empty, and uses the same canonical targets.
+        assert Reader.METADATA_ALIASES_REMOTE
+        assert Reader.METADATA_ALIASES_USB
+        # No key overlap between the two maps (would silently collide).
+        overlap = set(Reader.METADATA_ALIASES_REMOTE) & set(Reader.METADATA_ALIASES_USB)
+        assert not overlap, f"Remote and USB alias maps share keys: {overlap}"
+        # Both maps target the same canonical short-name vocabulary.
+        canonical = set(Reader.METADATA_ALIASES_REMOTE.values()) | set(Reader.METADATA_ALIASES_USB.values())
+        for required in ('time', 'status', 'PM_NV', 'PM_Total'):
+            assert required in canonical, f"Canonical name {required!r} missing from alias maps"
+
+    def test_format_detection_logged(self, data_path, date_range, temp_output_dir, caplog):
+        """Reader emits a debug-level message naming the detected format. Useful
+        when a mixed-source batch needs triaging — operators can grep the log
+        for which file in a batch is on which format.
+
+        Bypasses the shared `_cached_reader_call` (which would short-circuit a
+        repeat read and emit no log) by going through `RawDataReader` directly.
+        """
+        import logging
+        from AeroViz import RawDataReader
+
+        usb_path = data_path / 'usb_format'
+        if not usb_path.exists():
+            pytest.skip('TEOM usb_format test data not available')
+
+        scenario = self.SCENARIO_DATE_RANGES.get('usb_format', date_range)
+        with caplog.at_level(logging.DEBUG, logger='TEOM'):
+            RawDataReader(
+                'TEOM', usb_path,
+                start=scenario['start'], end=scenario['end'],
+                reset=True, mean_freq='1h',
+                save_pkl=False, save_intermediate_csv=False, save_report=False,
+                quiet=True, log_level='DEBUG',
+            )
+
+        msgs = [r.getMessage() for r in caplog.records if r.name == 'TEOM']
+        assert any('USB-export format' in m for m in msgs), (
+            f"Expected USB format detection log, got: {msgs[-5:]}"
+        )

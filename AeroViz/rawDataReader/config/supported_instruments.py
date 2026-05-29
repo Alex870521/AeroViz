@@ -106,21 +106,10 @@ meta = {
     "VOC": {
         "pattern": ["*.csv"],
         "freq": "1h",
-        "key": [
-            'Benzene', 'Toluene', 'Ethylbenzene', 'm/p-Xylene', 'o-Xylene', 'Ethane', 'Propane', 'Isobutane',
-            'n-Butane', 'Isopentane', 'n-Pentane', 'n-Hexane', 'n-Heptane', 'n-Octane', 'n-Nonane', 'n-Decane',
-            'n-Undecane', 'n-Dodecane', 'Ethylene', 'Propylene', '1-Butene', 't-2-Butene', 'cis-2-Butene',
-            '1-Pentene', 't-2-Pentene', 'cis-2-Pentene', '1-Hexene', 'Acetylene', 'Cyclopentane', 'Methylcyclopentane',
-            'Cyclohexane', 'Methylcyclohexane', 'Isoprene', '2,2-Dimethylbutane', '2,3-Dimethylbutane',
-            '2-Methylpentane', '3-Methylpentane', '2,4-Dimethylpentane', '2-Methylhexane', '2,3-Dimethylpentane',
-            '3-Methylheptane', '2,2,4-Trimethylpentane', '2,3,4-Trimethylpentane', '2-Methylheptane', '3-Methylhexane',
-            'Styrene', 'Isopropylbenzene', 'n-Propylbenzene', 'm-Ethyltoluene', 'p-Ethyltoluene', 'm-Diethylbenzene',
-            'p-Diethylbenzene', '1,3,5-Trimethylbenzene', 'o-Ethyltoluene', '1,2,4-Trimethylbenzene',
-            '1,2,3-Trimethylbenzene',
-            '1.2-DCB', '1.4-DCB', '1.3-Butadiene', '1-Octene', '2-Ethyltoluene', '3.4-Ethyltoluene', 'Acetaldehyde',
-            'Acetone', 'Butyl Acetate', 'Ethanol', 'Ethyl Acetate', 'Hexane', 'IPA', 'Iso-Propylbenzene',
-            'PCE', 'Propene', 'TCE', 'VCM',
-        ],
+        # No species `key` list here: the VOC reader no longer filters columns.
+        # The supported-species list (with MW/MIR/SOAP/KOH coefficients) lives
+        # solely in AeroViz/dataProcess/VOC/support_voc.json and is enforced by
+        # the downstream process (AeroViz.voc), keeping a single source of truth.
     },
 
     "EPA": {

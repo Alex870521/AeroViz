@@ -29,7 +29,7 @@ def _basic(_df_voc):
                          '2,2,4-Trimethylpentane', '2,3,4-Trimethylpentane', '2-Methylheptane', '3-Methylheptane'],
 
         'alkene_total': ['Ethylene', 'Propylene', '1-Butene', 't-2-Butene', 'cis-2-Butene', '1-Pentene', 't-2-Pentene',
-                         'cis-2-Pentene', '1-Hexene', 'Isoprene', '1.3-Butadiene', '1-Octene'],
+                         'cis-2-Pentene', '1-Hexene', 'Isoprene', '1,3-Butadiene', '1-Octene'],
 
         'aromatic_total': ['Benzene', 'Toluene', 'Ethylbenzene', 'm/p-Xylene', 'o-Xylene', 'Styrene',
                            'Isopropylbenzene',
@@ -41,7 +41,7 @@ def _basic(_df_voc):
 
         'OVOC': ['Acetaldehyde', 'Ethanol', 'Acetone', 'IPA', 'Ethyl Acetate', 'Butyl Acetate'],
 
-        'ClVOC': ['VCM', 'TCE', 'PCE', '1.4-DCB', '1.2-DCB'],
+        'ClVOC': ['VCM', 'TCE', 'PCE', '1,4-DCB', '1,2-DCB'],
     }
 
     # _df_voc is in ppb; multiplying by molecular weight (g/mol) gives a

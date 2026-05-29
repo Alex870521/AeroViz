@@ -20,7 +20,6 @@ The VOC analyzer provides:
 
 - Multiple VOC species measurements
 - Concentration data for each compound
-- Supported species list required
 - Species-specific detection limits
 
 ## Supported VOC Species
@@ -114,10 +113,13 @@ The analyzer supports the following VOC species:
 
 - Processes CSV files with datetime index
 - Handles special values as NA
-- Standardizes column names
-- Filters based on supported species list
-- Warns about unsupported species
-- Removes duplicate timestamps
+- Standardizes column names (strips whitespace)
+- Removes duplicate / invalid timestamps
+- Returns every column as-is — the reader does **not** filter or validate
+  species names. Species selection and validation against the supported list
+  (`AeroViz/dataProcess/VOC/support_voc.json`, the single source of truth) is
+  done by the downstream process (`AeroViz.voc`), which raises on unknown
+  species names.
 
 ### Quality Control
 

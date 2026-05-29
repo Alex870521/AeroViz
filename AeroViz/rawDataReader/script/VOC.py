@@ -6,77 +6,45 @@ from AeroViz.rawDataReader.core import AbstractReader
 class Reader(AbstractReader):
     """ Volatile Organic Compounds (VOC) Data Reader
 
-    This class handles the reading and parsing of VOC measurement data files,
-    which provide concentrations of various volatile organic compounds in air.
+    Reads a VOC measurement CSV into a clean, time-indexed DataFrame. The reader
+    is intentionally thin — it is mainly a connector that feeds the downstream
+    VOC process (``AeroViz.voc`` / ``VOC._basic``).
 
     File structure handling:
-    - Processes CSV formatted data files with datetime index
-    - Handles special values like '-' and 'N.D.' (Not Detected) as NA
-    - Standardizes column names by stripping whitespace
+    - CSV formatted data files with a datetime index in column 0
+    - Treats '-' and 'N.D.' (Not Detected) as NA
+    - Strips whitespace from column names; drops duplicate / invalid timestamps
 
-    Data processing:
-    - Filters VOC species based on a predefined list of supported compounds
-    - Warns about unsupported VOC species in the data file
-    - Handles duplicate timestamps and invalid indices
+    Species handling:
+    - The reader does NOT filter or validate species names. The supported
+      species (with MW/MIR/SOAP/KOH coefficients) live in
+      ``AeroViz/dataProcess/VOC/support_voc.json``, and the process validates
+      each column against it before computing potentials. Keeping that the
+      single source of truth avoids the reader/process list drift that a
+      duplicated whitelist would (and did) cause.
 
-    Quality Control procedures:
-    - Basic file validation
-    - No additional QC is applied in the current implementation
+    Quality Control:
+    - None applied (``_QC`` returns the frame unchanged); VOC is read as
+      pre-aggregated second-hand data.
 
-    Returns:
+    Returns
     -------
     DataFrame
-        Processed VOC data with datetime index and supported VOC species as columns.
-        If no supported species are found, returns the original dataframe.
-
-    Notes:
-    -----
-    VOC measurements are important for understanding air quality, photochemical
-    reactions, and sources of secondary organic aerosols. This reader requires
-    a predefined list of supported VOC species to be provided in the meta attribute.
+        VOC data with a datetime index and every column from the source file.
     """
     nam = 'VOC'
 
     def _raw_reader(self, file):
-        """
-        Read and parse raw VOC measurement data files.
-
-        Parameters
-        ----------
-        file : Path or str
-            Path to the VOC data file.
-
-        Returns
-        -------
-        pandas.DataFrame
-            Processed VOC data with datetime index and supported VOC species as columns.
-
-        Notes
-        -----
-        Requires self.meta["key"] to contain a list of supported VOC species names.
-        If no supported species are found, returns the original dataframe with a warning.
-        """
+        """Read a VOC CSV into a clean, time-indexed DataFrame (all columns)."""
         with file.open('r', encoding='utf-8-sig', errors='ignore') as f:
             _df = read_csv(f, parse_dates=True, index_col=0, na_values=('-', 'N.D.'))
 
-            _df.columns = _df.keys().str.strip(' ')
-            _df.index.name = 'time'
+        _df.columns = _df.columns.str.strip(' ')
+        _df.index.name = 'time'
 
-            support_voc = set(self.meta["key"])
-
-            valid_keys = [key for key in _df.keys() if key in support_voc]
-            invalid_keys = [key for key in _df.keys() if key not in support_voc]
-
-            if invalid_keys:
-                self.logger.warning(f'{invalid_keys} are not supported keys.')
-                print(f'\n\t{invalid_keys} are not supported keys.'
-                      f'\n\tPlease check the\033[91m support_voc.md\033[0m file to use the correct name.')
-
-            if valid_keys:
-                return _df[valid_keys].loc[~_df.index.duplicated() & _df.index.notna()]
-            else:
-                self.logger.warning("沒有找到匹配的鍵。返回原始DataFrame。")
-                return _df.loc[~_df.index.duplicated() & _df.index.notna()]
+        # Return every column as-is; species selection/validation is the
+        # downstream process's job (single source of truth: support_voc.json).
+        return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
     def _QC(self, _df):
         """

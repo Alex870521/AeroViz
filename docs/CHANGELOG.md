@@ -1,3 +1,11 @@
+## v0.3.3 (2026-05-29)
+
+### Fix
+
+- **aps**: loud date-format + transpose fallbacks; bin-grid drift tripwire
+- **readers**: document and log firmware drift in OCEC and TEOM
+- **smps**: isolate mixed AIM 10.3/11.x folders and add status whitelist
+
 ## v0.3.2 (2026-05-25)
 
 ### Feat

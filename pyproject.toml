@@ -9,7 +9,7 @@ build-backend = "mesonpy"
 
 [project]
 name = "AeroViz"
-version = "0.3.2"
+version = "0.3.3"
 description = "Aerosol data processing and visualization toolkit. Read, QC, and analyze data from SMPS, APS, AE33, TEOM, Nephelometer, XRF, and 15+ atmospheric instruments."
 authors = [{ name = "Alex Chan", email = "alex870521@gmail.com" }]
 license = { text = "MIT" }

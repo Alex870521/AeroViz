@@ -289,19 +289,26 @@ class Reader(AbstractReader):
 
         def _combined_status_error_mask(df):
             """OR the error masks from `Status Flag` (positive 'Normal Scan'
-            sentinel) and `Instrument Errors` (empty-only OK). Either column
-            being missing is silently skipped (returns False from
-            `filter_error_status`), so older / mixed exports work without
-            extra configuration."""
+            sentinel) and `Instrument Errors`. Either column being missing is
+            silently skipped (returns False from `filter_error_status`), so
+            older / mixed exports work without extra configuration.
+
+            `Instrument Errors` has two AIM 10.3 dialects: most instruments
+            leave it empty when OK (TP), but some write the positive
+            `'Normal Scan'` sentinel into it instead (FS). `'Normal Scan'` is
+            never a real error in any column, so it is treated as OK here in
+            addition to the empty/`nan`/`None` sentinels — otherwise the FS
+            dialect would be flagged as a Status Error on every scan."""
             qc_ctrl = self.QC_control()
             mask = qc_ctrl.filter_error_status(
                 _df, status_column=self.STATUS_COLUMN, status_type='text',
                 ok_value=self.STATUS_OK, ignored_values=ignored_status_errors,
             )
             if self.SECONDARY_STATUS_COLUMN in _df.columns:
+                secondary_ignored = list(ignored_status_errors or []) + [self.STATUS_OK]
                 mask = mask | qc_ctrl.filter_error_status(
                     _df, status_column=self.SECONDARY_STATUS_COLUMN, status_type='text',
-                    ok_value='', ignored_values=ignored_status_errors,
+                    ok_value='', ignored_values=secondary_ignored,
                 )
             return mask
 

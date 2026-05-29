@@ -2402,6 +2402,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.TEOM.Reader.ERROR_STATES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ERROR_STATES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.TEOM.Reader.METADATA_ALIASES_REMOTE" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3820,6 +3831,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.TEOM.Reader.ERROR_STATES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ERROR_STATES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.TEOM.Reader.METADATA_ALIASES_REMOTE" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4249,6 +4271,29 @@ on supported formats and QC procedures.</p>
 
 
 
+<h4 id="AeroViz.rawDataReader.script.TEOM.Reader.ERROR_STATES" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">ERROR_STATES</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ERROR_STATES</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n"><span title="b">b</span></span><span class="p">)</span> <span class="k">for</span> <span class="n"><span title="b">b</span></span> <span class="ow">in</span> <span class="p">(</span><span class="n"><span title="range">range</span></span><span class="p">(</span><span class="mi">32</span><span class="p">))]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h4 id="AeroViz.rawDataReader.script.TEOM.Reader.METADATA_ALIASES_REMOTE" class="doc doc-heading">
             <span class="doc doc-object-name doc-attribute-name">METADATA_ALIASES_REMOTE</span>
 
@@ -4529,46 +4574,47 @@ to _QC() and _process() stages.</p>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>| MAX_NOISE          = 0.01                                             |
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>| MIN_VOL_FRAC       = 0.01      PM_NV / PM_Total minimum               |
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>| MAX_VOL_FRAC       = 0.9       PM_NV / PM_Total maximum               |
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>| STATUS_OK          = 0         (numeric status code)                  |
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>+-----------------------------------------------------------------------+
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>+-----------------------------------------------------------------------+
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>|                            _QC() Pipeline                             |
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>+-----------------------------------------------------------------------+
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>|                                                                       |
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>|  [Pre-process] Calculate volatile fraction (PM_NV / PM_Total)         |
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>|       |                                                               |
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>|       v                                                               |
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>|  +-------------------------+                                          |
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>|  | Rule: Status Error      |                                          |
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>|  +-------------------------+                                          |
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>|  | Status code != 0        |                                          |
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>|  +-------------------------+                                          |
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>|           |                                                           |
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>|           v                                                           |
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>|  +-------------------------+    +-------------------------+           |
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>|  | Rule: High Noise        |    | Rule: Non-positive      |           |
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>|  +-------------------------+    +-------------------------+           |
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>|  | noise &gt; 0.01            |    | PM_Total &lt;= 0 OR        |           |
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>|  +-------------------------+    | PM_NV &lt;= 0              |           |
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>|           |                     +-------------------------+           |
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>|           v                              |                            |
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>|  +-------------------------+             v                            |
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>|  | Rule: NV &gt; Total        |    +-------------------------+           |
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>|  +-------------------------+    | Rule: Invalid Vol Frac  |           |
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>|  | PM_NV &gt; PM_Total        |    +-------------------------+           |
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>|  | (physically impossible) |    | Ratio &gt; 0.9 OR &lt; 0.01   |           |
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>|  +-------------------------+    +-------------------------+           |
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>|           |                              |                            |
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>|           v                              v                            |
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>|  +-------------------------+    +-------------------------+           |
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>|  | Rule: Spike             |    | Rule: Insufficient      |           |
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>|  +-------------------------+    +-------------------------+           |
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>|  | Sudden value change     |    | &lt; 50% hourly data       |           |
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>|  | (vectorized detection)  |    | completeness            |           |
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>|  +-------------------------+    +-------------------------+           |
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>|                                                                       |
-<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>+-----------------------------------------------------------------------+
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>| STATUS_OK          = 0         (status is a 32-bit bitfield)          |
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>| ERROR_STATES       = bits 0-31 (any set warning bit = error)          |
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>+-----------------------------------------------------------------------+
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>+-----------------------------------------------------------------------+
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>|                            _QC() Pipeline                             |
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>+-----------------------------------------------------------------------+
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>|                                                                       |
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>|  [Pre-process] Calculate volatile fraction (PM_NV / PM_Total)         |
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>|       |                                                               |
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>|       v                                                               |
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>|  +-------------------------+                                          |
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>|  | Rule: Status Error      |                                          |
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>|  +-------------------------+                                          |
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>|  | Any warning bit set     |                                          |
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>|  +-------------------------+                                          |
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>|           |                                                           |
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>|           v                                                           |
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>|  +-------------------------+    +-------------------------+           |
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>|  | Rule: High Noise        |    | Rule: Non-positive      |           |
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>|  +-------------------------+    +-------------------------+           |
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>|  | noise &gt; 0.01            |    | PM_Total &lt;= 0 OR        |           |
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>|  +-------------------------+    | PM_NV &lt;= 0              |           |
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>|           |                     +-------------------------+           |
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>|           v                              |                            |
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>|  +-------------------------+             v                            |
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>|  | Rule: NV &gt; Total        |    +-------------------------+           |
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>|  +-------------------------+    | Rule: Invalid Vol Frac  |           |
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>|  | PM_NV &gt; PM_Total        |    +-------------------------+           |
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>|  | (physically impossible) |    | Ratio &gt; 0.9 OR &lt; 0.01   |           |
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>|  +-------------------------+    +-------------------------+           |
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>|           |                              |                            |
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>|           v                              v                            |
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>|  +-------------------------+    +-------------------------+           |
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>|  | Rule: Spike             |    | Rule: Insufficient      |           |
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>|  +-------------------------+    +-------------------------+           |
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>|  | Sudden value change     |    | &lt; 50% hourly data       |           |
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>|  | (vectorized detection)  |    | completeness            |           |
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>|  +-------------------------+    +-------------------------+           |
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>|                                                                       |
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>+-----------------------------------------------------------------------+
 </code></pre></div>
 <h4 id="qc-rules-applied">QC Rules Applied</h4>
 <table>
@@ -4582,8 +4628,8 @@ to _QC() and _process() stages.</p>
 <tbody>
 <tr>
 <td><strong>Status Error</strong></td>
-<td>Status ≠ 0</td>
-<td>Non-zero status code indicates instrument error</td>
+<td>Any non-whitelisted warning bit set</td>
+<td><code>status</code> is a 32-bit bitfield (TEOM manual Table A-1); tested bitwise so individual conditions (e.g. <code>536870912</code> = Dryer A) can be whitelisted via <code>ignored_status_errors</code></td>
 </tr>
 <tr>
 <td><strong>High Noise</strong></td>
@@ -4695,7 +4741,7 @@ to _QC() and _process() stages.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 15, 2025 04:49:03 UTC">December 15, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2026 15:42:27 UTC">May 29, 2026</span>
   </span>
 
     

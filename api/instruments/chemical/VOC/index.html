@@ -3684,6 +3684,22 @@
 
 <h1 id="volatile-organic-compounds-analyzer-voc">Volatile Organic Compounds Analyzer (VOC)</h1>
 <p>The VOC analyzer measures concentrations of various volatile organic compounds in air.</p>
+<div class="admonition warning">
+<p class="admonition-title">Deprecated</p>
+<p><code>RawDataReader('VOC', ...)</code> is <strong>deprecated</strong> and will be removed in a future
+release. The VOC reader is a thin CSV loader with no VOC-specific logic.
+Read the file directly (e.g. <code>pandas.read_csv</code> with a datetime index) and
+pass the DataFrame to <a href="../../../DataProcess/VOC/"><code>AeroViz.voc</code> / <code>voc_potentials</code></a>,
+which validates species against <code>support_voc.json</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;voc.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                 <span class="n">na_values</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;N.D.&#39;</span><span class="p">))</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">out</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>   <span class="c1"># validates species; computes OFP / SOAP / LOH</span>
+</code></pre></div>
+</div>
 <h2 id="data-format">Data Format</h2>
 <ul>
 <li>File format: CSV file</li>
@@ -3705,7 +3721,6 @@
 <ul>
 <li>Multiple VOC species measurements</li>
 <li>Concentration data for each compound</li>
-<li>Supported species list required</li>
 <li>Species-specific detection limits</li>
 </ul>
 <h2 id="supported-voc-species">Supported VOC Species</h2>
@@ -4304,10 +4319,13 @@
 <ul>
 <li>Processes CSV files with datetime index</li>
 <li>Handles special values as NA</li>
-<li>Standardizes column names</li>
-<li>Filters based on supported species list</li>
-<li>Warns about unsupported species</li>
-<li>Removes duplicate timestamps</li>
+<li>Standardizes column names (strips whitespace)</li>
+<li>Removes duplicate / invalid timestamps</li>
+<li>Returns every column as-is — the reader does <strong>not</strong> filter or validate
+  species names. Species selection and validation against the supported list
+  (<code>AeroViz/dataProcess/VOC/support_voc.json</code>, the single source of truth) is
+  done by the downstream process (<code>AeroViz.voc</code>), which raises on unknown
+  species names.</li>
 </ul>
 <h3 id="quality-control">Quality Control</h3>
 <ul>
@@ -4330,24 +4348,18 @@
 <li>Validated species names</li>
 </ul>
 <h2 id="usage-example">Usage Example</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span> <span class="k">as</span> <span class="n">dtm</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.rawDataReader</span><span class="w"> </span><span class="kn">import</span> <span class="o">*</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">dtm</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtm</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">23</span><span class="p">)</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="n">path_raw</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">path_prcs</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;prcs&#39;</span><span class="p">)</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># read data</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">dt_VOC</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;VOC&#39;</span><span class="p">,</span> <span class="n">path_raw</span> <span class="o">/</span> <span class="s1">&#39;VOC&#39;</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">dt_VOC</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;isoprene&#39;</span><span class="p">:</span> <span class="s1">&#39;Isoprene&#39;</span><span class="p">,</span> <span class="s1">&#39;m,p-Xylene&#39;</span><span class="p">:</span> <span class="s1">&#39;m/p-Xylene&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="n">voc_prcs</span> <span class="o">=</span> <span class="n">DataProcess</span><span class="p">(</span><span class="s1">&#39;VOC&#39;</span><span class="p">,</span> <span class="n">path_out</span><span class="o">=</span><span class="n">path_prcs</span><span class="p">,</span> <span class="n">excel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">csv</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="n">df</span> <span class="o">=</span> <span class="n">voc_prcs</span><span class="o">.</span><span class="n">VOC_basic</span><span class="p">(</span><span class="n">dt_VOC</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Read the VOC CSV directly (the VOC reader is deprecated).</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">dt_VOC</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/VOC/voc.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>                     <span class="n">na_values</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;N.D.&#39;</span><span class="p">))</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">dt_VOC</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">dt_VOC</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># Normalize any non-canonical species names to match support_voc.json.</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">dt_VOC</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;isoprene&#39;</span><span class="p">:</span> <span class="s1">&#39;Isoprene&#39;</span><span class="p">,</span> <span class="s1">&#39;m,p-Xylene&#39;</span><span class="p">:</span> <span class="s1">&#39;m/p-Xylene&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Validates species against support_voc.json, returns {&#39;Conc&#39;,&#39;OFP&#39;,&#39;SOAP&#39;,&#39;LOH&#39;}.</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">result</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">dt_VOC</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="notes">Notes</h2>
 <ul>
@@ -4381,7 +4393,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 20, 2024 01:57:37 UTC">August 20, 2024</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2026 18:02:52 UTC">May 29, 2026</span>
   </span>
 
     

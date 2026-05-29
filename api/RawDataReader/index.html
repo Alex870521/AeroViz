@@ -3801,18 +3801,25 @@ False - clamp the grid to the data's actual coverage, so the output
                 <code>ignored_status_errors</code>
             </td>
             <td>
-                  <code><span title="list">list</span>[<span title="str">str</span>]</code>
+                  <code><span title="list">list</span></code>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>SMPS only. Status-flag tokens that should NOT be treated as Status
-Error during QC, in addition to the normal "OK" value. The
-<code>Instrument Errors</code> column on TSI SMPS exports is often a
-comma-separated list of tokens (e.g. <code>'Low aerosol flow,Neutralizer
-not active'</code>); a row is accepted when every token is either the OK
-value or in this whitelist. Use for operator-known benign warnings
-— e.g. <code>ignored_status_errors=['Low aerosol flow']</code> on an
-instrument running at a known-low sample-flow setting.</p>
+                <p>Whitelist of statuses that should NOT be treated as a Status Error
+during QC, for operator-known benign warnings — without rewriting the
+raw files. Supported on every instrument with a status check; the
+whitelist is interpreted in that instrument's status mode (entries
+that don't fit are skipped, so the same call is safe across readers):
+  - SMPS (text): comma-separated string tokens; a row is accepted when
+    every token is the OK value or whitelisted, e.g.
+    <code>ignored_status_errors=['Low aerosol flow', 'Neutralizer not active']</code>.
+  - Aurora / NEPH (numeric): numeric status codes treated as OK,
+    e.g. <code>[4, 16]</code>.
+  - AE33 / AE43 / BC1054 / MA350 / TEOM (bitwise): integer error
+    codes/bits to drop from the error definition, e.g. <code>[536870912]</code>
+    to ignore the TEOM "Dryer A" status bit.
+  - APS (binary_string): integer bit masks cleared before testing,
+    e.g. <code>[1, 2]</code>.</p>
               </div>
             </td>
             <td>

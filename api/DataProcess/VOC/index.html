@@ -2591,23 +2591,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="輸出說明">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#potential" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        potential
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -3623,23 +3606,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="輸出說明">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#potential" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        potential
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -3778,52 +3744,61 @@
 </code></pre></div>
 <hr />
 <h2 id="_2">快速開始</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess</span><span class="w"> </span><span class="kn">import</span> <span class="n">DataProcess</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">dp</span> <span class="o">=</span> <span class="n">DataProcess</span><span class="p">(</span><span class="s1">&#39;VOC&#39;</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;./output&#39;</span><span class="p">))</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">result</span> <span class="o">=</span> <span class="n">dp</span><span class="o">.</span><span class="n">potential</span><span class="p">(</span><span class="n">df_voc</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">result</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df_voc</span><span class="p">)</span>   <span class="c1"># df_voc: 物種為欄、datetime index 的 DataFrame</span>
 </code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">API 更新</p>
+<p>舊的 <code>DataProcess('VOC', ...).VOC_basic(df_voc)</code> 已<strong>棄用</strong>,改用頂層函式
+<code>voc_potentials(df_voc)</code>(<code>AeroViz.voc</code> 命名空間下亦同)。它會以
+<code>support_voc.json</code> 驗證每個物種欄名(未知物種直接 raise)。</p>
+</div>
 <hr />
 <h2 id="_3">方法列表</h2>
 <table>
 <thead>
 <tr>
-<th>方法</th>
+<th>函式</th>
 <th>說明</th>
 <th>相關理論</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>potential(df_voc)</code></td>
-<td>OFP/SOAP 計算</td>
+<td><code>voc_potentials(df_voc)</code></td>
+<td>OFP / SOAP / LOH 計算</td>
 <td>→ <a href="../../../theory/ofp/">OFP/SOAP</a></td>
 </tr>
 </tbody>
 </table>
 <hr />
 <h2 id="_4">輸出說明</h2>
-<h3 id="potential">potential</h3>
+<p><code>voc_potentials</code> 回傳一個 dict,含四個 time-indexed DataFrame;每個 frame 的欄位
+為個別物種 + 各分類小計(<code>*_total</code>,如 <code>alkane_total</code>)+ 總計 <code>Total</code>:</p>
 <table>
 <thead>
 <tr>
-<th>輸出</th>
+<th>key</th>
 <th>說明</th>
 </tr>
 </thead>
 <tbody>
 <tr>
+<td><code>Conc</code></td>
+<td>質量濃度 (μg/m³)</td>
+</tr>
+<tr>
 <td><code>OFP</code></td>
-<td>各物種 OFP 貢獻 (μg O₃/m³)</td>
+<td>臭氧生成潛勢 (μg O₃/m³)</td>
 </tr>
 <tr>
 <td><code>SOAP</code></td>
-<td>各物種 SOAP 貢獻</td>
+<td>二次有機氣膠生成潛勢</td>
 </tr>
 <tr>
-<td><code>total</code></td>
-<td>總 OFP/SOAP</td>
+<td><code>LOH</code></td>
+<td>OH 反應性 (loss rate)</td>
 </tr>
 </tbody>
 </table>
@@ -3967,7 +3942,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 25, 2025 05:30:11 UTC">December 25, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2026 18:04:14 UTC">May 29, 2026</span>
   </span>
 
     

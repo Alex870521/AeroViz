@@ -890,7 +890,11 @@ ofp[species].mean().sort_values(ascending=False).head(10)
 ```
 
 ```python
-voc = RawDataReader('VOC', '/data/VOC', mean_freq='1h')
+import pandas as pd
+# The VOC reader is deprecated — read the CSV directly and pass to voc_potentials.
+voc = pd.read_csv('/data/VOC/voc.csv', index_col=0, parse_dates=True,
+                  na_values=('-', 'N.D.'))
+voc.columns = voc.columns.str.strip()
 result = voc_potentials(voc)
 ```
 

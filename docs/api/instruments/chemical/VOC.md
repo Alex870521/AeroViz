@@ -160,24 +160,18 @@ The processed data contains:
 ## Usage Example
 
 ```python
-from datetime import datetime as dtm
-from pathlib import Path
+import pandas as pd
+from AeroViz import voc_potentials
 
-from AeroViz.dataProcess import *
-from AeroViz.rawDataReader import *
-
-start, end = dtm(2024, 2, 1), dtm(2024, 7, 31, 23)
-
-path_raw = Path('data')
-path_prcs = Path('prcs')
-
-# read data
-dt_VOC = RawDataReader('VOC', path_raw / 'VOC', reset=False, start=start, end=end)
+# Read the VOC CSV directly (the VOC reader is deprecated).
+dt_VOC = pd.read_csv('data/VOC/voc.csv', index_col=0, parse_dates=True,
+                     na_values=('-', 'N.D.'))
+dt_VOC.columns = dt_VOC.columns.str.strip()
+# Normalize any non-canonical species names to match support_voc.json.
 dt_VOC.rename(columns={'isoprene': 'Isoprene', 'm,p-Xylene': 'm/p-Xylene'}, inplace=True)
 
-voc_prcs = DataProcess('VOC', path_out=path_prcs, excel=False, csv=True)
-
-df = voc_prcs.VOC_basic(dt_VOC)
+# Validates species against support_voc.json, returns {'Conc','OFP','SOAP','LOH'}.
+result = voc_potentials(dt_VOC)
 ```
 
 ## Notes

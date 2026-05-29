@@ -183,6 +183,7 @@ ocec = RawDataReader('OCEC', path, start, end)
 xact = RawDataReader('Xact', path, start, end)
 
 # VOC - Volatile Organic Compounds Monitor
+# (deprecated — read VOC CSVs with pandas and pass to voc_potentials; see VOC docs)
 voc = RawDataReader('VOC', path, start, end)
 ```
 

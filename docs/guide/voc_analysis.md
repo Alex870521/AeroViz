@@ -4,19 +4,19 @@ Volatile Organic Compounds (VOC) analysis workflow, including OFP and SOAP calcu
 
 ## Data Preparation
 
-```python
-from datetime import datetime
-from pathlib import Path
-from AeroViz import RawDataReader, voc_potentials
+!!! note
+    `RawDataReader('VOC', ...)` is deprecated — the VOC reader is a thin CSV
+    loader. Read the file directly with pandas and pass the DataFrame to
+    `voc_potentials`, which validates species against `support_voc.json`.
 
-# Read VOC data
-voc = RawDataReader(
-    instrument='VOC',
-    path=Path('./data/voc'),
-    start=datetime(2024, 1, 1),
-    end=datetime(2024, 3, 31),
-    mean_freq='1h'
-)
+```python
+import pandas as pd
+from AeroViz import voc_potentials
+
+# Read VOC data (datetime index in column 0; '-' / 'N.D.' treated as NA)
+voc = pd.read_csv('./data/voc/voc.csv', index_col=0, parse_dates=True,
+                  na_values=('-', 'N.D.'))
+voc.columns = voc.columns.str.strip()
 
 # View available species
 print(voc.columns.tolist())
@@ -190,15 +190,14 @@ plt.show()
 ## Complete Analysis Script
 
 ```python
-from datetime import datetime
-from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
-from AeroViz import RawDataReader, voc_potentials
+from AeroViz import voc_potentials
 
-# 1. Read VOC data (pass dates as start=/end= keywords)
-voc = RawDataReader('VOC', Path('./data/voc'),
-                    start=datetime(2024, 1, 1), end=datetime(2024, 3, 31))
+# 1. Read VOC data with pandas (datetime index in column 0)
+voc = pd.read_csv('./data/voc/voc.csv', index_col=0, parse_dates=True,
+                  na_values=('-', 'N.D.'))
+voc.columns = voc.columns.str.strip()
 
 # 2. Calculate OFP/SOAP
 result = voc_potentials(voc)

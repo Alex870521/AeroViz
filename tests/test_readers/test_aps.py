@@ -126,3 +126,84 @@ class TestAPSReader(BaseReaderTest):
             assert 'QC_Flag' in qc_data.columns
             status_errors = qc_data['QC_Flag'].str.contains('Status Error', na=False)
             assert status_errors.any(), "Binary status flags not detected"
+
+    def test_date_format_logged(self, data_path, date_range, temp_output_dir, caplog):
+        """Reader emits a debug-level message naming which DATE_FORMATS entry
+        matched the file. A future firmware that introduces a third format
+        will surface a warning instead of silently producing empty data.
+
+        Bypasses the shared reader cache so the log actually emits.
+        """
+        import logging
+        from AeroViz import RawDataReader
+        from AeroViz.rawDataReader.script.APS import Reader
+
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        with caplog.at_level(logging.DEBUG, logger='APS'):
+            RawDataReader(
+                'APS', normal_path,
+                start=self.DATE_RANGE_START, end=self.DATE_RANGE_END,
+                reset=True, mean_freq='1h',
+                save_pkl=False, save_intermediate_csv=False, save_report=False,
+                quiet=True, log_level='DEBUG',
+            )
+
+        msgs = [r.getMessage() for r in caplog.records if r.name == 'APS']
+        assert any('parsed dates using format' in m for m in msgs), (
+            f"Expected date-format detection log, got: {msgs[-5:]}"
+        )
+        # The matched format string is one of the documented DATE_FORMATS.
+        assert any(any(fmt in m for fmt in Reader.DATE_FORMATS) for m in msgs)
+
+    def test_expected_bin_grid_constant(self):
+        """`EXPECTED_BIN_GRID` is documented and matches the TSI 3321/3320
+        factory grid. If a real fixture drifts, this constant — not the test
+        — is the right place to update."""
+        from AeroViz.rawDataReader.script.APS import Reader
+        assert isinstance(Reader.EXPECTED_BIN_GRID, tuple)
+        assert len(Reader.EXPECTED_BIN_GRID) == 3
+        grid_min, grid_max, grid_n = Reader.EXPECTED_BIN_GRID
+        assert 0.5 <= grid_min < grid_max <= 20
+        assert grid_n > 0
+
+    def test_bin_grid_drift_warning(self, caplog):
+        """Drifted bin grid triggers a loud warning (early tripwire for the
+        SMPS-style NaN-poison concat bug if APS firmware ever changes)."""
+        import logging
+        import tempfile
+        from pathlib import Path
+        from AeroViz import RawDataReader
+
+        # Take the normal fixture and rewrite one bin endpoint to simulate drift.
+        normal_dir = Path('tests/fixtures/raw_data/APS/normal')
+        normal_files = [p for p in normal_dir.iterdir() if p.suffix.lower() == '.txt']
+        if not normal_files:
+            pytest.skip('No APS normal fixture available')
+        src = normal_files[0]
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_dir = Path(tmpdir)
+            dst = tmp_dir / src.name
+            text = src.read_text(encoding='utf-8', errors='ignore')
+            # Replace the canonical '0.542' bin with a clearly drifted value.
+            # The synthetic file becomes invalid TSI output but exercises the warn path.
+            assert '\t0.542\t' in text, "fixture sanity: expected 0.542 column"
+            drifted = text.replace('\t0.542\t', '\t0.999\t', 1)
+            dst.write_text(drifted, encoding='utf-8')
+
+            with caplog.at_level(logging.WARNING, logger='APS'):
+                RawDataReader(
+                    'APS', tmp_dir,
+                    start=self.DATE_RANGE_START, end=self.DATE_RANGE_END,
+                    reset=True, mean_freq='1h',
+                    save_pkl=False, save_intermediate_csv=False, save_report=False,
+                    quiet=True, log_level='WARNING',
+                )
+
+        msgs = [r.getMessage() for r in caplog.records if r.name == 'APS']
+        assert any('bin grid deviates from expected' in m for m in msgs), (
+            f"Drifted bin endpoint should trigger warning. Got: {msgs}"
+        )

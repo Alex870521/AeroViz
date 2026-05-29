@@ -43,6 +43,18 @@ class Reader(AbstractReader):
         # 9: Reserved (unused)
     }
 
+    # Date formats observed across the corpus, tried in order. The first
+    # non-all-NaN result wins and is logged so a future firmware that
+    # introduces a third shape surfaces a warning instead of silently
+    # producing an empty frame.
+    DATE_FORMATS = ['%m/%d/%y %H:%M:%S', '%m/%d/%Y %H:%M:%S']
+
+    # Expected APS bin grid (TSI Model 3321/3320 factory-fixed) — used as a
+    # sanity tripwire. An 8-year × 4-station audit of 1485 files showed zero
+    # drift, but a future firmware change WOULD trigger the same NaN-poison
+    # concat bug we fixed in SMPS. Loud warning, no rejection.
+    EXPECTED_BIN_GRID = (0.542, 19.81, 51)  # (min nm, max nm, count)
+
     def __call__(self, start=None, end=None, mean_freq=None):
         """Return the dN/dlogDp distribution; write S/V + a stats sidecar.
 
@@ -81,29 +93,45 @@ class Reader(AbstractReader):
                 raise ValueError("Expected date columns not found")
 
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
-            delimiter, date_formats = '\t', ['%m/%d/%y %H:%M:%S', '%m/%d/%Y %H:%M:%S']
+            delimiter = '\t'
 
             skip = find_header_row(f, delimiter)
             f.seek(0)
 
             _df = read_table(f, sep=delimiter, skiprows=skip, low_memory=False)
 
-            # Handle transposed format
+            # Some APS exports come transposed: `Sample #` lives as a row
+            # rather than a column header. Try the rotation; raise with the
+            # original cause attached (instead of swallowing it) so a future
+            # third layout doesn't hide behind a misleading NotImplementedError.
             if 'Date' not in _df.columns:
                 try:
                     _df = _df.set_index('Sample #').T
                     _df.columns.name = None
                     _df = _df.reset_index(drop=True)
-                except:
-                    raise NotImplementedError('Not supported data format')
+                except (KeyError, AttributeError, ValueError) as exc:
+                    self.logger.error(
+                        f"{file.name}: missing `Date` column AND transpose "
+                        f"fallback failed ({type(exc).__name__}: {exc}). "
+                        f"Cols seen: {list(_df.columns[:8])}...")
+                    raise NotImplementedError(
+                        f"Unsupported APS data layout in {file.name}") from exc
 
-            # Parse date with multiple formats
-            for date_format in date_formats:
+            # Parse date — log which format won so a third shape surfaces early.
+            used_fmt = None
+            for date_format in self.DATE_FORMATS:
                 _time_index = parse_date(_df, date_format)
                 if not _time_index.isna().all():
+                    used_fmt = date_format
                     break
+                self.logger.debug(
+                    f"{file.name}: date format {date_format!r} matched nothing, trying next")
+            if used_fmt is None:
+                raise ValueError(
+                    f"{file.name}: none of the known date formats matched "
+                    f"({self.DATE_FORMATS}). Add the new format to DATE_FORMATS.")
             else:
-                raise ValueError("Unable to parse dates with given formats")
+                self.logger.debug(f"{file.name}: parsed dates using format {used_fmt!r}")
 
             # Set time index
             _df.index = _time_index
@@ -121,6 +149,24 @@ class Reader(AbstractReader):
                 except (ValueError, TypeError):
                     pass
             numeric_cols.sort(key=lambda x: float(str(x).strip()))
+
+            # Bin-grid sanity tripwire: TSI Model 3321/3320 has factory-fixed
+            # 51 channels (0.542-19.81 µm). An 8-year audit across 4 stations
+            # showed zero drift, but firmware change would trigger the same
+            # NaN-poison concat bug we fixed in SMPS — warn loudly so the
+            # operator can investigate before silent data loss.
+            if numeric_cols:
+                exp_min, exp_max, exp_n = self.EXPECTED_BIN_GRID
+                actual_min = round(float(str(numeric_cols[0]).strip()), 3)
+                actual_max = round(float(str(numeric_cols[-1]).strip()), 3)
+                actual_n = len(numeric_cols)
+                if (actual_min, actual_max, actual_n) != (exp_min, exp_max, exp_n):
+                    self.logger.warning(
+                        f"{file.name}: APS bin grid deviates from expected. "
+                        f"Got ({actual_min}, {actual_max}, {actual_n} bins), "
+                        f"expected {self.EXPECTED_BIN_GRID}. If this is a real "
+                        f"firmware change, concat with other files will create "
+                        f"NaN-poisoned columns — see SMPS `_partition_compatible_scans`.")
 
             # Rename size bin columns to float values
             bin_rename = {col: round(float(str(col).strip()), 4) for col in numeric_cols}

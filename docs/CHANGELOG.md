@@ -1,3 +1,18 @@
+## v0.3.4 (2026-05-29)
+
+### Feat
+
+- **qc**: generalize ignored_status_errors whitelist to all status modes
+
+### Fix
+
+- **teom**: treat status as 32-bit bitfield (numeric -> bitwise)
+- **smps**: treat 'Normal Scan' as OK in Instrument Errors column
+
+### Refactor
+
+- **voc**: single source of truth for species; thin the reader
+
 ## v0.3.3 (2026-05-29)
 
 ### Fix

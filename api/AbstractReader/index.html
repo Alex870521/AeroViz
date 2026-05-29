@@ -1939,6 +1939,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader._partition_compatible_scans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _partition_compatible_scans
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._process" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4493,6 +4504,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader._partition_compatible_scans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _partition_compatible_scans
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._process" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -6050,6 +6072,36 @@ is applied later, in <code>_run</code>.</p>
   <summary>Notes</summary>
   <p>Implementation depends on specific instrument requirements.</p>
 </details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader._partition_compatible_scans" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_partition_compatible_scans</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_partition_compatible_scans</span><span class="p">(</span><span class="n">df_list</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">,</span> <span class="n">files</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="list">list</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Drop frames whose scan schema differs from the dominant group.</p>
+<p>Default is a no-op — overridden by readers (currently SMPS) where the
+same instrument can export at <em>different</em> size-bin grids depending on
+the host software version (AIM 10.3 .TXT vs AIM 11.x .CSV). The outer
+join inside <code>pd.concat</code> happily concatenates frames with disjoint
+columns, but the NaN holes break per-bin completeness QC. The
+well-defined repair is to treat each grid as its own scan: keep the
+majority group, drop the minority and tell the user which files were
+skipped so they can re-run them in isolation if they want both.</p>
+<p><code>df_list</code> and <code>files</code> are aligned and contain only successfully
+parsed entries.</p>
+
 
     </div>
 

@@ -5222,7 +5222,7 @@ applying more lenient criteria when consistent trends are detected.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">filter_error_status</span><span class="p">(</span><span class="n">_df</span><span class="p">,</span> <span class="n">error_codes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">special_codes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status_column</span><span class="o">=</span><span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="n">status_type</span><span class="o">=</span><span class="s1">&#39;bitwise&#39;</span><span class="p">,</span> <span class="n">ok_value</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">filter_error_status</span><span class="p">(</span><span class="n">_df</span><span class="p">,</span> <span class="n">error_codes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">special_codes</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_mask</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">status_column</span><span class="o">=</span><span class="s1">&#39;Status&#39;</span><span class="p">,</span> <span class="n">status_type</span><span class="o">=</span><span class="s1">&#39;bitwise&#39;</span><span class="p">,</span> <span class="n">ok_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ignored_values</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5354,6 +5354,29 @@ If False, returns filtered DataFrame</p>
                 <p>The value indicating OK status (for 'numeric', 'text' types)
 - For 'numeric': typically 0
 - For 'text': typically 'Normal Scan'</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>ignored_values</code>
+            </td>
+            <td>
+                  <code><span title="list">list</span>[<span title="str">str</span>]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Status tokens to whitelist alongside <code>ok_value</code> (text mode only).
+The status field is comma-split into tokens; a row passes when
+every token is either <code>ok_value</code> or in <code>ignored_values</code>. Use
+this to suppress operator-known benign warnings (e.g. SMPS
+<code>'Low aerosol flow'</code>) without rewriting the raw files. A token
+<code>'Low aerosol flow'</code> matches both the bare string and combined
+statuses like <code>'Low aerosol flow,Neutralizer not active'</code> when
+<code>'Neutralizer not active'</code> is also whitelisted.</p>
               </div>
             </td>
             <td>

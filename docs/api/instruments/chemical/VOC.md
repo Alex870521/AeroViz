@@ -2,6 +2,23 @@
 
 The VOC analyzer measures concentrations of various volatile organic compounds in air.
 
+!!! warning "Deprecated"
+    `RawDataReader('VOC', ...)` is **deprecated** and will be removed in a future
+    release. The VOC reader is a thin CSV loader with no VOC-specific logic.
+    Read the file directly (e.g. `pandas.read_csv` with a datetime index) and
+    pass the DataFrame to [`AeroViz.voc` / `voc_potentials`](../../DataProcess/VOC.md),
+    which validates species against `support_voc.json`.
+
+    ```python
+    import pandas as pd
+    from AeroViz import voc_potentials
+
+    df = pd.read_csv('voc.csv', index_col=0, parse_dates=True,
+                     na_values=('-', 'N.D.'))
+    df.columns = df.columns.str.strip()
+    out = voc_potentials(df)   # validates species; computes OFP / SOAP / LOH
+    ```
+
 ## Data Format
 
 - File format: CSV file

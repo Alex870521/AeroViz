@@ -1,3 +1,5 @@
+import warnings
+
 from pandas import read_csv
 
 from AeroViz.rawDataReader.core import AbstractReader
@@ -5,6 +7,13 @@ from AeroViz.rawDataReader.core import AbstractReader
 
 class Reader(AbstractReader):
     """ Volatile Organic Compounds (VOC) Data Reader
+
+    .. deprecated::
+        ``RawDataReader('VOC', ...)`` is deprecated and will be removed in a
+        future release. The reader is a thin CSV loader with no VOC-specific
+        logic; read the file directly (e.g. ``pandas.read_csv`` with a datetime
+        index) and pass the DataFrame to ``AeroViz.voc`` / ``voc_potentials``,
+        which validates species against ``support_voc.json``.
 
     Reads a VOC measurement CSV into a clean, time-indexed DataFrame. The reader
     is intentionally thin — it is mainly a connector that feeds the downstream
@@ -33,6 +42,20 @@ class Reader(AbstractReader):
         VOC data with a datetime index and every column from the source file.
     """
     nam = 'VOC'
+
+    _DEPRECATION_MSG = (
+        "RawDataReader('VOC', ...) is deprecated and will be removed in a future "
+        "release. The VOC reader is a thin CSV loader with no VOC-specific logic; "
+        "read the file directly (e.g. pandas.read_csv with a datetime index) and "
+        "pass the DataFrame to AeroViz.voc / voc_potentials, which validates "
+        "species against support_voc.json."
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Fire once per reader instance (not per file).
+        warnings.warn(self._DEPRECATION_MSG, DeprecationWarning, stacklevel=2)
+        self.logger.warning(self._DEPRECATION_MSG)
 
     def _raw_reader(self, file):
         """Read a VOC CSV into a clean, time-indexed DataFrame (all columns)."""

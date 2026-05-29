@@ -26,9 +26,37 @@ class Reader(AbstractReader):
     # =========================================================================
     MAX_NOISE = 0.01    # Maximum acceptable noise level
 
-    # Status Flag
+    # Status condition register
+    # -------------------------------------------------------------------------
+    # The `status` column (raw `tmoStatusCondition_0` / `System status`) is a
+    # 32-bit BITFIELD, not a flat code: the instrument OR-sums the active
+    # warning bits and reports the decimal sum (TEOM 1405 / 1405-F manual,
+    # Appendix A, Table A-1). So QC must test it bitwise — `ignored_status_errors`
+    # can then whitelist an individual condition (e.g. a known dryer warning)
+    # by its decimal value regardless of which other bits are co-set.
+    #
+    # Documented bit meanings (Table A-1; "A"/"B" = FDMS dual-channel sides):
+    #   bit 30 (1073741824) %RH High Side A (>=98%)   bit 22 (4194304) %RH High Side B
+    #   bit 29 (536870912)  Dryer A (>2)              bit 21 (2097152) Dryer B
+    #   bit 28 (268435456)  Cooler A (>0.5C dev)      bit 20 (1048576) Cooler B
+    #   bit 27 (134217728)  Exchange Filter A (>90)   bit 19 (524288)  Exchange Filter B
+    #   bit 26 (67108864)   Flow A (>10% dev)         bit 18 (262144)  Flow B
+    #   bit 25 (33554432)   Heaters Side A (>2% dev)  bit 17 (131072)  Heaters Side B
+    #   bit 24 (16777216)   Mass Transducer A (<10Hz) bit 16 (65536)   Mass Transducer B
+    #   bit 14 (16384) User I/O   bit 13 (8192) FDMS Device   bit 12 (4096) Head 1
+    #   bit 11 (2048)  Head 0     bit 10 (1024) MFC 1         bit 9  (512)  MFC 0
+    #   bit 8  (256)   System Bus bit 7  (128)  Vacuum Pressure (<0.1 atm)
+    #   bit 6  (64)    Case/Cap Heater (>2% dev)      bit 5 (32) FDMS Valve
+    #   bit 4  (16)    Bypass Flow (>10% dev)         bit 3 (8)  Ambient RH&Temp sensor
+    #   bit 2  (4)     Database (log failure)         bit 2 (2)  Enclosure Temp (>60C)
+    #   bit 0  (1)     Power Failure
     STATUS_COLUMN = 'status'
-    STATUS_OK = 0  # Status code 0 means normal operation
+    STATUS_OK = 0  # 0 = no condition set ("Normal status")
+    # Every set bit counts as an error by default (== the old `status != 0`
+    # numeric behaviour), but bitwise mode lets a benign condition be cleared
+    # per-bit via `ignored_status_errors`. Narrow this list once a site decides
+    # which conditions are advisory vs data-invalidating.
+    ERROR_STATES = [1 << b for b in range(32)]
 
     # =========================================================================
     # Format-specific column alias maps
@@ -174,9 +202,11 @@ class Reader(AbstractReader):
             QCRule(
                 name='Status Error',
                 condition=lambda df: self.QC_control().filter_error_status(
-                    _df, status_column=self.STATUS_COLUMN, status_type='numeric', ok_value=self.STATUS_OK
+                    _df, error_codes=self.ERROR_STATES, status_column=self.STATUS_COLUMN,
+                    status_type='bitwise',
+                    ignored_values=self.kwargs.get('ignored_status_errors')
                 ),
-                description=f'Status code is not {self.STATUS_OK} (non-zero indicates error)'
+                description='Status condition register has a non-whitelisted warning bit set'
             ),
             QCRule(
                 name='High Noise',

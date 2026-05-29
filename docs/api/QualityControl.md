@@ -169,6 +169,35 @@ error_mask = qc.filter_error_status(
 )
 ```
 
+`filter_error_status` supports four `status_type` modes — `bitwise` (AE33,
+AE43, BC1054, MA350, TEOM), `numeric` (Aurora, NEPH), `text` (SMPS) and
+`binary_string` (APS). The `ignored_values` whitelist lets you suppress
+operator-known benign statuses without rewriting raw files; it is interpreted
+in the active mode (string tokens / numeric codes / integer bits / bit masks),
+and entries that don't fit a mode are skipped. This is surfaced on
+`RawDataReader` as the `ignored_status_errors` parameter.
+
+```python
+# bitwise: drop one warning bit from the error definition
+# (e.g. ignore the TEOM "Dryer A" status bit 0x20000000)
+error_mask = qc.filter_error_status(
+    df,
+    error_codes=[1 << b for b in range(32)],
+    status_column='status',
+    status_type='bitwise',
+    ignored_values=[536870912],
+)
+
+# text: whitelist comma-split tokens (SMPS)
+error_mask = qc.filter_error_status(
+    df,
+    status_column='Instrument Errors',
+    status_type='text',
+    ok_value='',
+    ignored_values=['Low aerosol flow', 'Neutralizer not active'],
+)
+```
+
 #### Completeness Validation
 
 ```python

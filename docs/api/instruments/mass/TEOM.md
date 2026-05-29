@@ -61,7 +61,8 @@ The TEOM reader uses the declarative **QCFlagBuilder** system with the following
 | MAX_NOISE          = 0.01                                             |
 | MIN_VOL_FRAC       = 0.01      PM_NV / PM_Total minimum               |
 | MAX_VOL_FRAC       = 0.9       PM_NV / PM_Total maximum               |
-| STATUS_OK          = 0         (numeric status code)                  |
+| STATUS_OK          = 0         (status is a 32-bit bitfield)          |
+| ERROR_STATES       = bits 0-31 (any set warning bit = error)          |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
@@ -74,7 +75,7 @@ The TEOM reader uses the declarative **QCFlagBuilder** system with the following
 |  +-------------------------+                                          |
 |  | Rule: Status Error      |                                          |
 |  +-------------------------+                                          |
-|  | Status code != 0        |                                          |
+|  | Any warning bit set     |                                          |
 |  +-------------------------+                                          |
 |           |                                                           |
 |           v                                                           |
@@ -107,7 +108,7 @@ The TEOM reader uses the declarative **QCFlagBuilder** system with the following
 
 | Rule | Condition | Description |
 |------|-----------|-------------|
-| **Status Error** | Status ≠ 0 | Non-zero status code indicates instrument error |
+| **Status Error** | Any non-whitelisted warning bit set | `status` is a 32-bit bitfield (TEOM manual Table A-1); tested bitwise so individual conditions (e.g. `536870912` = Dryer A) can be whitelisted via `ignored_status_errors` |
 | **High Noise** | noise ≥ 0.01 | Measurement noise exceeds threshold |
 | **Non-positive** | PM_Total ≤ 0 OR PM_NV ≤ 0 | Non-positive concentration values |
 | **NV > Total** | PM_NV > PM_Total | Non-volatile exceeds total (physically impossible) |

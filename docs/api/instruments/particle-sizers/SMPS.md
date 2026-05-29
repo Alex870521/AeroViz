@@ -53,7 +53,7 @@ The SMPS reader uses the declarative **QCFlagBuilder** system with the following
 | MAX_LARGE_BIN_CONC= 4000     dN/dlogDp (DMA water ingress indicator)  |
 | LARGE_BIN_THRESH  = 400      nm                                       |
 | STATUS_OK         = "Normal Scan"   (for `Status Flag` column)        |
-| SECONDARY status  = empty   (for `Instrument Errors` column)          |
+| SECONDARY status  = empty or "Normal Scan" (`Instrument Errors` col)  |
 +-----------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
@@ -69,7 +69,7 @@ The SMPS reader uses the declarative **QCFlagBuilder** system with the following
 |  | `Status Flag` != "Normal Scan", OR      |                          |
 |  | `Instrument Errors` non-empty           |                          |
 |  | (each empty form '' / 'nan' / 'None'    |                          |
-|  | exempted; tokens in                     |                          |
+|  | and "Normal Scan" exempted; tokens in   |                          |
 |  | `ignored_status_errors` exempted)       |                          |
 |  +-----------------------------------------+                          |
 |           |                                                           |
@@ -98,7 +98,7 @@ The SMPS reader uses the declarative **QCFlagBuilder** system with the following
 
 | Rule | Condition | Description |
 |------|-----------|-------------|
-| **Status Error** | `Status Flag` ≠ "Normal Scan" **OR** `Instrument Errors` non-empty | Older AIM 10.3 sub-versions use `Status Flag` (e.g. `"Conditioner Temperature Error"`); newer AIM 10.3 + AIM 11.x put hardware warnings in `Instrument Errors` (e.g. `"Low aerosol flow"`). Both columns are checked and OR'd. Empty cells (`''`, `'nan'`, Python-None-stringified `'None'`) are never errors. Tokens listed in the `ignored_status_errors` kwarg are exempted, with comma-split semantics — `"Low aerosol flow,Neutralizer not active"` passes when both tokens are whitelisted. |
+| **Status Error** | `Status Flag` ≠ "Normal Scan" **OR** `Instrument Errors` non-empty | Older AIM 10.3 sub-versions use `Status Flag` (e.g. `"Conditioner Temperature Error"`); newer AIM 10.3 + AIM 11.x put hardware warnings in `Instrument Errors` (e.g. `"Low aerosol flow"`). Both columns are checked and OR'd. Empty cells (`''`, `'nan'`, Python-None-stringified `'None'`) and the positive `"Normal Scan"` sentinel (some instruments write it into `Instrument Errors` instead of leaving it empty, e.g. FS) are never errors. Tokens listed in the `ignored_status_errors` kwarg are exempted, with comma-split semantics — `"Low aerosol flow,Neutralizer not active"` passes when both tokens are whitelisted. |
 | **Insufficient** | < 5 measurements/hour | Less than 5 measurements per hour |
 | **Invalid Number Conc** | Total < 2000 OR > 1e7 #/cm³ | Total number concentration outside valid range |
 | **DMA Water Ingress** | Bins >400nm > 4000 dN/dlogDp | Water contamination in DMA column |

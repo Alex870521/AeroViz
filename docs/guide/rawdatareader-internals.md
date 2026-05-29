@@ -415,12 +415,12 @@ Wavelength dependence check — expected ordering:
 ```
 QC Thresholds
   MAX_NOISE = 0.01
-  STATUS_OK = 0       (numeric status code)
+  STATUS_OK = 0       (status is a 32-bit bitfield; tested bitwise)
 
 ┌─────────────────────────────────────────────────────────────────────┐
 │  STAGE 1: _QC()                                                     │
 │  ┌────────────────────────┐                                         │
-│  │ Rule: Status Error     │  Status ≠ 0                             │
+│  │ Rule: Status Error     │  Any non-whitelisted warning bit set    │
 │  └────────────────────────┘                                         │
 │  ┌────────────────────────┐  ┌────────────────────────┐             │
 │  │ Rule: High Noise       │  │ Rule: Non-positive     │             │

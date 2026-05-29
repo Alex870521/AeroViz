@@ -16,32 +16,37 @@ VOC/
 ## 快速開始
 
 ```python
-from pathlib import Path
-from AeroViz.dataProcess import DataProcess
+from AeroViz import voc_potentials
 
-dp = DataProcess('VOC', Path('./output'))
-result = dp.potential(df_voc)
+result = voc_potentials(df_voc)   # df_voc: 物種為欄、datetime index 的 DataFrame
 ```
+
+!!! note "API 更新"
+    舊的 `DataProcess('VOC', ...).VOC_basic(df_voc)` 已**棄用**,改用頂層函式
+    `voc_potentials(df_voc)`(`AeroViz.voc` 命名空間下亦同)。它會以
+    `support_voc.json` 驗證每個物種欄名(未知物種直接 raise)。
 
 ---
 
 ## 方法列表
 
-| 方法 | 說明 | 相關理論 |
+| 函式 | 說明 | 相關理論 |
 |------|------|----------|
-| `potential(df_voc)` | OFP/SOAP 計算 | → [OFP/SOAP](../../theory/ofp.md) |
+| `voc_potentials(df_voc)` | OFP / SOAP / LOH 計算 | → [OFP/SOAP](../../theory/ofp.md) |
 
 ---
 
 ## 輸出說明
 
-### potential
+`voc_potentials` 回傳一個 dict,含四個 time-indexed DataFrame;每個 frame 的欄位
+為個別物種 + 各分類小計(`*_total`,如 `alkane_total`)+ 總計 `Total`:
 
-| 輸出 | 說明 |
+| key | 說明 |
 |------|------|
-| `OFP` | 各物種 OFP 貢獻 (μg O₃/m³) |
-| `SOAP` | 各物種 SOAP 貢獻 |
-| `total` | 總 OFP/SOAP |
+| `Conc` | 質量濃度 (μg/m³) |
+| `OFP` | 臭氧生成潛勢 (μg O₃/m³) |
+| `SOAP` | 二次有機氣膠生成潛勢 |
+| `LOH` | OH 反應性 (loss rate) |
 
 ---
 

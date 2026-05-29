@@ -94,15 +94,22 @@ def RawDataReader(instrument: str,
             never extends past what the files contain. Use ``df.attrs`` for the
             requested-vs-actual range.
 
-    ignored_status_errors : list[str], optional
-        SMPS only. Status-flag tokens that should NOT be treated as Status
-        Error during QC, in addition to the normal "OK" value. The
-        ``Instrument Errors`` column on TSI SMPS exports is often a
-        comma-separated list of tokens (e.g. ``'Low aerosol flow,Neutralizer
-        not active'``); a row is accepted when every token is either the OK
-        value or in this whitelist. Use for operator-known benign warnings
-        — e.g. ``ignored_status_errors=['Low aerosol flow']`` on an
-        instrument running at a known-low sample-flow setting.
+    ignored_status_errors : list, optional
+        Whitelist of statuses that should NOT be treated as a Status Error
+        during QC, for operator-known benign warnings — without rewriting the
+        raw files. Supported on every instrument with a status check; the
+        whitelist is interpreted in that instrument's status mode (entries
+        that don't fit are skipped, so the same call is safe across readers):
+          - SMPS (text): comma-separated string tokens; a row is accepted when
+            every token is the OK value or whitelisted, e.g.
+            ``ignored_status_errors=['Low aerosol flow', 'Neutralizer not active']``.
+          - Aurora / NEPH (numeric): numeric status codes treated as OK,
+            e.g. ``[4, 16]``.
+          - AE33 / AE43 / BC1054 / MA350 / TEOM (bitwise): integer error
+            codes/bits to drop from the error definition, e.g. ``[536870912]``
+            to ignore the TEOM "Dryer A" status bit.
+          - APS (binary_string): integer bit masks cleared before testing,
+            e.g. ``[1, 2]``.
 
     output_dir : Path or str, optional
         Directory for all output files (pkl, csv, log, report).

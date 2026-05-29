@@ -64,7 +64,7 @@ df = RawDataReader(
 | `fill_missing` | bool | True (default)=pad to requested range; False=clamp to data coverage |
 | `raw_freq` | str | Override auto-detected resolution (e.g. '6min'); skips detection |
 | `drop_outlier_dates` | bool | Stray timestamps far outside the data bulk (e.g. a year-2000 row in 2023 data) are always detected and warned about. False (default)=keep them (warning tells you how to fix the source); True=drop them automatically before gridding |
-| `ignored_status_errors` | list[str] | SMPS only. Whitelist status-flag tokens that should NOT count as Status Error in QC. Token-level: the `Instrument Errors` column is comma-split and a row passes when EVERY token is OK or in the whitelist. Use for operator-known benign warnings like `['Low aerosol flow']` on a known-low-flow instrument |
+| `ignored_status_errors` | list | Whitelist of benign statuses NOT counted as Status Error in QC (any instrument with a status check). Interpreted in that instrument's mode: string tokens for SMPS (comma-split, row passes when every token is OK/whitelisted, e.g. `['Low aerosol flow']`); numeric codes for Aurora/NEPH; integer error bits for AE33/AE43/BC1054/MA350/TEOM (TEOM status is a 32-bit bitfield); integer bit masks for APS. Entries that don't fit a mode are skipped (safe across readers) |
 
 ## Data Processing
 
@@ -193,11 +193,16 @@ Data quality is indicated by `QC_Flag` column:
 - `Invalid BC` / `Invalid Number Conc`: Out of range values
 - `Spike`: Detected sudden value changes
 
-SMPS-specific: `Status Error` is OR'd across both `Status Flag` (positive
-`'Normal Scan'` sentinel) and `Instrument Errors` (empty-only OK).
-`'None'` / `'nan'` / `''` are all treated as "no status reported", not as
-errors. Whitelist known-benign tokens with
-`ignored_status_errors=['Low aerosol flow', ...]`.
+SMPS-specific: `Status Error` is OR'd across both `Status Flag` and
+`Instrument Errors`. `'None'` / `'nan'` / `''` and the positive `'Normal
+Scan'` sentinel are all treated as "no error reported" in either column
+(the `Instrument Errors` column is empty-when-OK on some instruments but
+carries `'Normal Scan'` on others — both pass). Whitelist known-benign
+tokens with `ignored_status_errors=['Low aerosol flow', ...]`.
+
+`ignored_status_errors` is **not SMPS-only** — every instrument with a
+status check honors it, interpreted in that instrument's mode (string
+tokens / numeric codes / error bits / bit masks); see the parameter table.
 
 ## Reader Metadata (`df.attrs`)
 

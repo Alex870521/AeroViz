@@ -206,7 +206,8 @@ class Reader(AbstractReader):
             QCRule(
                 name='Status Error',
                 condition=lambda df: self.QC_control().filter_error_status(
-                    _df, status_column=self.STATUS_COLUMN, status_type='binary_string'
+                    _df, status_column=self.STATUS_COLUMN, status_type='binary_string',
+                    ignored_values=self.kwargs.get('ignored_status_errors')
                 ),
                 description='Non-zero status flags indicate instrument error'
             ),

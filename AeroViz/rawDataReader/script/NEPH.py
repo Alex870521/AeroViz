@@ -125,7 +125,8 @@ class Reader(AbstractReader):
             QCRule(
                 name='Status Error',
                 condition=lambda df: self.QC_control().filter_error_status(
-                    _df, status_column=self.STATUS_COLUMN, status_type='numeric', ok_value=self.STATUS_OK
+                    _df, status_column=self.STATUS_COLUMN, status_type='numeric', ok_value=self.STATUS_OK,
+                    ignored_values=self.kwargs.get('ignored_status_errors')
                 ),
                 description=f'Status code is not {self.STATUS_OK} (non-zero indicates error)'
             ),

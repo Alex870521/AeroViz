@@ -723,15 +723,26 @@ class QualityControl:
             The value indicating OK status (for 'numeric', 'text' types)
             - For 'numeric': typically 0
             - For 'text': typically 'Normal Scan'
-        ignored_values : list[str], optional
-            Status tokens to whitelist alongside ``ok_value`` (text mode only).
-            The status field is comma-split into tokens; a row passes when
-            every token is either ``ok_value`` or in ``ignored_values``. Use
-            this to suppress operator-known benign warnings (e.g. SMPS
-            ``'Low aerosol flow'``) without rewriting the raw files. A token
-            ``'Low aerosol flow'`` matches both the bare string and combined
-            statuses like ``'Low aerosol flow,Neutralizer not active'`` when
-            ``'Neutralizer not active'`` is also whitelisted.
+        ignored_values : list, optional
+            Whitelist of statuses to suppress (treat as OK) without editing the
+            raw files — e.g. an operator-known benign warning. Interpretation is
+            mode-specific; entries that don't fit a mode are silently skipped so
+            a whitelist meant for one instrument is harmless if it reaches
+            another. Defaults to None (no whitelist; behaviour unchanged).
+
+            - ``'text'``          : string tokens. The status is comma-split and
+              a row passes when every token is ``ok_value`` or whitelisted. A
+              token ``'Low aerosol flow'`` matches both the bare string and
+              combined statuses like ``'Low aerosol flow,Neutralizer not
+              active'`` (when both tokens are whitelisted).
+            - ``'numeric'``       : numeric status codes treated as OK in
+              addition to ``ok_value`` (e.g. ``[4, 16]``).
+            - ``'bitwise'``       : integer error codes/bits dropped from the
+              error definition; a row is flagged only if a NON-whitelisted code
+              still matches (token-level, mirroring text mode; e.g. ``[4]``).
+            - ``'binary_string'`` : integer bit masks cleared before testing; a
+              row is flagged only if a NON-whitelisted bit remains set
+              (e.g. ``[1, 2]``).
 
         Returns
         -------
@@ -750,27 +761,55 @@ class QualityControl:
         # Create an empty mask
         error_mask = pd.Series(False, index=_df.index)
 
-        if status_type == 'bitwise':
-            # Original bitwise logic for AE33, AE43, BC1054, MA350
-            status_values = pd.to_numeric(_df[status_column], errors='coerce').fillna(0).astype(int)
+        # `ignored_values` whitelist helpers. Interpretation is mode-specific
+        # (see the docstring); non-convertible entries are dropped so a
+        # whitelist meant for one instrument is harmless if it reaches another.
+        def _ignored_ints():
+            out = set()
+            for v in (ignored_values or []):
+                try:
+                    out.add(int(v))
+                except (TypeError, ValueError):
+                    pass
+            return out
 
-            # Bitwise test normal error codes
+        def _ignored_nums():
+            out = set()
+            for v in (ignored_values or []):
+                n = pd.to_numeric(v, errors='coerce')
+                if pd.notna(n):
+                    out.add(n)
+            return out
+
+        if status_type == 'bitwise':
+            # Bitwise logic for AE33, AE43, BC1054, MA350.
+            status_values = pd.to_numeric(_df[status_column], errors='coerce').fillna(0).astype(int)
+            ignored_codes = _ignored_ints()
+
+            # Whitelisted codes are dropped from the error definition: a row is
+            # flagged only if at least one NON-whitelisted code matches.
             if error_codes:
                 for code in error_codes:
+                    if code in ignored_codes:
+                        continue
                     error_mask = error_mask | ((status_values & code) != 0)
 
-            # Exact matching for special codes
+            # Exact matching for special codes (also whitelist-filtered).
             if special_codes:
-                error_mask = error_mask | status_values.isin(special_codes)
+                effective_special = [c for c in special_codes if c not in ignored_codes]
+                if effective_special:
+                    error_mask = error_mask | status_values.isin(effective_special)
 
         elif status_type == 'numeric':
-            # Simple numeric comparison for TEOM, Aurora, NEPH
+            # Simple numeric comparison for TEOM, Aurora, NEPH.
             status_values = pd.to_numeric(_df[status_column], errors='coerce')
-            if ok_value is not None:
-                error_mask = (status_values != ok_value) & status_values.notna()
-            else:
-                # Default: 0 is OK
-                error_mask = (status_values != 0) & status_values.notna()
+            ok = ok_value if ok_value is not None else 0   # Default: 0 is OK
+            error_mask = (status_values != ok) & status_values.notna()
+
+            # Whitelisted numeric status codes are treated as OK.
+            ignored_nums = _ignored_nums()
+            if ignored_nums:
+                error_mask = error_mask & ~status_values.isin(ignored_nums)
 
         elif status_type == 'text':
             # Text comparison for SMPS. Three forms all mean "no status reported"
@@ -813,7 +852,16 @@ class QualityControl:
                     return 0
 
             status_values = _df[status_column].apply(parse_binary_status)
-            error_mask = status_values > 0
+
+            # Whitelisted bits are cleared before testing: a row is flagged
+            # only if a NON-whitelisted bit remains set.
+            ignore_mask = 0
+            for code in _ignored_ints():
+                ignore_mask |= code
+            if ignore_mask:
+                error_mask = status_values.apply(lambda v: (v & ~ignore_mask) > 0)
+            else:
+                error_mask = status_values > 0
 
         else:
             raise ValueError(f"Unknown status_type: {status_type}")

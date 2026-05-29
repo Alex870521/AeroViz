@@ -94,7 +94,9 @@ class Reader(AbstractReader):
         qc.add_rules([
             QCRule(
                 name='Status Error',
-                condition=lambda df: self.QC_control().filter_error_status(df, self.ERROR_STATES),
+                condition=lambda df: self.QC_control().filter_error_status(
+                    df, self.ERROR_STATES,
+                    ignored_values=self.kwargs.get('ignored_status_errors')),
                 description='Invalid instrument status code detected'
             ),
             QCRule(

@@ -25,20 +25,20 @@ class Reader(AbstractReader):
     ANION_COLUMNS = ['Cl-', 'NO2-', 'NO3-', 'PO43-', 'SO42-']
     MAIN_IONS = ['SO42-', 'NO3-', 'NH4+']
 
-    # =========================================================================
-    # Detection Limits (MDL) in ug/m3
-    # =========================================================================
-    MDL = {
-        'Na+': 0.06,
-        'NH4+': 0.05,
-        'K+': 0.05,
-        'Mg2+': 0.12,
-        'Ca2+': 0.07,
-        'Cl-': 0.07,
-        'NO2-': 0.05,
-        'NO3-': 0.11,
-        'SO42-': 0.08,
-    }
+    # Detection limits (MDL) and measurement ranges (MR) come from the vendor
+    # specification recorded in `config/supported_instruments.py` — the single
+    # source of truth. Species whose entry is ``None`` are not measured by this
+    # instrument and are skipped everywhere below.
+
+    @property
+    def MDL(self) -> dict:
+        """Method detection limits (µg/m³) for the species this instrument measures."""
+        return {k: v for k, v in (self.meta.get('MDL') or {}).items() if v is not None}
+
+    @property
+    def MR(self) -> dict:
+        """Upper measurement range (µg/m³) per species."""
+        return {k: v for k, v in (self.meta.get('MR') or {}).items() if v is not None}
 
     def _raw_reader(self, file):
         """
@@ -66,23 +66,34 @@ class Reader(AbstractReader):
 
     def _QC(self, _df):
         """
-        Perform quality control on IGAC ion composition data.
+        Perform quality control on IGAC ion and gas composition data.
 
         QC Rules Applied
         ----------------
         1. Mass Closure    : Total ion mass > PM2.5 mass
         2. Missing Main    : Main ions (NH4+, SO42-, NO3-) not present
-        3. Below MDL       : Ion concentration below detection limit
+        3. Above MR        : Concentration above the instrument's measurement range
         4. Ion Balance     : Cation/Anion ratio outside valid range
+
+        Detection limits are reported per species in the log (how much of each
+        sits below its MDL) rather than as a row-level flag. A below-MDL value is
+        a *valid measurement of a low concentration*, not a broken row — and
+        because a non-`Valid` flag NaNs the whole row downstream, flagging it
+        would delete every other species measured in that same hour. Above-MR is
+        different: it is outside what the instrument can report, so it is flagged.
         """
         _index = _df.index.copy()
 
-        # Get ion columns that exist in the data
-        ion_columns = [col for col in self.MDL.keys() if col in _df.columns]
-        df_qc = _df[ion_columns].copy()
+        # Species this instrument measures (ions + gases), per the vendor spec in
+        # the config. Gases (HCl, HNO3, NH3, …) used to be dropped here.
+        mdl = self.MDL
+        species = [col for col in mdl if col in _df.columns]
+        df_qc = _df[species].copy()
 
-        # Calculate total ion mass for mass closure check
-        total_ions = df_qc.sum(axis=1, min_count=1)
+        # Calculate total ion mass for mass closure check (aerosol ions only —
+        # gases are not part of the PM2.5 mass budget)
+        ion_columns = [c for c in self.CATION_COLUMNS + self.ANION_COLUMNS if c in df_qc.columns]
+        total_ions = df_qc[ion_columns].sum(axis=1, min_count=1) if ion_columns else Series(0.0, index=df_qc.index)
         pm25 = _df['PM2.5'] if 'PM2.5' in _df.columns else Series(float('inf'), index=_df.index)
 
         # Calculate cation/anion ratio for ion balance check
@@ -96,6 +107,10 @@ class Reader(AbstractReader):
         # outliers to NaN, so .isna() == (out of bounds) | (already missing) —
         # exactly the previous (ca < lower) | (ca > upper) | isna condition.
         ca_outlier = self.QC_control().iqr(ca_ratio.to_frame('ca'))['ca'].isna()
+
+        # Vectorised over-range mask from the config measurement ranges.
+        mr = {k: v for k, v in self.MR.items() if k in df_qc.columns}
+        above_mr = (df_qc[list(mr)] > Series(mr)).any(axis=1) if mr else Series(False, index=df_qc.index)
 
         # Build QC rules declaratively
         qc = QCFlagBuilder()
@@ -112,14 +127,9 @@ class Reader(AbstractReader):
                 description='Missing main ions (NH4+, SO42-, NO3-)'
             ),
             QCRule(
-                name='Below MDL',
-                condition=lambda df: Series(
-                    [any(df.loc[idx, col] < self.MDL.get(col, 0)
-                         for col in ion_columns if col in df.columns and not Series(df.loc[idx, col]).isna().any())
-                     for idx in df.index],
-                    index=df.index
-                ),
-                description='Ion concentration below detection limit'
+                name='Above MR',
+                condition=lambda df: above_mr.reindex(df.index).fillna(False),
+                description='Concentration above the instrument measurement range'
             ),
             QCRule(
                 name='Ion Balance',
@@ -136,5 +146,7 @@ class Reader(AbstractReader):
         self.logger.info(f"{self.nam} QC Summary:")
         for _, row in summary.iterrows():
             self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+
+        self.log_below_mdl(df_qc, mdl)
 
         return df_qc.reindex(_index)

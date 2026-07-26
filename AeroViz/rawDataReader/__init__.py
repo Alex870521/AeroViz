@@ -4,7 +4,7 @@ from typing import Literal
 
 from pandas import Grouper, Timedelta
 
-from AeroViz.rawDataReader.config.supported_instruments import meta, removed
+from AeroViz.rawDataReader.config.supported_instruments import meta, pending, removed
 from AeroViz.rawDataReader.script import *
 
 __all__ = ['RawDataReader']
@@ -163,7 +163,11 @@ def RawDataReader(instrument: str,
     TypeError
         If parameters are of incorrect type
     KeyError
-        If instrument name is not found in the supported instruments list
+        If instrument name is not found in the supported instruments list, or if
+        it names an instrument withdrawn from the reader (pre-aggregated,
+        second-hand data — the message carries the migration advice)
+    NotImplementedError
+        If it names a real instrument whose reader has not been written yet
     FileNotFoundError
         If path does not exist or cannot be accessed
 
@@ -215,6 +219,11 @@ def RawDataReader(instrument: str,
     if instrument in removed:
         raise KeyError(
             f"'{instrument}' is no longer read by RawDataReader. {removed[instrument]}")
+
+    # Real instruments still waiting for a reader: say so plainly rather than
+    # failing with an abstract-class TypeError deeper in.
+    if instrument in pending and instrument not in instrument_class_map:
+        raise NotImplementedError(pending[instrument])
 
     # Check if the instrument name is in the map
     if instrument not in instrument_class_map:

@@ -76,12 +76,12 @@ Instruments for PM mass concentration measurement:
 | **Aurora** | 1 min | .csv | Status Error, No Data, Invalid Scat Value, Invalid Scat Rel, Insufficient |
 | **SMPS** | 6 min | .txt, .csv | Status Error, Invalid Number Conc, DMA Water, Insufficient |
 | **APS** | 6 min | .txt | Status Error, Invalid Number Conc, Insufficient |
-| **GRIMM** | 6 min | .dat | - |
+| **GRIMM** | 6 min | .dat | No Data, Negative Conc, Insufficient |
 | **TEOM** | 6 min | .csv | Status Error, High Noise, Non-positive, NV > Total, Invalid Vol Frac, Spike, Insufficient |
 | **BAM1020** | 1 h | .csv | Invalid Conc, Spike |
 | **OCEC** | 1 h | *LCRes.csv | Invalid Carbon, Below MDL, Spike, Missing OC |
-| **IGAC** | 1 h | .csv | Mass Closure, Missing Main, Below MDL, Ion Balance |
-| **Xact** | 1 h | .csv | Instrument Error, Upscale Warning, Invalid Value, High Uncertainty |
+| **IGAC** | 1 h | .csv | Mass Closure, Missing Main, Above MR, Ion Balance |
+| **Xact** | 1 h | .csv | Calibration Mode, Instrument Error, Upscale Warning, Invalid Value, Internal Std Drift |
 | **EPA** | 1 h | .csv | Negative Value |
 
 !!! note "Quality Control System"

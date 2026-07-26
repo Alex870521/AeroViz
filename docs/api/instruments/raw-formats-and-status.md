@@ -89,15 +89,17 @@ __call__  → QC_Flag != "Valid"  →  entire row set to NaN, QC_Flag dropped
 | `DMA Water Ingress` | any bin > 400 nm exceeds 4 000 dN/dlogDp | SMPS |
 | `Invalid Scat Value` | any scattering channel ≤ 0 or > 2 000 Mm⁻¹ | Aurora, NEPH |
 | `Invalid Scat Rel` | B < G < R — inverted wavelength dependence | Aurora, NEPH |
-| `No Data` | all six scattering channels NaN | Aurora, NEPH |
+| `No Data` | every measurement channel NaN | Aurora, NEPH, GRIMM |
 | `High Noise` | TEOM `noise` ≥ 0.01 | TEOM |
 | `Non-positive` | `PM_NV` ≤ 0 or `PM_Total` ≤ 0 | TEOM |
 | `NV > Total` | `PM_NV` > `PM_Total` (physically impossible) | TEOM |
 | `Spike` | change > 3 × median absolute change, or a large up-down reversal | TEOM, BAM1020, OCEC |
+| `Negative Conc` | any size channel is negative | GRIMM |
 | `Invalid Conc` | PM ≤ 0 or > 500 µg/m³ | BAM1020 |
 | `Invalid Carbon` | any carbon fraction ≤ −5 or > 100 µgC/m³ | OCEC |
-| `Below MDL` | value at or below the method detection limit | OCEC, IGAC |
+| `Below MDL` | value at or below the method detection limit | OCEC |
 | `Missing OC` | `Thermal_OC` or `Optical_OC` missing | OCEC |
+| `Above MR` | concentration above the instrument's stated measurement range | IGAC |
 | `Mass Closure` | Σ ions > PM2.5 | IGAC |
 | `Missing Main` | any of NH₄⁺ / SO₄²⁻ / NO₃⁻ missing | IGAC |
 | `Ion Balance` | cation/anion ratio outside 1.5 × IQR | IGAC |
@@ -198,7 +200,9 @@ Identical to AE33 except:
 | **Pattern** | `*.dat`; native `6min` |
 | **Parse** | `read_csv(header=233, delimiter='\t', index_col=0, parse_dates=[0], encoding='ISO-8859-1', dayfirst=True)` — the header row is a **hard-coded line number**; then columns 0–10 and the trailing 5 (or from column 128 for files named `A407ST*`) are dropped, and all values are divided by `0.035`. Empty files are reported with `print` (not the logger) and skipped. |
 | **Status** | none |
-| **QC rules** | **none** — `_QC` returns the frame unchanged, so no `QC_Flag` is produced. With the default `qc=True` this currently raises `AttributeError: … 'report_dict'`; use `qc=False`. See [Data Levels P0-a](../../guide/data-levels.md#p0-live-breakage). |
+| **QC rules** | `No Data` (all channels NaN), `Negative Conc` (any channel < 0 — impossible for a counter), `Insufficient` |
+| **Deliberately absent** | concentration *range* limits, the equivalent of SMPS's `MIN_TOTAL_CONC` / APS's `MAX_TOTAL_CONC`. There is no GRIMM sample corpus to calibrate a plausible range against, and a wrong threshold silently deletes good data. The three rules above need no site-specific tuning. |
+| **Note** | the completeness rule uses the **detected** frequency (`_resolved_freq`), unlike the nine older callers that still pass the config value — see [Data Levels P1-c](../../guide/data-levels.md#p1-rule-violations). |
 
 ---
 
@@ -265,9 +269,10 @@ Identical to AE33 except:
 | **Pattern** | `*.csv`; native `1h` |
 | **Parse** | `read_csv(parse_dates=True, index_col=0, na_values='-')` with `encoding='utf-8-sig'`; column names stripped; everything coerced to numeric |
 | **Status** | none |
-| **MDL** | class constant, 9 ions (µg/m³): Na⁺ 0.06, NH₄⁺ 0.05, K⁺ 0.05, Mg²⁺ 0.12, Ca²⁺ 0.07, Cl⁻ 0.07, NO₂⁻ 0.05, NO₃⁻ 0.11, SO₄²⁻ 0.08. The config `meta['IGAC']['MDL']` / `['MR']` (17 species incl. gases) is **unused** by this reader. |
-| **QC rules** | `Mass Closure` (Σ ions > `PM2.5` when that column exists), `Missing Main` (NH₄⁺/SO₄²⁻/NO₃⁻), `Below MDL`, `Ion Balance` (cation/anion ratio outside 1.5 × IQR) |
-| **L2 output** | the 9 MDL ions present in the file + `QC_Flag` (other source columns are dropped) |
+| **MDL / MR** | from `meta['IGAC']` — the [vendor specification](https://www.yangyao-env.com/web/product/product_in2.jsp?pd_id=PD1640151884502), 17 species covering **gases and aerosol ions**, exposed as `reader.MDL` / `reader.MR`. Species whose spec entry is `None` (HF, F⁻, PO₄³⁻ — not measured) are skipped everywhere. This replaced a second, disagreeing class-level copy of the 9 aerosol ions. |
+| **QC rules** | `Mass Closure` (Σ *aerosol ions* > `PM2.5` when that column exists — gases are not part of the PM budget), `Missing Main` (NH₄⁺/SO₄²⁻/NO₃⁻), `Above MR` (any species above its stated measurement range), `Ion Balance` (cation/anion ratio outside 1.5 × IQR) |
+| **Below MDL** | a **diagnostic, not a flag**: the log reports what fraction of each species sits below its limit, worst-first. A below-MDL value is a valid measurement of a low concentration, and because any non-`Valid` flag NaNs the whole row, flagging it would delete every other species measured in that same hour. |
+| **L2 output** | every spec species present in the file (gases included — they used to be dropped) + `QC_Flag` |
 
 ### Xact
 
@@ -278,7 +283,9 @@ Identical to AE33 except:
 | **Status** | column `ALARM`, matched by **exact code**, not bitwise; `0` = normal. `decode_alarm()` turns a code into text. |
 | **Alarm codes** | errors 100 X-ray voltage · 101 X-ray current · 102 tube temperature · 103 enclosure temperature · 104 tape · 105 pump · 106 filter wheel · 107 dynamic rod · 108 nozzle · 109 energy calibration · 110 software. Warnings 200 upscale Cr · 201 upscale Pb · 202 upscale Cd · 203 upscale Nb. |
 | **QC rules** | `Calibration Mode`, `Instrument Error` (100–110), `Upscale Warning` (200–203), `Invalid Value` (0–100 000 ng/m³), `Internal Std Drift` (Nb ±20 % of median). Each is registered only if its source column exists. |
-| **L2 output** | all columns + `QC_Flag`. `meta['Xact']['MDL']` (45 elements) is **not used** by this reader. |
+| **MDL** | from `meta['Xact']` — the Xact 625i minimum decision limits, 45 elements in ng/m³ at a 60-min sample time, exposed as `reader.MDL`. |
+| **Below MDL** | a **diagnostic, not a flag** (same reasoning as IGAC, and more acute here): in the test fixture alone a dozen elements sit 100 % below their limit, so an "any element below MDL" rule would flag — and therefore NaN — every single row. The log reports the per-element fraction instead. |
+| **L2 output** | all columns + `QC_Flag` |
 
 ### EPA — external, pre-aggregated
 
@@ -315,13 +322,22 @@ at the top and site-specific invalid markers (`維護校正`, `Nodata`, `0L`); t
 handling depends on who produced that particular report, which is exactly why it
 does not belong behind a general-purpose reader.
 
-### Q-ACSM — not implemented
+### Q-ACSM — reader not implemented yet
 
-`script/Q-ACSM.py` declares only `nam = 'Q-ACSM'`. Because `_raw_reader` and
-`_QC` are abstract, `RawDataReader('Q-ACSM', …)` raises
-`TypeError: Can't instantiate abstract class Reader …`. It is nevertheless
-listed in `meta` and therefore offered in the error message of the instrument
-validator.
+A **real instrument**, but no reader exists: no sample export has been available
+to write and test a parser against. It stays in `meta` (the 30-min native
+frequency is known) and is registered in `supported_instruments.pending`, so
+`RawDataReader('Q-ACSM', …)` raises a plain
+
+```
+NotImplementedError: Q-ACSM is a real instrument, but its reader is not
+implemented yet — no sample export has been available to write and test a parser
+against. Contribute one by adding AeroViz/rawDataReader/script/Q-ACSM.py with
+_raw_reader and _QC ...
+```
+
+rather than the abstract-class `TypeError` it used to. Removing the `pending`
+entry is all that is needed once a reader lands.
 
 ---
 
@@ -334,9 +350,9 @@ Where the status/QC machinery is *silently* doing nothing:
 | **Aurora** | `Status Error` never fires | production CSV has no `Status`/`status`/`Error`/`error`/`Flag`/`flag` column; status is in undecoded hex `S1`/`S2` |
 | **SMPS** (AIM 11.x CSV) | `Status Error` never fires | neither `Status Flag` nor `Instrument Errors` exists; errors split into `Detector Status`, `Classifier Errors`, `Communication Status`, `Neutralizer Status` |
 | **MA350** | possible | `Status` column presence not verified against a real export |
-| **GRIMM** | no `QC_Flag` at all | `_QC` is a pass-through → also crashes on the default `qc=True` |
 | **All bitwise/numeric/text/binary readers** | a typo'd or renamed status column degrades to "no errors" | `filter_error_status` returns all-`False` for a missing column, without warning |
-| **All readers using `Insufficient`** | threshold computed against the *config* frequency, not the detected one | `hourly_completeness_QC(..., freq=self.meta['freq'])` in all nine callers |
+| **All readers using `Insufficient`** except GRIMM | threshold computed against the *config* frequency, not the detected one | `hourly_completeness_QC(..., freq=self.meta['freq'])` in all nine older callers |
+| **GRIMM** | no concentration range check | no sample corpus to calibrate one against; deliberately omitted rather than guessed |
 
 Full remediation list, with priorities and suggested order:
 [Data Levels §7](../../guide/data-levels.md#7-non-conformance-what-still-needs-fixing).
@@ -355,18 +371,24 @@ Full remediation list, with priorities and suggested order:
 | NEPH | `*.dat` | 5 min | `status` (`Y` row f9) | numeric | 5 | ✅ |
 | SMPS | `*.txt`, `*.csv` | 6 min | `Status Flag` + `Instrument Errors` | text ×2 | 4 | ✅ |
 | APS | `*.txt` | 6 min | `Status Flags` | binary_string | 3 | ✅ |
-| GRIMM | `*.dat` | 6 min | — | — | 0 | ❌ |
+| GRIMM | `*.dat` | 6 min | — | — | 3 | ❌ |
 | TEOM | `*.csv` | 6 min | `status` | bitwise (32-bit) | 6 | ✅ |
 | BAM1020 | `*.csv` | 1 h | — | — | 2 | ❌ |
 | OCEC | `*LCRes.csv` | 1 h | — | — | 4 | ❌ |
 | IGAC | `*.csv` | 1 h | — | — | 4 | ❌ |
 | Xact | `*.csv` | 1 h | `ALARM` | exact code | 5 | ❌ |
 | EPA | `*.csv` | 1 h | — | — | 1 | ❌ |
-| Q-ACSM | `*.csv` | 30 min | — | — | — | — |
+| Q-ACSM | `*.csv` | 30 min | — | — | *reader pending* | — |
 
 `Native` is the `meta['freq']` fallback; the grid actually used is detected per
 file at run time and reported as `df.attrs['raw_freq']`.
 
-**Not readers:** `VOC` and `Minion` were removed — pre-aggregated second-hand
-data, see [above](#removed-voc-and-minion). `Q-ACSM` is listed in the config but
-its reader is an abstract stub, so calling it raises `TypeError`.
+**Three registry categories** (`config/supported_instruments.py`):
+
+- **supported** — every row above except Q-ACSM: a module in `script/` plus a
+  `meta` entry.
+- **pending** — `Q-ACSM`: a real instrument, reader not written yet →
+  `NotImplementedError`.
+- **removed** — `VOC`, `Minion`: pre-aggregated second-hand data, no raw log to
+  parse → `KeyError` with migration advice, see
+  [above](#removed-voc-and-minion).

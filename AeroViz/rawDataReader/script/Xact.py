@@ -63,6 +63,16 @@ class Reader(AbstractReader):
     INTERNAL_STD_ELEMENT = 'Nb'
     INTERNAL_STD_TOLERANCE = 0.20  # ±20% from median
 
+    @property
+    def MDL(self) -> dict:
+        """Per-element detection limits (ng/m³, 60-min sample) from the config.
+
+        The Xact 625i MDL table lives in `config/supported_instruments.py` as the
+        single source of truth. Used for the per-element below-MDL diagnostic in
+        `_QC`, never as a row-level flag — see `log_below_mdl`.
+        """
+        return {k: v for k, v in (self.meta.get('MDL') or {}).items() if v is not None}
+
     def _raw_reader(self, file):
         """Read and parse raw Xact 625i XRF data files.
 
@@ -138,6 +148,11 @@ class Reader(AbstractReader):
         3. Upscale Warning       : ALARM code 200-203 indicates upscale warning
         4. Invalid Value         : Element concentration outside valid range (0-100000 ng/m3)
         5. Internal Std Drift    : Nb internal standard deviates ±20% from median
+
+        Detection limits (`MDL`, from the config) are reported per element in the
+        log rather than flagged: with 45 elements, "any element below its MDL" is
+        true for practically every row, and a non-`Valid` flag NaNs the whole row
+        downstream — flagging it would delete the dataset. See `log_below_mdl`.
         """
         _index = _df.index.copy()
         df_qc = _df.copy()
@@ -210,6 +225,8 @@ class Reader(AbstractReader):
         self.logger.info(f"{self.nam} QC Summary:")
         for _, row in summary.iterrows():
             self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+
+        self.log_below_mdl(df_qc, self.MDL)
 
         return df_qc.reindex(_index)
 

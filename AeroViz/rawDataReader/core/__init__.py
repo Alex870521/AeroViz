@@ -130,6 +130,11 @@ class AbstractReader(ABC):
         self._freq_mixed = False      # True if files had differing resolutions
         self.overall_rates = None     # overall acquisition/yield/total rates dict
 
+        # Rate/timeline report accumulated by `_generate_report`. Defaulted here
+        # so a reader whose `_QC` produces no `QC_Flag` degrades to a
+        # rate-less report instead of raising AttributeError in `__call__`.
+        self.report_dict = {}
+
         # Selective output control
         self.save_pkl = kwargs.get('save_pkl', True)
         self.save_intermediate_csv = kwargs.get('save_intermediate_csv', True)
@@ -860,6 +865,60 @@ class AbstractReader(ABC):
     @staticmethod
     def QC_control():
         return QualityControl()
+
+    def log_below_mdl(self, df: pd.DataFrame, mdl: dict, *, top: int = 10) -> pd.DataFrame:
+        """Report, per column, how much of it sits below its detection limit.
+
+        A value below the MDL is a *valid measurement of a low concentration* (or
+        a non-detect), not a broken row — so this is a diagnostic, not a QC rule.
+        Deliberately so: any non-``Valid`` flag NaNs the whole row in
+        ``__call__``, and with tens of species/elements per row "any one below
+        MDL" is true almost always, which would delete the dataset. Use this to
+        see which species are near their limits, then decide per analysis.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            The frame to inspect (columns not in ``mdl`` are ignored).
+        mdl : dict
+            ``{column: limit}``; entries whose limit is ``None`` are skipped.
+        top : int, default=10
+            How many of the worst-affected columns to log.
+
+        Returns
+        -------
+        pd.DataFrame
+            One row per column with ``below``, ``measured`` and ``percentage``,
+            sorted worst-first. Empty if nothing could be evaluated.
+        """
+        rows = []
+        for col, limit in (mdl or {}).items():
+            if limit is None or col not in df.columns:
+                continue
+            values = pd.to_numeric(df[col], errors='coerce')
+            measured = int(values.notna().sum())
+            if not measured:
+                continue
+            below = int((values < limit).sum())
+            rows.append({'column': col, 'limit': limit, 'below': below,
+                         'measured': measured, 'percentage': below / measured * 100})
+
+        if not rows:
+            return pd.DataFrame(columns=['column', 'limit', 'below', 'measured', 'percentage'])
+
+        report = (pd.DataFrame(rows)
+                  .sort_values('percentage', ascending=False)
+                  .reset_index(drop=True))
+
+        self.logger.info(f"{self.nam} below detection limit (diagnostic, not flagged):")
+        for _, row in report.head(top).iterrows():
+            self.logger.info(
+                f"  {row['column']}: {row['below']}/{row['measured']} "
+                f"({row['percentage']:.1f}%) < MDL {row['limit']}")
+        if len(report) > top:
+            self.logger.info(f"  ... ({len(report) - top} more columns)")
+
+        return report
 
     @staticmethod
     def update_qc_flag(df: pd.DataFrame, mask: pd.Series, flag_name: str) -> pd.DataFrame:

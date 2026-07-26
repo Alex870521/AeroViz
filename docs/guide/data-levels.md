@@ -250,52 +250,44 @@ valid when **> 50 %** of its points are `Valid`):
 Audited against the rules above. **P0 items are reproducible failures**, verified
 by running the code; P1 breaks a rule; P2 is consistency / dead code / doc drift.
 
-!!! success "Resolved: VOC and Minion withdrawn from the reader"
-    Both were pre-aggregated, second-hand data — somebody else's processed
-    output, not an instrument's raw log — so there was nothing for a reader to
-    parse and the readers only ran generic checks. Removing them cleared what
-    were a P0 item (`Minion`'s `meta['XRF']` lookup, a key that never existed)
-    and most of **P0-a** / **P1-a**. `RawDataReader('VOC'|'Minion', …)` now raises a
-    `KeyError` carrying migration advice. **`GRIMM` is the remaining case**
-    of both **P0-a** and **P1-a** — it *is* a real instrument with a raw format, so it
-    needs a `QC_Flag`, not removal.
-
-Each item carries a stable label (**P0-a**, **P1-c**, …) so other pages can cite
-it; the labels never renumber when an item is resolved and removed.
+!!! success "Recently resolved"
+    - **VOC and Minion withdrawn from the reader.** Both were pre-aggregated,
+      second-hand data — somebody else's processed output, not an instrument's
+      raw log — so there was nothing for a reader to parse and the readers only
+      ran generic checks. `RawDataReader('VOC'|'Minion', …)` now raises a
+      `KeyError` carrying migration advice.
+    - **GRIMM has QC.** It is a real instrument with a raw format, so it kept its
+      reader and gained three rules (`No Data`, `Negative Conc`,
+      `Insufficient`) — no invented concentration thresholds. `report_dict` also
+      defaults to `{}` now, so a future flag-less reader degrades to a rate-less
+      report instead of crashing.
+    - **Q-ACSM is registered as *pending*.** Also a real instrument, but with no
+      sample export to write a parser against, so it has no reader yet and says
+      so: `NotImplementedError` instead of an abstract-class `TypeError`.
+    - **Xact and IGAC read their detection limits from `meta`.** One source of
+      truth, `None` entries skipped; IGAC also stopped dropping its gas species
+      and gained `Above MR`.
 
 ### P0 — live breakage
 
-- **P0-a — a reader with no `QC_Flag` crashes on the default `qc=True`.**
-  `self.report_dict` is only assigned inside `_generate_report`, and only when
-  `qc_flag is not None` (`core/__init__.py:391`); `__call__:213` then reads it
-  unconditionally. `GRIMM` returns no `QC_Flag`, so:
-  `AttributeError: 'Reader' object has no attribute 'report_dict'`.
-  *Verified* (originally on a 3-row VOC CSV, before VOC was removed; GRIMM takes
-  the identical path). Fix: satisfy **R2** — give GRIMM a `QC_Flag`, even an
-  all-`Valid` one — and initialise `self.report_dict = {}` so a future
-  flag-less reader degrades instead of crashing.
-
-- **P0-b — `Q-ACSM` is an abstract stub in the supported list.**
-  `script/Q-ACSM.py` defines only `nam`; `_raw_reader` / `_QC` are missing, so
-  `RawDataReader('Q-ACSM', ...)` raises `TypeError: Can't instantiate abstract
-  class Reader without an implementation for abstract methods '_QC',
-  '_raw_reader'`. *Verified.* Either implement it or remove it from `meta` — if
-  its data also turns out to be second-hand, the VOC/Minion precedent applies
-  (move it to `removed` with migration advice).
+*None outstanding.* Both former P0 items are resolved (see the note above); the
+labels **P0-a** and **P0-b** are retired rather than reused.
 
 ### P1 — rule violations
 
-- **P1-a — R2 violated by GRIMM.** `GRIMM._QC` returns the frame unchanged — no
-  verdict at all, so nothing downstream can distinguish good data from bad and
-  the yield rate is uncomputable.
-
 - **P1-b — flag severity does not exist, so advisory flags delete data.**
   `__call__` NaNs the whole row for *any* non-`Valid` flag. That means
-  `Below MDL` (OCEC, IGAC), `Upscale Warning` (Xact), `Insufficient` and `Spike`
+  `Below MDL` (OCEC), `Upscale Warning` (Xact), `Insufficient` and `Spike`
   erase measurements that are merely uncertain. OCEC flags `Below MDL` with
   `value <= MDL` across four carbon fractions, so clean-air periods are wiped
   wholesale. Fix: split rules into *invalidating* and *advisory*; only the former
   should mask, both should be reported.
+
+    Partially worked around for Xact and IGAC: their below-MDL reporting is a
+    per-column diagnostic (`AbstractReader.log_below_mdl`) instead of a
+    row-level flag. **OCEC still flags it**, and `Insufficient` / `Spike` /
+    `Upscale Warning` remain fatal everywhere — the severity split is still the
+    real fix.
 
 - **P1-c — completeness QC uses the config frequency, not the detected one.**
   All nine callers pass `freq=self.meta['freq']` to `hourly_completeness_QC`
@@ -303,7 +295,8 @@ it; the labels never renumber when an item is resolved and removed.
   the pipeline uses `self._resolved_freq`. A folder whose true resolution differs
   from the config (e.g. AE33 logging at 5 min against a `1min` config) is judged
   against the wrong expected count and over-flags `Insufficient`.
-  Fix: `freq=self._resolved_freq or self.meta['freq']`.
+  Fix: `freq=self._resolved_freq or self.meta['freq']` — which is what GRIMM's
+  new rule already does, so the two conventions now coexist.
 
 - **P1-d — `mean_freq` is silently ignored when `qc=False`** (`__call__` returns
   before the resample). Either apply it on that branch or raise.
@@ -335,19 +328,16 @@ it; the labels never renumber when an item is resolved and removed.
   every column. Decide one policy (recommended: keep metadata, since **R1**'s
   rationale applies to L2 consumers too) and apply it uniformly.
 
-- **P2-c — two sources of truth for detection limits.** `meta['Xact']['MDL']`
-  (45 elements) and `meta['IGAC']['MDL']` / `['MR']` (17 species) are now read by
-  **nobody** — `Minion` was their only consumer, and it is gone. The live readers
-  use class-level constants (`OCEC.MDL`, 4 fractions; `IGAC.MDL`, 9 ions).
-  Either wire the config values into those readers or delete them.
-
 - **P2-d — personal absolute path as a default.** `report.py:225` defaults the
   known-issues file to `/Users/chanchihyu/DataCenter/Config/known_issues.yml`
   (overridable via `KNOWN_ISSUES_PATH`). Default should be `None` or
   project-relative.
 
-- **P2-e — one non-vectorised QC rule.** IGAC's `Below MDL` builds a per-row list
-  comprehension over columns; every other rule in the codebase is vectorised.
+- **P2-e — OCEC's `Below MDL` still masks rows.** Unlike Xact and IGAC (whose
+  below-MDL reporting is now a per-column diagnostic), OCEC keeps a row-level
+  `Below MDL` flag with `value <= MDL` over four carbon fractions, so clean-air
+  periods are deleted. Fold it into the **P1-b** severity split, or convert it
+  to `log_below_mdl` as well.
 
 - **P2-f — BC1054 timestamp ambiguity.** `read_csv(..., index_col=0)` takes
   `Raw_Time` when the file has both, and then *drops* `Time`. In the NZ 2025
@@ -378,18 +368,21 @@ it; the labels never renumber when an item is resolved and removed.
 
 ### Resolved
 
-- **VOC and Minion withdrawn from the reader** (see the note at the top of this
-  section). Cleared the `Minion` `meta['XRF']` crash outright, removed two of the
-  three `QC_Flag`-less readers, and left `meta['Xact']['MDL']` /
-  `meta['IGAC']['MDL']` with no consumer at all — see **P2-c**.
+Kept as a record of what the labels used to mean:
+
+| Was | What it was | How it was resolved |
+|---|---|---|
+| P0 | `Minion` could not read any file (`meta['XRF']`, a key that never existed) | reader removed — pre-aggregated second-hand data |
+| P0-a | a reader with no `QC_Flag` crashed on the default `qc=True` | GRIMM gained three rules; `report_dict` defaults to `{}` so a flag-less reader degrades instead of crashing |
+| P0-b | `Q-ACSM` raised an abstract-class `TypeError` | registered in `supported_instruments.pending` → `NotImplementedError` naming what to contribute |
+| P1-a | R2 violated by GRIMM / VOC / Minion (no verdict, or destroyed values at L2) | GRIMM flags; the other two are gone |
+| P2-c | `meta['Xact']['MDL']` / `meta['IGAC']['MDL']` had no consumer | both readers now source their limits from `meta` (`reader.MDL`, `reader.MR`), `None` entries skipped |
 
 ### Suggested order
 
-1. **P0-a** then **P0-b** — one reader unusable, one uninstantiable.
-2. **P1-b + P1-a** together: introduce flag severity, then give GRIMM flag-only
-   QC. Highest-value change — it makes "why is my data NaN?" answerable.
-3. **P1-c**, **P1-d**, **P1-f** — one-line fixes each.
-4. **P1-e** — warn on missing status columns, then add the Aurora `S1`/`S2` and
+1. **P1-b** — the severity split. Highest-value change: it makes "why is my data
+   NaN?" answerable, and retires the per-reader workarounds Xact and IGAC needed.
+2. **P1-c**, **P1-d**, **P1-f** — one-line fixes each.
+3. **P1-e** — warn on missing status columns, then add the Aurora `S1`/`S2` and
    SMPS AIM 11.x dialects.
-5. P2 as cleanup, with **P2-c** and **P2-h** done alongside whichever reader is
-   being touched.
+4. P2 as cleanup, with **P2-h** done alongside whichever page is being touched.

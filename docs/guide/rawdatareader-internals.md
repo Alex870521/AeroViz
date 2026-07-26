@@ -164,8 +164,8 @@ Column selection happens in `_QC` / `_process` per-instrument.
 
 Instruments using QCFlagBuilder:
   AE33, AE43, BC1054, MA350, SMPS, APS, NEPH, Aurora,
-  TEOM, BAM1020, OCEC, IGAC, Xact, EPA
-  (not: GRIMM, Q-ACSM)
+  TEOM, BAM1020, OCEC, IGAC, Xact, GRIMM, EPA
+  (Q-ACSM has no reader yet)
 
 Instruments with _process() method:
   AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS, TEOM
@@ -385,6 +385,26 @@ Status flag bit definitions (TSI RF command)
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+#### GRIMM
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  STAGE 1: _QC()                                                     │
+│  ┌────────────────────────┐  ┌────────────────────────┐             │
+│  │ Rule: No Data          │  │ Rule: Negative Conc    │             │
+│  ├────────────────────────┤  ├────────────────────────┤             │
+│  │ All channels NaN       │  │ Any channel < 0        │             │
+│  └────────────────────────┘  └────────────────────────┘             │
+│  ┌────────────────────────┐                                         │
+│  │ Rule: Insufficient     │  < 50% hourly data (uses the DETECTED   │
+│  └────────────────────────┘  frequency, not the config value)       │
+│                                                                     │
+│  No concentration range check: no sample corpus to calibrate one    │
+│  against, and a wrong threshold silently deletes good data.         │
+└─────────────────────────────────────────────────────────────────────┘
+Output: size channels, QC_Flag
+```
+
 ### Scattering Instruments
 
 #### NEPH / Aurora
@@ -530,15 +550,21 @@ Detection Limits (MDL, µg/m³)
 │  │ Total ions > PM2.5     │  │ NH4+/SO4²⁻/NO3-        │             │
 │  └────────────────────────┘  │ missing                │             │
 │  ┌────────────────────────┐  └────────────────────────┘             │
-│  │ Rule: Below MDL        │  ┌────────────────────────┐             │
+│  │ Rule: Above MR         │  ┌────────────────────────┐             │
 │  ├────────────────────────┤  │ Rule: Ion Balance      │             │
-│  │ Concentration < MDL    │  ├────────────────────────┤             │
-│  └────────────────────────┘  │ Cation/Anion ratio     │             │
-│                              │ outside valid range    │             │
+│  │ Conc > measurement     │  ├────────────────────────┤             │
+│  │ range (from config)    │  │ Cation/Anion ratio     │             │
+│  └────────────────────────┘  │ outside valid range    │             │
 │                              └────────────────────────┘             │
+│  Below MDL → per-species DIAGNOSTIC in the log, not a flag          │
 └─────────────────────────────────────────────────────────────────────┘
-Output: ion columns, QC_Flag
+Output: every spec species present (gases included), QC_Flag
 ```
+
+MDL and MR come from `meta['IGAC']` (the vendor spec) — the reader used to carry
+a second, disagreeing copy of the 9 aerosol ions and drop the gas species
+entirely. Below-MDL is reported per species instead of flagged, because a
+non-`Valid` flag NaNs the whole row and would take the other species with it.
 
 ### Other Data Sources
 
@@ -571,22 +597,21 @@ Output: all columns, QC_Flag
 | TEOM       | Yes           | 6     | Status, High Noise, Non-pos, NV>Total, Spike, Insufficient       |
 | BAM1020    | Yes           | 2     | Invalid Conc, Spike                                              |
 | OCEC       | Yes           | 4     | Invalid Carbon, Below MDL, Spike, Missing OC                     |
-| IGAC       | Yes           | 4     | Mass Closure, Missing Main, Below MDL, Ion Balance               |
+| IGAC       | Yes           | 4     | Mass Closure, Missing Main, Above MR, Ion Balance                |
 | EPA        | Yes           | 1     | Negative                                                         |
 | Xact       | Yes           | 5     | Calibration Mode, Instrument Error, Upscale Warning, Invalid Value, Internal Std Drift |
-| GRIMM      | —             | 0     | none (no `QC_Flag` — see note below)                             |
-| Q-ACSM     | —             | —     | reader not implemented (abstract stub)                           |
+| GRIMM      | Yes           | 3     | No Data, Negative Conc, Insufficient                             |
+| Q-ACSM     | —             | —     | reader not implemented yet (registered as *pending*)             |
 
-!!! warning "GRIMM has no `QC_Flag`"
-    `GRIMM._QC` is a pass-through, so no `QC_Flag` is produced and the default
-    `qc=True` path raises
-    `AttributeError: 'Reader' object has no attribute 'report_dict'`. Use
-    `qc=False` until it is fixed —
-    [Data Levels §7 P0-a](data-levels.md#p0-live-breakage).
+!!! info "Every reader now produces a `QC_Flag`"
+    GRIMM used to be a pass-through, which crashed the default `qc=True` path
+    with `AttributeError: … 'report_dict'`. It now has three rules, and
+    `self.report_dict` defaults to `{}` so a future flag-less reader degrades to
+    a rate-less report instead of raising.
 
-    `VOC` and `Minion` used to share this problem; both were **removed** from
-    the reader (pre-aggregated second-hand data with no raw log to parse) and
-    now raise a `KeyError` with migration advice.
+    `VOC` and `Minion` used to share that problem; both were **removed** from the
+    reader (pre-aggregated second-hand data with no raw log to parse) and now
+    raise a `KeyError` with migration advice.
 
 ---
 
@@ -616,7 +641,7 @@ The `report.json` contains three rates, all computed from `QC_Flag`. A period
 | NEPH       | 5 min       | scattering (RGB), sca_550, SAE              |
 | SMPS       | 6 min       | total, GMD, GSD, mode (num/surf/vol)        |
 | APS        | 6 min       | totals at cutoffs, GMD, GSD, mode           |
-| GRIMM      | 6 min       | size-distribution statistics                |
+| GRIMM      | 6 min       | size-channel concentrations                  |
 | TEOM       | 6 min       | PM_Total, PM_NV, Volatile_Fraction          |
 | BAM1020    | 1 h         | PM mass concentration                       |
 | OCEC       | 1 h         | thermal / optical OC & EC                   |

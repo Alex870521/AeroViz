@@ -1,6 +1,6 @@
-from pandas import to_datetime, read_csv
+from pandas import to_datetime, read_csv, Series
 
-from AeroViz.rawDataReader.core import AbstractReader
+from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
 
 
 class Reader(AbstractReader):
@@ -9,8 +9,9 @@ class Reader(AbstractReader):
     A specialized reader for GRIMM data files, which measure particle size distributions
     in the range of 0.25-32 μm.
 
-    See full documentation at docs/source/instruments/GRIMM.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/particle-sizers/GRIMM.md`` and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the file layout and QC
+    procedure.
     """
     nam = 'GRIMM'
 
@@ -39,30 +40,69 @@ class Reader(AbstractReader):
             _df.drop(_df.columns[0:11].tolist() + _df.columns[-5:].tolist(), axis=1, inplace=True)
 
         if _df.empty:
-            print(file, "is empty")
+            self.logger.warning(f"{file.name} is empty.")
             return None
 
         return _df / 0.035
 
     def _QC(self, _df):
         """
-        Perform quality control on GRIMM data.
+        Perform quality control on GRIMM size-distribution data.
 
-        Parameters
-        ----------
-        _df : pandas.DataFrame
-            Raw GRIMM data with datetime index and size channels as columns.
-
-        Returns
-        -------
-        pandas.DataFrame
-            The input data unchanged.
+        QC Rules Applied
+        ----------------
+        1. No Data        : every size channel is NaN
+        2. Negative Conc  : any size channel is negative (physically impossible)
+        3. Insufficient   : less than 50% hourly data completeness
 
         Notes
         -----
-        No QC filters are currently applied. Future implementations could include:
-        1. Value range checks for each size channel
-        2. Total concentration consistency checks
-        3. Time-based outlier detection
+        Deliberately conservative. Concentration *range* limits (the equivalent
+        of SMPS's ``MIN_TOTAL_CONC`` / ``APS``'s ``MAX_TOTAL_CONC``) are **not**
+        applied: this reader has no sample corpus to calibrate a plausible range
+        against, and a wrong threshold silently deletes good data. The three
+        rules here need no site-specific tuning — a negative count is invalid
+        under any configuration.
+
+        Producing a ``QC_Flag`` at all is required by the pipeline contract (see
+        ``docs/guide/data-levels.md``, rule R2): rates are computed by comparing
+        the raw frame against the flag, so a reader without one leaves the
+        report rate-less.
         """
-        return _df
+        _index = _df.index.copy()
+        df_qc = _df.copy()
+
+        # Size channels are the numeric-valued measurement columns; the reader
+        # already dropped the metadata columns in `_raw_reader`.
+        channels = df_qc.select_dtypes(include='number').columns.tolist()
+
+        qc = QCFlagBuilder()
+        qc.add_rules([
+            QCRule(
+                name='No Data',
+                condition=lambda df: (df[channels].isna().all(axis=1)
+                                      if channels else Series(True, index=df.index)),
+                description='All size channels are NaN'
+            ),
+            QCRule(
+                name='Negative Conc',
+                condition=lambda df: (df[channels] < 0).any(axis=1) if channels else Series(False, index=df.index),
+                description='Negative concentration in at least one size channel'
+            ),
+            QCRule(
+                name='Insufficient',
+                condition=lambda df: (self.QC_control().hourly_completeness_QC(
+                    df[channels], freq=self._resolved_freq or self.meta['freq'])
+                    if channels else Series(False, index=df.index)),
+                description='Less than 50% hourly data completeness'
+            ),
+        ])
+
+        df_qc = qc.apply(df_qc)
+
+        summary = qc.get_summary(df_qc)
+        self.logger.info(f"{self.nam} QC Summary:")
+        for _, row in summary.iterrows():
+            self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+
+        return df_qc.reindex(_index)

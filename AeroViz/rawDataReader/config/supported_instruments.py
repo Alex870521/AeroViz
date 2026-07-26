@@ -109,6 +109,19 @@ meta = {
     },
 }
 
+# Real instruments whose reader is not written yet. They stay in `meta` (the
+# native frequency is known) but have no module in `script/`, so the factory
+# raises a plain "not implemented" instead of an abstract-class TypeError.
+# Removing the entry here once a reader lands is all that is needed.
+pending = {
+    "Q-ACSM": (
+        "Q-ACSM is a real instrument, but its reader is not implemented yet — no sample "
+        "export has been available to write and test a parser against. Contribute one by "
+        "adding AeroViz/rawDataReader/script/Q-ACSM.py with _raw_reader and _QC (see "
+        "docs/guide/data-levels.md for the level contracts each must satisfy)."
+    ),
+}
+
 # Instruments that used to have a reader and no longer do, with the migration
 # advice surfaced by the RawDataReader factory. Both were pre-aggregated,
 # second-hand datasets — somebody else's processed output rather than an

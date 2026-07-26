@@ -296,7 +296,7 @@ The file-glob pattern and native frequency come from the instrument config.
 | `OCEC` | Sunset OC/EC analyzer (LCRes files) | 1 h |
 | `IGAC` | Ion chromatograph — water-soluble ions/gases | 1 h |
 | `Xact` | XRF heavy metals (with built-in MDLs) | 1 h |
-| `Q-ACSM` | Aerosol Chemical Speciation Monitor | 30 min |
+| `Q-ACSM` | Aerosol Chemical Speciation Monitor | 30 min · **reader not implemented yet** |
 
 **Other / aggregated sources**
 

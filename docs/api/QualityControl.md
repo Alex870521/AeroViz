@@ -105,7 +105,7 @@ df['QC_Flag'] = builder.build(df)
 | **TEOM** | High Noise, Negative/Zero, NV > Total, Invalid Vol Frac, Std Outlier, Insufficient |
 | **BAM1020** | Invalid Range, IQR Outlier |
 | **OCEC** | Invalid Range, Below MDL, IQR Outlier, Missing OC |
-| **IGAC** | Mass Closure, Missing Main, Below MDL, Ion Balance |
+| **IGAC** | Mass Closure, Missing Main, Above MR, Ion Balance |
 | **EPA** | Negative Value |
 
 ## Methods

@@ -194,6 +194,14 @@ Data quality is indicated by `QC_Flag` column:
 - `Status Error`: Instrument status error
 - `Invalid BC` / `Invalid Number Conc`: Out of range values
 - `Spike`: Detected sudden value changes
+- `Above MR`: Above the instrument's stated measurement range (IGAC)
+- `Negative Conc`: Negative concentration in a size channel (GRIMM)
+
+Detection limits are **not** a flag for Xact / IGAC: below-MDL fractions are
+reported per column in the log (`log_below_mdl`), because any non-`Valid` flag
+NaNs the whole row and would delete every other species measured that hour.
+MDL/MR values come from `config/supported_instruments.py` (`reader.MDL` /
+`reader.MR`). OCEC still flags `Below MDL`.
 
 SMPS-specific: `Status Error` is OR'd across both `Status Flag` and
 `Instrument Errors`. `'None'` / `'nan'` / `''` and the positive `'Normal

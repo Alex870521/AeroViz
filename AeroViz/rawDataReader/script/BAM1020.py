@@ -10,7 +10,7 @@ class Reader(AbstractReader):
     using beta attenuation technology.
 
     See ``docs/api/instruments/mass/BAM1020.md`` for usage and
-    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    ``docs/guide/instrument-formats-and-qc.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'BAM1020'

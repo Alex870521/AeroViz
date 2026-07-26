@@ -8,7 +8,7 @@
 > **See also:** [Data Levels (L0–L3)](data-levels.md) for the level contracts
 > (what each stage may add or destroy, what is cacheable, where new code goes)
 > and the list of known non-conformances;
-> [Raw Formats & Status Codes](../api/instruments/raw-formats-and-status.md) for
+> [Raw Formats & Status Codes](instrument-formats-and-qc.md) for
 > per-instrument parsing recipes and the authoritative status/error-code tables.
 
 How `RawDataReader` turns raw instrument files into the final resampled DataFrame.
@@ -218,7 +218,7 @@ IGAC, Xact) emits it directly inside `_QC`. SMPS/APS/NEPH/Aurora have a
 > The diagrams below are a visual overview. The **authoritative** per-instrument
 > tables — file patterns, header layouts, status columns, error-code meanings,
 > whitelist semantics and known coverage gaps — are in
-> [Raw Formats & Status Codes](../api/instruments/raw-formats-and-status.md).
+> [Raw Formats & Status Codes](instrument-formats-and-qc.md).
 
 ### Black Carbon Instruments
 

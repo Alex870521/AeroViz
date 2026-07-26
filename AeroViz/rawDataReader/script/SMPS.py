@@ -14,7 +14,7 @@ class Reader(AbstractReader):
     in the range of 11.8-593.5 nm.
 
     See ``docs/api/instruments/particle-sizers/SMPS.md`` for usage and
-    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    ``docs/guide/instrument-formats-and-qc.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'SMPS'

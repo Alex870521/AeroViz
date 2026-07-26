@@ -130,7 +130,7 @@ RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
 
 The authoritative per-instrument rule list — names, thresholds, severities and
 the status-code tables behind `Status Error` — lives in
-[Raw Formats & Status Codes](instruments/raw-formats-and-status.md), which is
+[Raw Formats & Status Codes](../guide/instrument-formats-and-qc.md), which is
 generated from the readers rather than restated here.
 
 ## Methods

@@ -1,13 +1,15 @@
-# Raw Formats & Status Codes
+# Instrument Formats & QC
 
 > **One page, three questions per instrument:** what does the raw file look like,
 > how is an instrument error decided, and where does that decision get recorded?
 >
-> The per-instrument pages under this section describe *usage*. This page is the
-> **reference for the parsing recipe and the error/status semantics** — the
-> things you need when a file won't parse, when `Status Error` fires on every
-> row, or when it never fires at all. For the level model that frames all of
-> this, see [Data Levels (L0–L3)](../../guide/data-levels.md).
+> This is the reference for everything **L2** does — the parsing recipe and the
+> error/status semantics — for when a file won't parse, when `Status Error` fires
+> on every row, or when it never fires at all. The
+> [per-instrument API pages](../api/instruments/index.md) cover *usage*; the
+> level model that frames all of this is in
+> [Data Levels (L0–L3)](data-levels.md), whose rules **R2** and **R2a** define
+> what QC may and may not do to your data.
 
 ---
 
@@ -370,10 +372,10 @@ Where the status/QC machinery was, or still is, doing less than it appears to:
 | **Any reader whose status column gets renamed** | degraded silently to "no errors ever" | **fixed**: `check_status_columns` warns, naming what it looked for and what the file has |
 | **MA350** | `Status` column presence never verified against a real export | **open** — no fixture. The warning above will now say so at runtime instead of passing everything |
 | **GRIMM** | no concentration range check | **open by choice**: no sample corpus to calibrate one against, and a guessed threshold silently deletes good data |
-| **Any reader using `Insufficient`** | partial first/last hours look sparse merely because the data starts mid-hour | **open** — see P2-i in [Data Levels §7](../../guide/data-levels.md#7-non-conformance-what-still-needs-fixing) |
+| **Any reader using `Insufficient`** | partial first/last hours look sparse merely because the data starts mid-hour | **open** — see P2-i in [Data Levels §7](data-levels.md#7-non-conformance-what-still-needs-fixing) |
 
 Full remediation list, with priorities and suggested order:
-[Data Levels §7](../../guide/data-levels.md#7-non-conformance-what-still-needs-fixing).
+[Data Levels §7](data-levels.md#7-non-conformance-what-still-needs-fixing).
 
 ---
 

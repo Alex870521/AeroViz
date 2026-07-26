@@ -10,7 +10,7 @@ class Reader(AbstractReader):
     in the range of 0.25-32 μm.
 
     See ``docs/api/instruments/particle-sizers/GRIMM.md`` and
-    ``docs/api/instruments/raw-formats-and-status.md`` for the file layout and QC
+    ``docs/guide/instrument-formats-and-qc.md`` for the file layout and QC
     procedure.
     """
     nam = 'GRIMM'

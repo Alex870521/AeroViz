@@ -12,7 +12,7 @@ class Reader(AbstractReader):
     light scattering properties of aerosols at multiple wavelengths.
 
     See ``docs/api/instruments/nephelometers/NEPH.md`` for usage and
-    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    ``docs/guide/instrument-formats-and-qc.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'NEPH'

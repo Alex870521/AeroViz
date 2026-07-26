@@ -51,6 +51,7 @@ nav:
           - RawDataReader: guide/rawdatareader.md
           - Data Levels (L0-L3): guide/data-levels.md
           - Instrument Formats & QC: guide/instrument-qc.md
+          - Counting Efficiency (CPC & APS): guide/counting-efficiency.md
           - RawDataReader Internals: guide/reader-internals.md
           - DataProcess: guide/dataprocess.md
           - Visualization: guide/visualization.md

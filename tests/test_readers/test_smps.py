@@ -334,3 +334,43 @@ class TestSMPSReader(BaseReaderTest):
 
         kept = reader._partition_compatible_scans(df_list, files)
         assert kept is df_list  # same object, no copy, no drops
+
+
+@pytest.mark.smps
+class TestDetectorMetadata:
+    """The SMPS file names the CPC that did the counting.
+
+    Which CPC is attached sets where the counting efficiency rolls off, and so
+    how far the lowest size channels under-report — a 3750 cuts off at 7 nm, a
+    375010 at 10 nm, a 3756 at 2.5 nm. It is a separate instrument that can be
+    swapped, so the dataset should say which one produced it rather than leaving
+    the reader to assume. See docs/guide/counting-efficiency.md.
+    """
+
+    @pytest.mark.parametrize('scenario', ['normal', 'csv_format'])
+    def test_cpc_model_reaches_attrs(self, scenario, raw_data_path, tmp_path):
+        """Both AIM dialects report it: 11.x CSV puts one field per line, 10.3 TXT
+        packs several key/value pairs onto one tab-separated line."""
+        import shutil
+
+        from AeroViz import RawDataReader
+
+        src = raw_data_path / 'SMPS' / scenario
+        if not src.exists():
+            pytest.skip(f'SMPS {scenario} fixture not available')
+        dst = tmp_path / 'SMPS'
+        shutil.copytree(src, dst, ignore=shutil.ignore_patterns('smps_outputs'))
+
+        df = RawDataReader('SMPS', dst, reset=True, quiet=True, fill_missing=False)
+
+        assert df.attrs['cpc_detector_model'] == '3750'
+        assert df.attrs['cpc_detector_s_n'] == '3750234302'
+        assert df.attrs['cpc_nano_enhancer'].upper() == 'NONE'
+
+    def test_absent_metadata_is_not_an_error(self, tmp_path):
+        """A file without the block still parses; the attrs are simply absent."""
+        from AeroViz.rawDataReader.script.SMPS import Reader
+
+        reader = Reader(path=tmp_path, qc=False, quiet=True)
+
+        assert reader._detector == {}

@@ -66,6 +66,11 @@ class Reader(AbstractReader):
         ('Neutralizer Status', 'ON', ()),
     )
 
+    #: Metadata fields naming the CPC that did the counting. Captured from the
+    #: block above the data header and reported in `df.attrs`; the CPC's cut-off
+    #: sets how far the lowest size channels under-report.
+    DETECTOR_FIELDS = ('Detector Model', 'Detector S/N', 'Nano Enhancer')
+
     # Kept for backwards compatibility with callers that referenced these.
     STATUS_COLUMN = 'Status Flag'
     STATUS_OK = 'Normal Scan'
@@ -101,6 +106,11 @@ class Reader(AbstractReader):
         'DMA Exit to Optical Detector Td (s)': 'td + 0.5 (s)',   # AIM 10.3 also adds the +0.5 offset; treated as same quantity
     }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        #: `{field: value}` scraped from the file metadata; see DETECTOR_FIELDS.
+        self._detector = {}
+
     def __call__(self, start=None, end=None, mean_freq=None):
         """Return the dN/dlogDp distribution; write S/V + a stats sidecar.
 
@@ -112,7 +122,13 @@ class Reader(AbstractReader):
         matrix for ``psd_stats`` / ``merge_psd`` / ``SizeDist``).
         """
         dist = super().__call__(start, end, mean_freq)
-        return finalize_size_dist(self, dist, unit='nm')
+        dist = finalize_size_dist(self, dist, unit='nm')
+
+        # Which CPC counted these particles, for whoever reads the data later.
+        if self._detector:
+            dist.attrs.update({f'cpc_{k.lower().replace(" ", "_").replace("/", "_")}': v
+                               for k, v in self._detector.items()})
+        return dist
 
     def _raw_reader(self, file):
         """Read and parse raw SMPS data files.
@@ -127,10 +143,25 @@ class Reader(AbstractReader):
         """
 
         def find_header_row(file_obj, delimiter):
+            """Locate the data header, capturing the detector metadata above it.
+
+            The block before the header names the CPC doing the counting
+            (`Detector Model`, `Nano Enhancer`). That decides where the counting
+            efficiency rolls off, and therefore how far the lowest channels
+            under-report — see `docs/guide/counting-efficiency.md`. The CPC is a
+            separate instrument that can be swapped, so it is worth recording
+            which one produced a given dataset rather than assuming.
+            """
             csv_reader = csv.reader(file_obj, delimiter=delimiter)
             for skip, row in enumerate(csv_reader):
                 if row and (row[0] in ['Sample #', 'Scan Number']):
                     return skip
+                # AIM 11.x CSV puts one field per line; AIM 10.3 TXT packs
+                # several key/value pairs onto one tab-separated line, so walk
+                # the whole row rather than just its first cell.
+                for key, value in zip(row[::2], row[1::2]):
+                    if key.strip() in self.DETECTOR_FIELDS and value.strip():
+                        self._detector.setdefault(key.strip(), value.strip())
             raise ValueError("Header row not found")
 
         def parse_date(df, date_format):

@@ -197,6 +197,7 @@ Identical to AE33 except:
 | **Status** | **six** columns, mode `text`, masks OR'd — whichever are present. The same information is reported under **different names per host-software version**:<br><br>`Status Flag` (10.3) ↔ `Detector Status` (11.x) — positive sentinel, OK when `'Normal Scan'`<br>`Instrument Errors` (10.3) ↔ `Classifier Errors` (11.x) — error tokens, OK when empty<br>`Communication Status` (11.x only) — OK when `'0'`<br>`Neutralizer Status` (11.x only) — OK when `'ON'`<br><br>Two value shapes: a *positive sentinel* column (OK when it equals a known-good string) and an *error-token* column (OK when empty, otherwise comma-separated fault names). `'Normal Scan'` is auto-whitelisted on the token columns too, because some sites write the positive sentinel there instead of leaving it blank. |
 | **QC rules** | `Status Error`, `Insufficient`, `Invalid Number Conc` (2 000–1e7 #/cm³, NaN total ⇒ flagged), `DMA Water Ingress` (any bin ≥ 400 nm > 4 000 dN/dlogDp) |
 | **L2 output** | **the dN/dlogDp matrix only** (diameters in nm as columns) + `QC_Flag`. Statistics are *not* in the frame. |
+| **CPC** | the file names the counter that did the counting (`Detector Model`, `Detector S/N`, `Nano Enhancer`), reported in `df.attrs` as `cpc_*`. Its cut-off decides how far the lowest channels under-report — see [Counting Efficiency](counting-efficiency.md). Not corrected for. |
 | **L3 sidecars** | `{prefix}_dNdlogDp.csv`, `_dSdlogDp.csv` (`πd²·dN`), `_dVdlogDp.csv` (`πd³/6·dN`), `_stats.csv` (from `psd_stats`). Pass `append_stats=True` to also append the statistics columns to the returned frame. |
 | **Was a gap** | an AIM 11.x export has **neither** AIM 10.3 name, so until all six were listed its `Status Error` rule could never fire — every scan passed the status check regardless of what the instrument reported. Verified on the CSV fixture: `Detector Status='Normal Scan'`, `Classifier Errors='Low aerosol flow'`, `Communication Status='0'`, `Neutralizer Status='ON'` on all 62 scans, so the flag now fires (and `ignored_status_errors=['Low aerosol flow']` clears it, as on the 10.3 dialect). |
 
@@ -212,6 +213,7 @@ Identical to AE33 except:
 | **Bit meanings** | 0 laser fault · 1 total flow out of range · 2 sheath flow out of range · 3 excessive sample concentration · 4 accumulator clipped (> 65535) · 5 autocal failed · 6 internal temp < 10 °C · 7 internal temp > 40 °C · 8 detector voltage out of range · 9 reserved |
 | **QC rules** | `Status Error`, `Insufficient`, `Invalid Number Conc` (1–700 #/cm³) |
 | **L2 output / sidecars** | as SMPS, diameters in **µm** |
+| **Counting efficiency** | the APS under-counts at both ends — 85–99 % for solid particles, but falling from 75 % at 0.8 µm to 25 % at 10 µm for droplets (Volckens & Peters 2005). Not corrected for; see [Counting Efficiency](counting-efficiency.md). |
 
 ### GRIMM
 

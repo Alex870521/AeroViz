@@ -334,3 +334,46 @@ def test_coverage_ignores_the_boolean_verdict(raw_data_path, tmp_path):
 
     span = df.attrs['coverage_end'] - df.attrs['coverage_start']
     assert span < pd.Timedelta(days=30), 'coverage must reflect the files, not the padding'
+
+
+class TestRuleFailureIsVisible:
+    """A rule that raises is disabled for that run, which weakens QC silently.
+    It used to `print`; it now goes through the reader's logger."""
+
+    def test_failure_is_logged_not_printed(self, frame, caplog):
+        broken = QCRule('Broken Rule', lambda df: 1 / 0, description='raises')
+
+        class Recorder:
+            def __init__(self):
+                self.messages = []
+
+            def warning(self, msg):
+                self.messages.append(msg)
+
+        recorder = Recorder()
+        out = QCFlagBuilder(logger=recorder).add_rule(broken).apply(frame)
+
+        assert any('Broken Rule' in m and 'skipped' in m for m in recorder.messages)
+        assert any('passing QC unchecked' in m for m in recorder.messages)
+        # The read still completes, with the rule treated as "did not fire".
+        assert (out[FLAG] == 'Valid').all()
+
+    def test_reader_builder_wires_its_logger(self, tmp_path):
+        from AeroViz.rawDataReader.script.TEOM import Reader
+
+        reader = Reader(path=tmp_path, qc=True, quiet=True)
+
+        assert reader.qc_builder().logger is reader.logger
+
+
+def test_completeness_accepts_a_bare_pandas_freqstr():
+    """`hourly_completeness_QC` must cope with 'min' / 'h' as well as '1min'."""
+    from AeroViz.rawDataReader.core.qc import QualityControl
+
+    idx = pd.date_range('2024-01-01 00:00', periods=40, freq='1min')
+    df = pd.DataFrame({'v': range(40)}, index=idx)
+
+    for freq in ('min', '1min'):
+        mask = QualityControl.hourly_completeness_QC(df, freq=freq)
+        # 40 of 60 expected minutes present -> above the 50% threshold
+        assert not mask.any(), freq

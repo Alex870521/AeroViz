@@ -31,8 +31,11 @@ class Reader(AbstractReader):
     MAX_AAE = 2.0        # Maximum valid AAE (absolute value)
 
     # =========================================================================
-    # Status Error Codes (bitwise flags) - Same as AE33
+    # Status Error Codes (bitwise flags) — must stay identical to AE33
     # =========================================================================
+    # Same instrument family, same status register, same manual. 128 and 256 are
+    # tape-LOW *warnings* (data still valid), so neither they nor their sum 384
+    # belong here — AE33 dropped 384 and this list had not followed.
     ERROR_STATES = [
         1,     # Tape advance (tape advance, fast calibration, warm-up)
         2,     # First measurement – obtaining ATN0
@@ -40,7 +43,6 @@ class Reader(AbstractReader):
         4,     # Flow low/high by more than 0.5 LPM
         16,    # Calibrating LED
         32,    # Calibration error (at least one channel OK)
-        384,   # Tape error (tape not moving, end of tape)
         1024,  # Stability test
         2048,  # Clean air test
         4096,  # Optical test
@@ -76,6 +78,10 @@ class Reader(AbstractReader):
         _index = _df.index.copy()
         df_qc = _df.copy()
 
+        # Warn if the status column is missing: `filter_error_status` would
+        # otherwise report "no errors" for a renamed column.
+        self.check_status_columns(df_qc, ['Status'])
+
         # Build QC rules declaratively
         qc = self.qc_builder()
         qc.add_rules([
@@ -95,7 +101,7 @@ class Reader(AbstractReader):
             QCRule(
                 name='Insufficient',
                 condition=lambda df: self.QC_control().hourly_completeness_QC(
-                    df[self.BC_COLUMNS], freq=self.meta['freq']
+                    df[self.BC_COLUMNS], freq=self._resolved_freq or self.meta['freq']
                 ),
                 description='Less than 50% hourly data completeness'
             ),

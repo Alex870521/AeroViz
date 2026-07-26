@@ -27,17 +27,44 @@ class Reader(AbstractReader):
     MAX_LARGE_BIN_CONC = 4000      # Maximum concentration for >400nm bins (DMA water ingress indicator)
     LARGE_BIN_THRESHOLD = 400      # Size threshold for large bin filter (nm)
 
-    # Primary status column — present on older AIM 10.3 sub-versions and on
-    # AIM 11.x. Values are a positive sentinel (`'Normal Scan'`) when OK; any
-    # other text (e.g. `'Conditioner Temperature Error'`) is an error.
+    # =========================================================================
+    # Status columns across AIM versions
+    # =========================================================================
+    # The same information is reported under DIFFERENT COLUMN NAMES depending on
+    # the host software, so the reader checks every dialect it knows and ORs the
+    # error masks of whichever columns are present. Verified against the corpus:
+    #
+    #   AIM 10.3 (.TXT)          AIM 11.x (.CSV)         OK value
+    #   ----------------------   ---------------------   -----------------------
+    #   Status Flag              Detector Status         'Normal Scan' (positive
+    #                                                    sentinel)
+    #   Instrument Errors        Classifier Errors       empty; some sites write
+    #                                                    'Normal Scan' instead
+    #   —                        Communication Status    '0'
+    #   —                        Neutralizer Status      'ON'
+    #
+    # Two shapes of value: a *positive sentinel* column, OK when it equals a
+    # known-good string; and an *error-token* column, OK when empty, otherwise
+    # carrying one or more comma-separated fault names ('Low aerosol flow',
+    # 'Neutralizer not active'). Whitelist benign tokens per site with
+    # `ignored_status_errors=[...]` rather than editing raw files.
+    #
+    # An AIM 11.x export has NEITHER of the 10.3 names, so before this list
+    # existed its `Status Error` rule could never fire — every scan passed the
+    # status check regardless of what the instrument reported.
+    STATUS_SPECS = (
+        # (column, ok_value, extra tokens always treated as OK)
+        ('Status Flag', 'Normal Scan', ()),
+        ('Instrument Errors', '', ('Normal Scan',)),
+        ('Detector Status', 'Normal Scan', ()),
+        ('Classifier Errors', '', ('Normal Scan',)),
+        ('Communication Status', '0', ()),
+        ('Neutralizer Status', 'ON', ()),
+    )
+
+    # Kept for backwards compatibility with callers that referenced these.
     STATUS_COLUMN = 'Status Flag'
     STATUS_OK = 'Normal Scan'
-    # Secondary status column — on newer AIM 10.3 .TXT exports and AIM 11.x,
-    # the actual operational warnings ("Low aerosol flow", "Neutralizer not
-    # active", or comma-combined) live here, while `Status Flag` stays empty.
-    # Empty cell ↔ no error; any non-empty token that isn't on the user's
-    # `ignored_status_errors` whitelist is treated as a Status Error. Both
-    # columns are checked and their error masks OR'd in `_QC`.
     SECONDARY_STATUS_COLUMN = 'Instrument Errors'
 
     # =========================================================================
@@ -287,45 +314,56 @@ class Reader(AbstractReader):
         # so existing pipelines see no behavioural change.
         ignored_status_errors = self.kwargs.get('ignored_status_errors') or None
 
-        def _combined_status_error_mask(df):
-            """OR the error masks from `Status Flag` (positive 'Normal Scan'
-            sentinel) and `Instrument Errors`. Either column being missing is
-            silently skipped (returns False from `filter_error_status`), so
-            older / mixed exports work without extra configuration.
+        # Warn once if this export uses none of the dialects we know, since the
+        # rule below would then be permanently silent.
+        status_columns = self.check_status_columns(
+            _df, [name for name, _, _ in self.STATUS_SPECS])
+        if status_columns:
+            self.logger.debug(f"SMPS status columns in use: {', '.join(status_columns)}")
 
-            `Instrument Errors` has two AIM 10.3 dialects: most instruments
-            leave it empty when OK (TP), but some write the positive
-            `'Normal Scan'` sentinel into it instead (FS). `'Normal Scan'` is
-            never a real error in any column, so it is treated as OK here in
-            addition to the empty/`nan`/`None` sentinels — otherwise the FS
-            dialect would be flagged as a Status Error on every scan."""
+        def _combined_status_error_mask(df):
+            """OR the error masks of every status column this export provides.
+
+            Each entry in `STATUS_SPECS` names a column, the value that means OK,
+            and any extra tokens to treat as OK. A column that is absent is
+            skipped, so one implementation covers AIM 10.3, AIM 11.x and any
+            mixed folder without configuration.
+
+            `'Normal Scan'` is never a real error in any column, so it is
+            whitelisted on the error-token columns too: most sites leave those
+            empty when healthy, but some write the positive sentinel there
+            instead, and without this every scan from those sites would be
+            flagged.
+            """
             qc_ctrl = self.QC_control()
-            mask = qc_ctrl.filter_error_status(
-                _df, status_column=self.STATUS_COLUMN, status_type='text',
-                ok_value=self.STATUS_OK, ignored_values=ignored_status_errors,
-            )
-            if self.SECONDARY_STATUS_COLUMN in _df.columns:
-                secondary_ignored = list(ignored_status_errors or []) + [self.STATUS_OK]
+            mask = Series(False, index=_df.index)
+
+            for column, ok_value, extra_ok in self.STATUS_SPECS:
+                if column not in _df.columns:
+                    continue
+                ignored = list(ignored_status_errors or []) + list(extra_ok)
                 mask = mask | qc_ctrl.filter_error_status(
-                    _df, status_column=self.SECONDARY_STATUS_COLUMN, status_type='text',
-                    ok_value='', ignored_values=secondary_ignored,
+                    _df, status_column=column, status_type='text',
+                    ok_value=ok_value, ignored_values=ignored or None,
                 )
-            return mask
+
+            return mask.reindex(df.index).fillna(False)
 
         qc.add_rules([
             QCRule(
                 name='Status Error',
                 condition=_combined_status_error_mask,
                 description=(
-                    f'Status flag is not "{self.STATUS_OK}", or '
-                    f'`{self.SECONDARY_STATUS_COLUMN}` is non-empty'
+                    'Instrument reported a fault in '
+                    + (', '.join(f'`{c}`' for c in status_columns) if status_columns
+                       else 'no recognised status column (rule inert)')
                     + (f' (ignoring: {ignored_status_errors})' if ignored_status_errors else '')
                 )
             ),
             QCRule(
                 name='Insufficient',
                 condition=lambda df: self.QC_control().hourly_completeness_QC(
-                    df[df_numeric.columns], freq=self.meta['freq']
+                    df[df_numeric.columns], freq=self._resolved_freq or self.meta['freq']
                 ),
                 description='Less than 50% hourly data completeness'
             ),

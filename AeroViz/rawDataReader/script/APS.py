@@ -199,6 +199,10 @@ class Reader(AbstractReader):
         dlogDp = np.diff(np.log(df_numeric.columns.to_numpy(float))).mean()
         total_conc = df_numeric.sum(axis=1, min_count=1) * dlogDp
 
+        # Warn if the status column is missing: `filter_error_status` would
+        # otherwise report "no errors" for a renamed column.
+        self.check_status_columns(_df, [self.STATUS_COLUMN])
+
         # Build QC rules declaratively
         qc = self.qc_builder()
 
@@ -214,7 +218,7 @@ class Reader(AbstractReader):
             QCRule(
                 name='Insufficient',
                 condition=lambda df: self.QC_control().hourly_completeness_QC(
-                    df[df_numeric.columns], freq=self.meta['freq']
+                    df[df_numeric.columns], freq=self._resolved_freq or self.meta['freq']
                 ),
                 description='Less than 50% hourly data completeness'
             ),

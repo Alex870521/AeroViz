@@ -195,6 +195,10 @@ class Reader(AbstractReader):
         _index = _df.index.copy()
         df_qc = _df.copy()
 
+        # Warn if the status column is missing: `filter_error_status` would
+        # otherwise report "no errors" for a renamed column.
+        self.check_status_columns(_df, [self.STATUS_COLUMN])
+
         # Build QC rules declaratively
         qc = self.qc_builder()
 
@@ -233,7 +237,7 @@ class Reader(AbstractReader):
             QCRule(
                 name='Insufficient',
                 condition=lambda df: self.QC_control().hourly_completeness_QC(
-                    df[self.PM_COLUMNS], freq=self.meta['freq']
+                    df[self.PM_COLUMNS], freq=self._resolved_freq or self.meta['freq']
                 ),
                 description='Less than 50% hourly data completeness'
             ),

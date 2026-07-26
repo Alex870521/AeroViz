@@ -79,13 +79,21 @@ class TestAPSReader(BaseReaderTest):
             assert (out / name).exists(), f"{name} not written"
 
     def test_append_stats(self, data_path, date_range, temp_output_dir):
-        """append_stats=True appends stat columns; default keeps a clean PSD matrix."""
+        """append_stats=True appends stat columns; default keeps a clean PSD matrix.
+
+        `Insufficient` is demoted for this test because the fixture is a 22-minute
+        slice sampled every 115 s: every clock hour it touches really is less than
+        50% covered, so the rule correctly invalidates all 12 rows and the derived
+        statistics would be all-NaN. That is a property of the trimmed fixture, not
+        of `append_stats`.
+        """
         normal_path = data_path / 'normal'
         if not normal_path.exists():
             normal_path = data_path
 
-        clean = self.read_data(normal_path, date_range)
-        fat = self.read_data(normal_path, date_range, append_stats=True)
+        keep_sparse = {'flag_severity': {'Insufficient': 'warning'}}
+        clean = self.read_data(normal_path, date_range, **keep_sparse)
+        fat = self.read_data(normal_path, date_range, append_stats=True, **keep_sparse)
 
         assert all(isinstance(c, (int, float)) for c in clean.columns)
         assert any(isinstance(c, (int, float)) for c in fat.columns)

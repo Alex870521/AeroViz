@@ -79,7 +79,8 @@ How `RawDataReader` turns raw instrument files into the final resampled DataFram
                                         ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  8. Final output                                                            │
-│     ├─ resample(mean_freq) — only if mean_freq given (default: no resample) │
+│     ├─ resample(mean_freq) — only if given; applies on the qc=False path too │
+│     │    (non-numeric columns are named in the log, not dropped silently)    │
 │     ├─ output_{inst}.csv                                                    │
 │     ├─ output_{inst}_dN/dS/dVdlogDp.csv (SMPS/APS)                          │
 │     ├─ report.json                                                          │
@@ -236,9 +237,7 @@ IGAC, Xact) emits it directly inside `_QC`. SMPS/APS/NEPH/Aurora have a
 │  │   4   Flow error    │  │ Rule: Insufficient  │                   │
 │  │   16  LED calib.    │  ├─────────────────────┤                   │
 │  │   32  Calib. error  │  │ < 50% hourly data   │                   │
-│  │   384 Tape error    │  └─────────────────────┘                   │
-│  │       (AE43 only)   │                                            │
-│  │   1024 Stability    │                                            │
+│  │   1024 Stability    │  └─────────────────────┘                   │
 │  │   2048 Clean air    │                                            │
 │  │   4096 Optical      │                                            │
 │  └─────────────────────┘                                            │
@@ -253,8 +252,8 @@ IGAC, Xact) emits it directly inside `_QC`. SMPS/APS/NEPH/Aurora have a
 └─────────────────────────────────────────────────────────────────────┘
 Output: BC1-BC7, abs_370-950, abs_550, AAE, eBC, QC_Flag
 
-Note: AE33 deliberately excludes 128 / 256 / 384 (tape-LOW warnings — the data
-is still valid); AE43 still lists 384. See Data Levels §7 (P1-f).
+Note: both readers deliberately exclude 128 / 256 / 384 (tape-LOW warnings —
+the data is still valid). A test pins the two lists identical.
 ```
 
 #### BC1054
@@ -337,8 +336,11 @@ QC Thresholds
 ┌─────────────────────────────────────────────────────────────────────┐
 │  STAGE 1: _QC()                                                     │
 │  ┌──────────────────────┐                                           │
-│  │ Rule: Status Error   │  Status Flag ≠ "Normal Scan"              │
-│  └──────────────────────┘                                           │
+│  │ Rule: Status Error   │  any of SIX status columns reports a fault │
+│  └──────────────────────┘  (AIM 10.3: Status Flag / Instrument      │
+│                            Errors;  AIM 11.x: Detector Status /     │
+│                            Classifier Errors / Communication        │
+│                            Status / Neutralizer Status)             │
 │  ┌──────────────────────┐  ┌──────────────────────┐                 │
 │  │ Rule: Insufficient   │  │ Rule: Invalid Number │                 │
 │  ├──────────────────────┤  │       Conc           │                 │
@@ -431,8 +433,9 @@ QC Thresholds
 ┌─────────────────────────────────────────────────────────────────────┐
 │  STAGE 1: _QC()                                                     │
 │  ┌────────────────────────┐                                         │
-│  │ Rule: Status Error     │  Status ≠ 0 (if column present)         │
-│  └────────────────────────┘                                         │
+│  │ Rule: Status Error     │  Status ≠ 0. NEPH: `status` from the `Y` │
+│  └────────────────────────┘  record; Aurora: `S1` (0 = ambient,      │
+│                              4 = zero/span check on filtered air)   │
 │  ┌────────────────────────┐  ┌────────────────────────┐             │
 │  │ Rule: No Data          │  │ Rule: Invalid Scat     │             │
 │  ├────────────────────────┤  ├────────────────────────┤             │

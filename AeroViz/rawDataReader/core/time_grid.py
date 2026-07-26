@@ -25,6 +25,17 @@ import pandas as pd
 __all__ = ['detect_freq', 'resolve_freq', 'detect_isolated_dates', 'snap_to_grid', 'to_grid']
 
 
+def _with_multiplier(offset) -> str:
+    """``freqstr`` with an explicit count: ``'1min'``, not ``'min'``.
+
+    pandas omits the multiplier when it is 1, but ``pd.Timedelta('min')`` raises
+    ("unit abbreviation w/o a number") — so a bare ``freqstr`` is unsafe to hand to
+    any consumer that measures a duration, which is exactly what the completeness
+    QC does. Normalising here keeps ``df.attrs['raw_freq']`` readable too.
+    """
+    return f'{offset.n}{offset.base.freqstr}'
+
+
 def detect_freq(index) -> str | None:
     """Infer a frequency string (e.g. ``'6min'``, ``'1h'``) from an index.
 
@@ -42,7 +53,7 @@ def detect_freq(index) -> str | None:
 
     inferred = idx.inferred_freq
     if inferred:
-        return pd.tseries.frequencies.to_offset(inferred).freqstr
+        return _with_multiplier(pd.tseries.frequencies.to_offset(inferred))
 
     median = pd.Series(idx).diff().dropna().median()
     if pd.isna(median):

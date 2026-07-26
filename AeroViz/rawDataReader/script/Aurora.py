@@ -28,10 +28,31 @@ class Reader(AbstractReader):
     MIN_SCAT_VALUE = 0       # Minimum scattering coefficient (Mm^-1)
     MAX_SCAT_VALUE = 2000    # Maximum scattering coefficient (Mm^-1)
 
-    # Status Flag
-    STATUS_COLUMN = 'Status'  # Common status column names to check
-    STATUS_COLUMNS = ['Status', 'status', 'Error', 'error', 'Flag', 'flag']
-    STATUS_OK = 0  # Status code 0 means normal operation
+    # =========================================================================
+    # Status column across export dialects
+    # =========================================================================
+    # Normalised to `Status` and checked numerically, OK == 0. The candidate list
+    # matters: the production Ecotech export carries NONE of the obvious names —
+    # its columns are
+    #   Data_Time, Raw_Data_Time, Red, Green, Blue, B_Red, B_Green, B_Blue,
+    #   T1, T2, RH, P, S1, S2
+    # and the status lives in `S1`. Before `S1` was on this list the reader found
+    # no status column at all, so `Status Error` could never fire.
+    #
+    # Evidence that `S1` is the status and 0 is OK (2025-01-01, 120 one-minute
+    # scans): S1 ∈ {0, 4}. The 17 rows with S1 == 4 are *contiguous* (00:06-00:22)
+    # and their scattering decays 185 -> 0.78 Mm⁻¹ while the S1 == 0 rows average
+    # 193 Mm⁻¹ — the signature of the zero/span check, where the instrument
+    # samples filtered air. Those rows are not ambient measurements and must not
+    # be averaged into ambient means, but the range check passes them happily
+    # (0.78 is inside 0-2000).
+    #
+    # `S2` moves in step (0x07 while ambient, 0xAB/0xA8 during the check) and is a
+    # bitfield whose individual bits are NOT decoded here — no manual to hand, and
+    # guessing bit meanings would be worse than leaving it as data.
+    STATUS_COLUMN = 'Status'
+    STATUS_COLUMNS = ['Status', 'status', 'Error', 'error', 'Flag', 'flag', 'S1']
+    STATUS_OK = 0  # Status code 0 means normal operation (ambient sampling)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -98,6 +119,10 @@ class Reader(AbstractReader):
         # Identify rows with all data missing (handled separately)
         all_missing_mask = df_qc[self.SCAT_COLUMNS].isna().all(axis=1)
 
+        # Warn once if this dialect has no recognised status column, so the rule
+        # below cannot silently pass every fault.
+        self.check_status_columns(_df, [self.STATUS_COLUMN])
+
         # Build QC rules declaratively
         qc = self.qc_builder()
 
@@ -129,7 +154,7 @@ class Reader(AbstractReader):
             QCRule(
                 name='Insufficient',
                 condition=lambda df: self.QC_control().hourly_completeness_QC(
-                    df[self.SCAT_COLUMNS], freq=self.meta['freq']
+                    df[self.SCAT_COLUMNS], freq=self._resolved_freq or self.meta['freq']
                 ),
                 description='Less than 50% hourly data completeness'
             ),

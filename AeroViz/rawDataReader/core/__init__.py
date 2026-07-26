@@ -201,7 +201,11 @@ class AbstractReader(ABC):
         _f_raw, _f_qc = self._run(start, end)
 
         if not self.qc:
-            return self._stamp(_f_raw, start, end, with_qc=False)
+            # The raw branch honours `mean_freq` too. It used to ignore it
+            # silently, so `qc=False, mean_freq='1h'` returned native-resolution
+            # data that looked hourly-averaged.
+            _f_raw = self._resample(_f_raw, mean_freq)
+            return self._stamp(_f_raw, start, end, mean_freq=mean_freq, with_qc=False)
 
         # Keep the flag record for the report before it is dropped.
         qc_flag = _f_qc[FLAG_COLUMN].copy() if FLAG_COLUMN in _f_qc else None
@@ -237,8 +241,7 @@ class AbstractReader(ABC):
 
         # Resample only when a frequency is requested; otherwise return the
         # data at its native resolution (e.g. already-aggregated sources).
-        if mean_freq is not None:
-            _f_qc = _f_qc.resample(mean_freq).mean().__round__(4)
+        _f_qc = self._resample(_f_qc, mean_freq)
 
         _f_qc.to_csv(self.csv_out)
 
@@ -251,6 +254,34 @@ class AbstractReader(ABC):
                 json.dump(report_dict, f, indent=4)
 
         return self._stamp(_f_qc, start, end, mean_freq=mean_freq, with_qc=True)
+
+    def _resample(self, df: pd.DataFrame, mean_freq: str | None) -> pd.DataFrame:
+        """Average ``df`` onto ``mean_freq``; a no-op when none was requested.
+
+        ``mean()`` silently drops non-numeric columns, which is how text metadata
+        (a status string, an instrument ID) vanishes between the native-resolution
+        and resampled outputs. That is the right behaviour — there is no sensible
+        mean of a status string — but it should not be silent, so the dropped
+        columns are named in the log once.
+        """
+        if mean_freq is None or df.empty:
+            return df
+
+        numeric = [c for c in df.columns if pd.api.types.is_numeric_dtype(df[c])]
+        dropped = [c for c in df.columns if c not in numeric]
+
+        if dropped:
+            shown = ', '.join(str(c) for c in dropped[:8])
+            if len(dropped) > 8:
+                shown += f', ... (+{len(dropped) - 8} more)'
+            self.logger.info(
+                f"Resampling to {mean_freq}: dropping {len(dropped)} non-numeric "
+                f"column(s) with no meaningful average ({shown}). Omit mean_freq "
+                f"to keep them at native resolution.")
+
+        # Select explicitly rather than relying on `mean()` to skip them: with an
+        # object column present it raises instead of dropping.
+        return df[numeric].resample(mean_freq).mean().__round__(4)
 
     def _stamp(self, df: pd.DataFrame, start, end, *, mean_freq=None, with_qc=False) -> pd.DataFrame:
         """Attach reader metadata to ``df.attrs`` just before returning.
@@ -275,12 +306,14 @@ class AbstractReader(ABC):
             raw_freq=self._resolved_freq or self.meta.get('freq'),
             freq_mixed=self._freq_mixed,
             fill_missing=self.fill_missing,
+            # Recorded on both branches: the raw path resamples too, so the
+            # attrs must say what grid the frame is actually on.
+            mean_freq=mean_freq,
             aeroviz_version=aeroviz_version(),
             processed_at=datetime.now().isoformat(timespec='seconds'),
         )
         if with_qc:
             meta.update(
-                mean_freq=mean_freq,
                 qc_applied=True,
                 qc_freq=self.qc_freq,
                 **(self.overall_rates or {}),
@@ -898,13 +931,42 @@ class AbstractReader(ABC):
     def QC_control():
         return QualityControl()
 
+    def check_status_columns(self, df: pd.DataFrame, candidates) -> list[str]:
+        """Which of ``candidates`` are present, warning loudly when none are.
+
+        ``filter_error_status`` returns all-False for a column it cannot find, so
+        a renamed status column degrades to "this instrument reported no errors,
+        ever" — indistinguishable from a healthy instrument. Vendors *do* rename
+        it between host-software versions (SMPS AIM 10.3 vs 11.x split the same
+        information across differently-named columns), so the absence has to be
+        visible.
+
+        Returns the present names so a caller can OR their masks together.
+        """
+        candidates = list(candidates)
+        present = [c for c in candidates if c in df.columns]
+
+        if not present:
+            seen = [str(c) for c in df.columns[:12]]
+            if len(df.columns) > 12:
+                seen.append('...')
+            self.logger.warning(
+                f"No status column found — the 'Status Error' rule cannot fire for "
+                f"these files, so instrument faults will pass QC unnoticed. Looked "
+                f"for: {', '.join(candidates)}. Columns present: {', '.join(seen)}. "
+                f"If this export dialect names it differently, add the name to the "
+                f"reader's status-column list.")
+
+        return present
+
     def qc_builder(self) -> QCFlagBuilder:
         """A `QCFlagBuilder` carrying this run's severity overrides.
 
         Readers should use this instead of `QCFlagBuilder()` directly so that
-        ``flag_severity={'Insufficient': 'warning'}`` reaches their rules.
+        ``flag_severity={'Insufficient': 'warning'}`` reaches their rules, and so
+        a rule that raises is reported through the reader's log.
         """
-        return QCFlagBuilder(self.qc_severity_overrides)
+        return QCFlagBuilder(self.qc_severity_overrides, logger=self.logger)
 
     @staticmethod
     def qc_columns(df: pd.DataFrame) -> list[str]:

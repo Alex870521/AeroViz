@@ -89,7 +89,7 @@ class QCFlagBuilder:
     #: recorded without deleting the measurement.
     INVALID_COLUMN = 'QC_Invalid'
 
-    def __init__(self, severity_overrides: dict | None = None):
+    def __init__(self, severity_overrides: dict | None = None, logger=None):
         """
         Parameters
         ----------
@@ -97,9 +97,14 @@ class QCFlagBuilder:
             ``{rule_name: 'error' | 'warning'}``, applied when the builder runs.
             Lets a caller reclassify a rule for one run (e.g. treat
             ``'Insufficient'`` as advisory) without editing the reader.
+        logger : optional
+            Where to report a rule that raises. Defaults to ``print``, which is
+            easy to miss in a long read — pass the reader's logger so the failure
+            lands in the log file alongside the QC summary.
         """
         self.rules: list[QCRule] = []
         self.severity_overrides = dict(severity_overrides or {})
+        self.logger = logger
 
     def add_rule(self, rule: QCRule) -> 'QCFlagBuilder':
         """Add a QC rule. Returns self for method chaining."""
@@ -137,7 +142,15 @@ class QCFlagBuilder:
                     mask = pd.Series(mask, index=df.index)
                 masks[rule.name] = mask.reindex(df.index).fillna(False).astype(bool)
             except Exception as e:
-                print(f"Warning: QC rule '{rule.name}' failed: {e}")
+                # A rule that raises is disabled for this run, which quietly
+                # weakens QC — say so where it will be seen.
+                message = (f"QC rule '{rule.name}' failed and was skipped "
+                           f"({type(e).__name__}: {e}). Data that this rule would "
+                           f"have flagged is passing QC unchecked.")
+                if self.logger is not None:
+                    self.logger.warning(message)
+                else:
+                    print(f"Warning: {message}")
                 masks[rule.name] = pd.Series(False, index=df.index)
         return masks
 
@@ -1106,8 +1119,15 @@ class QualityControl:
         # Create result mask
         completeness_mask = pd.Series(False, index=df.index)
 
-        # Calculate expected data points per hour
-        points_per_hour = pd.Timedelta('1h') / pd.Timedelta(freq)
+        # Calculate expected data points per hour. Go through `to_offset` rather
+        # than `Timedelta(freq)` directly: a pandas freqstr may omit the
+        # multiplier ('min', 'h'), which Timedelta rejects outright.
+        try:
+            period = pd.Timedelta(pd.tseries.frequencies.to_offset(freq))
+        except (ValueError, TypeError) as exc:
+            raise ValueError(
+                f"hourly_completeness_QC could not interpret freq={freq!r}: {exc}") from exc
+        points_per_hour = pd.Timedelta('1h') / period
         min_points = points_per_hour * threshold
 
         # Only process numeric columns

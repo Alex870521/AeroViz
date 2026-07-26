@@ -110,6 +110,10 @@ class Reader(AbstractReader):
         duplicate_rows = _df.eq(_df.shift()).all(axis=1) | _df.eq(_df.shift(-1)).all(axis=1)
         df_qc = _df[~duplicate_rows].copy()
 
+        # Warn if the status column is missing: `filter_error_status` would
+        # otherwise report "no errors" for a renamed column.
+        self.check_status_columns(df_qc, ['Status'])
+
         # Build QC rules declaratively
         qc = self.qc_builder()
         qc.add_rules([
@@ -129,7 +133,7 @@ class Reader(AbstractReader):
             QCRule(
                 name='Insufficient',
                 condition=lambda df: self.QC_control().hourly_completeness_QC(
-                    df[self.BC_COLUMNS], freq=self.meta['freq']
+                    df[self.BC_COLUMNS], freq=self._resolved_freq or self.meta['freq']
                 ),
                 description='Less than 50% hourly data completeness'
             ),

@@ -291,35 +291,17 @@ labels **P0-a** and **P0-b** are retired rather than reused.
 
 ### P1 — rule violations
 
-- **P1-c — completeness QC uses the config frequency, not the detected one.**
-  All nine callers pass `freq=self.meta['freq']` to `hourly_completeness_QC`
-  (AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS, TEOM) while the rest of
-  the pipeline uses `self._resolved_freq`. A folder whose true resolution differs
-  from the config (e.g. AE33 logging at 5 min against a `1min` config) is judged
-  against the wrong expected count and over-flags `Insufficient`.
-  Fix: `freq=self._resolved_freq or self.meta['freq']` — which is what GRIMM's
-  new rule already does, so the two conventions now coexist.
-
-- **P1-d — `mean_freq` is silently ignored when `qc=False`** (`__call__` returns
-  before the resample). Either apply it on that branch or raise.
-
-- **P1-e — status QC is silently inert for two real-world formats** (details and
-  evidence in
-  [Raw Formats & Status Codes](../api/instruments/raw-formats-and-status.md)):
-  Aurora's production CSV has no `Status`/`Error`/`Flag` column at all (its
-  status lives in the undocumented hex `S1`/`S2` fields), and SMPS AIM 11.x CSV
-  exports carry neither `Status Flag` nor `Instrument Errors` — the errors are
-  split four ways into `Detector Status`, `Classifier Errors`,
-  `Communication Status`, `Neutralizer Status`. In both cases
-  `filter_error_status` finds no column and returns all-False, so `Status Error`
-  can never fire and nothing says so. Fix: warn once per run when a configured
-  status column is absent, and map the missing dialects.
-
-- **P1-f — AE33 and AE43 disagree on the same status register.** AE33 removed
-  code `384` (128/256 are tape-*low* warnings, data still valid); `AE43.py:42`
-  still lists `384` as an error. Same instrument family, same manual — pick one.
+*None outstanding.* All six are resolved (see below); labels are retired, not
+reused.
 
 ### P2 — consistency, dead code, doc drift
+
+- **P2-i — hourly completeness penalises partial edge hours.** The rule measures
+  each *clock hour* against `3600 s / freq`, so the first and last hour of any
+  read look sparse simply because the data starts or ends mid-hour. Harmless on
+  multi-day files, fatal on short ones: a 22-minute APS file has every row
+  flagged. Consider exempting the edge hours, or scaling the expectation by the
+  hour's overlap with the data's coverage.
 
 - **P2-a — dead constants.** `SMPS.MIN_HOURLY_COUNT` and `APS.MIN_HOURLY_COUNT`
   are never read (the real threshold is `hourly_completeness_QC`'s
@@ -375,13 +357,16 @@ Kept as a record of what the labels used to mean:
 | P2-c | `meta['Xact']['MDL']` / `meta['IGAC']['MDL']` had no consumer | both readers now source their limits from `meta` (`reader.MDL`, `reader.MR`), `None` entries skipped |
 | P1-b | no flag severity — advisory flags (`Below MDL`, `Upscale Warning`, …) NaN'd the row as hard as `Status Error` | `QCRule(severity=...)` + a `QC_Invalid` verdict column; L3 masks on the verdict, not on the presence of a flag. `flag_severity={...}` reclassifies per run |
 | P2-e | OCEC still flagged `Below MDL` row-level | now `severity='warning'` — recorded, kept. Xact's `Upscale Warning` likewise (the instrument calls 200–203 warnings, 100–110 errors) |
+| P1-c | completeness QC measured against the *config* frequency | all nine callers now use `self._resolved_freq or self.meta['freq']`. The APS fixture showed why: it samples every 115 s while its config says 6 min, a 3× understatement |
+| P1-d | `mean_freq` silently ignored when `qc=False` | both branches go through `_resample`, which also names the non-numeric columns it drops instead of losing them silently |
+| P1-e | status QC silently inert for two real formats | Aurora recognises `S1`; SMPS knows all six column names across AIM 10.3/11.x; **every** status reader warns when no known column is present |
+| P1-f | AE33 and AE43 disagreed on code `384` | AE43 aligned; a test pins the two lists equal |
 
 ### Suggested order
 
-1. **P1-c**, **P1-d**, **P1-f** — one-line fixes each.
-2. **P1-e** — warn on missing status columns, then add the Aurora `S1`/`S2` and
-   SMPS AIM 11.x dialects.
-3. P2 as cleanup, with **P2-h** done alongside whichever page is being touched.
+Only P2 cleanups remain. **P2-i** is the one with a real data consequence — it
+decides whether short reads are usable at all — so it is worth doing before the
+cosmetic items. Do **P2-h** alongside whichever page is being touched anyway.
 
 ### Classifying a new rule
 

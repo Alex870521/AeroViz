@@ -36,6 +36,23 @@ class TestDetectFreq:
 
 
 # --------------------------------------------------------------- resolve_freq
+    @pytest.mark.parametrize('freq,expected', [
+        ('1min', '1min'), ('6min', '6min'), ('1h', '1h'), ('5min', '5min'),
+    ])
+    def test_multiplier_is_always_explicit(self, freq, expected):
+        """pandas omits the multiplier when it is 1 (`inferred_freq` -> 'min'),
+        but `pd.Timedelta('min')` raises "unit abbreviation w/o a number". Any
+        consumer measuring a duration from this string would break, and the
+        hourly-completeness rule did exactly that — silently, because a QC rule
+        that raises is caught and treated as "did not fire"."""
+        idx = pd.date_range('2024-01-01', periods=12, freq=freq)
+
+        detected = detect_freq(idx)
+
+        assert detected == expected
+        assert pd.Timedelta(detected) == pd.Timedelta(freq)
+
+
 class TestResolveFreq:
     def test_unanimous(self):
         assert resolve_freq({'a': '6min', 'b': '6min'}) == ('6min', False)

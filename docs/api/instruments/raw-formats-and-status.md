@@ -22,7 +22,7 @@ The mode determines how the raw status value is interpreted *and* how the
 |------|---------------------|-----------|-------------|--------------------------------------|
 | `bitwise` | integer, OR-summed bits (`0`, `4`, `536870912`) | any non-whitelisted code in `ERROR_STATES` matches bitwise, or the value equals a `special_codes` entry | AE33, AE43, BC1054, MA350, **TEOM** | integer codes/bits **removed from the error definition** |
 | `numeric` | flat integer code (`0`, `4`, `16`) | `status != ok_value` and not NaN | Aurora, NEPH | numeric codes **treated as OK** |
-| `text` | free text, possibly comma-joined (`Normal Scan`, `Low aerosol flow,Neutralizer not active`) | any token is neither `ok_value` nor whitelisted | SMPS (both status columns) | string tokens, matched **per token** |
+| `text` | free text, possibly comma-joined (`Normal Scan`, `Low aerosol flow,Neutralizer not active`) | any token is neither `ok_value` nor whitelisted | SMPS (six columns across two AIM dialects) | string tokens, matched **per token** |
 | `binary_string` | space-grouped bit string (`0000 0000 0000 0000`) | any non-whitelisted bit remains set after clearing the whitelist mask | APS | integer bit masks **cleared before testing** |
 
 Two behaviours to know:
@@ -31,10 +31,12 @@ Two behaviours to know:
   `'None'` are never errors. (`'None'` arrives when a column is missing from
   *some* files of a multi-file concat: pandas fills with Python `None`, which
   `astype(str)` renders as `'None'`.)
-- **A missing status column is silently OK.** If `status_column` is not in the
-  frame, `filter_error_status` returns all-`False` and says nothing. This is
-  deliberate (mixed exports), but it means a status rule can be completely inert
-  without any signal — see [§6 Coverage gaps](#6-coverage-gaps).
+- **A missing status column reads as OK — but now says so.** `filter_error_status`
+  returns all-`False` for a column it cannot find, which is deliberate (mixed
+  exports must not crash) but used to make a status rule *completely inert with no
+  signal*. Every status reader now calls `check_status_columns` first and logs a
+  warning naming what it looked for and what the file actually contains, so a new
+  export dialect surfaces instead of silently passing every fault.
 
 Entries in `ignored_status_errors` that don't fit a mode are skipped, so the same
 whitelist can be passed to any reader safely:
@@ -151,9 +153,8 @@ Identical to AE33 except:
   `read_csv(parse_dates=['StartTime'], index_col='StartTime')`.
 - Keeps only the rows of the **last `SetupID`** in the file (a setup change
   mid-file discards the earlier segment).
-- `ERROR_STATES` **still contains 384** ("tape error"), unlike AE33 — an
-  unresolved inconsistency, see
-  [Data Levels P1-f](../../guide/data-levels.md#p1-rule-violations).
+- `ERROR_STATES` is now **identical to AE33's** — it used to keep `384`, which
+  AE33 had dropped as a tape-*low* warning. A test pins the two lists equal.
 
 ### BC1054
 
@@ -190,11 +191,11 @@ Identical to AE33 except:
 | **Parse** | opened with `encoding='utf-8', errors='ignore'` (real files contain non-UTF-8 bytes in the sample-path metadata). Header row is found by scanning for a first cell of `Sample #` (TXT / AIM 10.3, ~row 25) or `Scan Number` (CSV / AIM 11.x, ~row 52). Delimiter: tab for `.txt`, comma for `.csv`. Time from `Date` + `Start Time`, or `DateTime Sample Start`; date formats tried in order (`%m/%d/%y`, `%m/%d/%Y`, `%Y/%m/%d` for TXT; `%d/%m/%Y` for CSV). Some exports are **transposed** — if no date column is found the frame is rotated and re-parsed. |
 | **Size bins** | numeric column names → float; expected 11.8–593.5 nm. A mismatch **warns**; the file is only rejected when the caller passed an explicit `size_range`. |
 | **AIM reconciliation** | Two independent problems. (1) *Mixed bin grids in one folder* → `_partition_compatible_scans` keeps the group with the most rows and names every dropped file in a warning. (2) *Renamed metadata* → `METADATA_ALIASES` rewrites AIM 11.x names to the AIM 10.3 canonical form (`Total Concentration (#/cm³)`→`Total Conc. (#/cm)`, `Aerosol Temperature (C)`→`Sample Temp (C)`, `Aerosol Humidity (%)`→`Relative Humidity (%)`, `Aerosol Density (g/cm³)`→`Density (g/cm)`, `Impactor D50 (nm)`→`D50 (nm)`, `Test Name`→`Title`, `Geo. Std. Dev`→`Geo. Std. Dev.`, `DMA Column transit time Tf (s)`→`tf (s)`, `DMA Exit to Optical Detector Td (s)`→`td + 0.5 (s)`). AIM 11.x-only columns keep their own names. |
-| **Status** | **two** columns, mode `text`, masks OR'd: `Status Flag` with `ok_value='Normal Scan'`, and `Instrument Errors` with `ok_value=''` plus `'Normal Scan'` auto-whitelisted. Rationale: on AIM 10.3 `.TXT` (and AIM 11.x) the real warnings — `Low aerosol flow`, `Neutralizer not active`, comma-combined — live in `Instrument Errors` while `Status Flag` is absent or empty; some sites' `Instrument Errors` is empty-when-OK, others write the positive `Normal Scan` sentinel there. Both dialects must pass. |
+| **Status** | **six** columns, mode `text`, masks OR'd — whichever are present. The same information is reported under **different names per host-software version**:<br><br>`Status Flag` (10.3) ↔ `Detector Status` (11.x) — positive sentinel, OK when `'Normal Scan'`<br>`Instrument Errors` (10.3) ↔ `Classifier Errors` (11.x) — error tokens, OK when empty<br>`Communication Status` (11.x only) — OK when `'0'`<br>`Neutralizer Status` (11.x only) — OK when `'ON'`<br><br>Two value shapes: a *positive sentinel* column (OK when it equals a known-good string) and an *error-token* column (OK when empty, otherwise comma-separated fault names). `'Normal Scan'` is auto-whitelisted on the token columns too, because some sites write the positive sentinel there instead of leaving it blank. |
 | **QC rules** | `Status Error`, `Insufficient`, `Invalid Number Conc` (2 000–1e7 #/cm³, NaN total ⇒ flagged), `DMA Water Ingress` (any bin ≥ 400 nm > 4 000 dN/dlogDp) |
 | **L2 output** | **the dN/dlogDp matrix only** (diameters in nm as columns) + `QC_Flag`. Statistics are *not* in the frame. |
 | **L3 sidecars** | `{prefix}_dNdlogDp.csv`, `_dSdlogDp.csv` (`πd²·dN`), `_dVdlogDp.csv` (`πd³/6·dN`), `_stats.csv` (from `psd_stats`). Pass `append_stats=True` to also append the statistics columns to the returned frame. |
-| **Gap** | AIM 11.x CSV exports have **neither** configured status column — errors are split into `Detector Status`, `Classifier Errors`, `Communication Status`, `Neutralizer Status`, none of which is checked. `Status Error` can never fire for those files. |
+| **Was a gap** | an AIM 11.x export has **neither** AIM 10.3 name, so until all six were listed its `Status Error` rule could never fire — every scan passed the status check regardless of what the instrument reported. Verified on the CSV fixture: `Detector Status='Normal Scan'`, `Classifier Errors='Low aerosol flow'`, `Communication Status='0'`, `Neutralizer Status='ON'` on all 62 scans, so the flag now fires (and `ignored_status_errors=['Low aerosol flow']` clears it, as on the 10.3 dialect). |
 
 ### APS
 
@@ -217,7 +218,7 @@ Identical to AE33 except:
 | **Status** | none |
 | **QC rules** | `No Data` (all channels NaN), `Negative Conc` (any channel < 0 — impossible for a counter), `Insufficient` |
 | **Deliberately absent** | concentration *range* limits, the equivalent of SMPS's `MIN_TOTAL_CONC` / APS's `MAX_TOTAL_CONC`. There is no GRIMM sample corpus to calibrate a plausible range against, and a wrong threshold silently deletes good data. The three rules above need no site-specific tuning. |
-| **Note** | the completeness rule uses the **detected** frequency (`_resolved_freq`), unlike the nine older callers that still pass the config value — see [Data Levels P1-c](../../guide/data-levels.md#p1-rule-violations). |
+| **Note** | like every reader, the completeness rule measures against the **detected** frequency (`_resolved_freq`), falling back to the config value only when detection fails. |
 
 ---
 
@@ -229,10 +230,11 @@ Identical to AE33 except:
 |---|---|
 | **Pattern** | `*.csv`; native `1min` |
 | **Parse** | `read_csv(low_memory=False, index_col=0)`; index coerced to datetime; column aliases `0°σspB/G/R`→`B/G/R`, `90°σspB/G/R`→`BB/BG/BR`, and `Blue/Green/Red`→`B/G/R`, `B_Blue/B_Green/B_Red`→`BB/BG/BR`; `Raw_Data_Time` dropped |
-| **Status** | first match among `Status`, `status`, `Error`, `error`, `Flag`, `flag` is renamed to `Status`; mode `numeric`, `ok_value=0` |
+| **Status** | first match among `Status`, `status`, `Error`, `error`, `Flag`, `flag`, **`S1`** is renamed to `Status`; mode `numeric`, `ok_value=0` |
 | **QC rules** | `Status Error`, `No Data`, `Invalid Scat Value` (0–2 000 Mm⁻¹), `Invalid Scat Rel` (`B < G & G < R`), `Insufficient` |
 | **L2 output** | `sca_550`, `SAE`, plus all non-scattering columns (T1, T2, RH, P, S1, S2, …), `QC_Flag` |
-| **Gap** | the production CSV (`Data_Time, Raw_Data_Time, Red, Green, Blue, B_Red, B_Green, B_Blue, T1, T2, RH, P, S1, S2`) contains **none** of the six candidate status names. The instrument's status is in the hex-ish `S1`/`S2` fields (values like `00`, `07`, `04`, `AB`), which nothing decodes. `Status Error` is therefore permanently all-`False` for this format. |
+| **`S1` is the status** | the production CSV (`Data_Time, Raw_Data_Time, Red, Green, Blue, B_Red, B_Green, B_Blue, T1, T2, RH, P, S1, S2`) contains none of the *obvious* status names — the status is `S1`, and it is now recognised. Evidence from 120 one-minute scans: `S1 ∈ {0, 4}`; the 17 rows with `S1 == 4` are **contiguous** (00:06–00:22) and their scattering decays 185 → 0.78 Mm⁻¹ while `S1 == 0` rows average 193 Mm⁻¹ — the signature of the **zero/span check**, where the instrument samples filtered air. Those rows pass the 0–2000 range check happily, so before this fix they were averaged into ambient means: on that fixture, dropping them raises the green-channel mean from 170.8 to 193.2 Mm⁻¹, i.e. a **13% low bias** removed. |
+| **`S2`** | moves in step (`0x07` while ambient, `0xAB`/`0xA8` during the check) and is evidently a bitfield. Its individual bits are **not** decoded — no manual to hand, and guessing bit meanings would be worse than leaving it as data. |
 
 ### NEPH
 
@@ -358,16 +360,16 @@ entry is all that is needed once a reader lands.
 
 ## 6. Coverage gaps
 
-Where the status/QC machinery is *silently* doing nothing:
+Where the status/QC machinery was, or still is, doing less than it appears to:
 
-| Instrument | Symptom | Cause |
+| Instrument | Symptom | Status |
 |---|---|---|
-| **Aurora** | `Status Error` never fires | production CSV has no `Status`/`status`/`Error`/`error`/`Flag`/`flag` column; status is in undecoded hex `S1`/`S2` |
-| **SMPS** (AIM 11.x CSV) | `Status Error` never fires | neither `Status Flag` nor `Instrument Errors` exists; errors split into `Detector Status`, `Classifier Errors`, `Communication Status`, `Neutralizer Status` |
-| **MA350** | possible | `Status` column presence not verified against a real export |
-| **All bitwise/numeric/text/binary readers** | a typo'd or renamed status column degrades to "no errors" | `filter_error_status` returns all-`False` for a missing column, without warning |
-| **All readers using `Insufficient`** except GRIMM | threshold computed against the *config* frequency, not the detected one | `hourly_completeness_QC(..., freq=self.meta['freq'])` in all nine older callers |
-| **GRIMM** | no concentration range check | no sample corpus to calibrate one against; deliberately omitted rather than guessed |
+| **Aurora** | `Status Error` never fired — no obvious status column | **fixed**: `S1` recognised; the zero/span-check rows it marks were biasing ambient means 13% low |
+| **SMPS** (AIM 11.x CSV) | `Status Error` never fired — 10.3 names absent | **fixed**: all six column names across both AIM dialects are checked |
+| **Any reader whose status column gets renamed** | degraded silently to "no errors ever" | **fixed**: `check_status_columns` warns, naming what it looked for and what the file has |
+| **MA350** | `Status` column presence never verified against a real export | **open** — no fixture. The warning above will now say so at runtime instead of passing everything |
+| **GRIMM** | no concentration range check | **open by choice**: no sample corpus to calibrate one against, and a guessed threshold silently deletes good data |
+| **Any reader using `Insufficient`** | partial first/last hours look sparse merely because the data starts mid-hour | **open** — see P2-i in [Data Levels §7](../../guide/data-levels.md#7-non-conformance-what-still-needs-fixing) |
 
 Full remediation list, with priorities and suggested order:
 [Data Levels §7](../../guide/data-levels.md#7-non-conformance-what-still-needs-fixing).

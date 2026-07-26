@@ -11,7 +11,7 @@ class Reader(AbstractReader):
     concentrations at seven wavelengths.
 
     See ``docs/api/instruments/aethalometers/AE33.md`` for usage and
-    ``docs/guide/instrument-formats-and-qc.md`` for the
+    ``docs/guide/instrument-qc.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'AE33'

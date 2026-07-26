@@ -11,7 +11,7 @@ class Reader(AbstractReader):
     comprehensive quality control.
 
     See ``docs/api/instruments/mass/TEOM.md`` for usage and
-    ``docs/guide/instrument-formats-and-qc.md`` for the
+    ``docs/guide/instrument-qc.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'TEOM'

@@ -50,8 +50,8 @@ nav:
       - Tutorials:
           - RawDataReader: guide/rawdatareader.md
           - Data Levels (L0-L3): guide/data-levels.md
-          - Instrument Formats & QC: guide/instrument-formats-and-qc.md
-          - RawDataReader Internals: guide/rawdatareader-internals.md
+          - Instrument Formats & QC: guide/instrument-qc.md
+          - RawDataReader Internals: guide/reader-internals.md
           - DataProcess: guide/dataprocess.md
           - Visualization: guide/visualization.md
       - Examples:

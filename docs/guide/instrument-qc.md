@@ -127,6 +127,7 @@ Severity is `error` unless marked **advisory**.
 | `Upscale Warning` | `ALARM` in 200–203 — **advisory** (the instrument's own warning class) | Xact |
 | `Invalid Value` | element concentration outside 0–100 000 ng/m³ | Xact |
 | `Internal Std Drift` | Nb outside ±20 % of its median | Xact |
+| `High Uncertainty` | a normally-quantitative element reported above its detection limit with < 3σ confidence — **advisory** | Xact |
 | `Negative` | any numeric column < 0 | EPA |
 
 ---
@@ -303,8 +304,11 @@ Identical to AE33 except:
 | **Status** | column `ALARM`, matched by **exact code**, not bitwise; `0` = normal. `decode_alarm()` turns a code into text. |
 | **Alarm codes** | errors 100 X-ray voltage · 101 X-ray current · 102 tube temperature · 103 enclosure temperature · 104 tape · 105 pump · 106 filter wheel · 107 dynamic rod · 108 nozzle · 109 energy calibration · 110 software. Warnings 200 upscale Cr · 201 upscale Pb · 202 upscale Cd · 203 upscale Nb. |
 | **QC rules** | `Calibration Mode`, `Instrument Error` (100–110), `Upscale Warning` (200–203), `Invalid Value` (0–100 000 ng/m³), `Internal Std Drift` (Nb ±20 % of median). Each is registered only if its source column exists. |
-| **MDL** | from `meta['Xact']` — the Xact 625i minimum decision limits, 45 elements in ng/m³ at a 60-min sample time, exposed as `reader.MDL`. |
+| **MDL** | the **manual's own table** (Operation Manual Appendix p.73, `Xact.MANUAL_MDL`) for the 29 elements it covers, selected by the file's `SAMPLE_TIME` — the limits vary ~8× between a 15-min and a 240-min sample, so one fixed number is right for only one configuration. `meta['Xact']['MDL']` supplies the other 16, for which CES publishes nothing. Exposed as `reader.MDL` / `reader.manual_mdl(minutes)`. |
+| **Uncertainty** | every element has a paired `{element}_uncert` column. The manual's limits are *"interference free **one sigma** detection limits … at 68 % Confidence Level (C1σ) per US EPA IO 3.3 and Currie, 1968"*, and that uncertainty column is the same 1σ quantity — which is what lets Currie's criteria apply to it directly: **detected** at `value ≥ 3σ`, **quantifiable** at `value ≥ 10σ`. |
+| **Element reliability** | `element_reliability(df)` classifies each element from the fraction of samples meeting those criteria — `quantitative` / `semi-quantitative` / `below-detection` — and reports *separately* whether the manual publishes a limit for it at all (the two are independent: Nb, the internal standard, is measured superbly and has no published limit). Written to `{prefix}_element_reliability.csv` and summarised in the log. On the test corpus: 11 quantitative (S, K, Ca, Cl, Fe, Cu, Zn, Br, Mn, Pb, As), 7 semi-quantitative (Ti, Cr, Ni, Se, Ba, Bi, Sr), the rest below detection. |
 | **Below MDL** | a **diagnostic, not a flag** (same reasoning as IGAC, and more acute here): in the test fixture alone a dozen elements sit 100 % below their limit, so an "any element below MDL" rule would flag — and therefore NaN — every single row. The log reports the per-element fraction instead. |
+| **Why `High Uncertainty` is scoped** | the same trap. A rule firing when *any* element fails the 3σ test hits **96–100 % of rows** on both fixtures, because a dozen elements are permanently below detection at any real site — a property of the element, not of the row. Scoped to elements this run measures well *and* the manual specifies, it fires on 0 % of clean rows and 8 % of the degraded fixture, where it caught S, K, Ca, Fe, Zn and Br degrading together: an instrument event rather than element noise. |
 | **L2 output** | all columns + `QC_Flag` |
 
 ### EPA — external, pre-aggregated

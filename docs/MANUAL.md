@@ -1071,7 +1071,7 @@ concatenating frames with conflicting attrs. `attrs` survive pickling and
 
 - **Guides:** `docs/guide/` — `rawdatareader.md`, `size_distribution.md`,
   `chemical_analysis.md`, `optical_closure.md`, `voc_analysis.md`,
-  `visualization.md`, `dataprocess.md`, `rawdatareader-internals.md`.
+  `visualization.md`, `dataprocess.md`, `reader-internals.md`.
 - **Theory:** `docs/theory/` — `mie.md`, `improve.md`, `mass_reconstruction.md`,
   `kappa.md`, `lognormal.md`, `icrp.md`, `ofp.md`.
 - **API reference:** `docs/api/` and the published docs at

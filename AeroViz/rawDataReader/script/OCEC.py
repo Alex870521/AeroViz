@@ -11,7 +11,7 @@ class Reader(AbstractReader):
     aerosol composition using thermal and optical methods.
 
     See ``docs/api/instruments/chemical/OCEC.md`` for usage and
-    ``docs/guide/instrument-formats-and-qc.md`` for the
+    ``docs/guide/instrument-qc.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'OCEC'

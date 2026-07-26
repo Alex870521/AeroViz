@@ -63,7 +63,7 @@ Not instruments, but read through the same factory:
 
 - **Q-ACSM** - a real instrument, but its reader is not written yet: calling it
   raises `NotImplementedError` explaining what to contribute. See
-  [Raw Formats & Status Codes](../../guide/instrument-formats-and-qc.md#q-acsm-reader-not-implemented-yet).
+  [Raw Formats & Status Codes](../../guide/instrument-qc.md#q-acsm-reader-not-implemented-yet).
 - **VOC**, **Minion** - pre-aggregated, second-hand data with no raw log to
   parse. The readers were removed; calling them raises `KeyError` carrying the
   migration advice. See [VOC Data](chemical/VOC.md).

@@ -84,10 +84,21 @@ meta = {
         "pattern": ["*.csv"],
         "freq": "1h",
 
-        # base on Xact 625i Minimum Decision Limit (MDL) for XRF in ng/m3, 60 min sample time
+        # Xact 625i detection limits for XRF in ng/m3 at a 60-minute sample time.
+        #
+        # The vendor's own table (Operation Manual Appendix, p.73) is encoded in
+        # the reader as `Xact.MANUAL_MDL` and takes precedence — it covers 29
+        # elements and varies with sample time, which a single fixed number
+        # cannot. This dict supplies the remaining 16 elements (Ga, Ge, Rb, Sr, Y,
+        # Zr, Nb, Mo, Pd, Te, Cs, La, Ce, W, Pt, Au), for which CES publishes no
+        # limit at all; `element_reliability` reports those as `unspecified`
+        # rather than pretending the numbers are specified accuracy.
+        #
+        # Ti read 1.6 here against the manual's 0.16 — a 10x error, and Ti is a
+        # common crustal tracer, so it counted real measurements as sub-MDL.
         "MDL": {
             'Al': 100, 'Si': 18, 'P': 5.2, 'S': 3.2, 'Cl': 1.7,
-            'K': 1.2, 'Ca': 0.3, 'Ti': 1.6, 'V': 0.12, 'Cr': 0.12,
+            'K': 1.2, 'Ca': 0.3, 'Ti': 0.16, 'V': 0.12, 'Cr': 0.12,
             'Mn': 0.14, 'Fe': 0.17, 'Co': 0.14, 'Ni': 0.096, 'Cu': 0.079,
             'Zn': 0.067, 'Ga': 0.059, 'Ge': 0.056, 'As': 0.063, 'Se': 0.081,
             'Br': 0.1, 'Rb': 0.19, 'Sr': 0.22, 'Y': 0.28, 'Zr': 0.33,

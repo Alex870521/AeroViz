@@ -5,9 +5,9 @@
 > code has an obvious home and the pipeline stays auditable.
 >
 > For the mechanics of the existing pipeline see
-> [RawDataReader Internals](rawdatareader-internals.md); for the per-instrument
+> [RawDataReader Internals](reader-internals.md); for the per-instrument
 > file formats and status-code tables see
-> [Raw Formats & Status Codes](instrument-formats-and-qc.md).
+> [Raw Formats & Status Codes](instrument-qc.md).
 
 `RawDataReader` is not a single transformation — it is a **four-level pipeline**,
 each level with a different contract about what may be added, what may be

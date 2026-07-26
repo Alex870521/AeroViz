@@ -96,6 +96,12 @@ L1/L2 are always at the frequency detected from the files
 resampling happens at L3 only. Rationale: re-deriving 1 h from 1 min is cheap;
 recovering 1 min from a stored 1 h average is impossible.
 
+*Native means native.* The grid must match the instrument's actual period, not a
+tidier number near it: on a grid that drifts against the data, every reading
+edges closer to its neighbour's bin until two collide and one is dropped. A
+115 s APS on a 2-minute grid loses ~3 % of a day this way. Where the grid cannot
+be trusted, the loss is reported rather than absorbed.
+
 **R4 — canonical is range-independent; presentation is range-dependent.**
 The cache stores L1/L2 over the *files' own* coverage, never padded to a
 requested range. Every range/padding/resampling decision is re-applied on each
@@ -128,7 +134,11 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
    error and skipped; a file that returns `None` / empty is logged at debug.
    If *every* file fails → `ValueError`.
 3. **Detect the native frequency per file** — `detect_freq` (`inferred_freq`,
-   else median timestamp delta rounded to the minute) *before* the merge.
+   else the median timestamp delta) *before* the merge. The median resolves to
+   the nearest **second** once there are enough intervals to trust that
+   precision (≥ 30), and to the nearest minute below that — an instrument whose
+   period is not a whole number of minutes (the APS samples every 115 s) needs a
+   grid that matches it.
 4. **Resolve one grid frequency** — `resolve_freq`: `raw_freq=` override >
    unanimous detection > most-common (sets `freq_mixed`, warns with the
    breakdown) > `meta['freq']`.
@@ -140,7 +150,10 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
    Warn by default; drop only with `drop_outlier_dates=True`.
 8. **Snap to the native grid** — `_timeIndex_process` → `to_grid` → `snap_to_grid`:
    each row is *rounded* to its nearest bin (a push, so one reading can never be
-   duplicated into two slots the way `reindex(method='nearest')` does).
+   duplicated into two slots the way `reindex(method='nearest')` does). Rows that
+   land in an already-occupied bin collapse, first wins — intended for genuine
+   duplicates, but steady data loss when the grid does not match the true
+   sampling period, so the count is **warned** with a pointer to `raw_freq=`.
 9. **Coerce to numeric**, preserving columns that are genuinely textual (a
    status column that coerces entirely to NaN is kept as text).
 
@@ -361,6 +374,7 @@ Kept as a record of what the labels used to mean:
 | P1-d | `mean_freq` silently ignored when `qc=False` | both branches go through `_resample`, which also names the non-numeric columns it drops instead of losing them silently |
 | P1-e | status QC silently inert for two real formats | Aurora recognises `S1`; SMPS knows all six column names across AIM 10.3/11.x; **every** status reader warns when no known column is present |
 | P1-f | AE33 and AE43 disagreed on code `384` | AE43 aligned; a test pins the two lists equal |
+| — | the native grid was rounded to whole minutes, so a 115 s APS was gridded at 2 min and ~3 % of each day's scans collapsed into an occupied bin, silently | `detect_freq` resolves to the second once ≥ 30 intervals support it; `snap_to_grid` warns whenever rows are actually lost |
 
 ### Suggested order
 

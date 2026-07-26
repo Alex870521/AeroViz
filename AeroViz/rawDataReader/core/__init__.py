@@ -564,7 +564,8 @@ class AbstractReader(ABC):
         if n_off_grid:
             self.logger.debug(f"Snapped {n_off_grid} off-grid timestamps to the {freq} grid.")
 
-        return to_grid(_df, freq, start=user_start, end=user_end, fill_missing=self.fill_missing)
+        return to_grid(_df, freq, start=user_start, end=user_end,
+                       fill_missing=self.fill_missing, logger=self.logger)
 
     def _outlier_process(self, _df):
         """

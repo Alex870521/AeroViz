@@ -203,6 +203,7 @@ Identical to AE33 except:
 |---|---|
 | **Pattern** | `*.txt`; native `6min` |
 | **Parse** | tab-separated; ~6 metadata lines (`Sample File`, `Sample Time`, `Density`, `Stokes Correction`, `Lower/Upper Channel Bound`) then a `Sample #` header row. Transposed exports are rotated (`set_index('Sample #').T`), and a failure there raises `NotImplementedError` **with the original exception attached**. Date from `Date` + `Start Time`, formats `%m/%d/%y %H:%M:%S` then `%m/%d/%Y %H:%M:%S`; the winning format is logged. |
+| **Sampling period** | the file header carries `Sample Time` (115 s in the corpus) — **not** a whole number of minutes, and not the `6min` in the config. The native grid follows the detected period, so scans are not lost to bin collisions; `df.attrs['raw_freq']` reports what was actually used. |
 | **Size bins** | numeric column names in 0.5–20 (µm) → float, rounded to 4 dp. Expected grid `(0.542, 19.81, 51 bins)`; deviation **warns loudly** (an 8-year × 4-station audit of 1 485 files showed zero drift, so a deviation means a firmware change — and would reproduce the NaN-poisoned-concat problem SMPS had). The under-range `<0.523` column is kept as metadata, not a bin. |
 | **Status** | column `Status Flags`, mode `binary_string`; OK is `'0000 0000 0000 0000'` |
 | **Bit meanings** | 0 laser fault · 1 total flow out of range · 2 sheath flow out of range · 3 excessive sample concentration · 4 accumulator clipped (> 65535) · 5 autocal failed · 6 internal temp < 10 °C · 7 internal temp > 40 °C · 8 detector voltage out of range · 9 reserved |

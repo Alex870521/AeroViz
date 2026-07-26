@@ -36,13 +36,49 @@ def _with_multiplier(offset) -> str:
     return f'{offset.n}{offset.base.freqstr}'
 
 
+def _freqstr_from_seconds(seconds: int) -> str:
+    """Express a whole number of seconds in its largest exact unit.
+
+    ``3600 -> '1h'``, ``360 -> '6min'``, ``115 -> '115s'``. Exact only: a period
+    that is not a whole number of minutes stays in seconds rather than being
+    rounded to a "nicer" one, because rounding the grid away from the true
+    sampling period is what silently drops rows (see ``snap_to_grid``).
+    """
+    if seconds % 3600 == 0:
+        return f'{seconds // 3600}h'
+    if seconds % 60 == 0:
+        return f'{seconds // 60}min'
+    return f'{seconds}s'
+
+
+#: How many intervals the median needs before second-level precision is
+#: believable. Below this the median is dominated by sampling noise — three
+#: intervals of a 6-minute instrument can easily median to 370 s — so the
+#: estimate is rounded to the nearest minute, as it always was. Above it, jitter
+#: is symmetric and the median converges on the true period, which is where the
+#: extra precision earns its keep.
+_SECONDS_PRECISION_MIN_INTERVALS = 30
+
+
 def detect_freq(index) -> str | None:
-    """Infer a frequency string (e.g. ``'6min'``, ``'1h'``) from an index.
+    """Infer a frequency string (e.g. ``'6min'``, ``'115s'``, ``'1h'``) from an index.
 
     Tries ``inferred_freq`` first (only works for a perfectly regular index),
-    then falls back to the median timestamp delta rounded to the nearest
-    minute — robust to gaps and jitter. Returns ``None`` when the index has
-    fewer than two valid timestamps.
+    then falls back to the median timestamp delta — robust to gaps and jitter.
+    Returns ``None`` when the index has fewer than two valid timestamps.
+
+    The fallback resolves to the **nearest second** once there are enough
+    intervals to trust that precision, and to the nearest minute below that.
+    Rounding everything to a minute — the old behaviour — quietly discarded data
+    for any instrument whose period is not a whole number of minutes: an APS
+    sampling every 115 s (its `Sample Time` metadata says so) jitters enough to
+    miss the ``inferred_freq`` path, so it was gridded at ``'2min'``, and each
+    reading drifted 5 s further from its bin until two fell into one and
+    ``snap_to_grid`` kept only the first — about 3 % of a day's scans, silently.
+
+    Neither rounding is safe in general (a grid of 370 s against a true 360 s
+    drifts just as badly the other way), which is why ``snap_to_grid`` now warns
+    whenever rows are actually lost to a collision.
     """
     try:
         idx = pd.DatetimeIndex(pd.to_datetime(index, errors='coerce')).dropna().sort_values()
@@ -55,11 +91,15 @@ def detect_freq(index) -> str | None:
     if inferred:
         return _with_multiplier(pd.tseries.frequencies.to_offset(inferred))
 
-    median = pd.Series(idx).diff().dropna().median()
+    deltas = pd.Series(idx).diff().dropna()
+    median = deltas.median()
     if pd.isna(median):
         return None
-    minutes = max(1, round(median.total_seconds() / 60))
-    return f'{minutes}min'
+
+    seconds = median.total_seconds()
+    if len(deltas) < _SECONDS_PRECISION_MIN_INTERVALS:
+        return f'{max(1, round(seconds / 60))}min'
+    return _freqstr_from_seconds(max(1, round(seconds)))
 
 
 def resolve_freq(per_file: dict[str, str | None], *,
@@ -143,23 +183,42 @@ def detect_isolated_dates(index, *, k: float = 10.0,
     return mask
 
 
-def snap_to_grid(df: pd.DataFrame, freq: str) -> pd.DataFrame:
+def snap_to_grid(df: pd.DataFrame, freq: str, *, logger=None) -> pd.DataFrame:
     """Round each row's timestamp to the ``freq`` grid and drop duplicate bins.
 
     Deterministic many-to-one: rows sharing a bin collapse (first wins); a row
     never fans out to multiple bins. Replaces both the legacy ``floor('1min')``
     dedup and the ``reindex(method='nearest')`` snap.
+
+    Collapsing is *usually* what you want — a duplicated or slightly-late reading
+    should not occupy two slots. But when the grid does not match the instrument's
+    true period, every reading drifts a little further from its bin until two
+    land in the same one, and the collapse becomes steady data loss: a 115 s
+    instrument on a 2-minute grid loses roughly one scan in twenty-four. That is
+    worth a warning rather than silence, so ``logger`` is used to report the
+    count and point at ``raw_freq=``.
     """
     if df.empty:
         return df
     out = df.copy()
     out.index = pd.DatetimeIndex(out.index).round(freq)
+
+    collisions = int(out.index.duplicated(keep='first').sum())
+    if collisions and logger is not None:
+        logger.warning(
+            f"{collisions} of {len(out)} rows ({collisions / len(out):.1%}) fell into "
+            f"an already-occupied {freq} bin and were dropped (first wins). If the "
+            f"instrument's true sampling period is not {freq}, the grid is drifting "
+            f"against the data and this loss will continue — pass raw_freq= with the "
+            f"real period to stop it.")
+
     out = out[~out.index.duplicated(keep='first')]
     return out.sort_index()
 
 
 def to_grid(df: pd.DataFrame, freq: str, *,
-            start=None, end=None, fill_missing: bool = True) -> pd.DataFrame:
+            start=None, end=None, fill_missing: bool = True,
+            logger=None) -> pd.DataFrame:
     """Snap ``df`` to a regular ``freq`` grid, then place it on a date range.
 
     ``fill_missing=True`` (default) extends the grid to the requested
@@ -168,7 +227,7 @@ def to_grid(df: pd.DataFrame, freq: str, *,
     data's own coverage, so the output never extends past what the files
     actually contain (no NaN blow-up) while staying a regular grid.
     """
-    df = snap_to_grid(df, freq)
+    df = snap_to_grid(df, freq, logger=logger)
     if df.empty:
         return df
 

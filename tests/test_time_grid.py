@@ -35,6 +35,42 @@ class TestDetectFreq:
         assert detect_freq(idx) == '6min'
 
 
+    def test_sub_minute_period_survives_with_enough_samples(self):
+        """An instrument whose period is not a whole number of minutes must get a
+        grid that matches it. The APS samples every 115 s (`Sample Time 115`);
+        rounding that to a 2-minute grid drifts 5 s per scan until two land in one
+        bin and one is dropped — ~3% of a day, silently."""
+        import numpy as np
+
+        rng = np.random.default_rng(0)
+        deltas = rng.choice([115, 130], size=700, p=[0.73, 0.27])
+        idx = pd.DatetimeIndex(
+            pd.Timestamp('2025-11-17') + pd.to_timedelta(np.cumsum(deltas), unit='s'))
+
+        assert detect_freq(idx) == '115s'
+
+    def test_small_samples_still_round_to_minutes(self):
+        """With a handful of intervals the median is noise, not precision: three
+        intervals of a 6-minute instrument can median to 370 s."""
+        idx = pd.DatetimeIndex([
+            '2024-01-01 00:00', '2024-01-01 00:05:50',
+            '2024-01-01 00:12', '2024-01-01 01:00',
+        ])
+
+        assert detect_freq(idx) == '6min'
+
+    def test_whole_minute_periods_stay_in_minutes(self):
+        """Second-precision must not make readable grids ugly: 360 s is '6min'."""
+        import numpy as np
+
+        rng = np.random.default_rng(1)
+        deltas = rng.choice([358, 360, 362], size=200)
+        idx = pd.DatetimeIndex(
+            pd.Timestamp('2024-01-01') + pd.to_timedelta(np.cumsum(deltas), unit='s'))
+
+        assert detect_freq(idx) == '6min'
+
+
 # --------------------------------------------------------------- resolve_freq
     @pytest.mark.parametrize('freq,expected', [
         ('1min', '1min'), ('6min', '6min'), ('1h', '1h'), ('5min', '5min'),
@@ -181,3 +217,60 @@ class TestToGrid:
                       start=pd.Timestamp('2025-01-01'),
                       end=pd.Timestamp('2025-02-01'), fill_missing=False)
         assert out.empty
+
+
+class TestSnapCollisionIsReported:
+    """Collapsing rows into an occupied bin is silent data loss when the grid does
+    not match the instrument's true period."""
+
+    class _Recorder:
+        def __init__(self):
+            self.messages = []
+
+        def warning(self, msg):
+            self.messages.append(msg)
+
+    def _drifting(self):
+        import numpy as np
+
+        rng = np.random.default_rng(0)
+        deltas = rng.choice([115, 130], size=700, p=[0.73, 0.27])
+        idx = pd.DatetimeIndex(
+            pd.Timestamp('2025-11-17') + pd.to_timedelta(np.cumsum(deltas), unit='s'))
+        return pd.DataFrame({'v': range(len(idx))}, index=idx)
+
+    def test_warns_when_rows_are_dropped(self):
+        df = self._drifting()
+        recorder = self._Recorder()
+
+        out = snap_to_grid(df, '2min', logger=recorder)
+
+        assert len(out) < len(df)
+        assert len(recorder.messages) == 1
+        assert 'already-occupied 2min bin' in recorder.messages[0]
+        assert 'raw_freq=' in recorder.messages[0]
+
+    def test_silent_when_the_grid_matches(self):
+        df = self._drifting()
+        recorder = self._Recorder()
+
+        out = snap_to_grid(df, '115s', logger=recorder)
+
+        assert len(out) == len(df), 'a matching grid must not drop anything'
+        assert recorder.messages == []
+
+    def test_no_logger_is_fine(self):
+        """The helper is used outside the reader too."""
+        assert len(snap_to_grid(self._drifting(), '2min')) < 700
+
+    def test_genuine_duplicates_still_collapse(self):
+        """The dedup itself is intended behaviour — two readings at the same
+        timestamp must not occupy two slots."""
+        idx = pd.DatetimeIndex(['2024-01-01 00:00', '2024-01-01 00:00',
+                                '2024-01-01 00:06'])
+        df = pd.DataFrame({'v': [1, 2, 3]}, index=idx)
+
+        out = snap_to_grid(df, '6min')
+
+        assert len(out) == 2
+        assert out['v'].iloc[0] == 1, 'first wins'

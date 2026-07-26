@@ -271,4 +271,4 @@ fig, ax = plt.subplots(figsize=(6.93, 4))    # 17.6 cm
 ## Related Topics
 
 - [Plot API Reference](../api/plot/index.md)
-- [Example Gallery](../examples/index.md)
+- [Size Distribution](size_distribution.md) · [Optical Closure](optical_closure.md) · [Chemical Analysis](chemical_analysis.md) · [VOC Analysis](voc_analysis.md)

@@ -47,7 +47,7 @@ The SMPS reader uses the declarative **QCFlagBuilder** system with the following
 +-----------------------------------------------------------------------+
 |                         QC Thresholds                                 |
 +-----------------------------------------------------------------------+
-| MIN_HOURLY_COUNT  = 5        measurements per hour                    |
+| completeness      >= 50% of the detected frequency's hourly points    |
 | MIN_TOTAL_CONC    = 2000     #/cm³                                    |
 | MAX_TOTAL_CONC    = 1e7      #/cm³                                    |
 | MAX_LARGE_BIN_CONC= 4000     dN/dlogDp (DMA water ingress indicator)  |

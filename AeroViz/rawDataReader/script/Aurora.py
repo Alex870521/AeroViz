@@ -11,8 +11,9 @@ class Reader(AbstractReader):
     A specialized reader for Aurora nephelometer data files, which measure aerosol light
     scattering properties at multiple wavelengths.
 
-    See full documentation at docs/source/instruments/Aurora.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/nephelometers/Aurora.md`` for usage and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout, status codes and QC rules.
     """
     nam = 'Aurora'
 

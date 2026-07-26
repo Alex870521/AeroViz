@@ -10,8 +10,9 @@ class Reader(AbstractReader):
     particulate matter data files with support for multiple file formats and
     comprehensive quality control.
 
-    See full documentation at docs/source/instruments/TEOM.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/mass/TEOM.md`` for usage and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout, status codes and QC rules.
     """
     nam = 'TEOM'
 
@@ -19,7 +20,9 @@ class Reader(AbstractReader):
     # Column Definitions
     # =========================================================================
     PM_COLUMNS = ['PM_NV', 'PM_Total']
-    OUTPUT_COLUMNS = ['PM_NV', 'PM_Total', 'Volatile_Fraction']
+    # No OUTPUT_COLUMNS list: this reader deliberately returns every column,
+    # instrument metadata included. One used to be declared here and never
+    # applied, which read as a promise the reader did not keep.
 
     # =========================================================================
     # QC Thresholds

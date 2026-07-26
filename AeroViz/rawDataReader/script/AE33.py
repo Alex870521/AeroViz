@@ -10,8 +10,9 @@ class Reader(AbstractReader):
     A specialized reader for AE33 Aethalometer data files, which measure black carbon
     concentrations at seven wavelengths.
 
-    See full documentation at docs/source/instruments/AE33.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/aethalometers/AE33.md`` for usage and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout, status codes and QC rules.
     """
     nam = 'AE33'
 

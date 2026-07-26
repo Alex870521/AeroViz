@@ -221,23 +221,24 @@ def process_timeline_report(report_dict: dict, df: pd.DataFrame, max_gap_hours: 
     # 使用報告中的儀器ID
     instrument_id = report_dict.get('instrument_id')
 
-    # 查找已知問題 - 使用環境變量或默認路徑
-    known_issues_file = os.environ.get(
-        'KNOWN_ISSUES_PATH',
-        '/Users/chanchihyu/DataCenter/Config/known_issues.yml'
-    )
-    try:
-        import yaml
-        with open(known_issues_file, 'r', encoding='utf-8') as f:
-            known_issues = yaml.safe_load(f)
-    except ImportError:
-        known_issues = {}
-    except FileNotFoundError:
-        # Silently ignore missing known issues file - it's optional
-        known_issues = {}
-    except Exception as e:
-        log_message("error", f"Error loading known issues: {e}")
-        known_issues = {}
+    # Optional operator-maintained annotations for downtime periods, keyed by
+    # instrument_id. Opt-in via KNOWN_ISSUES_PATH — there is no default location
+    # (this used to fall back to one developer's home directory, which meant the
+    # feature was silently unavailable to everyone else and silently active for
+    # one person).
+    known_issues_file = os.environ.get('KNOWN_ISSUES_PATH')
+    known_issues = {}
+    if known_issues_file:
+        try:
+            import yaml
+            with open(known_issues_file, 'r', encoding='utf-8') as f:
+                known_issues = yaml.safe_load(f) or {}
+        except ImportError:
+            log_message("warning", "KNOWN_ISSUES_PATH is set but PyYAML is not installed.")
+        except FileNotFoundError:
+            log_message("warning", f"KNOWN_ISSUES_PATH points at a missing file: {known_issues_file}")
+        except Exception as e:
+            log_message("error", f"Error loading known issues: {e}")
 
     # 檢查數據是否為空
     if df.empty:

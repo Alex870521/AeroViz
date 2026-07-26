@@ -147,7 +147,7 @@ def timeseries(df: DataFrame,
     Parameters
     -----------
     df : DataFrame
-    The data to plot.
+        The data to plot.
     y : list[str] | str
         The primary y-axis data columns.
     y2 : list[str] | str, optional

@@ -6,8 +6,11 @@ measurement characteristics.
 
 !!! info "Instrument Support"
 
-    AeroViz automatically detects instrument types based on file format and content structure. You don't need to specify the
-    instrument type manually when using the `RawDataReader` factory function.
+    You name the instrument; AeroViz does **not** guess it. `instrument=` is
+    required and is validated against the supported list — a wrong or unknown name
+    raises `KeyError` listing what is valid. The reader then handles that
+    instrument's file format, header layout and status codes for you, including
+    the dialect differences between host-software versions.
 
 ## Instrument Categories
 
@@ -50,18 +53,33 @@ Instruments for PM mass concentration measurement:
 - **[TEOM](mass/TEOM.md)** - Tapered Element Oscillating Microbalance
 - **[BAM1020](mass/BAM1020.md)** - Beta Attenuation Monitor (PM2.5)
 
+### External / pre-aggregated sources
+
+Not instruments, but read through the same factory:
+
+- **EPA** - Taiwan EPA hourly air-quality export (`big5`-encoded 測項 / 直式 CSV)
+
+### Not readable
+
+- **Q-ACSM** - a real instrument, but its reader is not written yet: calling it
+  raises `NotImplementedError` explaining what to contribute. See
+  [Raw Formats & Status Codes](raw-formats-and-status.md#q-acsm-reader-not-implemented-yet).
+- **VOC**, **Minion** - pre-aggregated, second-hand data with no raw log to
+  parse. The readers were removed; calling them raises `KeyError` carrying the
+  migration advice. See [VOC Data](chemical/VOC.md).
+
 !!! tip "Usage Example"
 
     ```python
-    from AeroViz.rawDataReader import RawDataReader
-    
-    # Automatic instrument detection
-    reader = RawDataReader("instrument_data.txt")
-    data = reader.read()
-    
-    # The reader automatically detects the instrument type
-    print(f"Detected instrument: {reader.instrument_type}")
-    print(f"Time resolution: {reader.time_resolution}")
+    from AeroViz import RawDataReader
+
+    # Name the instrument and the folder holding its raw files.
+    df = RawDataReader('AE33', '/data/NZ_AE33', start='2024-01-01', end='2024-06-30')
+
+    # What was actually read is reported in df.attrs
+    print(df.attrs['raw_freq'])         # native resolution detected from the files
+    print(df.attrs['coverage_start'])   # first timestamp carrying real data
+    print(df.attrs['total_rate'])       # % of expected periods that passed QC
     ```
 
 ## Technical Specifications
@@ -77,7 +95,7 @@ Instruments for PM mass concentration measurement:
 | **SMPS** | 6 min | .txt, .csv | Status Error, Invalid Number Conc, DMA Water, Insufficient |
 | **APS** | 6 min | .txt | Status Error, Invalid Number Conc, Insufficient |
 | **GRIMM** | 6 min | .dat | No Data, Negative Conc, Insufficient |
-| **TEOM** | 6 min | .csv | Status Error, High Noise, Non-positive, NV > Total, Invalid Vol Frac, Spike, Insufficient |
+| **TEOM** | 6 min | .csv | Status Error, High Noise, Non-positive, NV > Total, Spike, Insufficient |
 | **BAM1020** | 1 h | .csv | Invalid Conc, Spike |
 | **OCEC** | 1 h | *LCRes.csv | Invalid Carbon, Below MDL, Spike, Missing OC |
 | **IGAC** | 1 h | .csv | Mass Closure, Missing Main, Above MR, Ion Balance |

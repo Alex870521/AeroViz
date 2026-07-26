@@ -46,7 +46,7 @@ AeroViz provides native support for the following categories of aerosol instrume
 - [OCEC](instruments/chemical/OCEC.md) - Organic and elemental carbon analysis
 - [VOC](instruments/chemical/VOC.md) - Volatile organic compounds monitoring
 - [Xact](instruments/chemical/Xact.md) - Xact 625i XRF elemental analyzer
-- [TEOM](instruments/chemical/TEOM.md) - Tapered Element Oscillating Microbalance
+- [TEOM](instruments/mass/TEOM.md) - Tapered Element Oscillating Microbalance
 
 ### Data Processing and Analysis
 

@@ -376,12 +376,12 @@ class AbstractReader(ABC):
         Parameters
         ----------
         df : pd.DataFrame
-            Quality-controlled DataFrame with QC_Flag column
+            Quality-controlled DataFrame carrying ``QC_Flag`` and ``QC_Invalid``
 
         Returns
         -------
         pd.DataFrame
-            DataFrame with derived parameters added and QC_Flag updated
+            DataFrame with derived parameters added and the QC columns updated
 
         Notes
         -----
@@ -389,9 +389,26 @@ class AbstractReader(ABC):
         Override in child classes to implement instrument-specific processing.
 
         The method should:
-        1. Skip calculation for rows where QC_Flag != 'Valid' (optional optimization)
-        2. Calculate derived parameters
-        3. Validate derived parameters and update QC_Flag if invalid
+
+        1. Calculate derived parameters for **every** row, flagged or not.
+        2. Judge the derived parameters and record the verdict with
+           ``update_qc_flag(df, mask, name, severity=...)``.
+        3. Log the combined summary via ``extend_qc_summary`` + ``log_qc_summary``
+           when it added a rule of its own.
+
+        Do **not** skip rows that ``_QC`` already flagged. An earlier version of
+        this docstring offered that as an optimisation; it is wrong twice over.
+        L2's contract (rule R2 in ``docs/guide/data-levels.md``) is to judge
+        without destroying, so a derived value belongs in ``_read_*_qc.csv``
+        whatever the verdict — that file is where a user goes to see *why* a row
+        was rejected, and a NaN there answers nothing. And since severity
+        arrived, a flagged row is not necessarily an invalid one: skipping
+        "flagged" rows would silently drop derived values for rows that are kept.
+
+        Rules are independent and deliberately overlap — one row can be both
+        ``Status Error`` and ``Invalid AAE`` — so the per-rule counts in a QC
+        summary do not sum to the total. ``Valid`` and ``Usable`` are the totals
+        that mean something.
         """
         return df
 

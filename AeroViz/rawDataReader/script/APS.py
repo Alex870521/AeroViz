@@ -11,15 +11,17 @@ class Reader(AbstractReader):
     A specialized reader for APS data files, which measure particle size distributions
     in the range of 542-1981 nm (aerodynamic diameter).
 
-    See full documentation at docs/source/instruments/APS.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/particle-sizers/APS.md`` for usage and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout, status codes and QC rules.
     """
     nam = 'APS'
 
     # =========================================================================
     # QC Thresholds
     # =========================================================================
-    MIN_HOURLY_COUNT = 5  # Minimum measurements per hour
+    # See the note in SMPS: completeness is a fraction of the detected
+    # frequency's expected points, not a fixed count.
     MIN_TOTAL_CONC = 1  # Minimum total concentration (#/cm³)
     MAX_TOTAL_CONC = 700  # Maximum total concentration (#/cm³)
 

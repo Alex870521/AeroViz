@@ -250,18 +250,3 @@ def cross_corr_matrix(data1: pd.DataFrame,
     plt.show()
 
     return fig, ax
-
-
-if __name__ == '__main__':
-    import pandas as pd
-    from pandas import to_numeric
-
-    df_NZ = pd.read_csv('/Users/chanchihyu/Desktop/NZ_minion_202402-202411.csv', parse_dates=True, index_col=0)
-    df_FS = pd.read_csv('/Users/chanchihyu/Desktop/FS_minion_202402-202411.csv', parse_dates=True, index_col=0)
-
-    items = ['Ext', 'Sca', 'Abs', 'PNC', 'PSC', 'PVC', 'SO2', 'NO', 'NOx', 'NO2', 'CO', 'O3', 'THC', 'NMHC', 'CH4',
-             'PM10', 'PM2.5', 'WS', 'AT', 'RH',
-             'OC', 'EC', 'Na+', 'NH4+', 'NO3-', 'SO42-', 'Al', 'Si', 'Ca', 'Ti', 'V', 'Cr', 'Mn', 'Fe', 'Cu', 'Zn']
-    df_NZ = df_NZ.apply(to_numeric, errors='coerce')
-
-    corr_matrix(df_NZ[items], items_order=items)

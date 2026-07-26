@@ -43,7 +43,7 @@ The APS reader uses the declarative **QCFlagBuilder** system with the following 
 +-----------------------------------------------------------------------+
 |                         QC Thresholds                                 |
 +-----------------------------------------------------------------------+
-| MIN_HOURLY_COUNT = 5      measurements per hour                       |
+| completeness     >= 50% of the detected frequency's hourly points     |
 | MIN_TOTAL_CONC   = 1      #/cm³                                       |
 | MAX_TOTAL_CONC   = 700    #/cm³                                       |
 | STATUS_OK        = "0000 0000 0000 0000" (16-bit binary, all zeros)   |

@@ -18,6 +18,7 @@ def RawDataReader(instrument: str,
                   end: datetime | str = None,
                   mean_freq: str | None = None,
                   size_range: tuple[float, float] | None = None,
+                  append_stats: bool = False,
                   fill_missing: bool = True,
                   ignored_status_errors: list[str] | None = None,
                   flag_severity: dict[str, str] | None = None,
@@ -316,6 +317,7 @@ def RawDataReader(instrument: str,
                 f"flag_severity values must be 'error' or 'warning'; got {invalid}")
 
     kwargs.update({
+        'append_stats': append_stats,
         'fill_missing': fill_missing,
         'ignored_status_errors': ignored_status_errors,
         'flag_severity': flag_severity,

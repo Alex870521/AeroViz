@@ -10,8 +10,9 @@ class Reader(AbstractReader):
     A specialized reader for OC/EC analyzer data files, which measure carbonaceous
     aerosol composition using thermal and optical methods.
 
-    See full documentation at docs/source/instruments/OCEC.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/chemical/OCEC.md`` for usage and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout, status codes and QC rules.
     """
     nam = 'OCEC'
 

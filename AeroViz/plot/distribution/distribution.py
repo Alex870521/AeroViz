@@ -380,10 +380,14 @@ def curve_fitting(dp: np.ndarray,
 
     Parameters
     ----------
-    - dp (array): Array of diameter values.
-    - dist (array): Array of distribution values corresponding to each diameter.
-    - mode (int, optional): Number of log-normal distribution to fit (default is None).
-    - **kwargs: Additional keyword arguments to be passed to the plot_function.
+    dp : array
+        Array of diameter values.
+    dist : array
+        Array of distribution values corresponding to each diameter.
+    mode : int, optional
+        Number of log-normal distributions to fit. Defaults to None.
+    **kwargs
+        Additional keyword arguments passed to the plot function.
 
     Returns
     -------

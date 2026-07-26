@@ -13,8 +13,9 @@ class Reader(AbstractReader):
     which provide real-time measurements of water-soluble inorganic ions in
     particulate matter.
 
-    See full documentation at docs/source/instruments/IGAC.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/chemical/IGAC.md`` for usage and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout, status codes and QC rules.
     """
     nam = 'IGAC'
 

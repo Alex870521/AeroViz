@@ -326,7 +326,6 @@ Output: BC1-BC5, abs_375-880, abs_550, AAE, eBC, QC_Flag
 
 ```
 QC Thresholds
-  MIN_HOURLY_COUNT   = 5     measurements per hour
   MIN_TOTAL_CONC     = 2000  #/cm³
   MAX_TOTAL_CONC     = 1e7   #/cm³
   MAX_LARGE_BIN_CONC = 4000  dN/dlogDp (DMA water-ingress indicator)
@@ -367,7 +366,6 @@ QC Thresholds
 
 ```
 QC Thresholds
-  MIN_HOURLY_COUNT = 5      measurements per hour
   MIN_TOTAL_CONC   = 1      #/cm³
   MAX_TOTAL_CONC   = 700    #/cm³
   STATUS_OK        = "0000 0000 0000 0000"  (16-bit binary, all zeros)

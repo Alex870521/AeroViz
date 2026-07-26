@@ -13,15 +13,19 @@ class Reader(AbstractReader):
     A specialized reader for SMPS data files, which measure particle size distributions
     in the range of 11.8-593.5 nm.
 
-    See full documentation at docs/source/instruments/SMPS.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/particle-sizers/SMPS.md`` for usage and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout, status codes and QC rules.
     """
     nam = 'SMPS'
 
     # =========================================================================
     # QC Thresholds
     # =========================================================================
-    MIN_HOURLY_COUNT = 5           # Minimum measurements per hour
+    # Hourly completeness is a *fraction* (`hourly_completeness_QC`'s
+    # threshold=0.5), not a fixed count: the expected points per hour follow the
+    # frequency detected from the files. A `MIN_HOURLY_COUNT = 5` constant used to
+    # sit here, never read and true only for a 6-minute grid.
     MIN_TOTAL_CONC = 2000          # Minimum total concentration (#/cm³)
     MAX_TOTAL_CONC = 1e7           # Maximum total concentration (#/cm³)
     MAX_LARGE_BIN_CONC = 4000      # Maximum concentration for >400nm bins (DMA water ingress indicator)

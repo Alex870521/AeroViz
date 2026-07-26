@@ -14,8 +14,8 @@ class Reader(AbstractReader):
 
     A specialized reader for EPA air quality monitoring data files.
 
-    See full documentation at docs/source/instruments/EPA.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout and QC rules.
     """
     nam = 'EPA'
 

@@ -316,46 +316,15 @@ reused.
   flagged. Consider exempting the edge hours, or scaling the expectation by the
   hour's overlap with the data's coverage.
 
-- **P2-a — dead constants.** `SMPS.MIN_HOURLY_COUNT` and `APS.MIN_HOURLY_COUNT`
-  are never read (the real threshold is `hourly_completeness_QC`'s
-  `threshold=0.5`); `TEOM.OUTPUT_COLUMNS` is never read either.
-
 - **P2-b — L2 column-narrowing policy differs per reader.** OCEC and BAM1020
   slice down to their output columns; TEOM, BC1054, MA350, Aurora and NEPH return
   every column. Decide one policy (recommended: keep metadata, since **R1**'s
   rationale applies to L2 consumers too) and apply it uniformly.
 
-- **P2-d — personal absolute path as a default.** `report.py:225` defaults the
-  known-issues file to `/Users/chanchihyu/DataCenter/Config/known_issues.yml`
-  (overridable via `KNOWN_ISSUES_PATH`). Default should be `None` or
-  project-relative.
-
 - **P2-f — BC1054 timestamp ambiguity.** `read_csv(..., index_col=0)` takes
   `Raw_Time` when the file has both, and then *drops* `Time`. In the NZ 2025
   fixture the two differ by hours on some rows. Decide which one is the
   measurement time and document it.
-
-- **P2-g — `_process` runs on rows already flagged invalid.** Its docstring
-  offers skipping as an optimisation, but no reader does, so AE33 / AE43 /
-  BC1054 / MA350 compute and count `Invalid AAE` on rows already rejected — QC
-  summary percentages overlap and do not sum meaningfully.
-
-- **P2-h — docs drift** (the reason this page exists):
-    - 15 reader docstrings point at `docs/source/instruments/*.md`, a path that
-      has never existed; the real pages are
-      `docs/api/instruments/<category>/*.md`.
-    - `docs/api/instruments/index.md` claims AeroViz "automatically detects
-      instrument types … You don't need to specify the instrument type" and shows
-      `RawDataReader("instrument_data.txt")`; both are wrong — `instrument=` is
-      required and validated against `meta`.
-    - The same page omits `EPA` and `Q-ACSM`, which are in `meta`.
-    - `rawdatareader-internals.md` listed Xact as "QC not implemented" (it has
-      five rules) and AE33's `384`, and described the SMPS/APS output as
-      statistics with size bins removed (it is now the reverse: bins are the
-      output, statistics are a sidecar). Corrected — but the page still
-      duplicates per-instrument detail that now lives in
-      [Raw Formats & Status Codes](../api/instruments/raw-formats-and-status.md),
-      so it should eventually shrink to mechanics only.
 
 ### Resolved
 
@@ -374,13 +343,26 @@ Kept as a record of what the labels used to mean:
 | P1-d | `mean_freq` silently ignored when `qc=False` | both branches go through `_resample`, which also names the non-numeric columns it drops instead of losing them silently |
 | P1-e | status QC silently inert for two real formats | Aurora recognises `S1`; SMPS knows all six column names across AIM 10.3/11.x; **every** status reader warns when no known column is present |
 | P1-f | AE33 and AE43 disagreed on code `384` | AE43 aligned; a test pins the two lists equal |
+| P2-a | `SMPS`/`APS.MIN_HOURLY_COUNT` and `TEOM.OUTPUT_COLUMNS` were never read | deleted, with a note saying what actually governs each (completeness is a *fraction* of the detected frequency's points; TEOM returns every column on purpose) |
+| P2-d | `report.py` defaulted the known-issues file to one developer's home directory | opt-in via `KNOWN_ISSUES_PATH` only, and a set-but-unusable path now warns instead of being swallowed. A second hardcoded `~/Desktop` path in `plot/templates/corr_matrix.py` went with it |
+| P2-g | `_process` was documented as being allowed to skip flagged rows | the docstring was the wrong half: skipping would violate R2 (a derived value belongs in `_read_*_qc.csv` whatever the verdict) and, since severity, would drop values for rows that are *kept*. Rewritten to say so, and to note that rule counts overlap by design |
+| P2-h | docs drift | 13 reader docstrings repointed at pages that exist; `instruments/index.md` no longer claims instrument auto-detection and lists EPA / Q-ACSM / the removed readers; three broken cross-links and four malformed docstrings fixed — **`mkdocs build --strict` now passes with zero warnings**, for the first time |
 | — | the native grid was rounded to whole minutes, so a 115 s APS was gridded at 2 min and ~3 % of each day's scans collapsed into an occupied bin, silently | `detect_freq` resolves to the second once ≥ 30 intervals support it; `snap_to_grid` warns whenever rows are actually lost |
 
 ### Suggested order
 
-Only P2 cleanups remain. **P2-i** is the one with a real data consequence — it
-decides whether short reads are usable at all — so it is worth doing before the
-cosmetic items. Do **P2-h** alongside whichever page is being touched anyway.
+Three items left, and both of the remaining P2 entries above need a decision
+that the code cannot make on its own:
+
+1. **P2-i** — the only one with a data consequence. Decide whether partial edge
+   hours are exempted or the expectation is scaled by the hour's overlap with
+   coverage (the latter is more honest: a real mid-file gap still gets caught).
+2. **P2-f** — needs the instrument manual or site knowledge: when a BC1054 file
+   carries both `Raw_Time` and `Time`, which is the measurement time? They differ
+   by hours on some rows, so this is a correctness question, not a style one.
+3. **P2-b** — a policy call on whether L2 keeps instrument metadata. Changing it
+   alters the output columns of OCEC and BAM1020 (or of five other readers,
+   depending which way it goes).
 
 ### Classifying a new rule
 

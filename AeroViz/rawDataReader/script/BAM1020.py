@@ -9,8 +9,9 @@ class Reader(AbstractReader):
     A specialized reader for BAM1020 data files, which measure PM2.5 mass concentration
     using beta attenuation technology.
 
-    See full documentation at docs/source/instruments/BAM1020.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/mass/BAM1020.md`` for usage and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout, status codes and QC rules.
     """
     nam = 'BAM1020'
 

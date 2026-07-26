@@ -11,8 +11,9 @@ class Reader(AbstractReader):
     A specialized reader for integrating nephelometer data files, which measure
     light scattering properties of aerosols at multiple wavelengths.
 
-    See full documentation at docs/source/instruments/NEPH.md for detailed information
-    on supported formats and QC procedures.
+    See ``docs/api/instruments/nephelometers/NEPH.md`` for usage and
+    ``docs/api/instruments/raw-formats-and-status.md`` for the
+    file layout, status codes and QC rules.
     """
     nam = 'NEPH'
 

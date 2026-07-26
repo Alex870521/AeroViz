@@ -514,7 +514,10 @@ def calculate_rates(logger, raw_data: pd.DataFrame, qc_flag: pd.Series,
     raw_data : pd.DataFrame
         Raw data before quality control
     qc_flag : pd.Series
-        QC flag series indicating validity of each row ("Valid" or error type)
+        Either a boolean *validity* mask (True = usable — what the reader passes
+        now that flags carry severity, so a row kept under an advisory flag
+        counts) or the legacy ``QC_Flag`` string series, in which case only
+        ``"Valid"`` counts.
     with_log : bool, default=False
         If True, outputs calculation logs
     resample_freq : str, default='1h'
@@ -547,7 +550,9 @@ def calculate_rates(logger, raw_data: pd.DataFrame, qc_flag: pd.Series,
     sample_size = len(raw_data.resample(resample_freq).mean().dropna(how='all').index)
 
     # 使用 QC_Flag 計算有效時段
-    valid_mask = qc_flag == 'Valid'
+    # Boolean input is already the verdict; a string series is the legacy
+    # QC_Flag, where anything other than "Valid" was treated as unusable.
+    valid_mask = qc_flag.astype(bool) if qc_flag.dtype == bool else (qc_flag == 'Valid')
     # 重採樣：計算每個時段內 Valid 的比例
     valid_ratio_per_period = valid_mask.resample(resample_freq).mean()
     # 確保只計算 raw_data 有資料的時段

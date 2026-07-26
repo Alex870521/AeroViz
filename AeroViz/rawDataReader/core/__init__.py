@@ -13,17 +13,26 @@ from rich.progress import Progress, TextColumn, BarColumn, SpinnerColumn, TaskPr
 from AeroViz.rawDataReader.config.supported_instruments import meta
 from AeroViz.rawDataReader.core.logger import ReaderLogger
 from AeroViz.rawDataReader.core.metadata import aeroviz_version, data_coverage, stamp_attrs
-from AeroViz.rawDataReader.core.qc import QualityControl, QCRule, QCFlagBuilder
+from AeroViz.rawDataReader.core.qc import (QualityControl, QCRule, QCFlagBuilder,
+                                          ERROR, WARNING, SEVERITIES)
 from AeroViz.rawDataReader.core.time_grid import detect_freq, resolve_freq, detect_isolated_dates, to_grid
 from AeroViz.rawDataReader.core.report import calculate_rates, process_rates_report, process_timeline_report, print_timeline_visual
 
-__all__ = ['AbstractReader', 'QCRule', 'QCFlagBuilder']
+__all__ = ['AbstractReader', 'QCRule', 'QCFlagBuilder', 'ERROR', 'WARNING']
+
+#: Short aliases for the two QC bookkeeping columns (see `QCFlagBuilder`).
+FLAG_COLUMN = QCFlagBuilder.FLAG_COLUMN
+INVALID_COLUMN = QCFlagBuilder.INVALID_COLUMN
+
 
 # Bumped when the cached pkl layout/semantics change. v2 = canonical frames
 # (snapped to native grid over the files' own coverage, NOT padded to a
 # requested range) carrying parse provenance in df.attrs. Pre-v2 pkls (padded,
 # no marker) are treated as stale and re-parsed.
-CACHE_FORMAT = 2
+# Bumped to 3 when QC gained flag severity: the cached QC frame now carries a
+# `QC_Invalid` verdict column alongside `QC_Flag`. A version-2 pickle has no
+# verdict, so it is re-parsed rather than silently treated as all-invalidating.
+CACHE_FORMAT = 3
 
 
 class AbstractReader(ABC):
@@ -58,6 +67,10 @@ class AbstractReader(ABC):
     """
 
     nam = 'AbstractReader'
+
+    #: Summary table stashed by `_QC` for readers whose `_process` adds a
+    #: further rule (see `extend_qc_summary`). None when `_QC` logged it itself.
+    _qc_summary = None
 
     def __init__(self,
                  path: Path | str,
@@ -124,6 +137,10 @@ class AbstractReader(ABC):
         self.fill_missing = kwargs.get('fill_missing', True)
         self.kwargs = kwargs
 
+        # Per-run reclassification of QC rules, e.g.
+        # flag_severity={'Insufficient': 'warning'} to keep sparse-hour readings.
+        self.qc_severity_overrides = dict(kwargs.get('flag_severity') or {})
+
         # Metadata collected during a run, stamped onto df.attrs before return
         self._n_files = None          # number of raw files read this run
         self._resolved_freq = None    # native frequency resolved from the files
@@ -186,26 +203,37 @@ class AbstractReader(ABC):
         if not self.qc:
             return self._stamp(_f_raw, start, end, with_qc=False)
 
-        # Extract QC_Flag before processing
-        qc_flag = _f_qc['QC_Flag'].copy() if 'QC_Flag' in _f_qc else None
+        # Keep the flag record for the report before it is dropped.
+        qc_flag = _f_qc[FLAG_COLUMN].copy() if FLAG_COLUMN in _f_qc else None
 
-        # Process QC_Flag
-        if 'QC_Flag' in _f_qc:
-            # Set rows with QC_Flag != "Valid" to NaN while preserving index
-            invalid_mask = _f_qc['QC_Flag'] != 'Valid'
+        # Apply the verdict. `QC_Invalid` is what decides masking, NOT the mere
+        # presence of a flag: an advisory flag (below a detection limit, an
+        # upscale warning) is recorded without deleting the measurement. Frames
+        # from a reader that predates severity — or a hand-built one — have no
+        # verdict column, so fall back to "any flag invalidates".
+        meta_columns = [c for c in (FLAG_COLUMN, INVALID_COLUMN) if c in _f_qc]
+        if meta_columns:
+            if INVALID_COLUMN in _f_qc:
+                invalid_mask = _f_qc[INVALID_COLUMN].fillna(False).astype(bool)
+            else:
+                invalid_mask = _f_qc[FLAG_COLUMN] != 'Valid'
+
             if invalid_mask.any():
-                # Get all numeric columns (excluding QC_Flag column)
-                numeric_columns = [col for col in _f_qc.columns if col != 'QC_Flag']
-                # Set invalid data to NaN
-                _f_qc.loc[invalid_mask, numeric_columns] = np.nan
+                data_columns = [col for col in _f_qc.columns if col not in meta_columns]
+                _f_qc.loc[invalid_mask, data_columns] = np.nan
 
-            # Drop QC_Flag column
-            _f_qc.drop(columns=['QC_Flag'], inplace=True)
+            # Neither column belongs in the public output.
+            _f_qc.drop(columns=meta_columns, inplace=True)
+            valid_mask = ~invalid_mask
+        else:
+            valid_mask = None
 
-        # Generate data acquisition and quality rate report (instrument time resolution)
+        # Generate data acquisition and quality rate report (instrument time
+        # resolution). Yield counts rows that survived the verdict, so a row kept
+        # under an advisory flag counts as data obtained.
         self._generate_report(_f_raw.apply(pd.to_numeric, errors='coerce'),
                               _f_qc.apply(pd.to_numeric, errors='coerce'),
-                              qc_flag=qc_flag)
+                              qc_flag=valid_mask if valid_mask is not None else qc_flag)
 
         # Resample only when a frequency is requested; otherwise return the
         # data at its native resolution (e.g. already-aggregated sources).
@@ -723,9 +751,13 @@ class AbstractReader(ABC):
         # Perform processing (calculate derived parameters + validate)
         qc_data = self._process(qc_data)
 
-        # Only convert numeric columns to numeric, preserve QC_Flag column string values
-        if 'QC_Flag' in qc_data.columns:
-            numeric_columns = qc_data.select_dtypes(exclude=['object', 'string']).columns
+        # Coerce measurements to numeric, leaving the QC bookkeeping columns alone
+        # (`QC_Flag` is text, `QC_Invalid` is boolean — to_numeric would turn the
+        # latter into 0/1 and lose the dtype the mask relies on).
+        qc_meta_columns = [c for c in (FLAG_COLUMN, INVALID_COLUMN) if c in qc_data.columns]
+        if qc_meta_columns:
+            numeric_columns = [c for c in qc_data.select_dtypes(exclude=['object', 'string']).columns
+                               if c not in qc_meta_columns]
             qc_data[numeric_columns] = qc_data[numeric_columns].apply(pd.to_numeric, errors='coerce')
         else:
             qc_data = qc_data.apply(pd.to_numeric, errors='coerce')
@@ -866,6 +898,84 @@ class AbstractReader(ABC):
     def QC_control():
         return QualityControl()
 
+    def qc_builder(self) -> QCFlagBuilder:
+        """A `QCFlagBuilder` carrying this run's severity overrides.
+
+        Readers should use this instead of `QCFlagBuilder()` directly so that
+        ``flag_severity={'Insufficient': 'warning'}`` reaches their rules.
+        """
+        return QCFlagBuilder(self.qc_severity_overrides)
+
+    @staticmethod
+    def qc_columns(df: pd.DataFrame) -> list[str]:
+        """The QC bookkeeping columns present in ``df``, in a stable order.
+
+        Readers that narrow their output to a fixed column list must carry both
+        of them through — ``QC_Flag`` (the record) *and* ``QC_Invalid`` (the
+        verdict the presentation layer masks on). Slicing with a hard-coded
+        ``+ ['QC_Flag']`` silently drops the verdict, which would make every flag
+        fatal again.
+        """
+        return [c for c in (FLAG_COLUMN, INVALID_COLUMN) if c in df.columns]
+
+    def extend_qc_summary(self, summary: pd.DataFrame, df: pd.DataFrame, rule: str,
+                          mask: pd.Series, description: str = '',
+                          severity: str = ERROR) -> pd.DataFrame:
+        """Add a `_process`-stage rule to a `_QC` summary and refresh the totals.
+
+        `_QC` builds the summary before derived quantities exist, so a rule like
+        ``Invalid AAE`` can only be counted later. The new row is inserted *above*
+        the trailing ``Valid`` / ``Usable`` totals, and both totals are then
+        recomputed from ``df``'s QC columns so they account for the late rule.
+
+        Parameters
+        ----------
+        summary : pd.DataFrame
+            The table returned by `QCFlagBuilder.get_summary`.
+        df : pd.DataFrame
+            The frame *after* `update_qc_flag` applied ``rule``.
+        rule, mask, description, severity
+            The late rule's name, boolean mask, description and severity.
+        """
+        total = len(df) or 1
+        count = int(mask.sum())
+        row = pd.DataFrame([{
+            'Rule': rule,
+            'Count': count,
+            'Percentage': f'{count / total * 100:.1f}%',
+            'Severity': severity,
+            'Description': description,
+        }])
+
+        totals = summary['Rule'].isin(('Valid', 'Usable'))
+        out = pd.concat([summary[~totals], row, summary[totals]], ignore_index=True)
+
+        # Recompute the totals from the real columns rather than trusting the
+        # pre-`_process` counts.
+        if FLAG_COLUMN in df.columns:
+            valid = int((df[FLAG_COLUMN] == 'Valid').sum())
+            out.loc[out['Rule'] == 'Valid', ['Count', 'Percentage']] = [
+                valid, f'{valid / total * 100:.1f}%']
+        if INVALID_COLUMN in df.columns:
+            usable = int((~df[INVALID_COLUMN].fillna(False).astype(bool)).sum())
+            out.loc[out['Rule'] == 'Usable', ['Count', 'Percentage']] = [
+                usable, f'{usable / total * 100:.1f}%']
+
+        return out
+
+    def log_qc_summary(self, summary: pd.DataFrame) -> None:
+        """Log a `QCFlagBuilder.get_summary` table.
+
+        Advisory rules are marked so it is obvious which flags kept their data.
+        ``Valid`` (passed everything) and ``Usable`` (nothing invalidating) are
+        both reported — they differ by the rows carrying only advisory flags.
+        """
+        self.logger.info(f"{self.nam} QC Summary:")
+        for _, row in summary.iterrows():
+            note = ' [advisory]' if row.get('Severity') == WARNING else ''
+            self.logger.info(
+                f"  {row['Rule']}: {row['Count']} ({row['Percentage']}){note}")
+
     def log_below_mdl(self, df: pd.DataFrame, mdl: dict, *, top: int = 10) -> pd.DataFrame:
         """Report, per column, how much of it sits below its detection limit.
 
@@ -921,9 +1031,13 @@ class AbstractReader(ABC):
         return report
 
     @staticmethod
-    def update_qc_flag(df: pd.DataFrame, mask: pd.Series, flag_name: str) -> pd.DataFrame:
+    def update_qc_flag(df: pd.DataFrame, mask: pd.Series, flag_name: str,
+                       severity: str = ERROR) -> pd.DataFrame:
         """
-        Update QC_Flag column for rows matching the mask.
+        Add a flag to ``QC_Flag`` for rows matching the mask, after ``_QC`` ran.
+
+        Used by ``_process`` to flag something that can only be judged once
+        derived quantities exist (e.g. ``Invalid AAE``).
 
         Parameters
         ----------
@@ -933,19 +1047,33 @@ class AbstractReader(ABC):
             Boolean mask indicating rows to flag
         flag_name : str
             Name of the flag to add
+        severity : {'error', 'warning'}, default='error'
+            ``'error'`` also marks the rows invalid, so they are masked in the
+            public output; ``'warning'`` records the flag only.
 
         Returns
         -------
         pd.DataFrame
-            DataFrame with updated QC_Flag column
+            DataFrame with updated ``QC_Flag`` (and ``QC_Invalid`` when the flag
+            is invalidating)
         """
-        if 'QC_Flag' not in df.columns:
-            df['QC_Flag'] = 'Valid'
+        if severity not in SEVERITIES:
+            raise ValueError(f"severity={severity!r}; expected one of {SEVERITIES}")
+
+        if FLAG_COLUMN not in df.columns:
+            df[FLAG_COLUMN] = 'Valid'
+        if INVALID_COLUMN not in df.columns:
+            df[INVALID_COLUMN] = df[FLAG_COLUMN] != 'Valid'
+
+        mask = mask.reindex(df.index).fillna(False).astype(bool)
 
         # For rows that are already Valid, set to flag_name
         # For rows that already have flags, append the new flag
-        valid_mask = df['QC_Flag'] == 'Valid'
-        df.loc[mask & valid_mask, 'QC_Flag'] = flag_name
-        df.loc[mask & ~valid_mask, 'QC_Flag'] = df.loc[mask & ~valid_mask, 'QC_Flag'] + ', ' + flag_name
+        valid_mask = df[FLAG_COLUMN] == 'Valid'
+        df.loc[mask & valid_mask, FLAG_COLUMN] = flag_name
+        df.loc[mask & ~valid_mask, FLAG_COLUMN] = df.loc[mask & ~valid_mask, FLAG_COLUMN] + ', ' + flag_name
+
+        if severity == ERROR:
+            df.loc[mask, INVALID_COLUMN] = True
 
         return df

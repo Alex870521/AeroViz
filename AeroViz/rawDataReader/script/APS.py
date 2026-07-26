@@ -1,5 +1,5 @@
 import numpy as np
-from pandas import to_datetime, read_table, Series, concat
+from pandas import to_datetime, read_table, Series
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
 from AeroViz.rawDataReader.script._size_dist_output import finalize_size_dist
@@ -200,7 +200,7 @@ class Reader(AbstractReader):
         total_conc = df_numeric.sum(axis=1, min_count=1) * dlogDp
 
         # Build QC rules declaratively
-        qc = QCFlagBuilder()
+        qc = self.qc_builder()
 
         qc.add_rules([
             QCRule(
@@ -249,14 +249,11 @@ class Reader(AbstractReader):
         """
         _index = _df.index.copy()
 
-        qc_flag = _df['QC_Flag'].copy() if 'QC_Flag' in _df.columns else Series('Valid', index=_df.index)
         bin_cols = [col for col in _df.columns if isinstance(col, (int, float))]
 
         # Log the QC summary collected in _QC()
         if getattr(self, '_qc_summary', None) is not None:
-            self.logger.info(f"{self.nam} QC Summary:")
-            for _, row in self._qc_summary.iterrows():
-                self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+            self.log_qc_summary(self._qc_summary)
 
-        # Keep only the size bins + QC_Flag (drop the raw Status Flags column)
-        return concat([_df[bin_cols], qc_flag], axis=1).reindex(_index)
+        # Keep only the size bins + QC bookkeeping (drop the raw status column)
+        return _df[bin_cols + self.qc_columns(_df)].reindex(_index)

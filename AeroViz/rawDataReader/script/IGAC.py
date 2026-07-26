@@ -113,7 +113,7 @@ class Reader(AbstractReader):
         above_mr = (df_qc[list(mr)] > Series(mr)).any(axis=1) if mr else Series(False, index=df_qc.index)
 
         # Build QC rules declaratively
-        qc = QCFlagBuilder()
+        qc = self.qc_builder()
         qc.add_rules([
             QCRule(
                 name='Mass Closure',
@@ -142,10 +142,7 @@ class Reader(AbstractReader):
         df_qc = qc.apply(df_qc)
 
         # Log QC summary
-        summary = qc.get_summary(df_qc)
-        self.logger.info(f"{self.nam} QC Summary:")
-        for _, row in summary.iterrows():
-            self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+        self.log_qc_summary(qc.get_summary(df_qc))
 
         self.log_below_mdl(df_qc, mdl)
 

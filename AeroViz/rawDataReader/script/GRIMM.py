@@ -76,7 +76,7 @@ class Reader(AbstractReader):
         # already dropped the metadata columns in `_raw_reader`.
         channels = df_qc.select_dtypes(include='number').columns.tolist()
 
-        qc = QCFlagBuilder()
+        qc = self.qc_builder()
         qc.add_rules([
             QCRule(
                 name='No Data',
@@ -100,9 +100,6 @@ class Reader(AbstractReader):
 
         df_qc = qc.apply(df_qc)
 
-        summary = qc.get_summary(df_qc)
-        self.logger.info(f"{self.nam} QC Summary:")
-        for _, row in summary.iterrows():
-            self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+        self.log_qc_summary(qc.get_summary(df_qc))
 
         return df_qc.reindex(_index)

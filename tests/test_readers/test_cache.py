@@ -62,7 +62,11 @@ def test_cached_pkl_is_canonical_not_padded(cached_dataset):
     pkl = cached_dataset / f'{FIXTURE.lower()}_outputs' / f'_read_{FIXTURE.lower()}_qc.pkl'
     cached = pd.read_pickle(pkl)
 
-    assert cached.attrs.get('cache_format') == 2
+    # Compare against the constant, not a literal: the marker is bumped whenever
+    # the cached layout changes (v3 added the QC_Invalid verdict column).
+    from AeroViz.rawDataReader.core import CACHE_FORMAT
+
+    assert cached.attrs.get('cache_format') == CACHE_FORMAT
     # The request spans all of March; the canonical pkl must be clamped to the
     # data's actual coverage (~1 day on 2025-03-05), not padded to the request.
     requested_span = pd.Timestamp(END) - pd.Timestamp(START)

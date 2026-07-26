@@ -52,7 +52,8 @@ RawDataReader('Aurora', path, ignored_status_errors=[4, 16])            # numeri
 
 | Channel | Written by | Granularity | Content |
 |---------|-----------|-------------|---------|
-| `QC_Flag` column | `_QC` / `_process` (L2) | per row | `"Valid"`, or comma-joined names of every rule that fired |
+| `QC_Flag` column | `_QC` / `_process` (L2) | per row | `"Valid"`, or comma-joined names of every rule that fired (advisory ones included) |
+| `QC_Invalid` column | `_QC` / `_process` (L2) | per row | boolean verdict: did an *invalidating* rule fire? The only thing masking looks at |
 | `{inst}.log` | all levels | per run | parse warnings, skipped/dropped files, mixed-resolution & stray-date warnings, **QC Summary** (count + % per rule), rates |
 | `report.json` | L3 | per week / month + timeline | `rates.weekly` / `rates.monthly` (acquisition / yield / total), `timeline` of operational & down periods with reasons |
 | `df.attrs` | L3 (`_stamp`) | per call | provenance, `coverage_*` vs `requested_*`, `raw_freq`, `freq_mixed`, `acquisition_rate` / `yield_rate` / `total_rate` |
@@ -61,22 +62,36 @@ RawDataReader('Aurora', path, ignored_status_errors=[4, 16])            # numeri
 **Lifecycle of one flag:**
 
 ```
-_QC       → QCRule.condition(df) → mask → QC_Flag = "Status Error, Insufficient"
-_process  → may append via update_qc_flag()  → "Status Error, Insufficient, Invalid AAE"
-log       → "  Status Error: 24312 (4.9%)"
-report    → row counts toward yield rate (a period is valid when >50% of its points are "Valid")
-__call__  → QC_Flag != "Valid"  →  entire row set to NaN, QC_Flag dropped
+_QC       → QCRule.condition(df) → mask → QC_Flag   = "Below MDL, Status Error"
+                                        → QC_Invalid = True   (Status Error is severity='error';
+                                                               Below MDL alone would leave it False)
+_process  → may append via update_qc_flag(..., severity=...) → "…, Invalid AAE"
+log       → "  Status Error: 24312 (4.9%)" / "  Below MDL: 1201 (2.4%) [advisory]"
+report    → yield counts rows that survived the verdict, so an advisory-only row counts
+__call__  → QC_Invalid  →  entire row set to NaN; QC_Flag + QC_Invalid dropped
 ```
 
-!!! warning "Every flag is fatal today"
-    There is no severity distinction: an advisory flag (`Below MDL`,
-    `Upscale Warning`, `Insufficient`, `Spike`) masks the row exactly as hard as
-    `Status Error`. If you need the underlying values, read
-    `_read_{inst}_qc.csv`, or call with `qc=False` (which returns L1 — no QC and
-    also no resampling). Tracked as P1-b in
-    [Data Levels §7](../../guide/data-levels.md#7-non-conformance-what-still-needs-fixing).
+!!! info "Not every flag is fatal"
+    Each rule carries a **severity**. `'error'` (the default) masks the row;
+    `'warning'` records the flag and keeps the measurement. Advisory today:
+    OCEC's `Below MDL` and Xact's `Upscale Warning` — a sub-detection-limit value
+    or a vendor upscale notice is a real measurement, and masking is per row, so
+    invalidating it would delete every other species at that timestamp too.
+
+    `Insufficient` and `Spike` remain invalidating, though both are arguable.
+    Reclassify per run without editing a reader:
+
+    ```python
+    RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
+    ```
+
+    To see values behind an invalidating flag, read `_read_{inst}_qc.csv` (flag,
+    verdict and value side by side) or call with `qc=False` (returns L1 — no QC,
+    and no resampling either).
 
 ### QC_Flag vocabulary
+
+Severity is `error` unless marked **advisory**.
 
 | Flag | Meaning | Used by |
 |------|---------|---------|
@@ -97,7 +112,7 @@ __call__  → QC_Flag != "Valid"  →  entire row set to NaN, QC_Flag dropped
 | `Negative Conc` | any size channel is negative | GRIMM |
 | `Invalid Conc` | PM ≤ 0 or > 500 µg/m³ | BAM1020 |
 | `Invalid Carbon` | any carbon fraction ≤ −5 or > 100 µgC/m³ | OCEC |
-| `Below MDL` | value at or below the method detection limit | OCEC |
+| `Below MDL` | value at or below the method detection limit — **advisory** | OCEC |
 | `Missing OC` | `Thermal_OC` or `Optical_OC` missing | OCEC |
 | `Above MR` | concentration above the instrument's stated measurement range | IGAC |
 | `Mass Closure` | Σ ions > PM2.5 | IGAC |
@@ -105,7 +120,7 @@ __call__  → QC_Flag != "Valid"  →  entire row set to NaN, QC_Flag dropped
 | `Ion Balance` | cation/anion ratio outside 1.5 × IQR | IGAC |
 | `Calibration Mode` | `SAMPLE_TYPE != 1` | Xact |
 | `Instrument Error` | `ALARM` in 100–110 | Xact |
-| `Upscale Warning` | `ALARM` in 200–203 | Xact |
+| `Upscale Warning` | `ALARM` in 200–203 — **advisory** (the instrument's own warning class) | Xact |
 | `Invalid Value` | element concentration outside 0–100 000 ng/m³ | Xact |
 | `Internal Std Drift` | Nb outside ±20 % of its median | Xact |
 | `Negative` | any numeric column < 0 | EPA |
@@ -271,7 +286,7 @@ Identical to AE33 except:
 | **Status** | none |
 | **MDL / MR** | from `meta['IGAC']` — the [vendor specification](https://www.yangyao-env.com/web/product/product_in2.jsp?pd_id=PD1640151884502), 17 species covering **gases and aerosol ions**, exposed as `reader.MDL` / `reader.MR`. Species whose spec entry is `None` (HF, F⁻, PO₄³⁻ — not measured) are skipped everywhere. This replaced a second, disagreeing class-level copy of the 9 aerosol ions. |
 | **QC rules** | `Mass Closure` (Σ *aerosol ions* > `PM2.5` when that column exists — gases are not part of the PM budget), `Missing Main` (NH₄⁺/SO₄²⁻/NO₃⁻), `Above MR` (any species above its stated measurement range), `Ion Balance` (cation/anion ratio outside 1.5 × IQR) |
-| **Below MDL** | a **diagnostic, not a flag**: the log reports what fraction of each species sits below its limit, worst-first. A below-MDL value is a valid measurement of a low concentration, and because any non-`Valid` flag NaNs the whole row, flagging it would delete every other species measured in that same hour. |
+| **Below MDL** | a **per-species diagnostic**, not a flag: the log reports what fraction of each species sits below its limit, worst-first. (OCEC keeps a `Below MDL` flag, but at `severity='warning'` — same outcome by a different route. IGAC has 17 species, so a per-column count is more useful than one row-level flag.) |
 | **L2 output** | every spec species present in the file (gases included — they used to be dropped) + `QC_Flag` |
 
 ### Xact

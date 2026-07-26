@@ -28,8 +28,8 @@ split appears under two older names — **canonical** (L1+L2, cacheable) versus
 |-------|-----------|-------------|-----------|--------------|:------:|
 | **L0** | Vendor raw files, exactly as the instrument / host software wrote them | — (input only) | whatever the file has | never written by AeroViz | — |
 | **L1** | **Parsed measurement.** One frame per instrument, every source column kept, placed on the *native* grid over the *files' own* coverage. No quality judgement. | `_raw_reader` → `_partition_compatible_scans` → `_flag_outlier_dates` → `_timeIndex_process` → numeric coercion | native (detected per file) | `_read_{inst}_raw.pkl` / `.csv` | ✅ |
-| **L2** | **Quality-controlled + derived.** Adds a `QC_Flag` column and instrument-derived quantities (abs coefficients, AAE, eBC, sca_550, SAE, Volatile_Fraction). Still native resolution, still the files' own coverage. **Nothing is deleted.** | `_QC` → `_process` | native | `_read_{inst}_qc.pkl` / `.csv` | ✅ |
-| **L3** | **Presentation.** Places L2 on the *requested* range, applies `outlier.json`, masks every non-`Valid` row to NaN, drops `QC_Flag`, resamples to `mean_freq`, computes rates, stamps `df.attrs`. | `_timeIndex_process(start, end)` → `_outlier_process` → mask → `resample` → `_generate_report` → `_stamp` | requested (`mean_freq`) | `output_{inst}.csv`, `report.json`, `{prefix}_dNdlogDp/dSdlogDp/dVdlogDp/_stats.csv`, `{inst}.log` | ❌ |
+| **L2** | **Quality-controlled + derived.** Adds `QC_Flag` (what fired) + `QC_Invalid` (the verdict) and instrument-derived quantities (abs coefficients, AAE, eBC, sca_550, SAE, Volatile_Fraction). Still native resolution, still the files' own coverage. **Nothing is deleted.** | `_QC` → `_process` | native | `_read_{inst}_qc.pkl` / `.csv` | ✅ |
+| **L3** | **Presentation.** Places L2 on the *requested* range, applies `outlier.json`, masks every `QC_Invalid` row to NaN, drops both QC columns, resamples to `mean_freq`, computes rates, stamps `df.attrs`. | `_timeIndex_process(start, end)` → `_outlier_process` → mask → `resample` → `_generate_report` → `_stamp` | requested (`mean_freq`) | `output_{inst}.csv`, `report.json`, `{prefix}_dNdlogDp/dSdlogDp/dVdlogDp/_stats.csv`, `{inst}.log` | ❌ |
 
 L1 and L2 are what `_load_or_parse` returns; L3 is everything `_run` and
 `__call__` do afterwards. That boundary is the reason a cache hit still honours
@@ -44,6 +44,7 @@ L1  parsed measurement  ── canonical, native res, ALL source columns, no ver
       │  _read_{inst}_raw.pkl / .csv          ← cacheable
       │
       │  _QC     — QCFlagBuilder → QC_Flag ("Valid" | "Rule1, Rule2")
+      │                          + QC_Invalid (True if an *error*-severity rule fired)
       │  _process — derived quantities, may add more flags
       ▼
 L2  QC'd + derived      ── canonical, native res, flags ADDED not applied
@@ -51,7 +52,7 @@ L2  QC'd + derived      ── canonical, native res, flags ADDED not applied
       ▼─────────────────── cache boundary ───────────────────
       │  _timeIndex_process(start, end, fill_missing)  — place on requested range
       │  _outlier_process                              — apply outlier.json
-      │  QC_Flag != "Valid"  →  row = NaN ;  drop QC_Flag
+      │  QC_Invalid  →  row = NaN ;  drop QC_Flag + QC_Invalid
       │  _generate_report                              — acquisition/yield/total
       │  resample(mean_freq)                           — only if requested
       │  _stamp                                        — df.attrs provenance
@@ -73,11 +74,21 @@ decision. Rationale: a column dropped at L1 is unrecoverable without a full
 re-read of the raw archive.
 
 **R2 — L2 judges but never destroys.**
-QC writes a verdict into `QC_Flag`; it does not NaN, drop, or overwrite values.
-Masking is L3's job, and only L3's. Rationale: rates (`acquisition` / `yield` /
-`total`) are computed by comparing L1 against the L2 flag — if L2 has already
-destroyed the values, the yield rate is unknowable, and the user can never see
-*why* a point was rejected.
+QC writes its findings into `QC_Flag` (the record: every rule that fired) and its
+verdict into `QC_Invalid` (boolean: did an *invalidating* rule fire). It does not
+NaN, drop, or overwrite values. Masking is L3's job, and only L3's, and it masks
+on the verdict — never on the mere presence of a flag. Rationale: rates
+(`acquisition` / `yield` / `total`) are computed by comparing L1 against the L2
+verdict — if L2 has already destroyed the values, the yield rate is unknowable,
+and the user can never see *why* a point was rejected.
+
+**R2a — a flag is invalidating only if the measurement is untrustworthy.**
+A rule declares `severity='error'` (default) or `severity='warning'`. Advisory
+flags are recorded and reported but keep their data. Rationale: a value below a
+detection limit, or a vendor alarm the instrument itself classes as a *warning*,
+is a real measurement — and because masking is per row, invalidating it deletes
+every other species measured at that timestamp too. Per-run reclassification:
+`RawDataReader(..., flag_severity={'Insufficient': 'warning'})`.
 
 **R3 — native resolution is stored once; anything coarser is derived.**
 L1/L2 are always at the frequency detected from the files
@@ -138,10 +149,12 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
 ### L2 — quality control and derivation
 
 10. **`_QC(raw.copy())`** — the reader builds `QCRule`s into a `QCFlagBuilder`;
-    `apply` evaluates every rule as a vectorised mask and writes
-    `QC_Flag = "Valid"` or a comma-joined list of the rules that fired. A rule
-    that raises is caught, warned, and treated as all-False. `get_summary`
-    is stored on the reader for logging.
+    `apply` evaluates every rule as a vectorised mask, writes
+    `QC_Flag = "Valid"` or a comma-joined list of the rules that fired, and sets
+    `QC_Invalid` where at least one *invalidating* rule fired. A rule that raises
+    is caught, warned, and treated as all-False. `get_summary` is stored on the
+    reader for logging and reports both `Valid` (passed everything) and `Usable`
+    (nothing invalidating).
 11. **`_process(qc)`** — derived quantities; may add more flags via
     `update_qc_flag` (which appends to an existing non-`Valid` flag). Readers
     without derived quantities inherit the identity default and log the summary
@@ -159,8 +172,10 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
     coverage.
 14. **Apply `outlier.json`** — `_outlier_process` NaNs operator-declared
     intervals found in `{path}/outlier.json` (**qc path only**).
-15. **Apply the verdict** — rows with `QC_Flag != 'Valid'` → all columns NaN;
-    `QC_Flag` dropped from the public frame.
+15. **Apply the verdict** — rows where `QC_Invalid` → all columns NaN; both
+    `QC_Flag` and `QC_Invalid` dropped from the public frame. A frame with no
+    verdict column (a hand-built one, or a pre-severity cache) falls back to
+    "any flag invalidates".
 16. **Report** — `_generate_report` computes acquisition / yield / total rates
     from L1-vs-flag on a 1 h resample, per `qc` period (`'W'`, `'MS'`, …) and
     overall; `process_timeline_report` adds up/down periods and matches them
@@ -229,6 +244,7 @@ store it; recompute it per call.
 | Channel | Level | Content | Lifetime |
 |---------|:-----:|---------|----------|
 | `QC_Flag` column | L2 | per-row, comma-joined rule names, `"Valid"` when clean | dropped at L3 (present in `_read_*_qc.csv`) |
+| `QC_Invalid` column | L2 | per-row boolean verdict — the only thing L3 masks on | dropped at L3 (present in `_read_*_qc.csv`) |
 | `{inst}.log` | L1–L3 | parse warnings, dropped files, mixed-resolution / stray-date warnings, QC summary with counts + percentages, rates | persistent file |
 | `report.json` | L3 | `startDate` / `endDate` / `instrument_id`, weekly + monthly `rates`, `timeline` of up/down periods with reasons | overwritten per run |
 | `df.attrs` | L3 | provenance, `coverage_*` vs `requested_*`, `raw_freq`, `freq_mixed`, `fill_missing`, version, `acquisition_rate` / `yield_rate` / `total_rate` | in-memory; survives pickle + resample |
@@ -275,20 +291,6 @@ labels **P0-a** and **P0-b** are retired rather than reused.
 
 ### P1 — rule violations
 
-- **P1-b — flag severity does not exist, so advisory flags delete data.**
-  `__call__` NaNs the whole row for *any* non-`Valid` flag. That means
-  `Below MDL` (OCEC), `Upscale Warning` (Xact), `Insufficient` and `Spike`
-  erase measurements that are merely uncertain. OCEC flags `Below MDL` with
-  `value <= MDL` across four carbon fractions, so clean-air periods are wiped
-  wholesale. Fix: split rules into *invalidating* and *advisory*; only the former
-  should mask, both should be reported.
-
-    Partially worked around for Xact and IGAC: their below-MDL reporting is a
-    per-column diagnostic (`AbstractReader.log_below_mdl`) instead of a
-    row-level flag. **OCEC still flags it**, and `Insufficient` / `Spike` /
-    `Upscale Warning` remain fatal everywhere — the severity split is still the
-    real fix.
-
 - **P1-c — completeness QC uses the config frequency, not the detected one.**
   All nine callers pass `freq=self.meta['freq']` to `hourly_completeness_QC`
   (AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS, TEOM) while the rest of
@@ -333,12 +335,6 @@ labels **P0-a** and **P0-b** are retired rather than reused.
   (overridable via `KNOWN_ISSUES_PATH`). Default should be `None` or
   project-relative.
 
-- **P2-e — OCEC's `Below MDL` still masks rows.** Unlike Xact and IGAC (whose
-  below-MDL reporting is now a per-column diagnostic), OCEC keeps a row-level
-  `Below MDL` flag with `value <= MDL` over four carbon fractions, so clean-air
-  periods are deleted. Fold it into the **P1-b** severity split, or convert it
-  to `log_below_mdl` as well.
-
 - **P2-f — BC1054 timestamp ambiguity.** `read_csv(..., index_col=0)` takes
   `Raw_Time` when the file has both, and then *drops* `Time`. In the NZ 2025
   fixture the two differ by hours on some rows. Decide which one is the
@@ -377,12 +373,30 @@ Kept as a record of what the labels used to mean:
 | P0-b | `Q-ACSM` raised an abstract-class `TypeError` | registered in `supported_instruments.pending` → `NotImplementedError` naming what to contribute |
 | P1-a | R2 violated by GRIMM / VOC / Minion (no verdict, or destroyed values at L2) | GRIMM flags; the other two are gone |
 | P2-c | `meta['Xact']['MDL']` / `meta['IGAC']['MDL']` had no consumer | both readers now source their limits from `meta` (`reader.MDL`, `reader.MR`), `None` entries skipped |
+| P1-b | no flag severity — advisory flags (`Below MDL`, `Upscale Warning`, …) NaN'd the row as hard as `Status Error` | `QCRule(severity=...)` + a `QC_Invalid` verdict column; L3 masks on the verdict, not on the presence of a flag. `flag_severity={...}` reclassifies per run |
+| P2-e | OCEC still flagged `Below MDL` row-level | now `severity='warning'` — recorded, kept. Xact's `Upscale Warning` likewise (the instrument calls 200–203 warnings, 100–110 errors) |
 
 ### Suggested order
 
-1. **P1-b** — the severity split. Highest-value change: it makes "why is my data
-   NaN?" answerable, and retires the per-reader workarounds Xact and IGAC needed.
-2. **P1-c**, **P1-d**, **P1-f** — one-line fixes each.
-3. **P1-e** — warn on missing status columns, then add the Aurora `S1`/`S2` and
+1. **P1-c**, **P1-d**, **P1-f** — one-line fixes each.
+2. **P1-e** — warn on missing status columns, then add the Aurora `S1`/`S2` and
    SMPS AIM 11.x dialects.
-4. P2 as cleanup, with **P2-h** done alongside whichever page is being touched.
+3. P2 as cleanup, with **P2-h** done alongside whichever page is being touched.
+
+### Classifying a new rule
+
+Default to `severity='error'`. Choose `'warning'` only when the *value itself* is
+trustworthy and the flag describes a circumstance around it. Two questions:
+
+- *Would a careful analyst still use this number, given the flag?* If yes →
+  advisory.
+- *Does the flag describe this row's value, or its neighbours / its context?* A
+  flag about context (hourly completeness, a nearby calibration) is a weak reason
+  to delete a real measurement.
+
+Currently advisory: OCEC `Below MDL`, Xact `Upscale Warning`. Deliberately still
+invalidating, though arguable — flip them per run with `flag_severity=` if your
+analysis wants them: `Insufficient` (the row is fine; the *hour* is sparse, and
+demoting it changes every hourly mean and every rate in `report.json`) and
+`Spike` (asserts the value is wrong, but the detector is a heuristic that can
+catch real events).

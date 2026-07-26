@@ -111,7 +111,7 @@ class Reader(AbstractReader):
         df_qc = _df[~duplicate_rows].copy()
 
         # Build QC rules declaratively
-        qc = QCFlagBuilder()
+        qc = self.qc_builder()
         qc.add_rules([
             QCRule(
                 name='Status Error',
@@ -167,21 +167,11 @@ class Reader(AbstractReader):
         invalid_aae = (-df_out['AAE'] < self.MIN_AAE) | (-df_out['AAE'] > self.MAX_AAE)
         df_out = self.update_qc_flag(df_out, invalid_aae, 'Invalid AAE')
 
-        # Log combined QC summary with calculated info
-        if hasattr(self, '_qc_summary') and self._qc_summary is not None:
-            import pandas as pd
-            # Add Invalid AAE row before Valid row
-            total = len(df_out)
-            invalid_aae_row = pd.DataFrame([{
-                'Rule': 'Invalid AAE',
-                'Count': invalid_aae.sum(),
-                'Percentage': f'{invalid_aae.sum() / total * 100:.1f}%',
-                'Description': f'AAE outside valid range {self.MIN_AAE}-{self.MAX_AAE}'
-            }])
-            # Insert before Valid row (last row)
-            summary = pd.concat([self._qc_summary.iloc[:-1], invalid_aae_row, self._qc_summary.iloc[-1:]], ignore_index=True)
-            self.logger.info(f"{self.nam} QC Summary:")
-            for _, row in summary.iterrows():
-                self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+        # Log the combined summary: `Invalid AAE` can only be counted here,
+        # once _absCoe has produced the AAE column.
+        if self._qc_summary is not None:
+            self.log_qc_summary(self.extend_qc_summary(
+                self._qc_summary, df_out, 'Invalid AAE', invalid_aae,
+                description=f'AAE outside valid range {self.MIN_AAE}-{self.MAX_AAE}'))
 
         return df_out.reindex(_index)

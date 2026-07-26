@@ -9,6 +9,15 @@ import pandas as pd
 # QC Flag System
 # =============================================================================
 
+#: A rule's verdict is either *invalidating* (the measurement itself cannot be
+#: trusted) or *advisory* (the measurement stands, but something about it is worth
+#: knowing). Only invalidating flags cause the row to be masked in the public
+#: output; both are always recorded in ``QC_Flag`` and in the summary.
+ERROR = 'error'
+WARNING = 'warning'
+SEVERITIES = (ERROR, WARNING)
+
+
 @dataclass
 class QCRule:
     """
@@ -23,6 +32,13 @@ class QCRule:
         where True = flagged (problematic data)
     description : str, optional
         Detailed explanation of what this rule checks
+    severity : {'error', 'warning'}, default='error'
+        ``'error'`` — the measurement is invalid; the row is masked to NaN in the
+        public output and does not count towards the yield rate.
+        ``'warning'`` — advisory: the value is a real measurement and is kept.
+        Use it when the flag describes a *circumstance* rather than a broken
+        reading (below a detection limit, an upscale warning, a sparse hour).
+        Default is ``'error'`` so a new rule is conservative until classified.
 
     Examples
     --------
@@ -31,10 +47,23 @@ class QCRule:
     ...     condition=lambda df: (df['BC6'] <= 0) | (df['BC6'] > 20000),
     ...     description='BC concentration outside valid range 0-20000 ng/m³'
     ... )
+    >>> advisory = QCRule(
+    ...     name='Below MDL',
+    ...     condition=lambda df: df['Thermal_OC'] <= 0.3,
+    ...     description='At or below the method detection limit',
+    ...     severity='warning',
+    ... )
     """
     name: str
     condition: Callable[[pd.DataFrame], pd.Series]
     description: str = ''
+    severity: str = ERROR
+
+    def __post_init__(self):
+        if self.severity not in SEVERITIES:
+            raise ValueError(
+                f"QCRule('{self.name}') has severity={self.severity!r}; "
+                f"expected one of {SEVERITIES}")
 
 
 class QCFlagBuilder:
@@ -52,8 +81,25 @@ class QCFlagBuilder:
     >>> df_with_flags = builder.apply(df)
     """
 
-    def __init__(self):
+    #: Column holding the human-readable record of every rule that fired.
+    FLAG_COLUMN = 'QC_Flag'
+    #: Boolean column holding the *verdict*: True when at least one
+    #: invalidating rule fired. This is what the presentation layer masks on —
+    #: keeping it separate from ``QC_Flag`` means an advisory flag can be
+    #: recorded without deleting the measurement.
+    INVALID_COLUMN = 'QC_Invalid'
+
+    def __init__(self, severity_overrides: dict | None = None):
+        """
+        Parameters
+        ----------
+        severity_overrides : dict, optional
+            ``{rule_name: 'error' | 'warning'}``, applied when the builder runs.
+            Lets a caller reclassify a rule for one run (e.g. treat
+            ``'Insufficient'`` as advisory) without editing the reader.
+        """
         self.rules: list[QCRule] = []
+        self.severity_overrides = dict(severity_overrides or {})
 
     def add_rule(self, rule: QCRule) -> 'QCFlagBuilder':
         """Add a QC rule. Returns self for method chaining."""
@@ -65,9 +111,39 @@ class QCFlagBuilder:
         self.rules.extend(rules)
         return self
 
+    def severity_of(self, rule: QCRule) -> str:
+        """Effective severity of ``rule``, honouring the override map."""
+        override = self.severity_overrides.get(rule.name)
+        if override is None:
+            return rule.severity
+        if override not in SEVERITIES:
+            raise ValueError(
+                f"severity override for '{rule.name}' is {override!r}; "
+                f"expected one of {SEVERITIES}")
+        return override
+
+    def _evaluate(self, df: pd.DataFrame) -> dict[str, pd.Series]:
+        """Run every rule once, returning ``{rule name: boolean mask}``.
+
+        A rule that raises is reported and treated as "did not fire", so one
+        broken rule cannot take the whole read down.
+        """
+        masks = {}
+        for rule in self.rules:
+            try:
+                mask = rule.condition(df)
+                if not isinstance(mask, pd.Series):
+                    # Handle scalar or array results
+                    mask = pd.Series(mask, index=df.index)
+                masks[rule.name] = mask.reindex(df.index).fillna(False).astype(bool)
+            except Exception as e:
+                print(f"Warning: QC rule '{rule.name}' failed: {e}")
+                masks[rule.name] = pd.Series(False, index=df.index)
+        return masks
+
     def apply(self, df: pd.DataFrame) -> pd.DataFrame:
         """
-        Apply all registered QC rules and add QC_Flag column.
+        Apply all registered QC rules; add ``QC_Flag`` and ``QC_Invalid``.
 
         Parameters
         ----------
@@ -77,40 +153,38 @@ class QCFlagBuilder:
         Returns
         -------
         pd.DataFrame
-            DataFrame with added 'QC_Flag' column containing
-            comma-separated flag names or 'Valid'
+            DataFrame with two added columns:
+
+            ``QC_Flag``
+                comma-separated names of every rule that fired (advisory ones
+                included), or ``'Valid'`` when none did.
+            ``QC_Invalid``
+                True when at least one *invalidating* rule fired. Rows where this
+                is False keep their values in the public output even if an
+                advisory flag is recorded against them.
         """
+        df = df.copy()
+
         if not self.rules:
-            df = df.copy()
-            df['QC_Flag'] = 'Valid'
+            df[self.FLAG_COLUMN] = 'Valid'
+            df[self.INVALID_COLUMN] = False
             return df
 
-        # Create a mask DataFrame: each column is a boolean mask for one rule
-        # This is much faster than iterating row by row
-        flag_masks = {}
+        masks = self._evaluate(df)
+
+        # Vectorised flag-string assembly: start from 'Valid' and append each
+        # rule's name to the rows it fired on.
+        flag = pd.Series('', index=df.index, dtype='object')
+        invalid = pd.Series(False, index=df.index)
+
         for rule in self.rules:
-            try:
-                mask = rule.condition(df)
-                if isinstance(mask, pd.Series):
-                    flag_masks[rule.name] = mask
-                else:
-                    # Handle scalar or array results
-                    flag_masks[rule.name] = pd.Series(mask, index=df.index)
-            except Exception as e:
-                print(f"Warning: QC rule '{rule.name}' failed: {e}")
-                flag_masks[rule.name] = pd.Series(False, index=df.index)
+            mask = masks[rule.name]
+            flag = flag.mask(mask, flag.where(flag == '', flag + ', ') + rule.name)
+            if self.severity_of(rule) == ERROR:
+                invalid |= mask
 
-        # Convert to DataFrame for vectorized string operations
-        mask_df = pd.DataFrame(flag_masks)
-
-        # Build flag strings efficiently using numpy
-        def build_flag_string(row):
-            flags = [col for col, val in row.items() if val]
-            return ', '.join(flags) if flags else 'Valid'
-
-        # Apply vectorized where possible, fallback to apply for string building
-        df = df.copy()
-        df['QC_Flag'] = mask_df.apply(build_flag_string, axis=1)
+        df[self.FLAG_COLUMN] = flag.where(flag != '', 'Valid')
+        df[self.INVALID_COLUMN] = invalid
 
         return df
 
@@ -118,38 +192,49 @@ class QCFlagBuilder:
         """
         Get summary statistics of QC flags.
 
-        Returns DataFrame with counts and percentages for each flag.
+        Returns a DataFrame with one row per rule (count, percentage, severity,
+        description), then two totals: ``Valid`` — passed every check — and
+        ``Usable`` — no *invalidating* flag, i.e. what survives into the output.
+        The two differ by exactly the rows carrying only advisory flags.
         """
         results = []
-        total = len(df)
-        flagged_mask = pd.Series(False, index=df.index)
+        total = len(df) or 1  # avoid ZeroDivisionError on an empty frame
+        masks = self._evaluate(df)
+
+        flagged = pd.Series(False, index=df.index)
+        invalid = pd.Series(False, index=df.index)
 
         for rule in self.rules:
-            try:
-                mask = rule.condition(df)
-                flagged_mask |= mask
-                count = mask.sum()
-                results.append({
-                    'Rule': rule.name,
-                    'Count': count,
-                    'Percentage': f'{count / total * 100:.1f}%',
-                    'Description': rule.description
-                })
-            except Exception:
-                results.append({
-                    'Rule': rule.name,
-                    'Count': 'Error',
-                    'Percentage': '-',
-                    'Description': rule.description
-                })
+            mask = masks[rule.name]
+            severity = self.severity_of(rule)
+            flagged |= mask
+            if severity == ERROR:
+                invalid |= mask
+            count = int(mask.sum())
+            results.append({
+                'Rule': rule.name,
+                'Count': count,
+                'Percentage': f'{count / total * 100:.1f}%',
+                'Severity': severity,
+                'Description': rule.description,
+            })
 
-        # Add Valid count
-        valid_count = (~flagged_mask).sum()
+        valid_count = int((~flagged).sum())
         results.append({
             'Rule': 'Valid',
             'Count': valid_count,
             'Percentage': f'{valid_count / total * 100:.1f}%',
-            'Description': 'Passed all QC checks'
+            'Severity': '',
+            'Description': 'Passed all QC checks',
+        })
+
+        usable_count = int((~invalid).sum())
+        results.append({
+            'Rule': 'Usable',
+            'Count': usable_count,
+            'Percentage': f'{usable_count / total * 100:.1f}%',
+            'Severity': '',
+            'Description': 'No invalidating flag — kept in the output',
         })
 
         return pd.DataFrame(results)

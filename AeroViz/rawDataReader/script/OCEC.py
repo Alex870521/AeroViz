@@ -1,7 +1,7 @@
 import numpy as np
 from pandas import to_datetime, read_csv, to_numeric, Series
 
-from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
+from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
 
 
 class Reader(AbstractReader):
@@ -199,7 +199,7 @@ class Reader(AbstractReader):
                 mdl_mask = mdl_mask | (df_qc[col] <= threshold)
 
         # Build QC rules declaratively
-        qc = QCFlagBuilder()
+        qc = self.qc_builder()
         qc.add_rules([
             QCRule(
                 name='Invalid Carbon',
@@ -210,7 +210,11 @@ class Reader(AbstractReader):
             QCRule(
                 name='Below MDL',
                 condition=lambda df: mdl_mask.reindex(df.index).fillna(False),
-                description='Value below method detection limit'
+                description='Value at or below the method detection limit',
+                # Advisory: a sub-MDL carbon fraction is a real measurement of
+                # clean air, not a broken row. Invalidating it deleted whole
+                # clean-air periods along with the other fractions in the row.
+                severity=WARNING,
             ),
             QCRule(
                 name='Spike',
@@ -231,9 +235,6 @@ class Reader(AbstractReader):
         df_qc = qc.apply(df_qc)
 
         # Log QC summary
-        summary = qc.get_summary(df_qc)
-        self.logger.info(f"{self.nam} QC Summary:")
-        for _, row in summary.iterrows():
-            self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+        self.log_qc_summary(qc.get_summary(df_qc))
 
-        return df_qc[self.OUTPUT_COLUMNS + ['QC_Flag']].reindex(_index)
+        return df_qc[self.OUTPUT_COLUMNS + self.qc_columns(df_qc)].reindex(_index)

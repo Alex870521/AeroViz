@@ -196,7 +196,7 @@ class Reader(AbstractReader):
         df_qc = _df.copy()
 
         # Build QC rules declaratively
-        qc = QCFlagBuilder()
+        qc = self.qc_builder()
 
         qc.add_rules([
             QCRule(
@@ -243,10 +243,7 @@ class Reader(AbstractReader):
         df_qc = qc.apply(df_qc)
 
         # Log QC summary
-        summary = qc.get_summary(df_qc)
-        self.logger.info(f"{self.nam} QC Summary:")
-        for _, row in summary.iterrows():
-            self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+        self.log_qc_summary(qc.get_summary(df_qc))
 
         return df_qc.reindex(_index)
 

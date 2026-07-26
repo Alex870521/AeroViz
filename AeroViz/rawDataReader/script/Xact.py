@@ -1,6 +1,6 @@
 from pandas import read_csv, to_datetime, to_numeric
 
-from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
+from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
 
 
 class Reader(AbstractReader):
@@ -162,7 +162,7 @@ class Reader(AbstractReader):
         uncert_cols = [f'{elem}_uncert' for elem in element_cols if f'{elem}_uncert' in df_qc.columns]
 
         # Build QC rules declaratively
-        qc = QCFlagBuilder()
+        qc = self.qc_builder()
 
         # Add Calibration Mode rule (SAMPLE_TYPE: 1=normal sampling, 2=zero calibration)
         # Note: Most calibration samples are already filtered in _raw_reader, this catches any remaining
@@ -186,7 +186,11 @@ class Reader(AbstractReader):
                 QCRule(
                     name='Upscale Warning',
                     condition=lambda df: df['ALARM'].isin(list(self.WARNING_CODES.keys())),
-                    description='Upscale warning detected (ALARM code 200-203)'
+                    description='Upscale warning detected (ALARM code 200-203)',
+                    # The instrument distinguishes errors (100-110) from warnings
+                    # (200-203); honour that. An upscale warning means a channel is
+                    # near the top of its calibration, not that the row is broken.
+                    severity=WARNING,
                 ),
             ])
 
@@ -221,10 +225,7 @@ class Reader(AbstractReader):
         df_qc = qc.apply(df_qc)
 
         # Log QC summary
-        summary = qc.get_summary(df_qc)
-        self.logger.info(f"{self.nam} QC Summary:")
-        for _, row in summary.iterrows():
-            self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+        self.log_qc_summary(qc.get_summary(df_qc))
 
         self.log_below_mdl(df_qc, self.MDL)
 

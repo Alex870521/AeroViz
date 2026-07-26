@@ -89,7 +89,7 @@ class Reader(AbstractReader):
         df_qc = _df.copy()
 
         # Build QC rules declaratively
-        qc = QCFlagBuilder()
+        qc = self.qc_builder()
         qc.add_rules([
             QCRule(
                 name='Status Error',
@@ -147,8 +147,8 @@ class Reader(AbstractReader):
         # Calculate absorption coefficients, AAE, and eBC
         _df_cal = _absCoe(_df[self.BC_COLUMNS], instru=self.nam, specified_band=[550])
 
-        # Combine with Status, BB(%), and QC_Flag
-        extra_cols = ['Status', 'QC_Flag']
+        # Combine with Status, BB(%), and the QC bookkeeping columns
+        extra_cols = ['Status'] + self.qc_columns(_df)
         if self.BB_COLUMN in _df.columns:
             extra_cols.insert(0, self.BB_COLUMN)
         df_out = concat([_df_cal, _df[extra_cols]], axis=1)
@@ -158,25 +158,15 @@ class Reader(AbstractReader):
         invalid_aae = (-df_out['AAE'] < self.MIN_AAE) | (-df_out['AAE'] > self.MAX_AAE)
         df_out = self.update_qc_flag(df_out, invalid_aae, 'Invalid AAE')
 
-        # Log combined QC summary with calculated info
-        if hasattr(self, '_qc_summary') and self._qc_summary is not None:
-            import pandas as pd
-            # Add Invalid AAE row before Valid row
-            total = len(df_out)
-            invalid_aae_row = pd.DataFrame([{
-                'Rule': 'Invalid AAE',
-                'Count': invalid_aae.sum(),
-                'Percentage': f'{invalid_aae.sum() / total * 100:.1f}%',
-                'Description': f'AAE outside valid range {self.MIN_AAE}-{self.MAX_AAE}'
-            }])
-            # Insert before Valid row (last row)
-            summary = pd.concat([self._qc_summary.iloc[:-1], invalid_aae_row, self._qc_summary.iloc[-1:]], ignore_index=True)
-            self.logger.info(f"{self.nam} QC Summary:")
-            for _, row in summary.iterrows():
-                self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+        # Log the combined summary: `Invalid AAE` can only be counted here,
+        # once _absCoe has produced the AAE column.
+        if self._qc_summary is not None:
+            self.log_qc_summary(self.extend_qc_summary(
+                self._qc_summary, df_out, 'Invalid AAE', invalid_aae,
+                description=f'AAE outside valid range {self.MIN_AAE}-{self.MAX_AAE}'))
 
         # Reorder columns
         all_data_cols = self.BC_COLUMNS + self.ABS_COLUMNS + self.CAL_COLUMNS
         if self.BB_COLUMN in df_out.columns:
             all_data_cols.append(self.BB_COLUMN)
-        return df_out[all_data_cols + ['QC_Flag']].reindex(_index)
+        return df_out[all_data_cols + self.qc_columns(df_out)].reindex(_index)

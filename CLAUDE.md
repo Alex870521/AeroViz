@@ -188,7 +188,20 @@ Note: column names are lowercase — `sca_550` (not `Sca_550`); AE33 absorption 
 
 ## QC Flags
 
-Data quality is indicated by `QC_Flag` column:
+Two columns carry QC at the intermediate stage: `QC_Flag` records **every** rule
+that fired, `QC_Invalid` is the boolean **verdict**. Only `QC_Invalid` rows are
+masked to NaN in the output; both columns are then dropped. So a rule can flag
+something without deleting the measurement.
+
+Each rule has a severity: `error` (default, masks the row) or `warning`
+(advisory — recorded and logged, data kept). Advisory by default: OCEC
+`Below MDL`, Xact `Upscale Warning`. Reclassify per run:
+
+```python
+RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
+```
+
+Flag values:
 - `Valid`: Data passed all QC checks
 - `Insufficient`: Not enough data points in period
 - `Status Error`: Instrument status error
@@ -197,11 +210,11 @@ Data quality is indicated by `QC_Flag` column:
 - `Above MR`: Above the instrument's stated measurement range (IGAC)
 - `Negative Conc`: Negative concentration in a size channel (GRIMM)
 
-Detection limits are **not** a flag for Xact / IGAC: below-MDL fractions are
-reported per column in the log (`log_below_mdl`), because any non-`Valid` flag
-NaNs the whole row and would delete every other species measured that hour.
-MDL/MR values come from `config/supported_instruments.py` (`reader.MDL` /
-`reader.MR`). OCEC still flags `Below MDL`.
+For Xact / IGAC the detection limits are reported as a **per-column diagnostic**
+in the log (`log_below_mdl`) rather than a row-level flag — with 17–45 species,
+per-column counts say more than one flag. MDL/MR values come from
+`config/supported_instruments.py` (`reader.MDL` / `reader.MR`). OCEC does flag
+`Below MDL`, at `warning` severity, so its data is kept too.
 
 SMPS-specific: `Status Error` is OR'd across both `Status Flag` and
 `Instrument Errors`. `'None'` / `'nan'` / `''` and the positive `'Normal

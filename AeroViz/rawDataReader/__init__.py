@@ -20,6 +20,7 @@ def RawDataReader(instrument: str,
                   size_range: tuple[float, float] | None = None,
                   fill_missing: bool = True,
                   ignored_status_errors: list[str] | None = None,
+                  flag_severity: dict[str, str] | None = None,
                   output_dir: Path | str | None = None,
                   output_prefix: str | None = None,
                   save_pkl: bool = True,
@@ -110,6 +111,18 @@ def RawDataReader(instrument: str,
             to ignore the TEOM "Dryer A" status bit.
           - APS (binary_string): integer bit masks cleared before testing,
             e.g. ``[1, 2]``.
+
+    flag_severity : dict, optional
+        Reclassify QC rules for this run: ``{flag_name: 'error' | 'warning'}``.
+        Only ``'error'`` flags mask the row in the output; ``'warning'`` flags are
+        recorded in ``QC_Flag`` and the log but keep their measurements. Use it
+        when a flag describes a circumstance rather than a broken reading, e.g.::
+
+            # keep readings from hours with sparse coverage
+            RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
+
+        Rules ship as ``'error'`` except OCEC's ``Below MDL`` and Xact's
+        ``Upscale Warning``, which are advisory by default.
 
     output_dir : Path or str, optional
         Directory for all output files (pkl, csv, log, report).
@@ -296,9 +309,16 @@ def RawDataReader(instrument: str,
 
         kwargs.update({'size_range': size_range})
 
+    if flag_severity is not None:
+        invalid = {k: v for k, v in flag_severity.items() if v not in ('error', 'warning')}
+        if invalid:
+            raise ValueError(
+                f"flag_severity values must be 'error' or 'warning'; got {invalid}")
+
     kwargs.update({
         'fill_missing': fill_missing,
         'ignored_status_errors': ignored_status_errors,
+        'flag_severity': flag_severity,
         'output_dir': output_dir,
         'output_prefix': output_prefix,
         'save_pkl': save_pkl,

@@ -35,14 +35,17 @@ def aeroviz_version() -> str | None:
 def data_coverage(df: pd.DataFrame) -> tuple[pd.Timestamp | None, pd.Timestamp | None]:
     """First and last timestamps that actually carry data.
 
-    Ignores the NaN reindex-padding and the ``QC_Flag`` column, so the result
-    reflects the true span of the underlying files regardless of how wide a
-    range the caller requested. Returns ``(None, None)`` for an empty frame or
+    Ignores the NaN reindex-padding and the QC bookkeeping columns, so the
+    result reflects the true span of the underlying files regardless of how wide
+    a range the caller requested. Returns ``(None, None)`` for an empty frame or
     one with no non-null rows.
+
+    Dropping ``QC_Invalid`` matters as much as ``QC_Flag``: it is boolean, so
+    ``False`` is not null and every padded row would otherwise count as data.
     """
     if df.empty:
         return None, None
-    valid = df.drop(columns=['QC_Flag'], errors='ignore').dropna(how='all')
+    valid = df.drop(columns=['QC_Flag', 'QC_Invalid'], errors='ignore').dropna(how='all')
     if valid.empty:
         return None, None
     return valid.index.min(), valid.index.max()

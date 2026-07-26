@@ -92,21 +92,46 @@ df['QC_Flag'] = builder.build(df)
 # - "Invalid Range, Missing Data" if both fail
 ```
 
+### Rule severity
+
+A rule declares whether firing it invalidates the measurement:
+
+```python
+from AeroViz.rawDataReader.core import QCRule
+
+QCRule(
+    name='Invalid BC',
+    condition=lambda df: (df['BC6'] <= 0) | (df['BC6'] > 20000),
+    description='BC outside 0-20000 ng/m³',
+    # severity='error' is the default: the row is masked to NaN in the output
+)
+
+QCRule(
+    name='Below MDL',
+    condition=lambda df: df['Thermal_OC'] <= 0.3,
+    description='At or below the method detection limit',
+    severity='warning',   # advisory: recorded and logged, value kept
+)
+```
+
+`QCFlagBuilder.apply` writes two columns: `QC_Flag` (every rule that fired) and
+`QC_Invalid` (True iff an `'error'` rule fired). Only `QC_Invalid` drives
+masking, so an advisory flag never deletes data. `get_summary` reports each
+rule's severity plus two totals — `Valid` (passed everything) and `Usable`
+(nothing invalidating).
+
+Callers can reclassify per run, without editing a reader:
+
+```python
+RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
+```
+
 ### Instrument QC Rules Summary
 
-| Instrument | QC Rules |
-|------------|----------|
-| **AE33/AE43** | Status Error, Invalid BC, Invalid AAE, Insufficient |
-| **BC1054** | Status Error, Invalid BC, Invalid AAE, Insufficient |
-| **MA350** | Status Error, Invalid BC, Invalid AAE, Insufficient |
-| **SMPS** | Status Error, Insufficient, Low Total, High Bin, High Large Bin |
-| **APS** | Status Error, Insufficient, Low Total, High Total |
-| **NEPH/Aurora** | No Data, Invalid Scat Value, Invalid Scat Rel, Insufficient |
-| **TEOM** | High Noise, Negative/Zero, NV > Total, Invalid Vol Frac, Std Outlier, Insufficient |
-| **BAM1020** | Invalid Range, IQR Outlier |
-| **OCEC** | Invalid Range, Below MDL, IQR Outlier, Missing OC |
-| **IGAC** | Mass Closure, Missing Main, Above MR, Ion Balance |
-| **EPA** | Negative Value |
+The authoritative per-instrument rule list — names, thresholds, severities and
+the status-code tables behind `Status Error` — lives in
+[Raw Formats & Status Codes](instruments/raw-formats-and-status.md), which is
+generated from the readers rather than restated here.
 
 ## Methods
 

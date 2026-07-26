@@ -41,7 +41,8 @@ How `RawDataReader` turns raw instrument files into the final resampled DataFram
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │  3. _QC()                                                                   │
 │     ├─ QCFlagBuilder applies declarative QC rules                           │
-│     ├─ Adds `QC_Flag` column ("Valid" / "Status Error" / "Insufficient"...) │
+│     ├─ Adds `QC_Flag`    ("Valid" / "Status Error" / "Insufficient"...)      │
+│     ├─ Adds `QC_Invalid` (True iff an *error*-severity rule fired)          │
 │     └─ Stores QC Summary (emitted by _process or directly here)             │
 └─────────────────────────────────────────────────────────────────────────────┘
                                         │
@@ -62,9 +63,9 @@ How `RawDataReader` turns raw instrument files into the final resampled DataFram
                                         │
                                         ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  6. __call__() — apply QC                                                   │
-│     ├─ Rows where `QC_Flag != "Valid"` → NaN                                │
-│     └─ Drop `QC_Flag` from public output                                    │
+│  6. __call__() — apply the verdict                                          │
+│     ├─ Rows where `QC_Invalid` → NaN (advisory-only rows are KEPT)          │
+│     └─ Drop `QC_Flag` + `QC_Invalid` from public output                      │
 └─────────────────────────────────────────────────────────────────────────────┘
                                         │
                                         ▼
@@ -174,11 +175,17 @@ Instruments with _process() method:
 ### QC_Flag lifecycle
 
 ```
-_QC()              → builds QC_Flag, stores partial summary
+_QC()              → builds QC_Flag + QC_Invalid, stores partial summary
 _process()         → may add more rules (e.g. Invalid AAE) and emit combined summary
-_generate_report() → uses QC_Flag to compute rates
-__call__()         → marks non-"Valid" rows as NaN, then drops QC_Flag
+_generate_report() → uses the verdict to compute rates
+__call__()         → marks QC_Invalid rows as NaN, then drops both columns
 ```
+
+Severity: a `QCRule` is `severity='error'` (masks the row) or `'warning'`
+(recorded, kept). Only `QC_Invalid` drives masking, so an advisory flag never
+deletes a measurement. Reclassify per run with
+`RawDataReader(..., flag_severity={'Insufficient': 'warning'})`. See
+[Data Levels R2a](data-levels.md#2-the-rules-invariants).
 
 ### QC Summary format
 
@@ -189,7 +196,13 @@ AE33 QC Summary:
   Insufficient: 105481 (21.1%)
   Invalid AAE: 25948 (5.2%)
   Valid: 356025 (71.2%)
+  Usable: 356025 (71.2%)
 ```
+
+`Valid` = passed every rule. `Usable` = no *invalidating* rule fired, i.e. what
+survives into the output. They differ by exactly the rows carrying only advisory
+flags (`[advisory]` in the log), so on a reader with no advisory rules — AE33 —
+the two are equal.
 
 Two patterns: readers whose `_process` adds further rules (AE33, AE43, BC1054,
 MA350 — `Invalid AAE`) store the partial summary in `self._qc_summary` and emit
@@ -596,10 +609,10 @@ Output: all columns, QC_Flag
 | Aurora     | Yes           | 5     | Status, No Data, Invalid Scat, Invalid Rel, Insufficient         |
 | TEOM       | Yes           | 6     | Status, High Noise, Non-pos, NV>Total, Spike, Insufficient       |
 | BAM1020    | Yes           | 2     | Invalid Conc, Spike                                              |
-| OCEC       | Yes           | 4     | Invalid Carbon, Below MDL, Spike, Missing OC                     |
+| OCEC       | Yes           | 4     | Invalid Carbon, Below MDL *(advisory)*, Spike, Missing OC        |
 | IGAC       | Yes           | 4     | Mass Closure, Missing Main, Above MR, Ion Balance                |
 | EPA        | Yes           | 1     | Negative                                                         |
-| Xact       | Yes           | 5     | Calibration Mode, Instrument Error, Upscale Warning, Invalid Value, Internal Std Drift |
+| Xact       | Yes           | 5     | Calibration Mode, Instrument Error, Upscale Warning *(advisory)*, Invalid Value, Internal Std Drift |
 | GRIMM      | Yes           | 3     | No Data, Negative Conc, Insufficient                             |
 | Q-ACSM     | —             | —     | reader not implemented yet (registered as *pending*)             |
 

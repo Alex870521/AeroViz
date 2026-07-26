@@ -119,7 +119,7 @@ class Reader(AbstractReader):
         all_missing_mask = df_qc[self.SCAT_COLUMNS].isna().all(axis=1)
 
         # Build QC rules declaratively
-        qc = QCFlagBuilder()
+        qc = self.qc_builder()
 
         qc.add_rules([
             QCRule(
@@ -192,9 +192,7 @@ class Reader(AbstractReader):
         df_out = pd.concat([_df_cal, _df[non_scat_cols]], axis=1)
 
         # Log QC summary
-        if hasattr(self, '_qc_summary') and self._qc_summary is not None:
-            self.logger.info(f"{self.nam} QC Summary:")
-            for _, row in self._qc_summary.iterrows():
-                self.logger.info(f"  {row['Rule']}: {row['Count']} ({row['Percentage']})")
+        if self._qc_summary is not None:
+            self.log_qc_summary(self._qc_summary)
 
         return df_out.reindex(_index)

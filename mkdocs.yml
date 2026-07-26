@@ -49,6 +49,7 @@ nav:
       - Getting Started: guide/index.md
       - Tutorials:
           - RawDataReader: guide/rawdatareader.md
+          - Data Levels (L0-L3): guide/data-levels.md
           - RawDataReader Internals: guide/rawdatareader-internals.md
           - DataProcess: guide/dataprocess.md
           - Visualization: guide/visualization.md
@@ -76,6 +77,7 @@ nav:
           - Quality Control: api/QualityControl.md
           - Supported Instruments:
               - Overview: api/instruments/index.md
+              - Raw Formats & Status Codes: api/instruments/raw-formats-and-status.md
               - Aethalometers:
                   - AE33: api/instruments/aethalometers/AE33.md
                   - AE43: api/instruments/aethalometers/AE43.md

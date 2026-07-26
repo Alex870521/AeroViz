@@ -4,6 +4,12 @@
 > modify how the reader works internally. If you just want to *use* the reader,
 > start with the [RawDataReader Tutorial](rawdatareader.md) — you don't need
 > anything on this page.
+>
+> **See also:** [Data Levels (L0–L3)](data-levels.md) for the level contracts
+> (what each stage may add or destroy, what is cacheable, where new code goes)
+> and the list of known non-conformances;
+> [Raw Formats & Status Codes](../api/instruments/raw-formats-and-status.md) for
+> per-instrument parsing recipes and the authoritative status/error-code tables.
 
 How `RawDataReader` turns raw instrument files into the final resampled DataFrame.
 
@@ -88,9 +94,14 @@ How `RawDataReader` turns raw instrument files into the final resampled DataFram
 |---------------|-------------------------------|--------------------------------------|
 | `_raw_reader` | BC1–7, ATN, Flow, Status, ... | size bins (0.5–20 μm) + metadata     |
 | `_QC`         | + `QC_Flag`                   | + `QC_Flag`                          |
-| `_process`    | + abs_370–950, AAE, eBC       | + total, GMD, GSD, mode (num/surf/vol) |
+| `_process`    | + abs_370–950, AAE, eBC       | keeps size bins + `QC_Flag` only     |
 | `__call__`    | invalid rows → NaN, drop `QC_Flag` | invalid rows → NaN, drop `QC_Flag` |
-| Final output  | BC, abs, AAE                  | statistics (size bins removed)       |
+| Final output  | BC, abs, AAE                  | dN/dlogDp matrix; statistics go to `_stats.csv` |
+
+For SMPS/APS the **size distribution is the output**: `_process` drops the raw
+status column and returns the bins, and the derived statistics (total / GMD /
+GSD / mode) are written to `{prefix}_stats.csv` alongside the N/S/V distribution
+files. Pass `append_stats=True` to also append them to the returned frame.
 
 `_raw_reader` deliberately keeps *all* source columns so downstream consumers
 have access to instrument metadata (flow, temperature, pressure, RH, etc.).
@@ -153,10 +164,11 @@ Column selection happens in `_QC` / `_process` per-instrument.
 
 Instruments using QCFlagBuilder:
   AE33, AE43, BC1054, MA350, SMPS, APS, NEPH, Aurora,
-  TEOM, BAM1020, OCEC, IGAC, EPA
+  TEOM, BAM1020, OCEC, IGAC, Xact, EPA
+  (not: GRIMM, VOC, Minion, Q-ACSM)
 
 Instruments with _process() method:
-  AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS
+  AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS, TEOM
 ```
 
 ### QC_Flag lifecycle
@@ -179,14 +191,20 @@ AE33 QC Summary:
   Valid: 356025 (71.2%)
 ```
 
-For instruments with `_process()`: `_QC` stores the summary in
-`self._qc_summary`, `_process` adds any extra rules and emits the combined
-output. For instruments without `_process()` (OCEC, BAM1020, TEOM, EPA, IGAC),
-the summary is emitted directly inside `_QC`.
+Two patterns: readers whose `_process` adds further rules (AE33, AE43, BC1054,
+MA350 — `Invalid AAE`) store the partial summary in `self._qc_summary` and emit
+the combined output from `_process`; everyone else (OCEC, BAM1020, TEOM, EPA,
+IGAC, Xact) emits it directly inside `_QC`. SMPS/APS/NEPH/Aurora have a
+`_process` but add no rules, so they just log the stored summary unchanged.
 
 ---
 
 ## Per-Instrument QC Procedures
+
+> The diagrams below are a visual overview. The **authoritative** per-instrument
+> tables — file patterns, header layouts, status columns, error-code meanings,
+> whitelist semantics and known coverage gaps — are in
+> [Raw Formats & Status Codes](../api/instruments/raw-formats-and-status.md).
 
 ### Black Carbon Instruments
 
@@ -206,6 +224,7 @@ the summary is emitted directly inside `_QC`.
 │  │   16  LED calib.    │  ├─────────────────────┤                   │
 │  │   32  Calib. error  │  │ < 50% hourly data   │                   │
 │  │   384 Tape error    │  └─────────────────────┘                   │
+│  │       (AE43 only)   │                                            │
 │  │   1024 Stability    │                                            │
 │  │   2048 Clean air    │                                            │
 │  │   4096 Optical      │                                            │
@@ -220,6 +239,9 @@ the summary is emitted directly inside `_QC`.
 │  └─────────────────────┘  └─────────────────────┘                   │
 └─────────────────────────────────────────────────────────────────────┘
 Output: BC1-BC7, abs_370-950, abs_550, AAE, eBC, QC_Flag
+
+Note: AE33 deliberately excludes 128 / 256 / 384 (tape-LOW warnings — the data
+is still valid); AE43 still lists 384. See Data Levels §7 (P1-9).
 ```
 
 #### BC1054
@@ -317,12 +339,12 @@ QC Thresholds
 │  └──────────────────────┘                                           │
 │                                                                     │
 │  STAGE 2: _process()                                                │
-│   Calculate from dN/dlogDp → dN, dS, dV distributions               │
-│   For each weighting (num, surf, vol):                              │
-│     total_{w}, GMD_{w}, GSD_{w}, mode_{w}                           │
-│   Mode contributions (number):                                      │
-│     ultra_num   fraction < 100 nm                                   │
-│     accum_num   fraction 100-1000 nm                                │
+│   Returns the dN/dlogDp bins + QC_Flag (raw status column dropped)  │
+│                                                                     │
+│  STAGE 3: __call__ → finalize_size_dist()  [L3 sidecars]            │
+│   {prefix}_dNdlogDp.csv / _dSdlogDp.csv / _dVdlogDp.csv             │
+│   {prefix}_stats.csv   (psd_stats: total / GMD / GSD / mode)        │
+│   append_stats=True also appends the statistics to the returned df  │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -356,11 +378,10 @@ Status flag bit definitions (TSI RF command)
 │                            └──────────────────────┘                 │
 │                                                                     │
 │  STAGE 2: _process()                                                │
-│   Calculate from dN/dlogDp → dN, dS, dV distributions               │
-│   Totals at size cutoffs (num, surf, vol):                          │
-│     total_{w}_1um, total_{w}_2.5um, total_{w}_all                   │
-│   Full-range statistics:                                            │
-│     GMD_{w}, GSD_{w}, mode_{w}                                      │
+│   Returns the dN/dlogDp bins + QC_Flag (raw status column dropped)  │
+│                                                                     │
+│  STAGE 3: __call__ → finalize_size_dist()  [L3 sidecars]            │
+│   same four CSVs as SMPS; diameters in µm                           │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -552,9 +573,18 @@ Output: all columns, QC_Flag
 | OCEC       | Yes           | 4     | Invalid Carbon, Below MDL, Spike, Missing OC                     |
 | IGAC       | Yes           | 4     | Mass Closure, Missing Main, Below MDL, Ion Balance               |
 | EPA        | Yes           | 1     | Negative                                                         |
-| VOC        | —             | 0     | not implemented                                                  |
-| XRF / Xact | —             | 0     | not implemented                                                  |
-| GRIMM      | —             | 0     | not implemented                                                  |
+| Xact       | Yes           | 5     | Calibration Mode, Instrument Error, Upscale Warning, Invalid Value, Internal Std Drift |
+| VOC        | —             | 0     | none (deprecated reader; no `QC_Flag` — see note below)          |
+| GRIMM      | —             | 0     | none (no `QC_Flag` — see note below)                             |
+| Minion     | —             | —     | masks in place, produces no `QC_Flag`                            |
+| Q-ACSM     | —             | —     | reader not implemented (abstract stub)                           |
+
+!!! warning "Readers without a `QC_Flag`"
+    GRIMM, VOC and Minion produce no `QC_Flag`, which currently makes the
+    default `qc=True` path raise
+    `AttributeError: 'Reader' object has no attribute 'report_dict'`. Use
+    `qc=False` for those readers until it is fixed —
+    [Data Levels §7 P0-1](data-levels.md#p0-live-breakage).
 
 ---
 

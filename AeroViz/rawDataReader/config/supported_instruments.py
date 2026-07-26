@@ -103,22 +103,28 @@ meta = {
         "freq": "30min",
     },
 
-    "VOC": {
-        "pattern": ["*.csv"],
-        "freq": "1h",
-        # No species `key` list here: the VOC reader no longer filters columns.
-        # The supported-species list (with MW/MIR/SOAP/KOH coefficients) lives
-        # solely in AeroViz/dataProcess/VOC/support_voc.json and is enforced by
-        # the downstream process (AeroViz.voc), keeping a single source of truth.
-    },
-
     "EPA": {
         "pattern": ["*.csv"],
         "freq": "1h",
     },
+}
 
-    "Minion": {
-        "pattern": ["*.csv", "*.xlsx"],
-        "freq": "1h",
-    },
+# Instruments that used to have a reader and no longer do, with the migration
+# advice surfaced by the RawDataReader factory. Both were pre-aggregated,
+# second-hand datasets — somebody else's processed output rather than an
+# instrument's raw log — so there was no raw format to parse and the readers only
+# performed generic checks. Keep the entries: they turn a bare "not a valid
+# instrument" error into an actionable one for existing scripts.
+removed = {
+    "VOC": (
+        "VOC data is pre-aggregated (second-hand); there is no raw VOC log to parse. "
+        "Read the file with pandas and pass the DataFrame to AeroViz.voc / "
+        "voc_potentials, which validates species against support_voc.json: "
+        "df = pd.read_csv(path, index_col=0, parse_dates=True, na_values=('-', 'N.D.'))"
+    ),
+    "Minion": (
+        "Minion data is a pre-aggregated monthly report (second-hand); there is no raw "
+        "Minion log to parse. Read it with pandas (read_excel / read_csv) and pass the "
+        "DataFrame to whichever analysis function you need."
+    ),
 }

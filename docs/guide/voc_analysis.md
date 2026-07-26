@@ -5,9 +5,10 @@ Volatile Organic Compounds (VOC) analysis workflow, including OFP and SOAP calcu
 ## Data Preparation
 
 !!! note
-    `RawDataReader('VOC', ...)` is deprecated — the VOC reader is a thin CSV
-    loader. Read the file directly with pandas and pass the DataFrame to
-    `voc_potentials`, which validates species against `support_voc.json`.
+    There is no VOC reader — `RawDataReader('VOC', ...)` was removed. VOC data is
+    pre-aggregated (second-hand), so there is no raw log to parse. Read the file
+    directly with pandas and pass the DataFrame to `voc_potentials`, which
+    validates species against `support_voc.json`.
 
 ```python
 import pandas as pd

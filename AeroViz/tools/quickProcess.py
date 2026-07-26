@@ -87,7 +87,6 @@ def quick_process(
         'ACSM': 'Chemistry',
         'AMS': 'Chemistry',
         'PILS': 'Chemistry',
-        'VOC': 'VOC'
     }
     
     # 获取处理方法
@@ -113,8 +112,6 @@ def quick_process(
         processed_data = processor.basic(raw_data, hybrid_bin_start_loc=None)
     elif process_method == 'Chemistry':
         processed_data = processor.ReConstrc_basic(raw_data)
-    elif process_method == 'VOC':
-        processed_data = processor.VOC_basic(raw_data)
     
     return {
         'raw': raw_data,

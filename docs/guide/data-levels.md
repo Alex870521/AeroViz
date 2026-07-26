@@ -250,114 +250,116 @@ valid when **> 50 %** of its points are `Valid`):
 Audited against the rules above. **P0 items are reproducible failures**, verified
 by running the code; P1 breaks a rule; P2 is consistency / dead code / doc drift.
 
+!!! success "Resolved: VOC and Minion withdrawn from the reader"
+    Both were pre-aggregated, second-hand data — somebody else's processed
+    output, not an instrument's raw log — so there was nothing for a reader to
+    parse and the readers only ran generic checks. Removing them cleared what
+    were a P0 item (`Minion`'s `meta['XRF']` lookup, a key that never existed)
+    and most of **P0-a** / **P1-a**. `RawDataReader('VOC'|'Minion', …)` now raises a
+    `KeyError` carrying migration advice. **`GRIMM` is the remaining case**
+    of both **P0-a** and **P1-a** — it *is* a real instrument with a raw format, so it
+    needs a `QC_Flag`, not removal.
+
+Each item carries a stable label (**P0-a**, **P1-c**, …) so other pages can cite
+it; the labels never renumber when an item is resolved and removed.
+
 ### P0 — live breakage
 
-1. **Readers with no `QC_Flag` crash on the default `qc=True`.**
-   `self.report_dict` is only assigned inside `_generate_report`, and only when
-   `qc_flag is not None` (`core/__init__.py:391`); `__call__:213` then reads it
-   unconditionally. `VOC`, `GRIMM` and `Minion` return no `QC_Flag`, so:
-   `AttributeError: 'Reader' object has no attribute 'report_dict'`.
-   *Verified* on a 3-row VOC CSV. Fix: satisfy **R2** (always produce a
-   `QC_Flag`, even an all-`Valid` one) and initialise `self.report_dict = {}`.
+- **P0-a — a reader with no `QC_Flag` crashes on the default `qc=True`.**
+  `self.report_dict` is only assigned inside `_generate_report`, and only when
+  `qc_flag is not None` (`core/__init__.py:391`); `__call__:213` then reads it
+  unconditionally. `GRIMM` returns no `QC_Flag`, so:
+  `AttributeError: 'Reader' object has no attribute 'report_dict'`.
+  *Verified* (originally on a 3-row VOC CSV, before VOC was removed; GRIMM takes
+  the identical path). Fix: satisfy **R2** — give GRIMM a `QC_Flag`, even an
+  all-`Valid` one — and initialise `self.report_dict = {}` so a future
+  flag-less reader degrades instead of crashing.
 
-2. **`Minion` cannot read any file.** `Minion.py:46/64/143` look up
-   `meta.get('XRF')`, but the config key is `Xact` — there is no `XRF` entry, so
-   `meta.get('XRF').get('MDL')` raises
-   `AttributeError: 'NoneType' object has no attribute 'get'` on the first file.
-   Every file then fails and the run ends in `ValueError: All files were either
-   empty or failed to read`. *Verified.*
-
-3. **`Q-ACSM` is an abstract stub in the supported list.** `script/Q-ACSM.py`
-   defines only `nam`; `_raw_reader` / `_QC` are missing, so
-   `RawDataReader('Q-ACSM', ...)` raises `TypeError: Can't instantiate abstract
-   class Reader without an implementation for abstract methods '_QC',
-   '_raw_reader'`. *Verified.* Either implement it or remove it from `meta`.
+- **P0-b — `Q-ACSM` is an abstract stub in the supported list.**
+  `script/Q-ACSM.py` defines only `nam`; `_raw_reader` / `_QC` are missing, so
+  `RawDataReader('Q-ACSM', ...)` raises `TypeError: Can't instantiate abstract
+  class Reader without an implementation for abstract methods '_QC',
+  '_raw_reader'`. *Verified.* Either implement it or remove it from `meta` — if
+  its data also turns out to be second-hand, the VOC/Minion precedent applies
+  (move it to `removed` with migration advice).
 
 ### P1 — rule violations
 
-4. **R2 violated by three readers.** `GRIMM._QC` and `VOC._QC` return the frame
-   unchanged (no verdict at all). `Minion._QC` is worse: it *destroys* values at
-   L2 (`_df.mask(...)`, `_df.loc[~valid_mask, ...] = np.nan`, plus
-   `IGAC_QAQC` / `XRF_QAQC` replacing sub-MDL values with `0.5 × MDL`) — L3's
-   job done at L2, with no flag explaining any of it, which also makes yield
-   rate uncomputable.
+- **P1-a — R2 violated by GRIMM.** `GRIMM._QC` returns the frame unchanged — no
+  verdict at all, so nothing downstream can distinguish good data from bad and
+  the yield rate is uncomputable.
 
-5. **Flag severity does not exist, so advisory flags delete data.** `__call__`
-   NaNs the whole row for *any* non-`Valid` flag. That means `Below MDL`
-   (OCEC, IGAC), `Upscale Warning` (Xact), `Insufficient` and `Spike` erase
-   measurements that are merely uncertain. OCEC flags `Below MDL` with
-   `value <= MDL` across four carbon fractions, so clean-air periods are wiped
-   wholesale. Fix: split rules into *invalidating* and *advisory*; only the
-   former should mask, both should be reported.
+- **P1-b — flag severity does not exist, so advisory flags delete data.**
+  `__call__` NaNs the whole row for *any* non-`Valid` flag. That means
+  `Below MDL` (OCEC, IGAC), `Upscale Warning` (Xact), `Insufficient` and `Spike`
+  erase measurements that are merely uncertain. OCEC flags `Below MDL` with
+  `value <= MDL` across four carbon fractions, so clean-air periods are wiped
+  wholesale. Fix: split rules into *invalidating* and *advisory*; only the former
+  should mask, both should be reported.
 
-6. **Completeness QC uses the config frequency, not the detected one.** All nine
-   callers pass `freq=self.meta['freq']` to `hourly_completeness_QC`
-   (AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS, TEOM) while the rest of
-   the pipeline uses `self._resolved_freq`. A folder whose true resolution
-   differs from the config (e.g. AE33 logging at 5 min against a `1min` config)
-   is judged against the wrong expected count and over-flags `Insufficient`.
-   Fix: `freq=self._resolved_freq or self.meta['freq']`.
+- **P1-c — completeness QC uses the config frequency, not the detected one.**
+  All nine callers pass `freq=self.meta['freq']` to `hourly_completeness_QC`
+  (AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS, TEOM) while the rest of
+  the pipeline uses `self._resolved_freq`. A folder whose true resolution differs
+  from the config (e.g. AE33 logging at 5 min against a `1min` config) is judged
+  against the wrong expected count and over-flags `Insufficient`.
+  Fix: `freq=self._resolved_freq or self.meta['freq']`.
 
-7. **`mean_freq` is silently ignored when `qc=False`** (`__call__` returns before
-   the resample). Either apply it on that branch or raise.
+- **P1-d — `mean_freq` is silently ignored when `qc=False`** (`__call__` returns
+  before the resample). Either apply it on that branch or raise.
 
-8. **Status QC is silently inert for two real-world formats** (details and
-   evidence in
-   [Raw Formats & Status Codes](../api/instruments/raw-formats-and-status.md)):
-   Aurora's production CSV has no `Status`/`Error`/`Flag` column at all (its
-   status lives in the undocumented hex `S1`/`S2` fields), and SMPS AIM 11.x CSV
-   exports carry neither `Status Flag` nor `Instrument Errors` — the errors are
-   split four ways into `Detector Status`, `Classifier Errors`,
-   `Communication Status`, `Neutralizer Status`. In both cases
-   `filter_error_status` finds no column and returns all-False, so `Status Error`
-   can never fire and nothing says so. Fix: warn once per run when a configured
-   status column is absent, and map the missing dialects.
+- **P1-e — status QC is silently inert for two real-world formats** (details and
+  evidence in
+  [Raw Formats & Status Codes](../api/instruments/raw-formats-and-status.md)):
+  Aurora's production CSV has no `Status`/`Error`/`Flag` column at all (its
+  status lives in the undocumented hex `S1`/`S2` fields), and SMPS AIM 11.x CSV
+  exports carry neither `Status Flag` nor `Instrument Errors` — the errors are
+  split four ways into `Detector Status`, `Classifier Errors`,
+  `Communication Status`, `Neutralizer Status`. In both cases
+  `filter_error_status` finds no column and returns all-False, so `Status Error`
+  can never fire and nothing says so. Fix: warn once per run when a configured
+  status column is absent, and map the missing dialects.
 
-9. **AE33 and AE43 disagree on the same status register.** AE33 removed code
-   `384` (128/256 are tape-*low* warnings, data still valid); `AE43.py:42` still
-   lists `384` as an error. Same instrument family, same manual — pick one.
+- **P1-f — AE33 and AE43 disagree on the same status register.** AE33 removed
+  code `384` (128/256 are tape-*low* warnings, data still valid); `AE43.py:42`
+  still lists `384` as an error. Same instrument family, same manual — pick one.
 
 ### P2 — consistency, dead code, doc drift
 
-10. **Dead constants.** `SMPS.MIN_HOURLY_COUNT` and `APS.MIN_HOURLY_COUNT` are
-    never read (the real threshold is `hourly_completeness_QC`'s
-    `threshold=0.5`); `TEOM.OUTPUT_COLUMNS` is never read either.
+- **P2-a — dead constants.** `SMPS.MIN_HOURLY_COUNT` and `APS.MIN_HOURLY_COUNT`
+  are never read (the real threshold is `hourly_completeness_QC`'s
+  `threshold=0.5`); `TEOM.OUTPUT_COLUMNS` is never read either.
 
-11. **L2 column-narrowing policy differs per reader.** OCEC and BAM1020 slice
-    down to their output columns; TEOM, BC1054, MA350, Aurora and NEPH return
-    every column. Decide one policy (recommended: keep metadata, since **R1**'s
-    rationale applies to L2 consumers too) and apply it uniformly.
+- **P2-b — L2 column-narrowing policy differs per reader.** OCEC and BAM1020
+  slice down to their output columns; TEOM, BC1054, MA350, Aurora and NEPH return
+  every column. Decide one policy (recommended: keep metadata, since **R1**'s
+  rationale applies to L2 consumers too) and apply it uniformly.
 
-12. **Two sources of truth for detection limits.** `meta['Xact']['MDL']`
-    (45 elements) and `meta['IGAC']['MDL']` / `['MR']` (17 species) are read by
-    *nobody* except the broken `Minion`; the live readers use class-level
-    constants instead (`OCEC.MDL`, 4 fractions; `IGAC.MDL`, 9 ions). Consolidate
-    onto one.
+- **P2-c — two sources of truth for detection limits.** `meta['Xact']['MDL']`
+  (45 elements) and `meta['IGAC']['MDL']` / `['MR']` (17 species) are now read by
+  **nobody** — `Minion` was their only consumer, and it is gone. The live readers
+  use class-level constants (`OCEC.MDL`, 4 fractions; `IGAC.MDL`, 9 ions).
+  Either wire the config values into those readers or delete them.
 
-13. **Personal absolute path as a default.** `report.py:225` defaults the
-    known-issues file to `/Users/chanchihyu/DataCenter/Config/known_issues.yml`
-    (overridable via `KNOWN_ISSUES_PATH`). Default should be `None` or
-    project-relative.
+- **P2-d — personal absolute path as a default.** `report.py:225` defaults the
+  known-issues file to `/Users/chanchihyu/DataCenter/Config/known_issues.yml`
+  (overridable via `KNOWN_ISSUES_PATH`). Default should be `None` or
+  project-relative.
 
-14. **One non-vectorised QC rule.** IGAC's `Below MDL` builds a per-row list
-    comprehension over columns; every other rule in the codebase is vectorised.
+- **P2-e — one non-vectorised QC rule.** IGAC's `Below MDL` builds a per-row list
+  comprehension over columns; every other rule in the codebase is vectorised.
 
-15. **BC1054 timestamp ambiguity.** `read_csv(..., index_col=0)` takes
-    `Raw_Time` when the file has both, and then *drops* `Time`. In the NZ 2025
-    fixture the two differ by hours on some rows. Decide which one is the
-    measurement time and document it.
+- **P2-f — BC1054 timestamp ambiguity.** `read_csv(..., index_col=0)` takes
+  `Raw_Time` when the file has both, and then *drops* `Time`. In the NZ 2025
+  fixture the two differ by hours on some rows. Decide which one is the
+  measurement time and document it.
 
-16. **Level-vocabulary collision.** `Minion._raw_reader` writes its own
-    `Level1/{file}_Level1.csv` — a second, incompatible level naming *and* a
-    file-writing side effect inside L1 (L1 should not write anything except
-    through `_save_data`).
+- **P2-g — `_process` runs on rows already flagged invalid.** Its docstring
+  offers skipping as an optimisation, but no reader does, so AE33 / AE43 /
+  BC1054 / MA350 compute and count `Invalid AAE` on rows already rejected — QC
+  summary percentages overlap and do not sum meaningfully.
 
-17. **`_process` runs on rows already flagged invalid.** Its docstring offers
-    skipping as an optimisation, but no reader does, so AE33 / AE43 / BC1054 /
-    MA350 compute and count `Invalid AAE` on rows already rejected — QC summary
-    percentages overlap and do not sum meaningfully.
-
-18. **Docs drift** (the reason this page exists):
+- **P2-h — docs drift** (the reason this page exists):
     - 15 reader docstrings point at `docs/source/instruments/*.md`, a path that
       has never existed; the real pages are
       `docs/api/instruments/<category>/*.md`.
@@ -365,23 +367,29 @@ by running the code; P1 breaks a rule; P2 is consistency / dead code / doc drift
       instrument types … You don't need to specify the instrument type" and shows
       `RawDataReader("instrument_data.txt")`; both are wrong — `instrument=` is
       required and validated against `meta`.
-    - The same page omits `EPA`, `Minion` and `Q-ACSM`, which are in `meta`.
+    - The same page omits `EPA` and `Q-ACSM`, which are in `meta`.
     - `rawdatareader-internals.md` listed Xact as "QC not implemented" (it has
       five rules) and AE33's `384`, and described the SMPS/APS output as
       statistics with size bins removed (it is now the reverse: bins are the
-      output, statistics are a sidecar). Corrected in this pass — but the page
+      output, statistics are a sidecar). Corrected — but the page still
       duplicates per-instrument detail that now lives in
       [Raw Formats & Status Codes](../api/instruments/raw-formats-and-status.md),
       so it should eventually shrink to mechanics only.
 
+### Resolved
+
+- **VOC and Minion withdrawn from the reader** (see the note at the top of this
+  section). Cleared the `Minion` `meta['XRF']` crash outright, removed two of the
+  three `QC_Flag`-less readers, and left `meta['Xact']['MDL']` /
+  `meta['IGAC']['MDL']` with no consumer at all — see **P2-c**.
+
 ### Suggested order
 
-1. P0-1 → P0-2 → P0-3 (three readers currently unusable).
-2. P1-4 + P1-5 together: introduce flag severity, then convert GRIMM / VOC /
-   Minion to flag-only QC. This is the highest-value change — it makes "why is
-   my data NaN?" answerable.
-3. P1-6, P1-7, P1-9 (one-line fixes each).
-4. P1-8: warn on missing status columns, then add the Aurora `S1`/`S2` and
+1. **P0-a** then **P0-b** — one reader unusable, one uninstantiable.
+2. **P1-b + P1-a** together: introduce flag severity, then give GRIMM flag-only
+   QC. Highest-value change — it makes "why is my data NaN?" answerable.
+3. **P1-c**, **P1-d**, **P1-f** — one-line fixes each.
+4. **P1-e** — warn on missing status columns, then add the Aurora `S1`/`S2` and
    SMPS AIM 11.x dialects.
-5. P2 as cleanup, with P2-12 and P2-18 done alongside whichever reader is being
-   touched.
+5. P2 as cleanup, with **P2-c** and **P2-h** done alongside whichever reader is
+   being touched.

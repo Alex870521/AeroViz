@@ -93,8 +93,8 @@ nav:
               - Chemical:
                   - IGAC: api/instruments/chemical/IGAC.md
                   - OCEC: api/instruments/chemical/OCEC.md
-                  - VOC: api/instruments/chemical/VOC.md
                   - Xact: api/instruments/chemical/Xact.md
+                  - VOC (no reader): api/instruments/chemical/VOC.md
               - Mass:
                   - TEOM: api/instruments/mass/TEOM.md
                   - BAM1020: api/instruments/mass/BAM1020.md

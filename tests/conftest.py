@@ -16,13 +16,15 @@ import pytest
 FIXTURES_PATH = Path(__file__).parent / 'fixtures'
 RAW_DATA_PATH = FIXTURES_PATH / 'raw_data'
 
-# Supported instruments with reader tests (EPA/Minion handle custom file
-# formats, not physical instruments — they intentionally have no test_readers
-# coverage)
+# Supported instruments with reader tests (EPA handles a custom export format,
+# not a physical instrument — it intentionally has no test_readers coverage).
+# VOC and Minion were withdrawn from the reader: they are pre-aggregated,
+# second-hand data with no raw log to parse, so they are covered by
+# test_removed_instruments.py instead.
 INSTRUMENTS = [
     'AE33', 'AE43', 'APS', 'Aurora', 'BAM1020', 'BC1054',
     'GRIMM', 'IGAC', 'MA350', 'NEPH',
-    'OCEC', 'Q-ACSM', 'SMPS', 'TEOM', 'VOC', 'Xact'
+    'OCEC', 'Q-ACSM', 'SMPS', 'TEOM', 'Xact'
 ]
 
 

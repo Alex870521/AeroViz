@@ -43,11 +43,13 @@ df = RawDataReader(
 - **Xact**: XRF heavy metals (Fe, Zn, Pb, Cu, Mn, etc.)
 - **IGAC**: Ion chromatograph - Water-soluble ions
 - **Q-ACSM**: Aerosol Chemical Speciation Monitor
-- **VOC**: Volatile organic compounds
 
 ### Other
 - **EPA**: Taiwan EPA air quality data
-- **Minion**: Minion sensor
+
+> **Not readers:** `VOC` and `Minion` were removed — they are pre-aggregated,
+> second-hand data (no raw log to parse). Read them with pandas and pass the
+> DataFrame to the analysis functions (`voc_potentials` for VOC).
 
 ## Common Parameters
 

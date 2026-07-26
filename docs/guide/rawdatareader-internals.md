@@ -165,7 +165,7 @@ Column selection happens in `_QC` / `_process` per-instrument.
 Instruments using QCFlagBuilder:
   AE33, AE43, BC1054, MA350, SMPS, APS, NEPH, Aurora,
   TEOM, BAM1020, OCEC, IGAC, Xact, EPA
-  (not: GRIMM, VOC, Minion, Q-ACSM)
+  (not: GRIMM, Q-ACSM)
 
 Instruments with _process() method:
   AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS, TEOM
@@ -241,7 +241,7 @@ IGAC, Xact) emits it directly inside `_QC`. SMPS/APS/NEPH/Aurora have a
 Output: BC1-BC7, abs_370-950, abs_550, AAE, eBC, QC_Flag
 
 Note: AE33 deliberately excludes 128 / 256 / 384 (tape-LOW warnings — the data
-is still valid); AE43 still lists 384. See Data Levels §7 (P1-9).
+is still valid); AE43 still lists 384. See Data Levels §7 (P1-f).
 ```
 
 #### BC1054
@@ -574,17 +574,19 @@ Output: all columns, QC_Flag
 | IGAC       | Yes           | 4     | Mass Closure, Missing Main, Below MDL, Ion Balance               |
 | EPA        | Yes           | 1     | Negative                                                         |
 | Xact       | Yes           | 5     | Calibration Mode, Instrument Error, Upscale Warning, Invalid Value, Internal Std Drift |
-| VOC        | —             | 0     | none (deprecated reader; no `QC_Flag` — see note below)          |
 | GRIMM      | —             | 0     | none (no `QC_Flag` — see note below)                             |
-| Minion     | —             | —     | masks in place, produces no `QC_Flag`                            |
 | Q-ACSM     | —             | —     | reader not implemented (abstract stub)                           |
 
-!!! warning "Readers without a `QC_Flag`"
-    GRIMM, VOC and Minion produce no `QC_Flag`, which currently makes the
-    default `qc=True` path raise
+!!! warning "GRIMM has no `QC_Flag`"
+    `GRIMM._QC` is a pass-through, so no `QC_Flag` is produced and the default
+    `qc=True` path raises
     `AttributeError: 'Reader' object has no attribute 'report_dict'`. Use
-    `qc=False` for those readers until it is fixed —
-    [Data Levels §7 P0-1](data-levels.md#p0-live-breakage).
+    `qc=False` until it is fixed —
+    [Data Levels §7 P0-a](data-levels.md#p0-live-breakage).
+
+    `VOC` and `Minion` used to share this problem; both were **removed** from
+    the reader (pre-aggregated second-hand data with no raw log to parse) and
+    now raise a `KeyError` with migration advice.
 
 ---
 
@@ -620,5 +622,4 @@ The `report.json` contains three rates, all computed from `QC_Flag`. A period
 | OCEC       | 1 h         | thermal / optical OC & EC                   |
 | IGAC       | 1 h         | ion concentrations (9 species)              |
 | Xact       | 1 h         | element concentrations                      |
-| VOC        | 1 h         | VOC concentrations                          |
 | EPA        | 1 h         | air-quality reference data                  |

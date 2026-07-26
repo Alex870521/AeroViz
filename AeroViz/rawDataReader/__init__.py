@@ -4,7 +4,7 @@ from typing import Literal
 
 from pandas import Grouper, Timedelta
 
-from AeroViz.rawDataReader.config.supported_instruments import meta
+from AeroViz.rawDataReader.config.supported_instruments import meta, removed
 from AeroViz.rawDataReader.script import *
 
 __all__ = ['RawDataReader']
@@ -70,7 +70,7 @@ def RawDataReader(instrument: str,
         Resampling frequency for averaging the output (e.g. '1h', '30min', '1D').
         If omitted, the data is returned at its native resolution — no
         resampling. Useful for already-aggregated / second-hand sources
-        (e.g. EPA, IGAC, Minion, VOC, BAM1020).
+        (e.g. EPA, IGAC, BAM1020).
 
     size_range : tuple[float, float], optional
         Size range in nanometers (min_size, max_size) for SMPS/APS data filtering
@@ -209,6 +209,12 @@ def RawDataReader(instrument: str,
     for instrument_name in meta.keys():
         if hasattr(script_module, instrument_name):
             instrument_class_map[instrument_name] = getattr(script_module, instrument_name)
+
+    # Instruments deliberately withdrawn from the reader (pre-aggregated,
+    # second-hand data) get the migration advice instead of a bare "not valid".
+    if instrument in removed:
+        raise KeyError(
+            f"'{instrument}' is no longer read by RawDataReader. {removed[instrument]}")
 
     # Check if the instrument name is in the map
     if instrument not in instrument_class_map:

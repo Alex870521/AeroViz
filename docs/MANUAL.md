@@ -297,18 +297,20 @@ The file-glob pattern and native frequency come from the instrument config.
 | `IGAC` | Ion chromatograph — water-soluble ions/gases | 1 h |
 | `Xact` | XRF heavy metals (with built-in MDLs) | 1 h |
 | `Q-ACSM` | Aerosol Chemical Speciation Monitor | 30 min |
-| `VOC` | Volatile organic compounds | 1 h |
 
 **Other / aggregated sources**
 
 | Key | Description | Native freq |
 |-----|-------------|-------------|
 | `EPA` | Taiwan EPA air-quality data | 1 h |
-| `Minion` | Minion sensor | 1 h |
 
-> Note: `IGAC`, `Minion`, `EPA`, `VOC`, and `BAM1020` are typically read from
-> pre-aggregated / second-hand data — pass `mean_freq=None` to keep their native
-> resolution.
+> Note: `IGAC`, `EPA`, and `BAM1020` are read from pre-aggregated /
+> second-hand data — pass `mean_freq=None` to keep their native resolution.
+>
+> `VOC` and `Minion` were **removed** from `RawDataReader`: they are somebody
+> else's processed output with no raw log to parse, so read them with pandas and
+> pass the DataFrame straight to the analysis functions (VOC → `voc_potentials`).
+> Calling them raises a `KeyError` that says as much.
 
 You can always confirm the current list at runtime:
 
@@ -891,7 +893,7 @@ ofp[species].mean().sort_values(ascending=False).head(10)
 
 ```python
 import pandas as pd
-# The VOC reader is deprecated — read the CSV directly and pass to voc_potentials.
+# There is no VOC reader — read the CSV directly and pass it to voc_potentials.
 voc = pd.read_csv('/data/VOC/voc.csv', index_col=0, parse_dates=True,
                   na_values=('-', 'N.D.'))
 voc.columns = voc.columns.str.strip()

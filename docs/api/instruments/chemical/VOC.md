@@ -1,13 +1,14 @@
-# Volatile Organic Compounds Analyzer (VOC)
+# VOC Data (no reader)
 
-The VOC analyzer measures concentrations of various volatile organic compounds in air.
+VOC measurements reach AeroViz as **pre-aggregated, second-hand data** — somebody
+else's processed output, not an instrument's raw log.
 
-!!! warning "Deprecated"
-    `RawDataReader('VOC', ...)` is **deprecated** and will be removed in a future
-    release. The VOC reader is a thin CSV loader with no VOC-specific logic.
-    Read the file directly (e.g. `pandas.read_csv` with a datetime index) and
-    pass the DataFrame to [`AeroViz.voc` / `voc_potentials`](../../DataProcess/VOC.md),
-    which validates species against `support_voc.json`.
+!!! warning "There is no VOC reader"
+    `RawDataReader('VOC', ...)` was **removed**: with no raw format to parse, the
+    reader was only doing generic CSV loading. Read the file yourself and pass the
+    DataFrame to [`AeroViz.voc` / `voc_potentials`](../../DataProcess/VOC.md),
+    which validates species against `support_voc.json` — the single source of
+    truth for the species list and its coefficients.
 
     ```python
     import pandas as pd
@@ -16,28 +17,22 @@ The VOC analyzer measures concentrations of various volatile organic compounds i
     df = pd.read_csv('voc.csv', index_col=0, parse_dates=True,
                      na_values=('-', 'N.D.'))
     df.columns = df.columns.str.strip()
-    out = voc_potentials(df)   # validates species; computes OFP / SOAP / LOH
+    # Normalize non-canonical names, e.g.
+    df = df.rename(columns={'isoprene': 'Isoprene', 'm,p-Xylene': 'm/p-Xylene'})
+
+    out = voc_potentials(df)   # {'Conc', 'OFP', 'SOAP', 'LOH'}
     ```
 
-## Data Format
+    Calling the removed reader raises a `KeyError` repeating this advice.
 
-- File format: CSV file
-- Sampling frequency: Variable
-- File naming pattern: `*.csv`
-- Data structure:
-    - Datetime index
-    - VOC species columns
-    - Special values:
-        - '-' treated as NA
-        - 'N.D.' (Not Detected) treated as NA
+## Typical file shape
 
-## Measurement Parameters
-
-The VOC analyzer provides:
-
-- Multiple VOC species measurements
-- Concentration data for each compound
-- Species-specific detection limits
+- CSV, one row per sampling period, datetime in the first column
+- Hourly is common, but the interval depends on whoever produced the file
+- `-` and `N.D.` (not detected) are the usual missing-value markers
+- Column names are species names, and they are **not** standardised across
+  providers — normalise them to the `support_voc.json` spelling before calling
+  `voc_potentials`, which raises on an unknown species
 
 ## Supported VOC Species
 
@@ -117,69 +112,19 @@ The analyzer supports the following VOC species:
 |  ClVOC   |          TCE           | 0.64  | 131.4  | null  |  1.9  |
 |  ClVOC   |          VCM           | 2.83  |  62.5  | null  | null  |
 
-### Species Parameters:
+### Species Parameters
 
-- MIR: Maximum Incremental Reactivity
-- MW: Molecular Weight
-- SOAP: Secondary Organic Aerosol Potential
-- KOH: Rate constant for the reaction with OH radicals
+- **MIR** — Maximum Incremental Reactivity
+- **MW** — Molecular Weight
+- **SOAP** — Secondary Organic Aerosol Potential
+- **KOH** — rate constant for the reaction with the OH radical
 
-## Data Processing
+`null` means the coefficient is not defined for that species; the corresponding
+potential is returned as NaN rather than zero.
 
-### Data Reading
+## See also
 
-- Processes CSV files with datetime index
-- Handles special values as NA
-- Standardizes column names (strips whitespace)
-- Removes duplicate / invalid timestamps
-- Returns every column as-is — the reader does **not** filter or validate
-  species names. Species selection and validation against the supported list
-  (`AeroViz/dataProcess/VOC/support_voc.json`, the single source of truth) is
-  done by the downstream process (`AeroViz.voc`), which raises on unknown
-  species names.
-
-### Quality Control
-
-- Basic file validation
-- No additional QC currently implemented
-- Future QC possibilities:
-    - Minimum detection limit filtering
-    - Value range checks
-    - Time-based outlier detection
-    - Correlation checks between species
-
-## Output Data
-
-The processed data contains:
-
-- Time index: Data acquisition time
-- VOC species: Concentrations of supported compounds
-- All measurements in standard units
-- Validated species names
-
-## Usage Example
-
-```python
-import pandas as pd
-from AeroViz import voc_potentials
-
-# Read the VOC CSV directly (the VOC reader is deprecated).
-dt_VOC = pd.read_csv('data/VOC/voc.csv', index_col=0, parse_dates=True,
-                     na_values=('-', 'N.D.'))
-dt_VOC.columns = dt_VOC.columns.str.strip()
-# Normalize any non-canonical species names to match support_voc.json.
-dt_VOC.rename(columns={'isoprene': 'Isoprene', 'm,p-Xylene': 'm/p-Xylene'}, inplace=True)
-
-# Validates species against support_voc.json, returns {'Conc','OFP','SOAP','LOH'}.
-result = voc_potentials(dt_VOC)
-```
-
-## Notes
-
-- Critical for air quality assessment
-- Important for photochemical reaction studies
-- Helps identify secondary organic aerosol sources
-- Requires predefined species list
-- Species name standardization essential
-- Some species may have missing parameters (marked as "null")
-- Analysis includes concentration, MIR, SOAP, and KOH values
+- [DataProcess / VOC](../../DataProcess/VOC.md) — `voc_potentials` API and outputs
+- [VOC Analysis guide](../../../guide/voc_analysis.md) — end-to-end workflow
+- [Data Levels §7](../../../guide/data-levels.md#resolved) — why the reader was
+  withdrawn

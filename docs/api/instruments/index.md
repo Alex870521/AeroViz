@@ -41,7 +41,6 @@ Instruments for chemical composition analysis:
 
 - **[IGAC](chemical/IGAC.md)** - Ion chromatography (water-soluble ions)
 - **[OCEC](chemical/OCEC.md)** - Organic/Elemental Carbon Analyzer
-- **[VOC](chemical/VOC.md)** - Volatile Organic Compounds Monitor
 - **[Xact](chemical/Xact.md)** - Xact 625i XRF Analyzer (elemental analysis)
 
 ### Mass Concentration
@@ -83,7 +82,6 @@ Instruments for PM mass concentration measurement:
 | **OCEC** | 1 h | *LCRes.csv | Invalid Carbon, Below MDL, Spike, Missing OC |
 | **IGAC** | 1 h | .csv | Mass Closure, Missing Main, Below MDL, Ion Balance |
 | **Xact** | 1 h | .csv | Instrument Error, Upscale Warning, Invalid Value, High Uncertainty |
-| **VOC** | 1 h | .csv | - |
 | **EPA** | 1 h | .csv | Negative Value |
 
 !!! note "Quality Control System"

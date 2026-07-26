@@ -73,7 +73,7 @@ __call__  → QC_Flag != "Valid"  →  entire row set to NaN, QC_Flag dropped
     `Upscale Warning`, `Insufficient`, `Spike`) masks the row exactly as hard as
     `Status Error`. If you need the underlying values, read
     `_read_{inst}_qc.csv`, or call with `qc=False` (which returns L1 — no QC and
-    also no resampling). Tracked as P1-5 in
+    also no resampling). Tracked as P1-b in
     [Data Levels §7](../../guide/data-levels.md#7-non-conformance-what-still-needs-fixing).
 
 ### QC_Flag vocabulary
@@ -136,7 +136,7 @@ Identical to AE33 except:
   mid-file discards the earlier segment).
 - `ERROR_STATES` **still contains 384** ("tape error"), unlike AE33 — an
   unresolved inconsistency, see
-  [Data Levels P1-9](../../guide/data-levels.md#p1-rule-violations).
+  [Data Levels P1-f](../../guide/data-levels.md#p1-rule-violations).
 
 ### BC1054
 
@@ -198,7 +198,7 @@ Identical to AE33 except:
 | **Pattern** | `*.dat`; native `6min` |
 | **Parse** | `read_csv(header=233, delimiter='\t', index_col=0, parse_dates=[0], encoding='ISO-8859-1', dayfirst=True)` — the header row is a **hard-coded line number**; then columns 0–10 and the trailing 5 (or from column 128 for files named `A407ST*`) are dropped, and all values are divided by `0.035`. Empty files are reported with `print` (not the logger) and skipped. |
 | **Status** | none |
-| **QC rules** | **none** — `_QC` returns the frame unchanged, so no `QC_Flag` is produced. With the default `qc=True` this currently raises `AttributeError: … 'report_dict'`; use `qc=False`. See [Data Levels P0-1](../../guide/data-levels.md#p0-live-breakage). |
+| **QC rules** | **none** — `_QC` returns the frame unchanged, so no `QC_Flag` is produced. With the default `qc=True` this currently raises `AttributeError: … 'report_dict'`; use `qc=False`. See [Data Levels P0-a](../../guide/data-levels.md#p0-live-breakage). |
 
 ---
 
@@ -280,16 +280,6 @@ Identical to AE33 except:
 | **QC rules** | `Calibration Mode`, `Instrument Error` (100–110), `Upscale Warning` (200–203), `Invalid Value` (0–100 000 ng/m³), `Internal Std Drift` (Nb ±20 % of median). Each is registered only if its source column exists. |
 | **L2 output** | all columns + `QC_Flag`. `meta['Xact']['MDL']` (45 elements) is **not used** by this reader. |
 
-### VOC — deprecated
-
-`*.csv`, native `1h`. `read_csv(parse_dates=True, index_col=0, na_values=('-','N.D.'))`
-with `utf-8-sig`; returns every column. No status, **no QC** (`_QC` is a
-pass-through, so no `QC_Flag` — and therefore the `report_dict` crash on
-`qc=True`). Emits a `DeprecationWarning` on construction: read the CSV yourself
-and pass the frame to `AeroViz.voc` / `voc_potentials`, which validates species
-against `support_voc.json` (the single source of truth — the reader deliberately
-holds no species list).
-
 ### EPA — external, pre-aggregated
 
 `*.csv`, native `1h`, `encoding='big5'`. Accepts the Taiwan EPA hourly exports
@@ -300,22 +290,30 @@ regex (`…#`→`#`, `…L`→`_`) and then coerced to NaN. Columns reordered to
 `SO2, NO, NOx, NO2, CO, O3, THC, NMHC, CH4, PM10, PM2.5, PM1, WS, WD, AT, RH`.
 No status; one QC rule: `Negative`.
 
-### Minion — currently broken
+### Removed: VOC and Minion
 
-`*.csv` / `*.xlsx`, native `1h`, monthly pre-aggregated reports.
-`read_excel(index_col=0, parse_dates=True)`; row 0 holds units (saved to
-`self.units`, then dropped); `維護校正`→`*`, `Nodata`/NaN→`-`, `0L` and any
-`…L` value → `-999`, and every zero outside `WD` → `-999`; `-999` is the
-sentinel for "below MDL / invalid". `_raw_reader` also **writes**
-`Level1/{file}_Level1.csv` as a side effect.
+Both were **pre-aggregated, second-hand data** — somebody else's processed
+output, not an instrument's raw log — so there was no raw format for a reader to
+parse and the readers only ran generic checks. They were withdrawn from
+`RawDataReader`; `RawDataReader('VOC', …)` / `('Minion', …)` now raises a
+`KeyError` carrying migration advice.
 
-Three defects to know before touching it:
+Read them yourself and go straight to the analysis functions:
 
-1. It looks up `meta.get('XRF')`, but the config key is `Xact` — so it raises
-   `AttributeError` on the first file and **cannot read anything**.
-2. `_QC` produces no `QC_Flag`; it masks values in place and replaces sub-MDL
-   values with `0.5 × MDL`, which is L3 work done at L2 with no audit trail.
-3. Its `Level1/` output introduces a second, incompatible level vocabulary.
+```python
+import pandas as pd
+from AeroViz import voc_potentials
+
+df = pd.read_csv('voc.csv', index_col=0, parse_dates=True,
+                 na_values=('-', 'N.D.'))
+df.columns = df.columns.str.strip()
+out = voc_potentials(df)      # validates species against support_voc.json
+```
+
+Minion arrives as a monthly report spreadsheet (`read_excel`), with a units row
+at the top and site-specific invalid markers (`維護校正`, `Nodata`, `0L`); the
+handling depends on who produced that particular report, which is exactly why it
+does not belong behind a general-purpose reader.
 
 ### Q-ACSM — not implemented
 
@@ -336,7 +334,7 @@ Where the status/QC machinery is *silently* doing nothing:
 | **Aurora** | `Status Error` never fires | production CSV has no `Status`/`status`/`Error`/`error`/`Flag`/`flag` column; status is in undecoded hex `S1`/`S2` |
 | **SMPS** (AIM 11.x CSV) | `Status Error` never fires | neither `Status Flag` nor `Instrument Errors` exists; errors split into `Detector Status`, `Classifier Errors`, `Communication Status`, `Neutralizer Status` |
 | **MA350** | possible | `Status` column presence not verified against a real export |
-| **GRIMM, VOC, Minion** | no `QC_Flag` at all | `_QC` is a pass-through (GRIMM, VOC) or masks in place (Minion) → also crashes on the default `qc=True` |
+| **GRIMM** | no `QC_Flag` at all | `_QC` is a pass-through → also crashes on the default `qc=True` |
 | **All bitwise/numeric/text/binary readers** | a typo'd or renamed status column degrades to "no errors" | `filter_error_status` returns all-`False` for a missing column, without warning |
 | **All readers using `Insufficient`** | threshold computed against the *config* frequency, not the detected one | `hourly_completeness_QC(..., freq=self.meta['freq'])` in all nine callers |
 
@@ -363,10 +361,12 @@ Full remediation list, with priorities and suggested order:
 | OCEC | `*LCRes.csv` | 1 h | — | — | 4 | ❌ |
 | IGAC | `*.csv` | 1 h | — | — | 4 | ❌ |
 | Xact | `*.csv` | 1 h | `ALARM` | exact code | 5 | ❌ |
-| VOC | `*.csv` | 1 h | — | — | 0 | ❌ |
 | EPA | `*.csv` | 1 h | — | — | 1 | ❌ |
-| Minion | `*.csv`, `*.xlsx` | 1 h | — | — | in-place | ❌ |
 | Q-ACSM | `*.csv` | 30 min | — | — | — | — |
 
 `Native` is the `meta['freq']` fallback; the grid actually used is detected per
 file at run time and reported as `df.attrs['raw_freq']`.
+
+**Not readers:** `VOC` and `Minion` were removed — pre-aggregated second-hand
+data, see [above](#removed-voc-and-minion). `Q-ACSM` is listed in the config but
+its reader is an abstract stub, so calling it raises `TypeError`.

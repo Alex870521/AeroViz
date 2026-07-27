@@ -88,7 +88,13 @@ flags are recorded and reported but keep their data. Rationale: a value below a
 detection limit, or a vendor alarm the instrument itself classes as a *warning*,
 is a real measurement — and because masking is per row, invalidating it deletes
 every other species measured at that timestamp too. Per-run reclassification:
-`RawDataReader(..., flag_severity={'Insufficient': 'warning'})`.
+`RawDataReader(..., flag_severity={'Insufficient': 'error'})`.
+
+The clearest test is to ask what the flag is *about*. `Insufficient` says an hour
+is thinly covered — a statement about whether an **average over that hour** would
+be representative, not about whether the readings in it are real. They are real,
+so it is advisory. `Invalid BC` says the number itself is impossible; that one
+invalidates.
 
 **R3 — native resolution is stored once; anything coarser is derived.**
 L1/L2 are always at the frequency detected from the files
@@ -309,12 +315,7 @@ reused.
 
 ### P2 — consistency, dead code, doc drift
 
-- **P2-i — hourly completeness penalises partial edge hours.** The rule measures
-  each *clock hour* against `3600 s / freq`, so the first and last hour of any
-  read look sparse simply because the data starts or ends mid-hour. Harmless on
-  multi-day files, fatal on short ones: a 22-minute APS file has every row
-  flagged. Consider exempting the edge hours, or scaling the expectation by the
-  hour's overlap with the data's coverage.
+*None outstanding.*
 
 ### Resolved
 
@@ -338,15 +339,14 @@ Kept as a record of what the labels used to mean:
 | P2-g | `_process` was documented as being allowed to skip flagged rows | the docstring was the wrong half: skipping would violate R2 (a derived value belongs in `_read_*_qc.csv` whatever the verdict) and, since severity, would drop values for rows that are *kept*. Rewritten to say so, and to note that rule counts overlap by design |
 | P2-b | L2 column-narrowing policy differed per reader | unified on **keeping metadata**. The bigger find was in L1: OCEC's `_raw_reader` narrowed a ~45-column Sunset export to 11, so the instrument's own diagnostics were unreachable without re-reading the raw archive — an R1 violation, not a policy question. BAM1020 narrowed to a single column there too (which is why its `* 1000` mg→µg conversion could be applied to the whole frame; it is now scoped to `Conc`) |
 | P2-f | BC1054 carried two clocks and silently dropped one | answered from the manual plus the data. `Time` is Met One's field — *"the date and timestamp for the data record … end of the minute"* — from the instrument's hand-set RTC. `Raw_Time` appears nowhere in the manual, so it is the logging host's clock. The index stays on `Raw_Time` (the well-behaved one); `Time` is kept as `Instrument_Time` and a disagreement beyond a minute is **warned**, naming the likely AM/PM cause and the manual section that fixes it |
+| P2-i | hourly completeness measured every hour against a *full* hour, so the first and last hour of every read were condemned however well the instrument ran — users reported losing the head and tail of their data, and a 22-minute file lost all of it | two changes. The expectation is now scaled by how much of each hour the coverage spans, so a partial edge hour is judged on what it could have held; and `Insufficient` is **advisory**, because a sparse hour is a statement about *representativeness* — an average over it would mislead — not about the readings, which are fine. Interior hours are untouched, so a genuine outage is still caught |
 | P2-h | docs drift | 13 reader docstrings repointed at pages that exist; `instruments/index.md` no longer claims instrument auto-detection and lists EPA / Q-ACSM / the removed readers; three broken cross-links and four malformed docstrings fixed — **`mkdocs build --strict` now passes with zero warnings**, for the first time |
 | — | the native grid was rounded to whole minutes, so a 115 s APS was gridded at 2 min and ~3 % of each day's scans collapsed into an occupied bin, silently | `detect_freq` resolves to the second once ≥ 30 intervals support it; `snap_to_grid` warns whenever rows are actually lost |
 
 ### Suggested order
 
-**P2-i** is all that is left, and it is the one with a data consequence: decide
-whether partial edge hours are exempted, or the expectation is scaled by the
-hour's overlap with coverage. The latter is more honest — a real mid-file gap
-still gets caught.
+Nothing outstanding. The list is kept so that a future finding has an obvious
+home, and so the reasoning behind each resolved item stays available.
 
 ### Classifying a new rule
 

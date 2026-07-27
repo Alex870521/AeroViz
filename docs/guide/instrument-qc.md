@@ -82,8 +82,10 @@ __call__  → QC_Invalid  →  entire row set to NaN; QC_Flag + QC_Invalid dropp
     or a vendor upscale notice is a real measurement, and masking is per row, so
     invalidating it would delete every other species at that timestamp too.
 
-    `Insufficient` and `Spike` remain invalidating, though both are arguable.
-    Reclassify per run without editing a reader:
+    `Insufficient` is advisory too: it describes how well an hour is *covered*,
+    which decides whether an average over it is representative, not whether the
+    readings are real. `Spike` remains invalidating — it asserts the value itself
+    is wrong. Reclassify per run without editing a reader:
 
     ```python
     RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
@@ -101,7 +103,7 @@ Severity is `error` unless marked **advisory**.
 |------|---------|---------|
 | `Valid` | passed every rule | all |
 | `Status Error` | instrument status register reports a non-whitelisted condition | AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM |
-| `Insufficient` | < 50 % of the expected points in that clock hour carry data | AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM |
+| `Insufficient` | an hour holds < 50 % of the points it could have held, given how much of that hour the read covers — **advisory** | AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM, GRIMM |
 | `Invalid BC` | any BC channel ≤ 0 or > 20 000 ng/m³ | AE33, AE43, BC1054, MA350 |
 | `Invalid AAE` | \|AAE\| outside 0.7–2.0 (added in `_process`) | AE33, AE43, BC1054, MA350 |
 | `Invalid Number Conc` | total number concentration outside range (SMPS 2 000–1e7, APS 1–700 #/cm³) | SMPS, APS |

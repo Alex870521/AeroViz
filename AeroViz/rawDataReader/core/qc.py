@@ -1097,48 +1097,84 @@ class QualityControl:
     def hourly_completeness_QC(cls, df: pd.DataFrame, freq: str,
                                threshold: float = 0.5) -> pd.Series:
         """
-        Check if each hour has sufficient data points.
+        Check whether each clock hour holds enough data to be representative.
 
         Parameters
         ----------
         df : pd.DataFrame
             Input data frame with time series
         freq : str
-            Data frequency (e.g., '6min')
+            Data frequency (e.g. '6min')
         threshold : float, default=0.5
-            Minimum required proportion of data points per hour (0-1)
+            Minimum required proportion of the points that hour could hold (0-1)
 
         Returns
         -------
         pd.Series
             Boolean mask where True indicates insufficient data
+
+        Notes
+        -----
+        This is a statement about **representativeness**, not validity: the
+        readings in a sparse hour are perfectly good measurements, it is an
+        *average over that hour* that would misrepresent it. Readers therefore
+        raise it at ``severity='warning'`` — see `QCRule`.
+
+        The expectation is scaled by how much of each hour the data actually
+        spans, which matters at the two ends of every read. An hour is compared
+        against the points it *could* have held given the coverage, not against a
+        full hour it never had the chance to fill: a read starting at 10:54 has
+        six minutes in the 10 o'clock hour, so a full-hour expectation condemns it
+        no matter how perfectly the instrument ran. That is what made short reads
+        unusable — a 22-minute file had every row flagged — while leaving
+        multi-day reads almost untouched, since the effect is always exactly two
+        hours out of however many.
+
+        Interior hours are unaffected: they overlap the coverage completely, so
+        their expectation is the full hour and a genuine outage is still caught.
         """
         # Ensure input is DataFrame
         df = cls._ensure_dataframe(df)
 
         # Create result mask
         completeness_mask = pd.Series(False, index=df.index)
+        if df.empty:
+            return completeness_mask
 
-        # Calculate expected data points per hour. Go through `to_offset` rather
-        # than `Timedelta(freq)` directly: a pandas freqstr may omit the
-        # multiplier ('min', 'h'), which Timedelta rejects outright.
+        # Calculate the sampling period. Go through `to_offset` rather than
+        # `Timedelta(freq)` directly: a pandas freqstr may omit the multiplier
+        # ('min', 'h'), which Timedelta rejects outright.
         try:
             period = pd.Timedelta(pd.tseries.frequencies.to_offset(freq))
         except (ValueError, TypeError) as exc:
             raise ValueError(
                 f"hourly_completeness_QC could not interpret freq={freq!r}: {exc}") from exc
-        points_per_hour = pd.Timedelta('1h') / period
-        min_points = points_per_hour * threshold
 
-        # Only process numeric columns
-        numeric_cols = df.select_dtypes(include=np.number).columns
+        # How many points each hour could hold, given what the data spans. The
+        # last row stands for a whole period, hence the + period.
+        hour_start = pd.Series(df.index.floor('1h'), index=df.index)
+        coverage_start, coverage_end = df.index.min(), df.index.max() + period
+        overlap = (
+            pd.concat([hour_start + pd.Timedelta('1h'),
+                       pd.Series(coverage_end, index=df.index)], axis=1).min(axis=1)
+            - pd.concat([hour_start,
+                         pd.Series(coverage_start, index=df.index)], axis=1).max(axis=1)
+        )
+        expected = overlap / period
+        min_points = expected * threshold
+
+        # Only process numeric columns, and ignore any that are empty throughout:
+        # an unconnected optional sensor says nothing about a particular hour, but
+        # would otherwise mark every hour insufficient for every other column too.
+        numeric_cols = [c for c in df.select_dtypes(include=np.number).columns
+                        if df[c].notna().any()]
 
         for col in numeric_cols:
             # Calculate actual data points per hour
-            hourly_count = df[col].notna().groupby(df.index.floor('1h')).transform('sum')
-
-            # Mark points with insufficient data
-            insufficient_mask = hourly_count < min_points
+            hourly_count = df[col].notna().groupby(hour_start).transform('sum')
+            # Mark points with insufficient data. An hour that could not hold even
+            # one point is not judged — there is nothing to be short of.
+            insufficient_mask = (hourly_count < min_points) & (expected >= 1)
             completeness_mask = completeness_mask | insufficient_mask
 
         return completeness_mask

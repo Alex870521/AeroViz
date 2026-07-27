@@ -1,6 +1,6 @@
 from pandas import to_datetime, read_csv, to_numeric, Series, concat
 
-from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
+from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
 
 
 class Reader(AbstractReader):
@@ -242,7 +242,13 @@ class Reader(AbstractReader):
                 condition=lambda df: self.QC_control().hourly_completeness_QC(
                     df[self.PM_COLUMNS], freq=self._resolved_freq or self.meta['freq']
                 ),
-                description='Less than 50% hourly data completeness'
+                description='Less than 50% hourly data completeness',
+                # Representativeness, not validity: the readings in a sparse
+                # hour are fine, it is an average over that hour that would
+                # misrepresent it. Users were losing the head and tail of
+                # every read to this. Promote it per run with
+                # flag_severity={'Insufficient': 'error'}.
+                severity=WARNING,
             ),
         ])
 

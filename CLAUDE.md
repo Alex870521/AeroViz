@@ -203,7 +203,7 @@ RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
 
 Flag values:
 - `Valid`: Data passed all QC checks
-- `Insufficient`: Not enough data points in period
+- `Insufficient`: An hour is thinly covered — **advisory**, so the data is kept (it is about whether an *average* over that hour is representative, not whether the readings are real)
 - `Status Error`: Instrument status error
 - `Invalid BC` / `Invalid Number Conc`: Out of range values
 - `Spike`: Detected sudden value changes

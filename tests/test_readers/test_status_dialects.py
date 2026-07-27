@@ -243,9 +243,10 @@ def test_completeness_uses_the_detected_frequency(tmp_path):
     from AeroViz.rawDataReader.script.APS import Reader
 
     reader = Reader(path=tmp_path, qc=True, quiet=True)
-    # 10 rows in one hour: fine on a 6-min grid (10/10), sparse on a 2-min one
-    # (10/30 = 33%).
-    idx = pd.date_range('2024-01-01 00:00', periods=10, freq='2min')
+    # 10 rows spread across a whole hour, so the coverage-scaled expectation is a
+    # full hour either way: complete on a 6-min grid (10 of 10), a third full on
+    # a 2-min one (10 of 30).
+    idx = pd.date_range('2024-01-01 00:00', periods=10, freq='6min')
     frame = pd.DataFrame({0.542: [50.0] * 10, 1.0: [40.0] * 10}, index=idx)
 
     reader._resolved_freq = None                      # fall back to config: 6min

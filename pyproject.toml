@@ -88,9 +88,14 @@ dev = [
     "commitizen>=3.0",
 ]
 docs = [
+    # Everything `mkdocs build` needs for THIS mkdocs.yml. Keep it complete:
+    # `pip install .[docs]` used to produce a mkdocs that aborted with
+    # "The 'git-revision-date-localized' plugin is not installed", because the
+    # docs workflow installed its plugins ad hoc and nobody exercised the extra.
     "mkdocs>=1.4.0",
     "mkdocs-material>=8.0",
     "mkdocstrings[python]>=0.18.0",
+    "mkdocs-git-revision-date-localized-plugin>=1.2",
 ]
 
 [project.urls]

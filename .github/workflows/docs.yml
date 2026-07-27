@@ -28,12 +28,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install mkdocs-material
-          pip install pymdown-extensions
-          pip install mkdocs-minify-plugin
-          pip install mkdocstrings
-          pip install mkdocstrings-python
-          pip install mkdocs-git-revision-date-localized-plugin
+          # Install from the declared extra, not an ad-hoc list: two lists drift,
+          # and the one in pyproject was the one that had already gone stale.
+          pip install -r requirements/requirements-docs.txt
 
       - name: Configure Git
         run: |

@@ -185,7 +185,7 @@ __call__()         → marks QC_Invalid rows as NaN, then drops both columns
 Severity: a `QCRule` is `severity='error'` (masks the row) or `'warning'`
 (recorded, kept). Only `QC_Invalid` drives masking, so an advisory flag never
 deletes a measurement. Reclassify per run with
-`RawDataReader(..., flag_severity={'Insufficient': 'warning'})`. See
+`RawDataReader(..., flag_severity={'Insufficient': 'error'})`. See
 [Data Levels R2a](data-levels.md#2-the-rules-invariants).
 
 ### QC Summary format

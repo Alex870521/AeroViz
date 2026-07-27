@@ -123,7 +123,8 @@ rule's severity plus two totals — `Valid` (passed everything) and `Usable`
 Callers can reclassify per run, without editing a reader:
 
 ```python
-RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
+# tighten an advisory flag back into an invalidating one
+RawDataReader('SMPS', path, flag_severity={'Insufficient': 'error'})
 ```
 
 ### Instrument QC Rules Summary

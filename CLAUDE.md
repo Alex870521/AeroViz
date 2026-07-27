@@ -198,7 +198,8 @@ Each rule has a severity: `error` (default, masks the row) or `warning`
 `Below MDL`, Xact `Upscale Warning`. Reclassify per run:
 
 ```python
-RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
+# tighten an advisory flag back into an invalidating one
+RawDataReader('SMPS', path, flag_severity={'Insufficient': 'error'})
 ```
 
 Flag values:

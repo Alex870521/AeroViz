@@ -88,7 +88,8 @@ __call__  → QC_Invalid  →  entire row set to NaN; QC_Flag + QC_Invalid dropp
     is wrong. Reclassify per run without editing a reader:
 
     ```python
-    RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
+    # tighten an advisory flag back into an invalidating one
+    RawDataReader('SMPS', path, flag_severity={'Insufficient': 'error'})
     ```
 
     To see values behind an invalidating flag, read `_read_{inst}_qc.csv` (flag,

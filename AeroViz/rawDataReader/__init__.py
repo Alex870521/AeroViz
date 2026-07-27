@@ -119,11 +119,12 @@ def RawDataReader(instrument: str,
         recorded in ``QC_Flag`` and the log but keep their measurements. Use it
         when a flag describes a circumstance rather than a broken reading, e.g.::
 
-            # keep readings from hours with sparse coverage
-            RawDataReader('SMPS', path, flag_severity={'Insufficient': 'warning'})
+            # tighten an advisory flag back into an invalidating one
+            RawDataReader('SMPS', path, flag_severity={'Insufficient': 'error'})
 
-        Rules ship as ``'error'`` except OCEC's ``Below MDL`` and Xact's
-        ``Upscale Warning``, which are advisory by default.
+        Rules ship as ``'error'`` except ``Insufficient`` (every size/optical
+        reader), OCEC's ``Below MDL`` and Xact's ``Upscale Warning``, which
+        describe a circumstance rather than a broken reading and are advisory.
 
     output_dir : Path or str, optional
         Directory for all output files (pkl, csv, log, report).

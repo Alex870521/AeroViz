@@ -126,3 +126,58 @@ class TestOCECReader(BaseReaderTest):
             f"Firmware alias maps target different canonical names: "
             f"705-only={canonical_705 - canonical_802}, 802-only={canonical_802 - canonical_705}"
         )
+
+
+@pytest.mark.ocec
+class TestKeepsSourceColumns:
+    """R1: L1 keeps every source column.
+
+    A Sunset export carries ~45 — laser/temperature correction, oven pressures,
+    calibration peak area. This reader used to narrow to 11 in `_raw_reader` and
+    10 again in `_QC`, putting the instrument's own diagnostics out of reach of
+    anyone debugging a suspect run without re-reading the raw archive.
+    """
+
+    def test_raw_reader_keeps_everything(self, raw_data_path, tmp_path):
+        from AeroViz.rawDataReader.script.OCEC import Reader
+
+        src = next((raw_data_path / 'OCEC' / 'normal').glob('*LCRes.csv'), None)
+        if src is None:
+            pytest.skip('OCEC fixture not available')
+
+        df = Reader(path=tmp_path, qc=False, quiet=True)._raw_reader(src)
+
+        assert len(df.columns) > 30, f'only {len(df.columns)} columns survived'
+        assert 'Sample_Volume' in df.columns
+        # The derived per-peak fractions are still there too.
+        for column in ('Thermal_OC', 'OC1', 'PC'):
+            assert column in df.columns
+
+    def test_qc_keeps_metadata_beside_the_product(self, raw_data_path, tmp_path):
+        from AeroViz.rawDataReader.script.OCEC import Reader
+
+        src = next((raw_data_path / 'OCEC' / 'normal').glob('*LCRes.csv'), None)
+        if src is None:
+            pytest.skip('OCEC fixture not available')
+
+        reader = Reader(path=tmp_path, qc=True, quiet=True)
+        out = reader._QC(reader._raw_reader(src))
+
+        for column in reader.OUTPUT_COLUMNS:
+            assert column in out.columns
+        assert 'Sample_Volume' in out.columns, 'metadata must survive L2'
+        assert 'QC_Flag' in out.columns and 'QC_Invalid' in out.columns
+
+    def test_textual_columns_are_not_blanked(self, raw_data_path, tmp_path):
+        """Coercing everything to numeric would silently empty the text columns."""
+        from AeroViz.rawDataReader.script.OCEC import Reader
+
+        src = next((raw_data_path / 'OCEC' / 'normal').glob('*LCRes.csv'), None)
+        if src is None:
+            pytest.skip('OCEC fixture not available')
+
+        df = Reader(path=tmp_path, qc=False, quiet=True)._raw_reader(src)
+        text_columns = [c for c in df.columns if df[c].dtype == object]
+
+        assert text_columns, 'the Sunset export has textual metadata columns'
+        assert any(df[c].notna().any() for c in text_columns)

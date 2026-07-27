@@ -146,7 +146,14 @@ class Reader(AbstractReader):
                 f"{'RTCalc802+ (per-peak OC fractions present)' if has_per_peak else 'RTCalc705/older (no per-peak fractions)'}"
             )
 
-            _df = _df.apply(to_numeric, errors='coerce')
+            # Coerce the measurements, but keep genuinely textual columns
+            # (Sample ID, firmware version, the laser-correction string). R1: L1
+            # keeps every source column, and a column blanked here is
+            # unrecoverable without re-reading the raw archive.
+            for column in _df.columns:
+                converted = to_numeric(_df[column], errors='coerce')
+                if converted.notna().any() or _df[column].isna().all():
+                    _df[column] = converted
 
             # Per-peak fractions only exist on newer firmware (RTCalc802+); older
             # files (RTCalc705) don't have OCPk*-ug C columns — leave NaN. Also
@@ -169,14 +176,11 @@ class Reader(AbstractReader):
             else:
                 _df['PC'] = float('nan')
 
-            # `Sample_Volume` may not exist on a malformed export — keep it
-            # optional in the slice so we don't KeyError on legitimate input.
-            wanted = ['Thermal_OC', 'Thermal_EC', 'Optical_OC', 'Optical_EC', 'TC',
-                      'OC1', 'OC2', 'OC3', 'OC4', 'PC']
-            if 'Sample_Volume' in _df.columns:
-                wanted.insert(5, 'Sample_Volume')
-            _df = _df[wanted]
-
+            # Every source column is kept (R1). A Sunset export carries ~45 —
+            # laser/temperature correction, oven pressures, calibration peak
+            # area — and this reader used to narrow to 11 here, putting the
+            # instrument's own diagnostics out of reach of anyone debugging a
+            # suspect run without re-reading the raw archive.
             return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
     def _QC(self, _df):
@@ -238,4 +242,6 @@ class Reader(AbstractReader):
         # Log QC summary
         self.log_qc_summary(qc.get_summary(df_qc))
 
-        return df_qc[self.OUTPUT_COLUMNS + self.qc_columns(df_qc)].reindex(_index)
+        # Keep every column, not just OUTPUT_COLUMNS: the carbon fractions are
+        # the product, but the metadata beside them is what explains a bad one.
+        return df_qc.reindex(_index)

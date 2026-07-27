@@ -1,4 +1,4 @@
-from pandas import read_csv, to_numeric, concat
+from pandas import read_csv, to_numeric, to_datetime, concat
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder
 from AeroViz.rawDataReader.core.pre_process import _absCoe
@@ -31,6 +31,13 @@ class Reader(AbstractReader):
     MAX_BC = 20000       # Maximum BC concentration (ng/m³)
     MIN_AAE = 0.7        # Minimum valid AAE (absolute value)
     MAX_AAE = 2.0        # Maximum valid AAE (absolute value)
+
+    #: Where the instrument's own timestamp is kept when a file carries both
+    #: clocks. The index uses the logger clock; see `_check_clock_offset`.
+    INSTRUMENT_TIME_COLUMN = 'Instrument_Time'
+    #: Ignore disagreements at or below this — the manual labels records at the
+    #: end of the minute, so a minute of slack is expected bookkeeping.
+    CLOCK_TOLERANCE_S = 60
 
     # =========================================================================
     # Status Error Codes (bitwise flags)
@@ -87,10 +94,69 @@ class Reader(AbstractReader):
                 'AT(C)': 'AT', 'RH(%)': 'RH', 'BP(mbar)': 'BP',
             })
 
-            # Drop redundant time column (already used as index)
-            _df = _df.drop(columns=['Time'], errors='ignore')
+            # Keep the instrument's own clock alongside the logger's, and say so
+            # when they disagree — see `_check_clock_offset`.
+            if 'Time' in _df.columns:
+                _df = _df.rename(columns={'Time': self.INSTRUMENT_TIME_COLUMN})
+                self._check_clock_offset(_df, file)
 
             return _df.loc[~_df.index.duplicated() & _df.index.notna()]
+
+    def _check_clock_offset(self, _df, file) -> None:
+        """Report a disagreement between the logger clock and the instrument's.
+
+        A file with both columns has two different clocks in it:
+
+        ``Raw_Time``
+            not a Met One field — it does not appear anywhere in the BC 1054
+            manual — so it comes from whatever logged or downloaded the file, and
+            runs on that host's clock.
+        ``Time``
+            the manual's own definition: *"the date and timestamp for the data
+            record. The timestamp is end of the minute."* That comes from the
+            instrument's internal RTC, which an operator sets by hand (manual
+            §3.5.7, "The CLOCK Setup Screen") and which can therefore be wrong.
+
+        Both are kept. The index stays on ``Raw_Time`` because the measurement
+        happened at the wall-clock instant regardless of what the instrument
+        believed the time was, and because in the corpus it is the well-behaved
+        one: strictly increasing, no duplicates. The instrument clock is not —
+        one fixture repeats timestamps and jumps 14 h 42 m mid-file, and another
+        sits a constant **12 h 04 m** behind for all 1440 rows of a day, the
+        signature of an RTC set 12 hours out (AM/PM) plus drift.
+
+        That offset used to vanish silently: the column was dropped right here.
+        Losing it also loses the only evidence that an instrument's clock needs
+        resetting, so it is now recorded and reported.
+        """
+        instrument = to_datetime(_df[self.INSTRUMENT_TIME_COLUMN], errors='coerce')
+        offset = (_df.index.to_series() - instrument).dt.total_seconds().dropna()
+        if offset.empty:
+            return
+
+        median = offset.median()
+        if abs(median) <= self.CLOCK_TOLERANCE_S:
+            return
+
+        self.logger.warning(
+            f"{file.name}: the instrument clock is {self._format_offset(median)} "
+            f"{'behind' if median > 0 else 'ahead of'} the logger clock "
+            f"(median over {len(offset)} rows; "
+            f"range {self._format_offset(offset.min())} to {self._format_offset(offset.max())}). "
+            f"The index uses the logger clock (`Raw_Time`); the instrument's own "
+            f"timestamp is kept as `{self.INSTRUMENT_TIME_COLUMN}`. An offset near "
+            f"12 h usually means the instrument's clock is set to the wrong "
+            f"AM/PM — worth fixing at the instrument (manual 3.5.7, SET CLOCK).")
+
+    @staticmethod
+    def _format_offset(seconds: float) -> str:
+        """Seconds as ``12h04m`` / ``60s``, whichever reads better."""
+        seconds = abs(float(seconds))
+        if seconds < 60:
+            return f'{seconds:.0f}s'
+        if seconds < 3600:
+            return f'{seconds / 60:.0f}m'
+        return f'{int(seconds // 3600)}h{int((seconds % 3600) // 60):02d}m'
 
     def _QC(self, _df):
         """

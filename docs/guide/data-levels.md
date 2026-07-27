@@ -7,7 +7,7 @@
 > For the mechanics of the existing pipeline see
 > [RawDataReader Internals](reader-internals.md); for the per-instrument
 > file formats and status-code tables see
-> [Raw Formats & Status Codes](instrument-qc.md).
+> [Instrument Formats & QC](instrument-qc.md).
 
 `RawDataReader` is not a single transformation — it is a **four-level pipeline**,
 each level with a different contract about what may be added, what may be
@@ -316,16 +316,6 @@ reused.
   flagged. Consider exempting the edge hours, or scaling the expectation by the
   hour's overlap with the data's coverage.
 
-- **P2-b — L2 column-narrowing policy differs per reader.** OCEC and BAM1020
-  slice down to their output columns; TEOM, BC1054, MA350, Aurora and NEPH return
-  every column. Decide one policy (recommended: keep metadata, since **R1**'s
-  rationale applies to L2 consumers too) and apply it uniformly.
-
-- **P2-f — BC1054 timestamp ambiguity.** `read_csv(..., index_col=0)` takes
-  `Raw_Time` when the file has both, and then *drops* `Time`. In the NZ 2025
-  fixture the two differ by hours on some rows. Decide which one is the
-  measurement time and document it.
-
 ### Resolved
 
 Kept as a record of what the labels used to mean:
@@ -346,23 +336,17 @@ Kept as a record of what the labels used to mean:
 | P2-a | `SMPS`/`APS.MIN_HOURLY_COUNT` and `TEOM.OUTPUT_COLUMNS` were never read | deleted, with a note saying what actually governs each (completeness is a *fraction* of the detected frequency's points; TEOM returns every column on purpose) |
 | P2-d | `report.py` defaulted the known-issues file to one developer's home directory | opt-in via `KNOWN_ISSUES_PATH` only, and a set-but-unusable path now warns instead of being swallowed. A second hardcoded `~/Desktop` path in `plot/templates/corr_matrix.py` went with it |
 | P2-g | `_process` was documented as being allowed to skip flagged rows | the docstring was the wrong half: skipping would violate R2 (a derived value belongs in `_read_*_qc.csv` whatever the verdict) and, since severity, would drop values for rows that are *kept*. Rewritten to say so, and to note that rule counts overlap by design |
+| P2-b | L2 column-narrowing policy differed per reader | unified on **keeping metadata**. The bigger find was in L1: OCEC's `_raw_reader` narrowed a ~45-column Sunset export to 11, so the instrument's own diagnostics were unreachable without re-reading the raw archive — an R1 violation, not a policy question. BAM1020 narrowed to a single column there too (which is why its `* 1000` mg→µg conversion could be applied to the whole frame; it is now scoped to `Conc`) |
+| P2-f | BC1054 carried two clocks and silently dropped one | answered from the manual plus the data. `Time` is Met One's field — *"the date and timestamp for the data record … end of the minute"* — from the instrument's hand-set RTC. `Raw_Time` appears nowhere in the manual, so it is the logging host's clock. The index stays on `Raw_Time` (the well-behaved one); `Time` is kept as `Instrument_Time` and a disagreement beyond a minute is **warned**, naming the likely AM/PM cause and the manual section that fixes it |
 | P2-h | docs drift | 13 reader docstrings repointed at pages that exist; `instruments/index.md` no longer claims instrument auto-detection and lists EPA / Q-ACSM / the removed readers; three broken cross-links and four malformed docstrings fixed — **`mkdocs build --strict` now passes with zero warnings**, for the first time |
 | — | the native grid was rounded to whole minutes, so a 115 s APS was gridded at 2 min and ~3 % of each day's scans collapsed into an occupied bin, silently | `detect_freq` resolves to the second once ≥ 30 intervals support it; `snap_to_grid` warns whenever rows are actually lost |
 
 ### Suggested order
 
-Three items left, and both of the remaining P2 entries above need a decision
-that the code cannot make on its own:
-
-1. **P2-i** — the only one with a data consequence. Decide whether partial edge
-   hours are exempted or the expectation is scaled by the hour's overlap with
-   coverage (the latter is more honest: a real mid-file gap still gets caught).
-2. **P2-f** — needs the instrument manual or site knowledge: when a BC1054 file
-   carries both `Raw_Time` and `Time`, which is the measurement time? They differ
-   by hours on some rows, so this is a correctness question, not a style one.
-3. **P2-b** — a policy call on whether L2 keeps instrument metadata. Changing it
-   alters the output columns of OCEC and BAM1020 (or of five other readers,
-   depending which way it goes).
+**P2-i** is all that is left, and it is the one with a data consequence: decide
+whether partial edge hours are exempted, or the expectation is scaled by the
+hour's overlap with coverage. The latter is more honest — a real mid-file gap
+still gets caught.
 
 ### Classifying a new rule
 

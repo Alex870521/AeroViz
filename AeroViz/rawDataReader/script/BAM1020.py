@@ -43,10 +43,19 @@ class Reader(AbstractReader):
         # remove data when Conc = 1 or 0
         _df[PM] = _df[PM].replace(1, NA)
 
-        _df = _df[[PM]].apply(to_numeric, errors='coerce')
+        # Keep every column (R1) — the BAM writes flow, RH, ambient temperature
+        # and status alongside the concentration, and those are what explain a
+        # suspect reading. Only the columns that convert cleanly are coerced, so
+        # textual metadata survives.
+        for column in _df.columns:
+            converted = to_numeric(_df[column], errors='coerce')
+            if converted.notna().any() or _df[column].isna().all():
+                _df[column] = converted
 
-        # tranfer unit from mg/m3 to ug/m3
-        _df = _df * 1000
+        # Convert ONLY the concentration from mg/m3 to ug/m3. This used to
+        # multiply the whole frame, which was harmless only because the frame had
+        # been narrowed to that single column first.
+        _df[PM] = _df[PM] * 1000
 
         return _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
@@ -85,4 +94,4 @@ class Reader(AbstractReader):
         # Log QC summary
         self.log_qc_summary(qc.get_summary(df_qc))
 
-        return df_qc[['Conc'] + self.qc_columns(df_qc)].reindex(_index)
+        return df_qc.reindex(_index)

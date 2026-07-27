@@ -9,10 +9,10 @@
       
       
       
-        <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/rawdatareader-internals/">
+        <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/reader-internals/">
       
       
-        <link rel="prev" href="../rawdatareader/">
+        <link rel="prev" href="../counting-efficiency/">
       
       
         <link rel="next" href="../dataprocess/">
@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -625,6 +625,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -688,6 +694,90 @@
     
   
     RawDataReader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../data-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Levels (L0-L3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../instrument-qc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instrument Formats & QC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../counting-efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Counting Efficiency (CPC & APS)
   
 
     
@@ -951,6 +1041,17 @@
     <span class="md-ellipsis">
       
         APS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grimm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GRIMM
       
     </span>
   </a>
@@ -2543,14 +2644,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/instruments/chemical/VOC/" class="md-nav__link">
+      <a href="../../api/instruments/chemical/Xact/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    VOC
+    Xact
   
 
     
@@ -2571,14 +2672,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/instruments/chemical/Xact/" class="md-nav__link">
+      <a href="../../api/instruments/chemical/VOC/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Xact
+    VOC (no reader)
   
 
     
@@ -3968,6 +4069,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#grimm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GRIMM
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4171,6 +4283,11 @@
 modify how the reader works internally. If you just want to <em>use</em> the reader,
 start with the <a href="../rawdatareader/">RawDataReader Tutorial</a> — you don't need
 anything on this page.</p>
+<p><strong>See also:</strong> <a href="../data-levels/">Data Levels (L0–L3)</a> for the level contracts
+(what each stage may add or destroy, what is cacheable, where new code goes)
+and the list of known non-conformances;
+<a href="../instrument-qc/">Instrument Formats &amp; QC</a> for
+per-instrument parsing recipes and the authoritative status/error-code tables.</p>
 </blockquote>
 <p>How <code>RawDataReader</code> turns raw instrument files into the final resampled DataFrame.</p>
 <hr />
@@ -4198,49 +4315,51 @@ anything on this page.</p>
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>┌─────────────────────────────────────────────────────────────────────────────┐
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│  3. _QC()                                                                   │
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│     ├─ QCFlagBuilder applies declarative QC rules                           │
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│     ├─ Adds `QC_Flag` column (&quot;Valid&quot; / &quot;Status Error&quot; / &quot;Insufficient&quot;...) │
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│     └─ Stores QC Summary (emitted by _process or directly here)             │
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>└─────────────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>                                        │
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>                                        ▼
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>┌─────────────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>│  4. _process()  (optional, BC / scattering / size-distribution instruments) │
-<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│     ├─ Derive parameters (Abs, AAE, eBC, GMD, GSD, ...)                     │
-<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│     ├─ Apply additional QC (e.g. Invalid AAE) and update `QC_Flag`          │
-<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│     └─ Emit combined QC Summary                                             │
-<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>└─────────────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>                                        │
-<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>                                        ▼
-<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>┌─────────────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>│  5. _save_data()                                                            │
-<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│     ├─ _read_{inst}_raw.{pkl,csv}  — pre-QC frame                           │
-<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│     └─ _read_{inst}_qc.{pkl,csv}   — post-QC frame with `QC_Flag`           │
-<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>└─────────────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>                                        │
-<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>                                        ▼
-<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>┌─────────────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>│  6. __call__() — apply QC                                                   │
-<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>│     ├─ Rows where `QC_Flag != &quot;Valid&quot;` → NaN                                │
-<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│     └─ Drop `QC_Flag` from public output                                    │
-<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>└─────────────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>                                        │
-<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>                                        ▼
-<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>┌─────────────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>│  7. _generate_report()                                                      │
-<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>│     ├─ Acquisition rate: periods with data / expected periods               │
-<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>│     ├─ Yield rate:       periods passing QC / periods with data             │
-<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>│     └─ Total rate:       periods passing QC / expected periods              │
-<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>└─────────────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>                                        │
-<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>                                        ▼
-<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>┌─────────────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a>│  8. Final output                                                            │
-<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>│     ├─ resample(mean_freq) — only if mean_freq given (default: no resample) │
-<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>│     ├─ output_{inst}.csv                                                    │
-<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>│     ├─ output_{inst}_dN/dS/dVdlogDp.csv (SMPS/APS)                          │
-<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>│     ├─ report.json                                                          │
-<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>│     └─ return DataFrame                                                     │
-<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>└─────────────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│     ├─ Adds `QC_Flag`    (&quot;Valid&quot; / &quot;Status Error&quot; / &quot;Insufficient&quot;...)      │
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│     ├─ Adds `QC_Invalid` (True iff an *error*-severity rule fired)          │
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│     └─ Stores QC Summary (emitted by _process or directly here)             │
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>└─────────────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>                                        │
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>                                        ▼
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>┌─────────────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>│  4. _process()  (optional, BC / scattering / size-distribution instruments) │
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>│     ├─ Derive parameters (Abs, AAE, eBC, GMD, GSD, ...)                     │
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>│     ├─ Apply additional QC (e.g. Invalid AAE) and update `QC_Flag`          │
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>│     └─ Emit combined QC Summary                                             │
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>└─────────────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>                                        │
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>                                        ▼
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>┌─────────────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>│  5. _save_data()                                                            │
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>│     ├─ _read_{inst}_raw.{pkl,csv}  — pre-QC frame                           │
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>│     └─ _read_{inst}_qc.{pkl,csv}   — post-QC frame with `QC_Flag`           │
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>└─────────────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>                                        │
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>                                        ▼
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>┌─────────────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>│  6. __call__() — apply the verdict                                          │
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>│     ├─ Rows where `QC_Invalid` → NaN (advisory-only rows are KEPT)          │
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>│     └─ Drop `QC_Flag` + `QC_Invalid` from public output                      │
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>└─────────────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>                                        │
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>                                        ▼
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>┌─────────────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>│  7. _generate_report()                                                      │
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>│     ├─ Acquisition rate: periods with data / expected periods               │
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>│     ├─ Yield rate:       periods passing QC / periods with data             │
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>│     └─ Total rate:       periods passing QC / expected periods              │
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>└─────────────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>                                        │
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>                                        ▼
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a>┌─────────────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>│  8. Final output                                                            │
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>│     ├─ resample(mean_freq) — only if given; applies on the qc=False path too │
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>│     │    (non-numeric columns are named in the log, not dropped silently)    │
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a>│     ├─ output_{inst}.csv                                                    │
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>│     ├─ output_{inst}_dN/dS/dVdlogDp.csv (SMPS/APS)                          │
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>│     ├─ report.json                                                          │
+<a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a>│     └─ return DataFrame                                                     │
+<a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a>└─────────────────────────────────────────────────────────────────────────────┘
 </code></pre></div>
 <hr />
 <h2 id="data-column-evolution">Data Column Evolution</h2>
@@ -4266,7 +4385,7 @@ anything on this page.</p>
 <tr>
 <td><code>_process</code></td>
 <td>+ abs_370–950, AAE, eBC</td>
-<td>+ total, GMD, GSD, mode (num/surf/vol)</td>
+<td>keeps size bins + <code>QC_Flag</code> only</td>
 </tr>
 <tr>
 <td><code>__call__</code></td>
@@ -4276,10 +4395,14 @@ anything on this page.</p>
 <tr>
 <td>Final output</td>
 <td>BC, abs, AAE</td>
-<td>statistics (size bins removed)</td>
+<td>dN/dlogDp matrix; statistics go to <code>_stats.csv</code></td>
 </tr>
 </tbody>
 </table>
+<p>For SMPS/APS the <strong>size distribution is the output</strong>: <code>_process</code> drops the raw
+status column and returns the bins, and the derived statistics (total / GMD /
+GSD / mode) are written to <code>{prefix}_stats.csv</code> alongside the N/S/V distribution
+files. Pass <code>append_stats=True</code> to also append them to the returned frame.</p>
 <p><code>_raw_reader</code> deliberately keeps <em>all</em> source columns so downstream consumers
 have access to instrument metadata (flow, temperature, pressure, RH, etc.).
 Column selection happens in <code>_QC</code> / <code>_process</code> per-instrument.</p>
@@ -4362,17 +4485,23 @@ Column selection happens in <code>_QC</code> / <code>_process</code> per-instrum
 <a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
 <a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>Instruments using QCFlagBuilder:
 <a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>  AE33, AE43, BC1054, MA350, SMPS, APS, NEPH, Aurora,
-<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>  TEOM, BAM1020, OCEC, IGAC, EPA
-<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>
-<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>Instruments with _process() method:
-<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>  AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS
+<a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>  TEOM, BAM1020, OCEC, IGAC, Xact, GRIMM, EPA
+<a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>  (Q-ACSM has no reader yet)
+<a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a>
+<a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>Instruments with _process() method:
+<a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a>  AE33, AE43, BC1054, MA350, NEPH, Aurora, SMPS, APS, TEOM
 </code></pre></div>
 <h3 id="qc_flag-lifecycle">QC_Flag lifecycle</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>_QC()              → builds QC_Flag, stores partial summary
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>_QC()              → builds QC_Flag + QC_Invalid, stores partial summary
 <a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>_process()         → may add more rules (e.g. Invalid AAE) and emit combined summary
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>_generate_report() → uses QC_Flag to compute rates
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>__call__()         → marks non-&quot;Valid&quot; rows as NaN, then drops QC_Flag
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>_generate_report() → uses the verdict to compute rates
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>__call__()         → marks QC_Invalid rows as NaN, then drops both columns
 </code></pre></div>
+<p>Severity: a <code>QCRule</code> is <code>severity='error'</code> (masks the row) or <code>'warning'</code>
+(recorded, kept). Only <code>QC_Invalid</code> drives masking, so an advisory flag never
+deletes a measurement. Reclassify per run with
+<code>RawDataReader(..., flag_severity={'Insufficient': 'error'})</code>. See
+<a href="../data-levels/#2-the-rules-invariants">Data Levels R2a</a>.</p>
 <h3 id="qc-summary-format">QC Summary format</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>AE33 QC Summary:
 <a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  Status Error: 24312 (4.9%)
@@ -4380,13 +4509,25 @@ Column selection happens in <code>_QC</code> / <code>_process</code> per-instrum
 <a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  Insufficient: 105481 (21.1%)
 <a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  Invalid AAE: 25948 (5.2%)
 <a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  Valid: 356025 (71.2%)
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  Usable: 356025 (71.2%)
 </code></pre></div>
-<p>For instruments with <code>_process()</code>: <code>_QC</code> stores the summary in
-<code>self._qc_summary</code>, <code>_process</code> adds any extra rules and emits the combined
-output. For instruments without <code>_process()</code> (OCEC, BAM1020, TEOM, EPA, IGAC),
-the summary is emitted directly inside <code>_QC</code>.</p>
+<p><code>Valid</code> = passed every rule. <code>Usable</code> = no <em>invalidating</em> rule fired, i.e. what
+survives into the output. They differ by exactly the rows carrying only advisory
+flags (<code>[advisory]</code> in the log), so on a reader with no advisory rules — AE33 —
+the two are equal.</p>
+<p>Two patterns: readers whose <code>_process</code> adds further rules (AE33, AE43, BC1054,
+MA350 — <code>Invalid AAE</code>) store the partial summary in <code>self._qc_summary</code> and emit
+the combined output from <code>_process</code>; everyone else (OCEC, BAM1020, TEOM, EPA,
+IGAC, Xact) emits it directly inside <code>_QC</code>. SMPS/APS/NEPH/Aurora have a
+<code>_process</code> but add no rules, so they just log the stored summary unchanged.</p>
 <hr />
 <h2 id="per-instrument-qc-procedures">Per-Instrument QC Procedures</h2>
+<blockquote>
+<p>The diagrams below are a visual overview. The <strong>authoritative</strong> per-instrument
+tables — file patterns, header layouts, status columns, error-code meanings,
+whitelist semantics and known coverage gaps — are in
+<a href="../instrument-qc/">Instrument Formats &amp; QC</a>.</p>
+</blockquote>
 <h3 id="black-carbon-instruments">Black Carbon Instruments</h3>
 <h4 id="ae33-ae43-aethalometer">AE33 / AE43 Aethalometer</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>┌─────────────────────────────────────────────────────────────────────┐
@@ -4401,21 +4542,23 @@ the summary is emitted directly inside <code>_QC</code>.</p>
 <a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>│  │   4   Flow error    │  │ Rule: Insufficient  │                   │
 <a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>│  │   16  LED calib.    │  ├─────────────────────┤                   │
 <a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>│  │   32  Calib. error  │  │ &lt; 50% hourly data   │                   │
-<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>│  │   384 Tape error    │  └─────────────────────┘                   │
-<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>│  │   1024 Stability    │                                            │
-<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>│  │   2048 Clean air    │                                            │
-<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>│  │   4096 Optical      │                                            │
-<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>│  └─────────────────────┘                                            │
-<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>│                                                                     │
-<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>│  STAGE 2: _process()                                                │
-<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>│  ┌─────────────────────┐  ┌─────────────────────┐                   │
-<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>│  │ Calculate:          │  │ Rule: Invalid AAE   │                   │
-<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>│  │ - _absCoe()         │─►├─────────────────────┤                   │
-<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>│  │ - abs_370…abs_950   │  │ AAE &lt; -2.0  OR      │                   │
-<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>│  │ - AAE, eBC          │  │ AAE &gt; -0.7          │                   │
-<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>│  └─────────────────────┘  └─────────────────────┘                   │
-<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>└─────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>Output: BC1-BC7, abs_370-950, abs_550, AAE, eBC, QC_Flag
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a>│  │   1024 Stability    │  └─────────────────────┘                   │
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>│  │   2048 Clean air    │                                            │
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a>│  │   4096 Optical      │                                            │
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>│  └─────────────────────┘                                            │
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>│                                                                     │
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>│  STAGE 2: _process()                                                │
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>│  ┌─────────────────────┐  ┌─────────────────────┐                   │
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>│  │ Calculate:          │  │ Rule: Invalid AAE   │                   │
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a>│  │ - _absCoe()         │─►├─────────────────────┤                   │
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a>│  │ - abs_370…abs_950   │  │ AAE &lt; -2.0  OR      │                   │
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a>│  │ - AAE, eBC          │  │ AAE &gt; -0.7          │                   │
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a>│  └─────────────────────┘  └─────────────────────┘                   │
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a>Output: BC1-BC7, abs_370-950, abs_550, AAE, eBC, QC_Flag
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a>Note: both readers deliberately exclude 128 / 256 / 384 (tape-LOW warnings —
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a>the data is still valid). A test pins the two lists identical.
 </code></pre></div>
 <h4 id="bc1054">BC1054</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>┌─────────────────────────────────────────────────────────────────────┐
@@ -4478,220 +4621,243 @@ the summary is emitted directly inside <code>_QC</code>.</p>
 <h3 id="size-distribution-instruments">Size Distribution Instruments</h3>
 <h4 id="smps">SMPS</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>QC Thresholds
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  MIN_HOURLY_COUNT   = 5     measurements per hour
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  MIN_TOTAL_CONC     = 2000  #/cm³
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  MAX_TOTAL_CONC     = 1e7   #/cm³
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  MAX_LARGE_BIN_CONC = 4000  dN/dlogDp (DMA water-ingress indicator)
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  LARGE_BIN_THRESH   = 400   nm
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>  STATUS_OK          = &quot;Normal Scan&quot;
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>┌─────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>│  STAGE 1: _QC()                                                     │
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>│  ┌──────────────────────┐                                           │
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>│  │ Rule: Status Error   │  Status Flag ≠ &quot;Normal Scan&quot;              │
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>│  └──────────────────────┘                                           │
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>│  ┌──────────────────────┐  ┌──────────────────────┐                 │
-<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>│  │ Rule: Insufficient   │  │ Rule: Invalid Number │                 │
-<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>│  ├──────────────────────┤  │       Conc           │                 │
-<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>│  │ &lt; 50% hourly data    │  ├──────────────────────┤                 │
-<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>│  └──────────────────────┘  │ Total outside        │                 │
-<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>│                            │ 2000-1e7 #/cm³       │                 │
-<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>│                            └──────────────────────┘                 │
-<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>│  ┌──────────────────────┐                                           │
-<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>│  │ Rule: DMA Water      │  Bins &gt; 400 nm with conc.                 │
-<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>│  │       Ingress        │  &gt; 4000 dN/dlogDp                         │
-<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>│  └──────────────────────┘                                           │
-<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>│                                                                     │
-<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>│  STAGE 2: _process()                                                │
-<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>│   Calculate from dN/dlogDp → dN, dS, dV distributions               │
-<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>│   For each weighting (num, surf, vol):                              │
-<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>│     total_{w}, GMD_{w}, GSD_{w}, mode_{w}                           │
-<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>│   Mode contributions (number):                                      │
-<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>│     ultra_num   fraction &lt; 100 nm                                   │
-<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>│     accum_num   fraction 100-1000 nm                                │
-<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  MIN_TOTAL_CONC     = 2000  #/cm³
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  MAX_TOTAL_CONC     = 1e7   #/cm³
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  MAX_LARGE_BIN_CONC = 4000  dN/dlogDp (DMA water-ingress indicator)
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  LARGE_BIN_THRESH   = 400   nm
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  STATUS_OK          = &quot;Normal Scan&quot;
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>┌─────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>│  STAGE 1: _QC()                                                     │
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>│  ┌──────────────────────┐                                           │
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>│  │ Rule: Status Error   │  any of SIX status columns reports a fault │
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>│  └──────────────────────┘  (AIM 10.3: Status Flag / Instrument      │
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>│                            Errors;  AIM 11.x: Detector Status /     │
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>│                            Classifier Errors / Communication        │
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a>│                            Status / Neutralizer Status)             │
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a>│  ┌──────────────────────┐  ┌──────────────────────┐                 │
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a>│  │ Rule: Insufficient   │  │ Rule: Invalid Number │                 │
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>│  ├──────────────────────┤  │       Conc           │                 │
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a>│  │ &lt; 50% hourly data    │  ├──────────────────────┤                 │
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a>│  └──────────────────────┘  │ Total outside        │                 │
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>│                            │ 2000-1e7 #/cm³       │                 │
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a>│                            └──────────────────────┘                 │
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a>│  ┌──────────────────────┐                                           │
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a>│  │ Rule: DMA Water      │  Bins &gt; 400 nm with conc.                 │
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>│  │       Ingress        │  &gt; 4000 dN/dlogDp                         │
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a>│  └──────────────────────┘                                           │
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a>│                                                                     │
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a>│  STAGE 2: _process()                                                │
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a>│   Returns the dN/dlogDp bins + QC_Flag (raw status column dropped)  │
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>│                                                                     │
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a>│  STAGE 3: __call__ → finalize_size_dist()  [L3 sidecars]            │
+<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a>│   {prefix}_dNdlogDp.csv / _dSdlogDp.csv / _dVdlogDp.csv             │
+<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a>│   {prefix}_stats.csv   (psd_stats: total / GMD / GSD / mode)        │
+<a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a>│   append_stats=True also appends the statistics to the returned df  │
+<a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a>└─────────────────────────────────────────────────────────────────────┘
 </code></pre></div>
 <h4 id="aps">APS</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>QC Thresholds
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  MIN_HOURLY_COUNT = 5      measurements per hour
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  MIN_TOTAL_CONC   = 1      #/cm³
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  MAX_TOTAL_CONC   = 700    #/cm³
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  STATUS_OK        = &quot;0000 0000 0000 0000&quot;  (16-bit binary, all zeros)
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>Status flag bit definitions (TSI RF command)
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>  Bit 0  Laser fault                    Bit 5  Autocal failed
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>  Bit 1  Total flow out of range        Bit 6  Internal temp &lt; 10 °C
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>  Bit 2  Sheath flow out of range       Bit 7  Internal temp &gt; 40 °C
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>  Bit 3  Excessive sample concentration Bit 8  Detector voltage ±10 % Vb
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>  Bit 4  Accumulator clipped (&gt;65535)   Bit 9  Reserved
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>┌─────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>│  STAGE 1: _QC()                                                     │
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>│  ┌──────────────────────┐                                           │
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>│  │ Rule: Status Error   │  Status Flags ≠ all zeros                 │
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>│  └──────────────────────┘                                           │
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>│  ┌──────────────────────┐  ┌──────────────────────┐                 │
-<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>│  │ Rule: Insufficient   │  │ Rule: Invalid Number │                 │
-<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>│  ├──────────────────────┤  │       Conc           │                 │
-<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>│  │ &lt; 50% hourly data    │  ├──────────────────────┤                 │
-<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>│  └──────────────────────┘  │ Total outside 1-700  │                 │
-<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>│                            │ #/cm³                │                 │
-<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>│                            └──────────────────────┘                 │
-<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>│                                                                     │
-<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>│  STAGE 2: _process()                                                │
-<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>│   Calculate from dN/dlogDp → dN, dS, dV distributions               │
-<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>│   Totals at size cutoffs (num, surf, vol):                          │
-<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>│     total_{w}_1um, total_{w}_2.5um, total_{w}_all                   │
-<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>│   Full-range statistics:                                            │
-<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>│     GMD_{w}, GSD_{w}, mode_{w}                                      │
-<a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  MIN_TOTAL_CONC   = 1      #/cm³
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  MAX_TOTAL_CONC   = 700    #/cm³
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  STATUS_OK        = &quot;0000 0000 0000 0000&quot;  (16-bit binary, all zeros)
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>Status flag bit definitions (TSI RF command)
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>  Bit 0  Laser fault                    Bit 5  Autocal failed
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>  Bit 1  Total flow out of range        Bit 6  Internal temp &lt; 10 °C
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>  Bit 2  Sheath flow out of range       Bit 7  Internal temp &gt; 40 °C
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>  Bit 3  Excessive sample concentration Bit 8  Detector voltage ±10 % Vb
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>  Bit 4  Accumulator clipped (&gt;65535)   Bit 9  Reserved
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>┌─────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>│  STAGE 1: _QC()                                                     │
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>│  ┌──────────────────────┐                                           │
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>│  │ Rule: Status Error   │  Status Flags ≠ all zeros                 │
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>│  └──────────────────────┘                                           │
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>│  ┌──────────────────────┐  ┌──────────────────────┐                 │
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>│  │ Rule: Insufficient   │  │ Rule: Invalid Number │                 │
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>│  ├──────────────────────┤  │       Conc           │                 │
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>│  │ &lt; 50% hourly data    │  ├──────────────────────┤                 │
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>│  └──────────────────────┘  │ Total outside 1-700  │                 │
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>│                            │ #/cm³                │                 │
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>│                            └──────────────────────┘                 │
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>│                                                                     │
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>│  STAGE 2: _process()                                                │
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>│   Returns the dN/dlogDp bins + QC_Flag (raw status column dropped)  │
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>│                                                                     │
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>│  STAGE 3: __call__ → finalize_size_dist()  [L3 sidecars]            │
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>│   same four CSVs as SMPS; diameters in µm                           │
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>└─────────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<h4 id="grimm">GRIMM</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>┌─────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>│  STAGE 1: _QC()                                                     │
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>│  │ Rule: No Data          │  │ Rule: Negative Conc    │             │
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>│  │ All channels NaN       │  │ Any channel &lt; 0        │             │
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>│  └────────────────────────┘  └────────────────────────┘             │
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>│  ┌────────────────────────┐                                         │
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>│  │ Rule: Insufficient     │  &lt; 50% hourly data (uses the DETECTED   │
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>│  └────────────────────────┘  frequency, not the config value)       │
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>│                                                                     │
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>│  No concentration range check: no sample corpus to calibrate one    │
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>│  against, and a wrong threshold silently deletes good data.         │
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>Output: size channels, QC_Flag
 </code></pre></div>
 <h3 id="scattering-instruments">Scattering Instruments</h3>
 <h4 id="neph-aurora">NEPH / Aurora</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>QC Thresholds
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  MIN_SCAT_VALUE = 0     Mm⁻¹
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  MAX_SCAT_VALUE = 2000  Mm⁻¹
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>  STATUS_OK      = 0     (numeric status code)
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>┌─────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>│  STAGE 1: _QC()                                                     │
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>│  ┌────────────────────────┐                                         │
-<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>│  │ Rule: Status Error     │  Status ≠ 0 (if column present)         │
-<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>│  └────────────────────────┘                                         │
-<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
-<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>│  │ Rule: No Data          │  │ Rule: Invalid Scat     │             │
-<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
-<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>│  │ All columns NaN        │  │ Value ≤ 0  OR          │             │
-<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>│  └────────────────────────┘  │ Value &gt; 2000 Mm⁻¹      │             │
-<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>│  ┌────────────────────────┐  └────────────────────────┘             │
-<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>│  │ Rule: Invalid Scat Rel │  Blue &lt; Green &lt; Red                     │
-<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>│  ├────────────────────────┤  (violates physics)                     │
-<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>│  │ Wavelength ordering    │                                         │
-<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>│  └────────────────────────┘                                         │
-<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>│  ┌────────────────────────┐                                         │
-<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>│  │ Rule: Insufficient     │  &lt; 50% hourly data                      │
-<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>│  └────────────────────────┘                                         │
-<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>│                                                                     │
-<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>│  STAGE 2: _process()                                                │
-<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>│   Calculate _scaCoe() → sca_550, SAE                                │
-<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>└─────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>
-<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>Wavelength dependence check — expected ordering:
-<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a>  Scattering ↑
-<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a>    B *
-<a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a>       \
-<a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a>        G *
-<a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a>           \
-<a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a>            R *
-<a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a>    ──┴────┴────┴── Wavelength →
-<a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a>     450  550  700
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>QC Thresholds
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  MIN_SCAT_VALUE = 0     Mm⁻¹
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  MAX_SCAT_VALUE = 2000  Mm⁻¹
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>  STATUS_OK      = 0     (numeric status code)
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>┌─────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>│  STAGE 1: _QC()                                                     │
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>│  ┌────────────────────────┐                                         │
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>│  │ Rule: Status Error     │  Status ≠ 0. NEPH: `status` from the `Y` │
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>│  └────────────────────────┘  record; Aurora: `S1` (0 = ambient,      │
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>│                              4 = zero/span check on filtered air)   │
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>│  │ Rule: No Data          │  │ Rule: Invalid Scat     │             │
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>│  │ All columns NaN        │  │ Value ≤ 0  OR          │             │
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>│  └────────────────────────┘  │ Value &gt; 2000 Mm⁻¹      │             │
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>│  ┌────────────────────────┐  └────────────────────────┘             │
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>│  │ Rule: Invalid Scat Rel │  Blue &lt; Green &lt; Red                     │
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>│  ├────────────────────────┤  (violates physics)                     │
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>│  │ Wavelength ordering    │                                         │
+<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>│  └────────────────────────┘                                         │
+<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>│  ┌────────────────────────┐                                         │
+<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>│  │ Rule: Insufficient     │  &lt; 50% hourly data                      │
+<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>│  └────────────────────────┘                                         │
+<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>│                                                                     │
+<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>│  STAGE 2: _process()                                                │
+<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>│   Calculate _scaCoe() → sca_550, SAE                                │
+<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>
+<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>Wavelength dependence check — expected ordering:
+<a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a>  Scattering ↑
+<a id="__codelineno-11-32" name="__codelineno-11-32" href="#__codelineno-11-32"></a>    B *
+<a id="__codelineno-11-33" name="__codelineno-11-33" href="#__codelineno-11-33"></a>       \
+<a id="__codelineno-11-34" name="__codelineno-11-34" href="#__codelineno-11-34"></a>        G *
+<a id="__codelineno-11-35" name="__codelineno-11-35" href="#__codelineno-11-35"></a>           \
+<a id="__codelineno-11-36" name="__codelineno-11-36" href="#__codelineno-11-36"></a>            R *
+<a id="__codelineno-11-37" name="__codelineno-11-37" href="#__codelineno-11-37"></a>    ──┴────┴────┴── Wavelength →
+<a id="__codelineno-11-38" name="__codelineno-11-38" href="#__codelineno-11-38"></a>     450  550  700
 </code></pre></div>
 <h3 id="mass-concentration-instruments">Mass Concentration Instruments</h3>
 <h4 id="teom">TEOM</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>QC Thresholds
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  MAX_NOISE = 0.01
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  STATUS_OK = 0       (status is a 32-bit bitfield; tested bitwise)
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>┌─────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>│  STAGE 1: _QC()                                                     │
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>│  ┌────────────────────────┐                                         │
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>│  │ Rule: Status Error     │  Any non-whitelisted warning bit set    │
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>│  └────────────────────────┘                                         │
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>│  │ Rule: High Noise       │  │ Rule: Non-positive     │             │
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>│  │ noise ≥ 0.01           │  │ PM_NV ≤ 0  OR          │             │
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>│  └────────────────────────┘  │ PM_Total ≤ 0           │             │
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>│  ┌────────────────────────┐  └────────────────────────┘             │
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>│  │ Rule: NV &gt; Total       │                                         │
-<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>│  ├────────────────────────┤                                         │
-<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>│  │ PM_NV &gt; PM_Total       │                                         │
-<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>│  │ (physically impossible)│                                         │
-<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a>│  └────────────────────────┘                                         │
-<a id="__codelineno-11-21" name="__codelineno-11-21" href="#__codelineno-11-21"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
-<a id="__codelineno-11-22" name="__codelineno-11-22" href="#__codelineno-11-22"></a>│  │ Rule: Spike            │  │ Rule: Insufficient     │             │
-<a id="__codelineno-11-23" name="__codelineno-11-23" href="#__codelineno-11-23"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
-<a id="__codelineno-11-24" name="__codelineno-11-24" href="#__codelineno-11-24"></a>│  │ Sudden value change    │  │ &lt; 50% hourly data      │             │
-<a id="__codelineno-11-25" name="__codelineno-11-25" href="#__codelineno-11-25"></a>│  │ (vectorised)           │  │                        │             │
-<a id="__codelineno-11-26" name="__codelineno-11-26" href="#__codelineno-11-26"></a>│  └────────────────────────┘  └────────────────────────┘             │
-<a id="__codelineno-11-27" name="__codelineno-11-27" href="#__codelineno-11-27"></a>│                                                                     │
-<a id="__codelineno-11-28" name="__codelineno-11-28" href="#__codelineno-11-28"></a>│  STAGE 2: _process()                                                │
-<a id="__codelineno-11-29" name="__codelineno-11-29" href="#__codelineno-11-29"></a>│   Volatile_Fraction = (PM_Total - PM_NV) / PM_Total                 │
-<a id="__codelineno-11-30" name="__codelineno-11-30" href="#__codelineno-11-30"></a>└─────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-11-31" name="__codelineno-11-31" href="#__codelineno-11-31"></a>Output: PM_NV, PM_Total, Volatile_Fraction, QC_Flag
-</code></pre></div>
-<h4 id="bam1020">BAM1020</h4>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>QC Thresholds
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  MIN_CONC = 0    µg/m³
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  MAX_CONC = 500  µg/m³
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  MAX_NOISE = 0.01
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  STATUS_OK = 0       (status is a 32-bit bitfield; tested bitwise)
 <a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>┌─────────────────────────────────────────────────────────────────────┐
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>│  STAGE 1: _QC()                                                     │
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>│  │ Rule: Invalid Conc     │  │ Rule: Spike            │             │
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>│  │ Conc ≤ 0  OR           │  │ Sudden value change    │             │
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>│  │ Conc &gt; 500 µg/m³       │  │ (vectorised)           │             │
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>│  └────────────────────────┘  └────────────────────────┘             │
-<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>└─────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>Output: Conc, QC_Flag
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>│  ┌────────────────────────┐                                         │
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>│  │ Rule: Status Error     │  Any non-whitelisted warning bit set    │
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>│  └────────────────────────┘                                         │
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>│  │ Rule: High Noise       │  │ Rule: Non-positive     │             │
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>│  │ noise ≥ 0.01           │  │ PM_NV ≤ 0  OR          │             │
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>│  └────────────────────────┘  │ PM_Total ≤ 0           │             │
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>│  ┌────────────────────────┐  └────────────────────────┘             │
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>│  │ Rule: NV &gt; Total       │                                         │
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>│  ├────────────────────────┤                                         │
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>│  │ PM_NV &gt; PM_Total       │                                         │
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>│  │ (physically impossible)│                                         │
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a>│  └────────────────────────┘                                         │
+<a id="__codelineno-12-21" name="__codelineno-12-21" href="#__codelineno-12-21"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
+<a id="__codelineno-12-22" name="__codelineno-12-22" href="#__codelineno-12-22"></a>│  │ Rule: Spike            │  │ Rule: Insufficient     │             │
+<a id="__codelineno-12-23" name="__codelineno-12-23" href="#__codelineno-12-23"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
+<a id="__codelineno-12-24" name="__codelineno-12-24" href="#__codelineno-12-24"></a>│  │ Sudden value change    │  │ &lt; 50% hourly data      │             │
+<a id="__codelineno-12-25" name="__codelineno-12-25" href="#__codelineno-12-25"></a>│  │ (vectorised)           │  │                        │             │
+<a id="__codelineno-12-26" name="__codelineno-12-26" href="#__codelineno-12-26"></a>│  └────────────────────────┘  └────────────────────────┘             │
+<a id="__codelineno-12-27" name="__codelineno-12-27" href="#__codelineno-12-27"></a>│                                                                     │
+<a id="__codelineno-12-28" name="__codelineno-12-28" href="#__codelineno-12-28"></a>│  STAGE 2: _process()                                                │
+<a id="__codelineno-12-29" name="__codelineno-12-29" href="#__codelineno-12-29"></a>│   Volatile_Fraction = (PM_Total - PM_NV) / PM_Total                 │
+<a id="__codelineno-12-30" name="__codelineno-12-30" href="#__codelineno-12-30"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-12-31" name="__codelineno-12-31" href="#__codelineno-12-31"></a>Output: PM_NV, PM_Total, Volatile_Fraction, QC_Flag
+</code></pre></div>
+<h4 id="bam1020">BAM1020</h4>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>QC Thresholds
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>  MIN_CONC = 0    µg/m³
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>  MAX_CONC = 500  µg/m³
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>┌─────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>│  STAGE 1: _QC()                                                     │
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>│  │ Rule: Invalid Conc     │  │ Rule: Spike            │             │
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>│  │ Conc ≤ 0  OR           │  │ Sudden value change    │             │
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>│  │ Conc &gt; 500 µg/m³       │  │ (vectorised)           │             │
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>│  └────────────────────────┘  └────────────────────────┘             │
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>Output: Conc, QC_Flag
 </code></pre></div>
 <h3 id="chemical-composition-instruments">Chemical Composition Instruments</h3>
 <h4 id="ocec">OCEC</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>QC Thresholds              Detection Limits (MDL)
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>  MIN_VALUE = -5  µgC/m³     Thermal_OC : 0.3   µgC/m³
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>  MAX_VALUE = 100 µgC/m³     Thermal_EC : 0.015 µgC/m³
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>                             Optical_OC : 0.3   µgC/m³
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>                             Optical_EC : 0.015 µgC/m³
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>┌─────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>│  STAGE 1: _QC()                                                     │
-<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>│  │ Rule: Invalid Carbon   │  │ Rule: Below MDL        │             │
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>│  │ Value ≤ -5  OR         │  │ Below method detection │             │
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>│  │ Value &gt; 100 µgC/m³     │  │ limit                  │             │
-<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>│  └────────────────────────┘  └────────────────────────┘             │
-<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
-<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>│  │ Rule: Spike            │  │ Rule: Missing OC       │             │
-<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
-<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>│  │ Sudden value change    │  │ Thermal_OC/Optical_OC  │             │
-<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>│  │ (vectorised)           │  │ missing                │             │
-<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a>│  └────────────────────────┘  └────────────────────────┘             │
-<a id="__codelineno-13-21" name="__codelineno-13-21" href="#__codelineno-13-21"></a>└─────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-13-22" name="__codelineno-13-22" href="#__codelineno-13-22"></a>Output: Thermal_OC, Thermal_EC, Optical_OC, Optical_EC, TC, OC1-4, PC, QC_Flag
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>QC Thresholds              Detection Limits (MDL)
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  MIN_VALUE = -5  µgC/m³     Thermal_OC : 0.3   µgC/m³
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>  MAX_VALUE = 100 µgC/m³     Thermal_EC : 0.015 µgC/m³
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>                             Optical_OC : 0.3   µgC/m³
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>                             Optical_EC : 0.015 µgC/m³
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>┌─────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>│  STAGE 1: _QC()                                                     │
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>│  │ Rule: Invalid Carbon   │  │ Rule: Below MDL        │             │
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>│  │ Value ≤ -5  OR         │  │ Below method detection │             │
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>│  │ Value &gt; 100 µgC/m³     │  │ limit                  │             │
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>│  └────────────────────────┘  └────────────────────────┘             │
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>│  │ Rule: Spike            │  │ Rule: Missing OC       │             │
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>│  │ Sudden value change    │  │ Thermal_OC/Optical_OC  │             │
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>│  │ (vectorised)           │  │ missing                │             │
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>│  └────────────────────────┘  └────────────────────────┘             │
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a>Output: Thermal_OC, Thermal_EC, Optical_OC, Optical_EC, TC, OC1-4, PC, QC_Flag
 </code></pre></div>
 <h4 id="igac">IGAC</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>Detection Limits (MDL, µg/m³)
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  Na+  0.06   NH4+ 0.05   K+   0.05   Mg2+ 0.12   Ca2+ 0.07
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>  Cl-  0.07   NO2- 0.05   NO3- 0.11   SO4²⁻ 0.08
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>┌─────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>│  STAGE 1: _QC()                                                     │
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>│  │ Rule: Mass Closure     │  │ Rule: Missing Main     │             │
-<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
-<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>│  │ Total ions &gt; PM2.5     │  │ NH4+/SO4²⁻/NO3-        │             │
-<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>│  └────────────────────────┘  │ missing                │             │
-<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>│  ┌────────────────────────┐  └────────────────────────┘             │
-<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>│  │ Rule: Below MDL        │  ┌────────────────────────┐             │
-<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a>│  ├────────────────────────┤  │ Rule: Ion Balance      │             │
-<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a>│  │ Concentration &lt; MDL    │  ├────────────────────────┤             │
-<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a>│  └────────────────────────┘  │ Cation/Anion ratio     │             │
-<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a>│                              │ outside valid range    │             │
-<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a>│                              └────────────────────────┘             │
-<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a>└─────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a>Output: ion columns, QC_Flag
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>Detection Limits (MDL, µg/m³)
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>  Na+  0.06   NH4+ 0.05   K+   0.05   Mg2+ 0.12   Ca2+ 0.07
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>  Cl-  0.07   NO2- 0.05   NO3- 0.11   SO4²⁻ 0.08
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>┌─────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>│  STAGE 1: _QC()                                                     │
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>│  ┌────────────────────────┐  ┌────────────────────────┐             │
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>│  │ Rule: Mass Closure     │  │ Rule: Missing Main     │             │
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>│  ├────────────────────────┤  ├────────────────────────┤             │
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>│  │ Total ions &gt; PM2.5     │  │ NH4+/SO4²⁻/NO3-        │             │
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>│  └────────────────────────┘  │ missing                │             │
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>│  ┌────────────────────────┐  └────────────────────────┘             │
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a>│  │ Rule: Above MR         │  ┌────────────────────────┐             │
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>│  ├────────────────────────┤  │ Rule: Ion Balance      │             │
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a>│  │ Conc &gt; measurement     │  ├────────────────────────┤             │
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>│  │ range (from config)    │  │ Cation/Anion ratio     │             │
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a>│  └────────────────────────┘  │ outside valid range    │             │
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a>│                              └────────────────────────┘             │
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>│  Below MDL → per-species DIAGNOSTIC in the log, not a flag          │
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a>Output: every spec species present (gases included), QC_Flag
 </code></pre></div>
+<p>MDL and MR come from <code>meta['IGAC']</code> (the vendor spec) — the reader used to carry
+a second, disagreeing copy of the 9 aerosol ions and drop the gas species
+entirely. Below-MDL is reported per species instead of flagged, because a
+non-<code>Valid</code> flag NaNs the whole row and would take the other species with it.</p>
 <h3 id="other-data-sources">Other Data Sources</h3>
 <h4 id="epa">EPA</h4>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>┌─────────────────────────────────────────────────────────────────────┐
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>│  STAGE 1: _QC()                                                     │
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>│  ┌────────────────────────┐                                         │
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>│  │ Rule: Negative Value   │  Any measurement value &lt; 0              │
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>│  └────────────────────────┘                                         │
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>└─────────────────────────────────────────────────────────────────────┘
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>Output: all columns, QC_Flag
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>┌─────────────────────────────────────────────────────────────────────┐
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>│  STAGE 1: _QC()                                                     │
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>│  ┌────────────────────────┐                                         │
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>│  │ Rule: Negative Value   │  Any measurement value &lt; 0              │
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>│  └────────────────────────┘                                         │
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>└─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>Output: all columns, QC_Flag
 </code></pre></div>
 <hr />
 <h2 id="qc-summary-table">QC Summary Table</h2>
@@ -4769,13 +4935,13 @@ the summary is emitted directly inside <code>_QC</code>.</p>
 <td>OCEC</td>
 <td>Yes</td>
 <td>4</td>
-<td>Invalid Carbon, Below MDL, Spike, Missing OC</td>
+<td>Invalid Carbon, Below MDL <em>(advisory)</em>, Spike, Missing OC</td>
 </tr>
 <tr>
 <td>IGAC</td>
 <td>Yes</td>
 <td>4</td>
-<td>Mass Closure, Missing Main, Below MDL, Ion Balance</td>
+<td>Mass Closure, Missing Main, Above MR, Ion Balance</td>
 </tr>
 <tr>
 <td>EPA</td>
@@ -4784,25 +4950,35 @@ the summary is emitted directly inside <code>_QC</code>.</p>
 <td>Negative</td>
 </tr>
 <tr>
-<td>VOC</td>
-<td>—</td>
-<td>0</td>
-<td>not implemented</td>
-</tr>
-<tr>
-<td>XRF / Xact</td>
-<td>—</td>
-<td>0</td>
-<td>not implemented</td>
+<td>Xact</td>
+<td>Yes</td>
+<td>5</td>
+<td>Calibration Mode, Instrument Error, Upscale Warning <em>(advisory)</em>, Invalid Value, Internal Std Drift</td>
 </tr>
 <tr>
 <td>GRIMM</td>
+<td>Yes</td>
+<td>3</td>
+<td>No Data, Negative Conc, Insufficient</td>
+</tr>
+<tr>
+<td>Q-ACSM</td>
 <td>—</td>
-<td>0</td>
-<td>not implemented</td>
+<td>—</td>
+<td>reader not implemented yet (registered as <em>pending</em>)</td>
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Every reader now produces a <code>QC_Flag</code></p>
+<p>GRIMM used to be a pass-through, which crashed the default <code>qc=True</code> path
+with <code>AttributeError: … 'report_dict'</code>. It now has three rules, and
+<code>self.report_dict</code> defaults to <code>{}</code> so a future flag-less reader degrades to
+a rate-less report instead of raising.</p>
+<p><code>VOC</code> and <code>Minion</code> used to share that problem; both were <strong>removed</strong> from the
+reader (pre-aggregated second-hand data with no raw log to parse) and now
+raise a <code>KeyError</code> with migration advice.</p>
+</div>
 <hr />
 <h2 id="rate-calculation">Rate Calculation</h2>
 <p>The <code>report.json</code> contains three rates, all computed from <code>QC_Flag</code>. A period
@@ -4884,7 +5060,7 @@ the summary is emitted directly inside <code>_QC</code>.</p>
 <tr>
 <td>GRIMM</td>
 <td style="text-align: right;">6 min</td>
-<td>size-distribution statistics</td>
+<td>size-channel concentrations</td>
 </tr>
 <tr>
 <td>TEOM</td>
@@ -4910,11 +5086,6 @@ the summary is emitted directly inside <code>_QC</code>.</p>
 <td>Xact</td>
 <td style="text-align: right;">1 h</td>
 <td>element concentrations</td>
-</tr>
-<tr>
-<td>VOC</td>
-<td style="text-align: right;">1 h</td>
-<td>VOC concentrations</td>
 </tr>
 <tr>
 <td>EPA</td>
@@ -4945,7 +5116,7 @@ the summary is emitted directly inside <code>_QC</code>.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2026 15:42:27 UTC">May 29, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 27, 2026 09:17:52 UTC">July 27, 2026</span>
   </span>
 
     
@@ -4990,7 +5161,7 @@ the summary is emitted directly inside <code>_QC</code>.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../rawdatareader/" class="md-footer__link md-footer__link--prev" aria-label="Previous: RawDataReader">
+          <a href="../counting-efficiency/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Counting Efficiency (CPC &amp; APS)">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -5000,7 +5171,7 @@ the summary is emitted directly inside <code>_QC</code>.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                RawDataReader
+                Counting Efficiency (CPC & APS)
               </div>
             </div>
           </a>
@@ -5082,7 +5253,7 @@ the summary is emitted directly inside <code>_QC</code>.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

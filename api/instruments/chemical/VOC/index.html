@@ -12,25 +12,25 @@
         <link rel="canonical" href="https://alex870521.github.io/AeroViz/api/instruments/chemical/VOC/">
       
       
-        <link rel="prev" href="../OCEC/">
+        <link rel="prev" href="../Xact/">
       
       
-        <link rel="next" href="../Xact/">
+        <link rel="next" href="../../mass/TEOM/">
       
       
         
       
       
       <link rel="icon" href="../../../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>VOC - AeroViz</title>
+        <title>VOC (no reader) - AeroViz</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#volatile-organic-compounds-analyzer-voc" class="md-skip">
+        <a href="#voc-data-no-reader" class="md-skip">
           Skip to content
         </a>
       
@@ -161,7 +161,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              VOC
+              VOC (no reader)
             
           </span>
         </div>
@@ -618,6 +618,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -698,7 +704,91 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../guide/rawdatareader-internals/" class="md-nav__link">
+      <a href="../../../../guide/data-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Levels (L0-L3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/instrument-qc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instrument Formats & QC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/counting-efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Counting Efficiency (CPC & APS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/reader-internals/" class="md-nav__link">
         
   
   
@@ -2127,6 +2217,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../Xact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Xact
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -2146,7 +2264,7 @@
   <span class="md-ellipsis">
     
   
-    VOC
+    VOC (no reader)
   
 
     
@@ -2164,7 +2282,7 @@
   <span class="md-ellipsis">
     
   
-    VOC
+    VOC (no reader)
   
 
     
@@ -2190,21 +2308,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#data-format" class="md-nav__link">
+  <a href="#typical-file-shape" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Format
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#measurement-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Measurement Parameters
+        Typical file shape
       
     </span>
   </a>
@@ -2227,7 +2334,7 @@
   <a href="#species-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Species Parameters:
+        Species Parameters
       
     </span>
   </a>
@@ -2240,71 +2347,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-processing" class="md-nav__link">
+  <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Processing
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Data Processing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#data-reading" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Reading
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#quality-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quality Control
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#output-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Output Data
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Usage Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Notes
+        See also
       
     </span>
   </a>
@@ -2315,34 +2361,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../Xact/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Xact
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -3541,21 +3559,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#data-format" class="md-nav__link">
+  <a href="#typical-file-shape" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Format
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#measurement-parameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Measurement Parameters
+        Typical file shape
       
     </span>
   </a>
@@ -3578,7 +3585,7 @@
   <a href="#species-parameters" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Species Parameters:
+        Species Parameters
       
     </span>
   </a>
@@ -3591,71 +3598,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-processing" class="md-nav__link">
+  <a href="#see-also" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Data Processing
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Data Processing">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#data-reading" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Reading
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#quality-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quality Control
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#output-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Output Data
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#usage-example" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Usage Example
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#notes" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Notes
+        See also
       
     </span>
   </a>
@@ -3682,46 +3628,37 @@
   
 
 
-<h1 id="volatile-organic-compounds-analyzer-voc">Volatile Organic Compounds Analyzer (VOC)</h1>
-<p>The VOC analyzer measures concentrations of various volatile organic compounds in air.</p>
+<h1 id="voc-data-no-reader">VOC Data (no reader)</h1>
+<p>VOC measurements reach AeroViz as <strong>pre-aggregated, second-hand data</strong> — somebody
+else's processed output, not an instrument's raw log.</p>
 <div class="admonition warning">
-<p class="admonition-title">Deprecated</p>
-<p><code>RawDataReader('VOC', ...)</code> is <strong>deprecated</strong> and will be removed in a future
-release. The VOC reader is a thin CSV loader with no VOC-specific logic.
-Read the file directly (e.g. <code>pandas.read_csv</code> with a datetime index) and
-pass the DataFrame to <a href="../../../DataProcess/VOC/"><code>AeroViz.voc</code> / <code>voc_potentials</code></a>,
-which validates species against <code>support_voc.json</code>.</p>
+<p class="admonition-title">There is no VOC reader</p>
+<p><code>RawDataReader('VOC', ...)</code> was <strong>removed</strong>: with no raw format to parse, the
+reader was only doing generic CSV loading. Read the file yourself and pass the
+DataFrame to <a href="../../../DataProcess/VOC/"><code>AeroViz.voc</code> / <code>voc_potentials</code></a>,
+which validates species against <code>support_voc.json</code> — the single source of
+truth for the species list and its coefficients.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
 <a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;voc.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                 <span class="n">na_values</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;N.D.&#39;</span><span class="p">))</span>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">out</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>   <span class="c1"># validates species; computes OFP / SOAP / LOH</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="c1"># Normalize non-canonical names, e.g.</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;isoprene&#39;</span><span class="p">:</span> <span class="s1">&#39;Isoprene&#39;</span><span class="p">,</span> <span class="s1">&#39;m,p-Xylene&#39;</span><span class="p">:</span> <span class="s1">&#39;m/p-Xylene&#39;</span><span class="p">})</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="n">out</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>   <span class="c1"># {&#39;Conc&#39;, &#39;OFP&#39;, &#39;SOAP&#39;, &#39;LOH&#39;}</span>
 </code></pre></div>
+<p>Calling the removed reader raises a <code>KeyError</code> repeating this advice.</p>
 </div>
-<h2 id="data-format">Data Format</h2>
+<h2 id="typical-file-shape">Typical file shape</h2>
 <ul>
-<li>File format: CSV file</li>
-<li>Sampling frequency: Variable</li>
-<li>File naming pattern: <code>*.csv</code></li>
-<li>Data structure:<ul>
-<li>Datetime index</li>
-<li>VOC species columns</li>
-<li>Special values:<ul>
-<li>'-' treated as NA</li>
-<li>'N.D.' (Not Detected) treated as NA</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<h2 id="measurement-parameters">Measurement Parameters</h2>
-<p>The VOC analyzer provides:</p>
-<ul>
-<li>Multiple VOC species measurements</li>
-<li>Concentration data for each compound</li>
-<li>Species-specific detection limits</li>
+<li>CSV, one row per sampling period, datetime in the first column</li>
+<li>Hourly is common, but the interval depends on whoever produced the file</li>
+<li><code>-</code> and <code>N.D.</code> (not detected) are the usual missing-value markers</li>
+<li>Column names are species names, and they are <strong>not</strong> standardised across
+  providers — normalise them to the <code>support_voc.json</code> spelling before calling
+  <code>voc_potentials</code>, which raises on an unknown species</li>
 </ul>
 <h2 id="supported-voc-species">Supported VOC Species</h2>
 <p>The analyzer supports the following VOC species:</p>
@@ -4307,69 +4244,21 @@ which validates species against <code>support_voc.json</code>.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="species-parameters">Species Parameters:</h3>
+<h3 id="species-parameters">Species Parameters</h3>
 <ul>
-<li>MIR: Maximum Incremental Reactivity</li>
-<li>MW: Molecular Weight</li>
-<li>SOAP: Secondary Organic Aerosol Potential</li>
-<li>KOH: Rate constant for the reaction with OH radicals</li>
+<li><strong>MIR</strong> — Maximum Incremental Reactivity</li>
+<li><strong>MW</strong> — Molecular Weight</li>
+<li><strong>SOAP</strong> — Secondary Organic Aerosol Potential</li>
+<li><strong>KOH</strong> — rate constant for the reaction with the OH radical</li>
 </ul>
-<h2 id="data-processing">Data Processing</h2>
-<h3 id="data-reading">Data Reading</h3>
+<p><code>null</code> means the coefficient is not defined for that species; the corresponding
+potential is returned as NaN rather than zero.</p>
+<h2 id="see-also">See also</h2>
 <ul>
-<li>Processes CSV files with datetime index</li>
-<li>Handles special values as NA</li>
-<li>Standardizes column names (strips whitespace)</li>
-<li>Removes duplicate / invalid timestamps</li>
-<li>Returns every column as-is — the reader does <strong>not</strong> filter or validate
-  species names. Species selection and validation against the supported list
-  (<code>AeroViz/dataProcess/VOC/support_voc.json</code>, the single source of truth) is
-  done by the downstream process (<code>AeroViz.voc</code>), which raises on unknown
-  species names.</li>
-</ul>
-<h3 id="quality-control">Quality Control</h3>
-<ul>
-<li>Basic file validation</li>
-<li>No additional QC currently implemented</li>
-<li>Future QC possibilities:<ul>
-<li>Minimum detection limit filtering</li>
-<li>Value range checks</li>
-<li>Time-based outlier detection</li>
-<li>Correlation checks between species</li>
-</ul>
-</li>
-</ul>
-<h2 id="output-data">Output Data</h2>
-<p>The processed data contains:</p>
-<ul>
-<li>Time index: Data acquisition time</li>
-<li>VOC species: Concentrations of supported compounds</li>
-<li>All measurements in standard units</li>
-<li>Validated species names</li>
-</ul>
-<h2 id="usage-example">Usage Example</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># Read the VOC CSV directly (the VOC reader is deprecated).</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">dt_VOC</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data/VOC/voc.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>                     <span class="n">na_values</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;N.D.&#39;</span><span class="p">))</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">dt_VOC</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">dt_VOC</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="c1"># Normalize any non-canonical species names to match support_voc.json.</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">dt_VOC</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;isoprene&#39;</span><span class="p">:</span> <span class="s1">&#39;Isoprene&#39;</span><span class="p">,</span> <span class="s1">&#39;m,p-Xylene&#39;</span><span class="p">:</span> <span class="s1">&#39;m/p-Xylene&#39;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="c1"># Validates species against support_voc.json, returns {&#39;Conc&#39;,&#39;OFP&#39;,&#39;SOAP&#39;,&#39;LOH&#39;}.</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">result</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">dt_VOC</span><span class="p">)</span>
-</code></pre></div>
-<h2 id="notes">Notes</h2>
-<ul>
-<li>Critical for air quality assessment</li>
-<li>Important for photochemical reaction studies</li>
-<li>Helps identify secondary organic aerosol sources</li>
-<li>Requires predefined species list</li>
-<li>Species name standardization essential</li>
-<li>Some species may have missing parameters (marked as "null")</li>
-<li>Analysis includes concentration, MIR, SOAP, and KOH values</li>
+<li><a href="../../../DataProcess/VOC/">DataProcess / VOC</a> — <code>voc_potentials</code> API and outputs</li>
+<li><a href="../../../../guide/voc_analysis/">VOC Analysis guide</a> — end-to-end workflow</li>
+<li><a href="../../../../guide/data-levels/#resolved">Data Levels §7</a> — why the reader was
+  withdrawn</li>
 </ul>
 
 
@@ -4393,7 +4282,7 @@ which validates species against <code>support_voc.json</code>.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2026 18:02:52 UTC">May 29, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 26, 2026 10:32:28 UTC">July 26, 2026</span>
   </span>
 
     
@@ -4438,7 +4327,7 @@ which validates species against <code>support_voc.json</code>.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../OCEC/" class="md-footer__link md-footer__link--prev" aria-label="Previous: OCEC">
+          <a href="../Xact/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Xact">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4448,20 +4337,20 @@ which validates species against <code>support_voc.json</code>.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                OCEC
+                Xact
               </div>
             </div>
           </a>
         
         
           
-          <a href="../Xact/" class="md-footer__link md-footer__link--next" aria-label="Next: Xact">
+          <a href="../../mass/TEOM/" class="md-footer__link md-footer__link--next" aria-label="Next: TEOM">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Xact
+                TEOM
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -4530,7 +4419,7 @@ which validates species against <code>support_voc.json</code>.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

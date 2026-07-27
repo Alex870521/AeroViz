@@ -12,17 +12,17 @@
         <link rel="canonical" href="https://alex870521.github.io/AeroViz/api/instruments/chemical/Xact/">
       
       
-        <link rel="prev" href="../VOC/">
+        <link rel="prev" href="../OCEC/">
       
       
-        <link rel="next" href="../../mass/TEOM/">
+        <link rel="next" href="../VOC/">
       
       
         
       
       
       <link rel="icon" href="../../../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -618,6 +618,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -698,7 +704,91 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../guide/rawdatareader-internals/" class="md-nav__link">
+      <a href="../../../../guide/data-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Levels (L0-L3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/instrument-qc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instrument Formats & QC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/counting-efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Counting Efficiency (CPC & APS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../guide/reader-internals/" class="md-nav__link">
         
   
   
@@ -2127,34 +2217,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../VOC/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    VOC
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -2426,6 +2488,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader._sample_time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _sample_time
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.Xact.Reader.ELEMENTS" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2463,6 +2536,61 @@
     <span class="md-ellipsis">
       
         WARNING_CODES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.MANUAL_MDL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MANUAL_MDL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.MANUAL_SAMPLE_TIMES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MANUAL_SAMPLE_TIMES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.DETECTION_SIGMA" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DETECTION_SIGMA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.QUANTIFICATION_SIGMA" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QUANTIFICATION_SIGMA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.RELIABLE_FRACTION" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RELIABLE_FRACTION
       
     </span>
   </a>
@@ -2513,6 +2641,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.MDL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MDL
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2522,13 +2661,35 @@
   <a href="#AeroViz.rawDataReader.script.Xact.Reader-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Functions
+        Methods:
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Functions">
+    <nav class="md-nav" aria-label="Methods:">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.manual_mdl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        manual_mdl
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.element_reliability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        element_reliability
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.Xact.Reader._raw_reader" class="md-nav__link">
@@ -2546,6 +2707,17 @@
     <span class="md-ellipsis">
       
         _QC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader._report_element_reliability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _report_element_reliability
       
     </span>
   </a>
@@ -2582,6 +2754,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../VOC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VOC (no reader)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3988,6 +4188,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader._sample_time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _sample_time
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.Xact.Reader.ELEMENTS" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4025,6 +4236,61 @@
     <span class="md-ellipsis">
       
         WARNING_CODES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.MANUAL_MDL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MANUAL_MDL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.MANUAL_SAMPLE_TIMES" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MANUAL_SAMPLE_TIMES
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.DETECTION_SIGMA" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DETECTION_SIGMA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.QUANTIFICATION_SIGMA" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QUANTIFICATION_SIGMA
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.RELIABLE_FRACTION" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RELIABLE_FRACTION
       
     </span>
   </a>
@@ -4075,6 +4341,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.MDL" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MDL
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4084,13 +4361,35 @@
   <a href="#AeroViz.rawDataReader.script.Xact.Reader-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Functions
+        Methods:
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Functions">
+    <nav class="md-nav" aria-label="Methods:">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.manual_mdl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        manual_mdl
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader.element_reliability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        element_reliability
+      
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.Xact.Reader._raw_reader" class="md-nav__link">
@@ -4108,6 +4407,17 @@
     <span class="md-ellipsis">
       
         _QC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.Xact.Reader._report_element_reliability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _report_element_reliability
       
     </span>
   </a>
@@ -4562,6 +4872,29 @@ which measure elemental composition of particulate matter.</p>
 
 
 
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader._sample_time" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">_sample_time</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_sample_time</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h5 id="AeroViz.rawDataReader.script.Xact.Reader.ELEMENTS" class="doc doc-heading">
             <span class="doc doc-object-name doc-attribute-name">ELEMENTS</span>
 
@@ -4642,6 +4975,121 @@ which measure elemental composition of particulate matter.</p>
 
 </h5>
 <div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">WARNING_CODES</span> <span class="o">=</span> <span class="p">{</span><span class="mi">200</span><span class="p">:</span> <span class="s1">&#39;Upscale Cr Warning&#39;</span><span class="p">,</span> <span class="mi">201</span><span class="p">:</span> <span class="s1">&#39;Upscale Pb Warning&#39;</span><span class="p">,</span> <span class="mi">202</span><span class="p">:</span> <span class="s1">&#39;Upscale Cd Warning&#39;</span><span class="p">,</span> <span class="mi">203</span><span class="p">:</span> <span class="s1">&#39;Upscale Nb Warning&#39;</span><span class="p">}</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader.MANUAL_MDL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">MANUAL_MDL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">MANUAL_MDL</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Al&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">840</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mi">290</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span> <span class="s1">&#39;Si&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mi">51</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">17.8</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">6.3</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">3.4</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">2.2</span><span class="p">},</span> <span class="s1">&#39;P&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">44</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">5.2</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.64</span><span class="p">},</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">9.1</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">3.16</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.39</span><span class="p">},</span> <span class="s1">&#39;Cl&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">1.73</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.61</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.33</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.21</span><span class="p">},</span> <span class="s1">&#39;K&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">9.8</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">3.4</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">1.17</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.41</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.22</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.14</span><span class="p">},</span> <span class="s1">&#39;Ca&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.86</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.057</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.037</span><span class="p">},</span> <span class="s1">&#39;Ti&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.46</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.16</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.056</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.03</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">},</span> <span class="s1">&#39;V&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.34</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.042</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.023</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.015</span><span class="p">},</span> <span class="s1">&#39;Cr&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.97</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.33</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.041</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.022</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.014</span><span class="p">},</span> <span class="s1">&#39;Mn&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">1.2</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.41</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.14</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.027</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.018</span><span class="p">},</span> <span class="s1">&#39;Fe&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">1.4</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.49</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.17</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.061</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.033</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.021</span><span class="p">},</span> <span class="s1">&#39;Co&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.39</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.14</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.049</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.026</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.017</span><span class="p">},</span> <span class="s1">&#39;Ni&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.78</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.27</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.034</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.018</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.012</span><span class="p">},</span> <span class="s1">&#39;Cu&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.65</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.23</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.079</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.028</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.015</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">},</span> <span class="s1">&#39;Zn&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.19</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.067</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.023</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.013</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.008</span><span class="p">},</span> <span class="s1">&#39;As&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.52</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.18</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.063</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.022</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.012</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.008</span><span class="p">},</span> <span class="s1">&#39;Se&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.66</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.23</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.081</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.029</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.016</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">},</span> <span class="s1">&#39;Br&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.037</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.013</span><span class="p">},</span> <span class="s1">&#39;Ag&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">5.5</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">1.9</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.68</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.37</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.24</span><span class="p">},</span> <span class="s1">&#39;Cd&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">7.2</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.89</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.48</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.31</span><span class="p">},</span> <span class="s1">&#39;In&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">8.9</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">3.1</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.39</span><span class="p">},</span> <span class="s1">&#39;Sn&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">33</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">4.1</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">1.4</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.78</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.51</span><span class="p">},</span> <span class="s1">&#39;Sb&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">5.2</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">1.8</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.64</span><span class="p">},</span> <span class="s1">&#39;Ba&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">3.3</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.39</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.14</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.074</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.048</span><span class="p">},</span> <span class="s1">&#39;Hg&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.99</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.35</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.043</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.023</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.015</span><span class="p">},</span> <span class="s1">&#39;Tl&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.33</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.12</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.041</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.022</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.014</span><span class="p">},</span> <span class="s1">&#39;Pb&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.36</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.13</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.045</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.024</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.016</span><span class="p">},</span> <span class="s1">&#39;Bi&#39;</span><span class="p">:</span> <span class="p">{</span><span class="mi">15</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="mf">0.37</span><span class="p">,</span> <span class="mi">60</span><span class="p">:</span> <span class="mf">0.13</span><span class="p">,</span> <span class="mi">120</span><span class="p">:</span> <span class="mf">0.046</span><span class="p">,</span> <span class="mi">180</span><span class="p">:</span> <span class="mf">0.025</span><span class="p">,</span> <span class="mi">240</span><span class="p">:</span> <span class="mf">0.016</span><span class="p">}}</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader.MANUAL_SAMPLE_TIMES" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">MANUAL_SAMPLE_TIMES</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">MANUAL_SAMPLE_TIMES</span> <span class="o">=</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">240</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader.DETECTION_SIGMA" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">DETECTION_SIGMA</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DETECTION_SIGMA</span> <span class="o">=</span> <span class="mi">3</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader.QUANTIFICATION_SIGMA" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">QUANTIFICATION_SIGMA</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">QUANTIFICATION_SIGMA</span> <span class="o">=</span> <span class="mi">10</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader.RELIABLE_FRACTION" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">RELIABLE_FRACTION</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">RELIABLE_FRACTION</span> <span class="o">=</span> <span class="mf">0.75</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4742,8 +5190,103 @@ which measure elemental composition of particulate matter.</p>
 
 </div>
 
+<div class="doc doc-object doc-attribute">
 
-<h4 id="AeroViz.rawDataReader.script.Xact.Reader-functions">Functions</h4>
+
+
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader.MDL" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">MDL</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">MDL</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Per-element 1σ detection limits (ng/m³) for this run's sample time.</p>
+<p>The manual's table wins where it has an entry, because it is the vendor's
+own specification <em>and</em> it varies with sample time — a 15-minute sample
+has ~8× the detection limit of a 60-minute one, so a single fixed number
+is only right for one configuration. <code>config/supported_instruments.py</code>
+supplies the rest (elements CES publishes no limit for); those are marked
+as unverified by <code>element_reliability</code>.</p>
+<p>Used for the per-element below-MDL diagnostic, never as a row-level flag
+— see <code>log_below_mdl</code>.</p>
+
+    </div>
+
+</div>
+
+
+<h4 id="AeroViz.rawDataReader.script.Xact.Reader-functions">Methods:</h4>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader.manual_mdl" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">manual_mdl</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">manual_mdl</span><span class="p">(</span><span class="n">sample_time</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="dict">dict</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The manual's detection limits at <code>sample_time</code> minutes.</p>
+<p>Falls back to the sample time seen in the data (<code>SAMPLE_TIME</code>), then to
+60 minutes. A time between two tabulated ones takes the <em>longer</em> column,
+which is the conservative direction: a shorter sample cannot have a lower
+detection limit than the manual quotes for a longer one.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader.element_reliability" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">element_reliability</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">element_reliability</span><span class="p">(</span><span class="n">df</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pd.DataFrame">DataFrame</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Classify each element by how well the instrument actually measured it.</p>
+<p>The <code>{element}_uncert</code> columns are 1σ uncertainties on the same basis as
+the manual's detection limits, so Currie's criteria apply directly:
+a value is <em>detected</em> at <code>&gt;= 3σ</code> and <em>quantifiable</em> at <code>&gt;= 10σ</code>. An
+element is classed by the fraction of the run's samples reaching each:</p>
+<p><code>quantitative</code>       usable as a time series
+<code>semi-quantitative</code>  detected, but the magnitudes carry large error
+<code>below-detection</code>    reported, but indistinguishable from noise</p>
+<p>Whether the <em>manual</em> specifies the element is reported separately, in
+<code>manual_mdl</code> / <code>published_limit</code>. The two axes are independent and
+both matter: an element measured at 100 sigma with no published detection
+limit (the internal standard, Nb) is empirically solid but has no vendor
+accuracy to appeal to, while one that is in the manual and still sits
+below detection is simply not present at this site. Collapsing them would
+hide one or the other.</p>
+<p>This is per <strong>element</strong>, not per row, and that is the point: on a 45-column
+XRF frame the interesting question is never "is this row bad" but "which
+of these columns can I use". A row-level rule over all elements fires on
+~100 % of rows (measured), which says nothing.</p>
+<p>Returns a DataFrame indexed by element, worst first.</p>
+
+
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-function">
 
@@ -4792,7 +5335,34 @@ to _QC() and _process() stages.</p>
 <li>Invalid Value         : Element concentration outside valid range (0-100000 ng/m3)</li>
 <li>Internal Std Drift    : Nb internal standard deviates ±20% from median</li>
 </ol>
+<p>Detection limits (<code>MDL</code>, from the config) are reported per element in the
+log rather than flagged: with 45 elements, "any element below its MDL" is
+true for practically every row, and a non-<code>Valid</code> flag NaNs the whole row
+downstream — flagging it would delete the dataset. See <code>log_below_mdl</code>.</p>
 </details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.script.Xact.Reader._report_element_reliability" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_report_element_reliability</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_report_element_reliability</span><span class="p">(</span><span class="n">reliability</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Log the per-element verdicts and write them next to the other outputs.</p>
+<p>The sidecar is the actionable artifact: it tells you which of the 45
+columns to build a time series from, which to treat as indicative, and
+which are noise the instrument reports because it was configured to.</p>
+
 
     </div>
 
@@ -4946,7 +5516,7 @@ to _QC() and _process() stages.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../VOC/" class="md-footer__link md-footer__link--prev" aria-label="Previous: VOC">
+          <a href="../OCEC/" class="md-footer__link md-footer__link--prev" aria-label="Previous: OCEC">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4956,20 +5526,20 @@ to _QC() and _process() stages.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                VOC
+                OCEC
               </div>
             </div>
           </a>
         
         
           
-          <a href="../../mass/TEOM/" class="md-footer__link md-footer__link--next" aria-label="Next: TEOM">
+          <a href="../VOC/" class="md-footer__link md-footer__link--next" aria-label="Next: VOC (no reader)">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                TEOM
+                VOC (no reader)
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -5038,7 +5608,7 @@ to _QC() and _process() stages.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../../javascripts/mathjax.js"></script>
       

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -30,7 +30,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -618,6 +618,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -698,7 +704,91 @@
   
   
     <li class="md-nav__item">
-      <a href="../../guide/rawdatareader-internals/" class="md-nav__link">
+      <a href="../../guide/data-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Levels (L0-L3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/instrument-qc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instrument Formats & QC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/counting-efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Counting Efficiency (CPC & APS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/reader-internals/" class="md-nav__link">
         
   
   
@@ -1581,6 +1671,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader._qc_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _qc_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._resolved_freq" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1757,6 +1858,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.qc_severity_overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qc_severity_overrides
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader.quiet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1772,6 +1884,17 @@
     <span class="md-ellipsis">
       
         raw_freq
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.report_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        report_dict
       
     </span>
   </a>
@@ -1842,12 +1965,12 @@
   <a href="#AeroViz.rawDataReader.core.AbstractReader-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Functions
+        Methods:
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Functions">
+    <nav class="md-nav" aria-label="Methods:">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1983,6 +2106,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader._resample" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _resample
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._restore_parse_meta" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2049,10 +2183,76 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.check_status_columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        check_status_columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.extend_qc_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extend_qc_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.log_below_mdl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        log_below_mdl
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.log_qc_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        log_qc_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader.progress_reading" class="md-nav__link">
     <span class="md-ellipsis">
       
         progress_reading
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.qc_builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qc_builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.qc_columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qc_columns
       
     </span>
   </a>
@@ -2802,14 +3002,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/chemical/VOC/" class="md-nav__link">
+      <a href="../instruments/chemical/Xact/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    VOC
+    Xact
   
 
     
@@ -2830,14 +3030,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../instruments/chemical/Xact/" class="md-nav__link">
+      <a href="../instruments/chemical/VOC/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Xact
+    VOC (no reader)
   
 
     
@@ -4146,6 +4346,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader._qc_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _qc_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._resolved_freq" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4322,6 +4533,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.qc_severity_overrides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qc_severity_overrides
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader.quiet" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4337,6 +4559,17 @@
     <span class="md-ellipsis">
       
         raw_freq
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.report_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        report_dict
       
     </span>
   </a>
@@ -4407,12 +4640,12 @@
   <a href="#AeroViz.rawDataReader.core.AbstractReader-functions" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Functions
+        Methods:
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Functions">
+    <nav class="md-nav" aria-label="Methods:">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -4548,6 +4781,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader._resample" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _resample
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._restore_parse_meta" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4614,10 +4858,76 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.check_status_columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        check_status_columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.extend_qc_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extend_qc_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.log_below_mdl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        log_below_mdl
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.log_qc_summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        log_qc_summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader.progress_reading" class="md-nav__link">
     <span class="md-ellipsis">
       
         progress_reading
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.qc_builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qc_builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.qc_columns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qc_columns
       
     </span>
   </a>
@@ -5097,7 +5407,30 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_output_prefix</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;output_prefix&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="sa">f</span><span class="s1">&#39;output_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_output_prefix</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs)">kwargs</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;output_prefix&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="sa">f</span><span class="s1">&#39;output_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)">self</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam">nam</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">&#39;</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader._qc_summary" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">_qc_summary</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">_qc_summary</span> <span class="o">=</span> <span class="kc">None</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5163,7 +5496,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">csv_nam</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;_read_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">_qc.csv&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">csv_nam</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;_read_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)">self</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam">nam</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">_qc.csv&#39;</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5185,7 +5518,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">csv_nam_raw</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;_read_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">_raw.csv&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">csv_nam_raw</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;_read_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)">self</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam">nam</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">_raw.csv&#39;</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5207,7 +5540,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">csv_out</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)._output_prefix">_output_prefix</span></span><span class="si">}</span><span class="s1">.csv&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">csv_out</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)">self</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)._output_prefix">_output_prefix</span></span><span class="si">}</span><span class="s1">.csv&#39;</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5229,7 +5562,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">fill_missing</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;fill_missing&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">fill_missing</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs)">kwargs</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;fill_missing&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5273,7 +5606,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">logger</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.logger.ReaderLogger">ReaderLogger</span></span><span class="p">(</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam">nam</span></span><span class="p">,</span> <span class="n"><span title="output_folder">output_folder</span></span><span class="p">,</span> <span class="n"><span title="upper">upper</span></span><span class="p">(),</span> <span class="n"><span title="AeroViz.rawDataReader.core.logger.ReaderLogger(quiet)">quiet</span></span><span class="o">=</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).quiet">quiet</span></span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">logger</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.logger.ReaderLogger">ReaderLogger</span></span><span class="p">(</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)">self</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam">nam</span></span><span class="p">,</span> <span class="n"><span title="output_folder">output_folder</span></span><span class="p">,</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs)">kwargs</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;log_level&#39;</span><span class="p">,</span> <span class="s1">&#39;INFO&#39;</span><span class="p">)</span><span class="o">.</span><span class="n"><span title="upper">upper</span></span><span class="p">(),</span> <span class="n"><span title="AeroViz.rawDataReader.core.logger.ReaderLogger(quiet)">quiet</span></span><span class="o">=</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)">self</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).quiet">quiet</span></span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5295,7 +5628,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">meta</span> <span class="o">=</span> <span class="n"><span title="meta">meta</span></span><span class="p">[</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam">nam</span></span><span class="p">]</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">meta</span> <span class="o">=</span> <span class="n"><span title="meta">meta</span></span><span class="p">[</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)">self</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam">nam</span></span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5384,7 +5717,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">pkl_nam</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;_read_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">_qc.pkl&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">pkl_nam</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;_read_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)">self</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam">nam</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">_qc.pkl&#39;</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5406,7 +5739,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">pkl_nam_raw</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;_read_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">_raw.pkl&#39;</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">pkl_nam_raw</span> <span class="o">=</span> <span class="n"><span title="output_folder">output_folder</span></span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;_read_</span><span class="si">{</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self)">self</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam">nam</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(self).nam.lower">lower</span></span><span class="p">()</span><span class="si">}</span><span class="s1">_raw.pkl&#39;</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5463,6 +5796,28 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
 
 
 
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.qc_severity_overrides" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">qc_severity_overrides</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">qc_severity_overrides</span> <span class="o">=</span> <span class="n"><span title="dict">dict</span></span><span class="p">(</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs)">kwargs</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;flag_severity&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{})</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
 <h5 id="AeroViz.rawDataReader.core.AbstractReader.quiet" class="doc doc-heading">
             <span class="doc doc-object-name doc-attribute-name">quiet</span>
 
@@ -5472,7 +5827,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">quiet</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;quiet&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">quiet</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs)">kwargs</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;quiet&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5494,7 +5849,29 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">raw_freq</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;raw_freq&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">raw_freq</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs)">kwargs</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;raw_freq&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.report_dict" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">report_dict</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">report_dict</span> <span class="o">=</span> <span class="p">{}</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5560,7 +5937,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">save_intermediate_csv</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;save_intermediate_csv&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">save_intermediate_csv</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs)">kwargs</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;save_intermediate_csv&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5582,7 +5959,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">save_pkl</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;save_pkl&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">save_pkl</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs)">kwargs</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;save_pkl&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5604,7 +5981,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">save_report</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;save_report&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">save_report</span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs)">kwargs</span></span><span class="o">.</span><span class="n"><span title="AeroViz.rawDataReader.core.AbstractReader(kwargs).get">get</span></span><span class="p">(</span><span class="s1">&#39;save_report&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5614,7 +5991,7 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
 </div>
 
 
-<h4 id="AeroViz.rawDataReader.core.AbstractReader-functions">Functions</h4>
+<h4 id="AeroViz.rawDataReader.core.AbstractReader-functions">Methods:</h4>
 
 <div class="doc doc-object doc-function">
 
@@ -6145,7 +6522,7 @@ derived parameters (e.g., absorption coefficients, AAE, SAE).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Quality-controlled DataFrame with QC_Flag column</p>
+                <p>Quality-controlled DataFrame carrying <code>QC_Flag</code> and <code>QC_Invalid</code></p>
               </div>
             </td>
             <td>
@@ -6171,7 +6548,7 @@ derived parameters (e.g., absorption coefficients, AAE, SAE).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>DataFrame with derived parameters added and QC_Flag updated</p>
+                <p>DataFrame with derived parameters added and the QC columns updated</p>
               </div>
             </td>
           </tr>
@@ -6183,10 +6560,26 @@ derived parameters (e.g., absorption coefficients, AAE, SAE).</p>
   <summary>Notes</summary>
   <p>Default implementation returns the input unchanged.
 Override in child classes to implement instrument-specific processing.</p>
-<p>The method should:
-1. Skip calculation for rows where QC_Flag != 'Valid' (optional optimization)
-2. Calculate derived parameters
-3. Validate derived parameters and update QC_Flag if invalid</p>
+<p>The method should:</p>
+<ol>
+<li>Calculate derived parameters for <strong>every</strong> row, flagged or not.</li>
+<li>Judge the derived parameters and record the verdict with
+   <code>update_qc_flag(df, mask, name, severity=...)</code>.</li>
+<li>Log the combined summary via <code>extend_qc_summary</code> + <code>log_qc_summary</code>
+   when it added a rule of its own.</li>
+</ol>
+<p>Do <strong>not</strong> skip rows that <code>_QC</code> already flagged. An earlier version of
+this docstring offered that as an optimisation; it is wrong twice over.
+L2's contract (rule R2 in <code>docs/guide/data-levels.md</code>) is to judge
+without destroying, so a derived value belongs in <code>_read_*_qc.csv</code>
+whatever the verdict — that file is where a user goes to see <em>why</em> a row
+was rejected, and a NaN there answers nothing. And since severity
+arrived, a flagged row is not necessarily an invalid one: skipping
+"flagged" rows would silently drop derived values for rows that are kept.</p>
+<p>Rules are independent and deliberately overlap — one row can be both
+<code>Status Error</code> and <code>Invalid AAE</code> — so the per-rule counts in a QC
+summary do not sum to the total. <code>Valid</code> and <code>Usable</code> are the totals
+that mean something.</p>
 </details>
 
     </div>
@@ -6321,6 +6714,31 @@ Override in child classes to implement instrument-specific processing.</p>
   <summary>Notes</summary>
   <p>Handles file reading and initial processing.</p>
 </details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader._resample" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_resample</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_resample</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">mean_freq</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Average <code>df</code> onto <code>mean_freq</code>; a no-op when none was requested.</p>
+<p><code>mean()</code> silently drops non-numeric columns, which is how text metadata
+(a status string, an instrument ID) vanishes between the native-resolution
+and resampled outputs. That is the right behaviour — there is no sensible
+mean of a status string — but it should not be silent, so the dropped
+columns are named in the log once.</p>
+
 
     </div>
 
@@ -6697,6 +7115,304 @@ their nearest bin without the duplicate-fill of <code>method='nearest'</code>.</
 <div class="doc doc-object doc-function">
 
 
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.check_status_columns" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">check_status_columns</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">check_status_columns</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">candidates</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Which of <code>candidates</code> are present, warning loudly when none are.</p>
+<p><code>filter_error_status</code> returns all-False for a column it cannot find, so
+a renamed status column degrades to "this instrument reported no errors,
+ever" — indistinguishable from a healthy instrument. Vendors <em>do</em> rename
+it between host-software versions (SMPS AIM 10.3 vs 11.x split the same
+information across differently-named columns), so the absence has to be
+visible.</p>
+<p>Returns the present names so a caller can OR their masks together.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.extend_qc_summary" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">extend_qc_summary</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">extend_qc_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n"><span title="pandas.Series">Series</span></span><span class="p">,</span> <span class="n">description</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">severity</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.qc.ERROR">ERROR</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Add a <code>_process</code>-stage rule to a <code>_QC</code> summary and refresh the totals.</p>
+<p><code>_QC</code> builds the summary before derived quantities exist, so a rule like
+<code>Invalid AAE</code> can only be counted later. The new row is inserted <em>above</em>
+the trailing <code>Valid</code> / <code>Usable</code> totals, and both totals are then
+recomputed from <code>df</code>'s QC columns so they account for the late rule.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>summary</code>
+            </td>
+            <td>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The table returned by <code>QCFlagBuilder.get_summary</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>df</code>
+            </td>
+            <td>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The frame <em>after</em> <code>update_qc_flag</code> applied <code>rule</code>.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>rule</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The late rule's name, boolean mask, description and severity.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mask</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The late rule's name, boolean mask, description and severity.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>description</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The late rule's name, boolean mask, description and severity.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>severity</code>
+            </td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The late rule's name, boolean mask, description and severity.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.log_below_mdl" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">log_below_mdl</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">log_below_mdl</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">mdl</span><span class="p">:</span> <span class="n"><span title="dict">dict</span></span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">top</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">10</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Report, per column, how much of it sits below its detection limit.</p>
+<p>A value below the MDL is a <em>valid measurement of a low concentration</em> (or
+a non-detect), not a broken row — so this is a diagnostic, not a QC rule.
+Deliberately so: any non-<code>Valid</code> flag NaNs the whole row in
+<code>__call__</code>, and with tens of species/elements per row "any one below
+MDL" is true almost always, which would delete the dataset. Use this to
+see which species are near their limits, then decide per analysis.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>df</code>
+            </td>
+            <td>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The frame to inspect (columns not in <code>mdl</code> are ignored).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mdl</code>
+            </td>
+            <td>
+                  <code><span title="dict">dict</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>{column: limit}</code>; entries whose limit is <code>None</code> are skipped.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>top</code>
+            </td>
+            <td>
+                  <code><span title="int">int</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>How many of the worst-affected columns to log.</p>
+              </div>
+            </td>
+            <td>
+                  <code>10</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="pandas.DataFrame">DataFrame</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>One row per column with <code>below</code>, <code>measured</code> and <code>percentage</code>,
+sorted worst-first. Empty if nothing could be evaluated.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.log_qc_summary" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">log_qc_summary</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">log_qc_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Log a <code>QCFlagBuilder.get_summary</code> table.</p>
+<p>Advisory rules are marked so it is obvious which flags kept their data.
+<code>Valid</code> (passed everything) and <code>Usable</code> (nothing invalidating) are
+both reported — they differ by the rows carrying only advisory flags.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h5 id="AeroViz.rawDataReader.core.AbstractReader.progress_reading" class="doc doc-heading">
             <span class="doc doc-object-name doc-function-name">progress_reading</span>
 
@@ -6768,6 +7484,58 @@ their nearest bin without the duplicate-fill of <code>method='nearest'</code>.</
   <summary>Notes</summary>
   <p>Uses rich library for progress display.</p>
 </details>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.qc_builder" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">qc_builder</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">qc_builder</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n"><span title="AeroViz.rawDataReader.core.qc.QCFlagBuilder">QCFlagBuilder</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>A <code>QCFlagBuilder</code> carrying this run's severity overrides.</p>
+<p>Readers should use this instead of <code>QCFlagBuilder()</code> directly so that
+<code>flag_severity={'Insufficient': 'warning'}</code> reaches their rules, and so
+a rule that raises is reported through the reader's log.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.qc_columns" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">qc_columns</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">qc_columns</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>The QC bookkeeping columns present in <code>df</code>, in a stable order.</p>
+<p>Readers that narrow their output to a fixed column list must carry both
+of them through — <code>QC_Flag</code> (the record) <em>and</em> <code>QC_Invalid</code> (the
+verdict the presentation layer masks on). Slicing with a hard-coded
+<code>+ ['QC_Flag']</code> silently drops the verdict, which would make every flag
+fatal again.</p>
+
 
     </div>
 
@@ -6895,12 +7663,14 @@ their nearest bin without the duplicate-fill of <code>method='nearest'</code>.</
   </span>
 
 </h5>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">update_qc_flag</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n"><span title="pandas.Series">Series</span></span><span class="p">,</span> <span class="n">flag_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">update_qc_flag</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n"><span title="pandas.Series">Series</span></span><span class="p">,</span> <span class="n">flag_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">severity</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.qc.ERROR">ERROR</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>Update QC_Flag column for rows matching the mask.</p>
+        <p>Add a flag to <code>QC_Flag</code> for rows matching the mask, after <code>_QC</code> ran.</p>
+<p>Used by <code>_process</code> to flag something that can only be judged once
+derived quantities exist (e.g. <code>Invalid AAE</code>).</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -6962,6 +7732,23 @@ their nearest bin without the duplicate-fill of <code>method='nearest'</code>.</
                 <em>required</em>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>severity</code>
+            </td>
+            <td>
+                  <code>(<span title="error">error</span>, <span title="warning">warning</span>)</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p><code>'error'</code> also marks the rows invalid, so they are masked in the
+public output; <code>'warning'</code> records the flag only.</p>
+              </div>
+            </td>
+            <td>
+                  <code>&#39;error&#39;</code>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -6981,7 +7768,8 @@ their nearest bin without the duplicate-fill of <code>method='nearest'</code>.</
             </td>
             <td>
               <div class="doc-md-description">
-                <p>DataFrame with updated QC_Flag column</p>
+                <p>DataFrame with updated <code>QC_Flag</code> (and <code>QC_Invalid</code> when the flag
+is invalidating)</p>
               </div>
             </td>
           </tr>
@@ -7193,7 +7981,7 @@ their nearest bin without the duplicate-fill of <code>method='nearest'</code>.</
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

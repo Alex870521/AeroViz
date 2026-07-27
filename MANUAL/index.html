@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -612,6 +612,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -692,7 +698,91 @@
   
   
     <li class="md-nav__item">
-      <a href="../guide/rawdatareader-internals/" class="md-nav__link">
+      <a href="../guide/data-levels/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Data Levels (L0-L3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/instrument-qc/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instrument Formats & QC
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/counting-efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Counting Efficiency (CPC & APS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guide/reader-internals/" class="md-nav__link">
         
   
   
@@ -2110,14 +2200,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/instruments/chemical/VOC/" class="md-nav__link">
+      <a href="../api/instruments/chemical/Xact/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    VOC
+    Xact
   
 
     
@@ -2138,14 +2228,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../api/instruments/chemical/Xact/" class="md-nav__link">
+      <a href="../api/instruments/chemical/VOC/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Xact
+    VOC (no reader)
   
 
     
@@ -4386,12 +4476,7 @@ The file-glob pattern and native frequency come from the instrument config.</p>
 <tr>
 <td><code>Q-ACSM</code></td>
 <td>Aerosol Chemical Speciation Monitor</td>
-<td>30 min</td>
-</tr>
-<tr>
-<td><code>VOC</code></td>
-<td>Volatile organic compounds</td>
-<td>1 h</td>
+<td>30 min · <strong>reader not implemented yet</strong></td>
 </tr>
 </tbody>
 </table>
@@ -4410,17 +4495,15 @@ The file-glob pattern and native frequency come from the instrument config.</p>
 <td>Taiwan EPA air-quality data</td>
 <td>1 h</td>
 </tr>
-<tr>
-<td><code>Minion</code></td>
-<td>Minion sensor</td>
-<td>1 h</td>
-</tr>
 </tbody>
 </table>
 <blockquote>
-<p>Note: <code>IGAC</code>, <code>Minion</code>, <code>EPA</code>, <code>VOC</code>, and <code>BAM1020</code> are typically read from
-pre-aggregated / second-hand data — pass <code>mean_freq=None</code> to keep their native
-resolution.</p>
+<p>Note: <code>IGAC</code>, <code>EPA</code>, and <code>BAM1020</code> are read from pre-aggregated /
+second-hand data — pass <code>mean_freq=None</code> to keep their native resolution.</p>
+<p><code>VOC</code> and <code>Minion</code> were <strong>removed</strong> from <code>RawDataReader</code>: they are somebody
+else's processed output with no raw log to parse, so read them with pandas and
+pass the DataFrame straight to the analysis functions (VOC → <code>voc_potentials</code>).
+Calling them raises a <code>KeyError</code> that says as much.</p>
 </blockquote>
 <p>You can always confirm the current list at runtime:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.rawDataReader.config.supported_instruments</span><span class="w"> </span><span class="kn">import</span> <span class="n">meta</span>
@@ -5111,7 +5194,7 @@ unrecognized column raises <code>KeyError</code>.</p>
 <a id="__codelineno-38-6" name="__codelineno-38-6" href="#__codelineno-38-6"></a><span class="n">ofp</span><span class="p">[</span><span class="n">species</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
 </code></pre></div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-39-1" name="__codelineno-39-1" href="#__codelineno-39-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="c1"># The VOC reader is deprecated — read the CSV directly and pass to voc_potentials.</span>
+<a id="__codelineno-39-2" name="__codelineno-39-2" href="#__codelineno-39-2"></a><span class="c1"># There is no VOC reader — read the CSV directly and pass it to voc_potentials.</span>
 <a id="__codelineno-39-3" name="__codelineno-39-3" href="#__codelineno-39-3"></a><span class="n">voc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;/data/VOC/voc.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <a id="__codelineno-39-4" name="__codelineno-39-4" href="#__codelineno-39-4"></a>                  <span class="n">na_values</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;N.D.&#39;</span><span class="p">))</span>
 <a id="__codelineno-39-5" name="__codelineno-39-5" href="#__codelineno-39-5"></a><span class="n">voc</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">voc</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -5341,7 +5424,7 @@ concatenating frames with conflicting attrs. <code>attrs</code> survive pickling
 <ul>
 <li><strong>Guides:</strong> <code>docs/guide/</code> — <code>rawdatareader.md</code>, <code>size_distribution.md</code>,
   <code>chemical_analysis.md</code>, <code>optical_closure.md</code>, <code>voc_analysis.md</code>,
-  <code>visualization.md</code>, <code>dataprocess.md</code>, <code>rawdatareader-internals.md</code>.</li>
+  <code>visualization.md</code>, <code>dataprocess.md</code>, <code>reader-internals.md</code>.</li>
 <li><strong>Theory:</strong> <code>docs/theory/</code> — <code>mie.md</code>, <code>improve.md</code>, <code>mass_reconstruction.md</code>,
   <code>kappa.md</code>, <code>lognormal.md</code>, <code>icrp.md</code>, <code>ofp.md</code>.</li>
 <li><strong>API reference:</strong> <code>docs/api/</code> and the published docs at
@@ -5375,7 +5458,7 @@ concatenating frames with conflicting attrs. <code>attrs</code> survive pickling
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2026 18:02:52 UTC">May 29, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 26, 2026 18:29:07 UTC">July 26, 2026</span>
   </span>
 
     
@@ -5474,7 +5557,7 @@ concatenating frames with conflicting attrs. <code>attrs</code> survive pickling
       <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../javascripts/mathjax.js"></script>
       

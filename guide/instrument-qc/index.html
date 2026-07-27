@@ -9,13 +9,13 @@
       
       
       
-        <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/rawdatareader/">
+        <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/instrument-qc/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../data-levels/">
       
       
-        <link rel="next" href="../data-levels/">
+        <link rel="next" href="../counting-efficiency/">
       
       
         
@@ -26,7 +26,7 @@
     
     
       
-        <title>RawDataReader - AeroViz</title>
+        <title>Instrument Formats & QC - AeroViz</title>
       
     
     
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#rawdatareader-tutorial" class="md-skip">
+        <a href="#instrument-formats-qc" class="md-skip">
           Skip to content
         </a>
       
@@ -161,7 +161,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              RawDataReader
+              Instrument Formats & QC
             
           </span>
         </div>
@@ -683,37 +683,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    RawDataReader
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../rawdatareader/" class="md-nav__link">
         
   
   
@@ -729,309 +702,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#basic-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Basic Usage
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#parameter-description" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Parameter Description
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Parameter Description">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#optional-date-range" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Optional date range
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#native-resolution-mean_freq" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Native resolution (mean_freq)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reading-result-metadata-dfattrs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading result metadata (df.attrs)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fill_missing-pad-vs-clamp-the-time-grid" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        fill_missing: pad vs. clamp the time grid
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#supported-instruments" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Supported Instruments
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Supported Instruments">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#black-carbon-absorption" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Black Carbon / Absorption
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#scattering" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Scattering
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#size-distribution" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Size Distribution
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#chemical-composition" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Chemical Composition
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#quality-control" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Quality Control
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Quality Control">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#qc-report" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        QC Report
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#force-re-read" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Force Re-read
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#output-files" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Output Files
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advanced-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Advanced Usage
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Advanced Usage">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#specify-size-range-smpsaps" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Specify Size Range (SMPS/APS)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#multi-instrument-integration" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Multi-instrument Integration
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#common-issues" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Common Issues
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Common Issues">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#data-path-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Path Format
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#time-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Time Format
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#insufficient-memory" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Insufficient Memory
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#related-topics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Related Topics
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1069,10 +739,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../instrument-qc/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instrument Formats & QC
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1088,6 +785,325 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-how-a-status-judgement-is-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. How a status judgement is made
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-where-a-judgement-is-recorded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Where a judgement is recorded
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Where a judgement is recorded">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#qc_flag-vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        QC_Flag vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-aethalometers-bc-monitors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Aethalometers / BC monitors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Aethalometers / BC monitors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ae33" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AE33
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ae43" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AE43
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bc1054" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BC1054
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ma350" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MA350
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-particle-sizers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Particle sizers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Particle sizers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#smps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SMPS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#aps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        APS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grimm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GRIMM
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-nephelometers-mass-chemistry-external-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Nephelometers, mass, chemistry, external sources
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Nephelometers, mass, chemistry, external sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#aurora" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aurora
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#neph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NEPH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TEOM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bam1020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BAM1020
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ocec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCEC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#igac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IGAC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Xact
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#epa-external-pre-aggregated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EPA — external, pre-aggregated
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removed-voc-and-minion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed: VOC and Minion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-acsm-reader-not-implemented-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q-ACSM — reader not implemented yet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-coverage-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Coverage gaps
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-summary-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Summary matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -3785,10 +3801,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#basic-usage" class="md-nav__link">
+  <a href="#1-how-a-status-judgement-is-made" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Basic Usage
+        1. How a status judgement is made
       
     </span>
   </a>
@@ -3796,55 +3812,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#parameter-description" class="md-nav__link">
+  <a href="#2-where-a-judgement-is-recorded" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Parameter Description
+        2. Where a judgement is recorded
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Parameter Description">
+    <nav class="md-nav" aria-label="2. Where a judgement is recorded">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#optional-date-range" class="md-nav__link">
+  <a href="#qc_flag-vocabulary" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Optional date range
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#native-resolution-mean_freq" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Native resolution (mean_freq)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#reading-result-metadata-dfattrs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading result metadata (df.attrs)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fill_missing-pad-vs-clamp-the-time-grid" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        fill_missing: pad vs. clamp the time grid
+        QC_Flag vocabulary
       
     </span>
   </a>
@@ -3857,22 +3840,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#supported-instruments" class="md-nav__link">
+  <a href="#3-aethalometers-bc-monitors" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supported Instruments
+        3. Aethalometers / BC monitors
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Supported Instruments">
+    <nav class="md-nav" aria-label="3. Aethalometers / BC monitors">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#black-carbon-absorption" class="md-nav__link">
+  <a href="#ae33" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Black Carbon / Absorption
+        AE33
       
     </span>
   </a>
@@ -3880,10 +3863,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#scattering" class="md-nav__link">
+  <a href="#ae43" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Scattering
+        AE43
       
     </span>
   </a>
@@ -3891,10 +3874,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#size-distribution" class="md-nav__link">
+  <a href="#bc1054" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Size Distribution
+        BC1054
       
     </span>
   </a>
@@ -3902,10 +3885,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#chemical-composition" class="md-nav__link">
+  <a href="#ma350" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Chemical Composition
+        MA350
       
     </span>
   </a>
@@ -3918,22 +3901,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#quality-control" class="md-nav__link">
+  <a href="#4-particle-sizers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Quality Control
+        4. Particle sizers
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Quality Control">
+    <nav class="md-nav" aria-label="4. Particle sizers">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#qc-report" class="md-nav__link">
+  <a href="#smps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        QC Report
+        SMPS
       
     </span>
   </a>
@@ -3941,10 +3924,21 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#force-re-read" class="md-nav__link">
+  <a href="#aps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Force Re-read
+        APS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#grimm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GRIMM
       
     </span>
   </a>
@@ -3957,33 +3951,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#output-files" class="md-nav__link">
+  <a href="#5-nephelometers-mass-chemistry-external-sources" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Output Files
+        5. Nephelometers, mass, chemistry, external sources
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#advanced-usage" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Advanced Usage
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Advanced Usage">
+    <nav class="md-nav" aria-label="5. Nephelometers, mass, chemistry, external sources">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#specify-size-range-smpsaps" class="md-nav__link">
+  <a href="#aurora" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Specify Size Range (SMPS/APS)
+        Aurora
       
     </span>
   </a>
@@ -3991,10 +3974,98 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#multi-instrument-integration" class="md-nav__link">
+  <a href="#neph" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Multi-instrument Integration
+        NEPH
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#teom" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TEOM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bam1020" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BAM1020
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ocec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OCEC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#igac" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IGAC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#xact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Xact
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#epa-external-pre-aggregated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EPA — external, pre-aggregated
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#removed-voc-and-minion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed: VOC and Minion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-acsm-reader-not-implemented-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q-ACSM — reader not implemented yet
       
     </span>
   </a>
@@ -4007,60 +4078,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#common-issues" class="md-nav__link">
+  <a href="#6-coverage-gaps" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Common Issues
+        6. Coverage gaps
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Common Issues">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#data-path-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Data Path Format
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#time-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Time Format
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#insufficient-memory" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Insufficient Memory
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#related-topics" class="md-nav__link">
+  <a href="#7-summary-matrix" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Related Topics
+        7. Summary matrix
       
     </span>
   </a>
@@ -4087,362 +4119,1129 @@
   
 
 
-<h1 id="rawdatareader-tutorial">RawDataReader Tutorial</h1>
-<p>RawDataReader is the core data reading component of AeroViz, providing a unified interface for reading various aerosol instrument data.</p>
-<div class="admonition warning">
-<p class="admonition-title">Behaviour change</p>
-<p><code>mean_freq</code> no longer defaults to <code>'1h'</code>. The default is now <strong>no
-resampling</strong> — data is returned at its native resolution. Pass
-<code>mean_freq='1h'</code> (or <code>'30min'</code>, <code>'1D'</code>) explicitly to average. <code>start</code> and
-<code>end</code> are also optional now (previously both were required); omit them to
-read the files' full coverage.</p>
-</div>
-<h2 id="basic-usage">Basic Usage</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">RawDataReader</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1"># Minimal: read the files&#39; full coverage at native resolution</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span>           <span class="c1"># Instrument type</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/path/to/data&#39;</span><span class="p">),</span>  <span class="c1"># Data path</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">)</span>
-</code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># Bounded range with hourly averaging</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/path/to/data&#39;</span><span class="p">),</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>  <span class="c1"># optional start time</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">),</span>  <span class="c1"># optional end time</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">mean_freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span>               <span class="c1"># optional — resample to hourly means</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">)</span>
-</code></pre></div>
-<h2 id="parameter-description">Parameter Description</h2>
+<h1 id="instrument-formats-qc">Instrument Formats &amp; QC</h1>
+<blockquote>
+<p><strong>One page, three questions per instrument:</strong> what does the raw file look like,
+how is an instrument error decided, and where does that decision get recorded?</p>
+<p>This is the reference for everything <strong>L2</strong> does — the parsing recipe and the
+error/status semantics — for when a file won't parse, when <code>Status Error</code> fires
+on every row, or when it never fires at all. The
+<a href="../../api/instruments/">per-instrument API pages</a> cover <em>usage</em>; the
+level model that frames all of this is in
+<a href="../data-levels/">Data Levels (L0–L3)</a>, whose rules <strong>R2</strong> and <strong>R2a</strong> define
+what QC may and may not do to your data.</p>
+</blockquote>
+<hr />
+<h2 id="1-how-a-status-judgement-is-made">1. How a status judgement is made</h2>
+<p>Every status check goes through one function —
+<code>QualityControl.filter_error_status</code> (<code>core/qc.py</code>) — in one of <strong>four modes</strong>.
+The mode determines how the raw status value is interpreted <em>and</em> how the
+<code>ignored_status_errors</code> whitelist is applied.</p>
 <table>
 <thead>
 <tr>
-<th>Parameter</th>
-<th>Type</th>
-<th>Description</th>
-<th>Default</th>
+<th>Mode</th>
+<th>Raw value looks like</th>
+<th>Error when</th>
+<th>Instruments</th>
+<th><code>ignored_status_errors</code> entries are…</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>instrument</code></td>
-<td>str</td>
-<td>Instrument name</td>
-<td>Required</td>
+<td><code>bitwise</code></td>
+<td>integer, OR-summed bits (<code>0</code>, <code>4</code>, <code>536870912</code>)</td>
+<td>any non-whitelisted code in <code>ERROR_STATES</code> matches bitwise, or the value equals a <code>special_codes</code> entry</td>
+<td>AE33, AE43, BC1054, MA350, <strong>TEOM</strong></td>
+<td>integer codes/bits <strong>removed from the error definition</strong></td>
 </tr>
 <tr>
-<td><code>path</code></td>
-<td>Path</td>
-<td>Data folder path</td>
-<td>Required</td>
+<td><code>numeric</code></td>
+<td>flat integer code (<code>0</code>, <code>4</code>, <code>16</code>)</td>
+<td><code>status != ok_value</code> and not NaN</td>
+<td>Aurora, NEPH</td>
+<td>numeric codes <strong>treated as OK</strong></td>
 </tr>
 <tr>
-<td><code>start</code></td>
-<td>datetime</td>
-<td>Start time (optional)</td>
-<td><code>None</code> (files' first record)</td>
+<td><code>text</code></td>
+<td>free text, possibly comma-joined (<code>Normal Scan</code>, <code>Low aerosol flow,Neutralizer not active</code>)</td>
+<td>any token is neither <code>ok_value</code> nor whitelisted</td>
+<td>SMPS (six columns across two AIM dialects)</td>
+<td>string tokens, matched <strong>per token</strong></td>
 </tr>
 <tr>
-<td><code>end</code></td>
-<td>datetime</td>
-<td>End time (optional)</td>
-<td><code>None</code> (files' last record)</td>
-</tr>
-<tr>
-<td><code>mean_freq</code></td>
-<td>str</td>
-<td>Averaging frequency ('1h', '30min', '1D'); omit for native resolution</td>
-<td><code>None</code> (no resampling)</td>
-</tr>
-<tr>
-<td><code>fill_missing</code></td>
-<td>bool</td>
-<td><code>True</code> pads output to the requested range; <code>False</code> clamps to data coverage</td>
-<td><code>True</code></td>
-</tr>
-<tr>
-<td><code>reset</code></td>
-<td>bool</td>
-<td>Force re-read (ignore cache)</td>
-<td><code>False</code></td>
-</tr>
-<tr>
-<td><code>qc</code></td>
-<td>bool/str</td>
-<td>Quality control on/off, or QC report frequency ('1MS', '1D')</td>
-<td><code>True</code></td>
+<td><code>binary_string</code></td>
+<td>space-grouped bit string (<code>0000 0000 0000 0000</code>)</td>
+<td>any non-whitelisted bit remains set after clearing the whitelist mask</td>
+<td>APS</td>
+<td>integer bit masks <strong>cleared before testing</strong></td>
 </tr>
 </tbody>
 </table>
-<h3 id="optional-date-range">Optional date range</h3>
-<p><code>start</code> and <code>end</code> are independent. Omit both to read everything the files
-contain, or pass just one side to bound only that end:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Full coverage of the files in the folder</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Everything from a start date onwards (no upper bound)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1"># Everything up to an end date (no lower bound)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+<p>Two behaviours to know:</p>
+<ul>
+<li><strong>Empty means OK, always.</strong> In <code>text</code> mode the sentinels <code>''</code>, <code>'nan'</code> and
+  <code>'None'</code> are never errors. (<code>'None'</code> arrives when a column is missing from
+  <em>some</em> files of a multi-file concat: pandas fills with Python <code>None</code>, which
+  <code>astype(str)</code> renders as <code>'None'</code>.)</li>
+<li><strong>A missing status column reads as OK — but now says so.</strong> <code>filter_error_status</code>
+  returns all-<code>False</code> for a column it cannot find, which is deliberate (mixed
+  exports must not crash) but used to make a status rule <em>completely inert with no
+  signal</em>. Every status reader now calls <code>check_status_columns</code> first and logs a
+  warning naming what it looked for and what the file actually contains, so a new
+  export dialect surfaces instead of silently passing every fault.</li>
+</ul>
+<p>Entries in <code>ignored_status_errors</code> that don't fit a mode are skipped, so the same
+whitelist can be passed to any reader safely:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;TEOM&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">536870912</span><span class="p">])</span>          <span class="c1"># bitwise: ignore &quot;Dryer A&quot;</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;SMPS&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;Low aerosol flow&#39;</span><span class="p">])</span> <span class="c1"># text: per-token</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;APS&#39;</span><span class="p">,</span>  <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>               <span class="c1"># binary_string: clear bits 0,1</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;Aurora&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">])</span>            <span class="c1"># numeric: extra OK codes</span>
 </code></pre></div>
-<h3 id="native-resolution-mean_freq">Native resolution (<code>mean_freq</code>)</h3>
-<p>By default no resampling is applied and the data keeps the instrument's native
-time resolution (e.g. 1 min, 5 min, 1 h). Pass <code>mean_freq</code> only when you want
-averaged output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Native resolution (default) — no resampling</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># Hourly means</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">hourly</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">mean_freq</span><span class="o">=</span><span class="s1">&#39;1h&#39;</span><span class="p">)</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># 30-minute means</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">half_hourly</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">mean_freq</span><span class="o">=</span><span class="s1">&#39;30min&#39;</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="reading-result-metadata-dfattrs">Reading result metadata (<code>df.attrs</code>)</h3>
-<p>Every result carries provenance and coverage metadata in <code>df.attrs</code>. Because the
-default <code>fill_missing=True</code> pads the frame to the <em>requested</em> range (so it may be
-mostly NaN), <code>df.attrs['coverage_*']</code> is the quickest way to see what the files
-<strong>actually</strong> contained:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">df</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;2024-12-31&#39;</span><span class="p">)</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;coverage_start&#39;</span><span class="p">]</span>   <span class="c1"># first row backed by real data</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;coverage_end&#39;</span><span class="p">]</span>     <span class="c1"># last row backed by real data (None if none in range)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;requested_start&#39;</span><span class="p">]</span>  <span class="c1"># what you asked for (omitted when not given)</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;n_files&#39;</span><span class="p">]</span>          <span class="c1"># how many raw files were read</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;raw_freq&#39;</span><span class="p">]</span>         <span class="c1"># native resolution, auto-detected per file</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">df</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">&#39;total_rate&#39;</span><span class="p">]</span>       <span class="c1"># overall % valid (only present when qc is on)</span>
-</code></pre></div>
+<hr />
+<h2 id="2-where-a-judgement-is-recorded">2. Where a judgement is recorded</h2>
 <table>
 <thead>
 <tr>
-<th>Key</th>
-<th>When</th>
-<th>Meaning</th>
+<th>Channel</th>
+<th>Written by</th>
+<th>Granularity</th>
+<th>Content</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>instrument</code>, <code>station</code>, <code>source_path</code>, <code>n_files</code></td>
-<td>always</td>
-<td>provenance</td>
+<td><code>QC_Flag</code> column</td>
+<td><code>_QC</code> / <code>_process</code> (L2)</td>
+<td>per row</td>
+<td><code>"Valid"</code>, or comma-joined names of every rule that fired (advisory ones included)</td>
 </tr>
 <tr>
-<td><code>coverage_start</code> / <code>coverage_end</code></td>
-<td>always</td>
-<td>real data span (ignores NaN padding)</td>
-</tr>
-<tr>
-<td><code>requested_start</code> / <code>requested_end</code></td>
-<td>always</td>
-<td>the range you passed (omitted when not given)</td>
-</tr>
-<tr>
-<td><code>raw_freq</code>, <code>freq_mixed</code></td>
-<td>always</td>
-<td>native frequency + whether files disagreed</td>
-</tr>
-<tr>
-<td><code>fill_missing</code></td>
-<td>always</td>
-<td>grid padded to the request, or clamped to coverage</td>
-</tr>
-<tr>
-<td><code>aeroviz_version</code>, <code>processed_at</code></td>
-<td>always</td>
-<td>build / run stamp</td>
-</tr>
-<tr>
-<td><code>mean_freq</code>, <code>qc_applied</code>, <code>qc_freq</code></td>
-<td>qc on</td>
-<td>output frequency + QC mode</td>
-</tr>
-<tr>
-<td><code>acquisition_rate</code>, <code>yield_rate</code>, <code>total_rate</code></td>
-<td>qc on</td>
-<td>overall rates (%)</td>
-</tr>
-</tbody>
-</table>
-<p><code>attrs</code> survive <code>to_pickle</code>/<code>read_pickle</code> and <code>resample</code> (pandas &gt;= 2) but are
-dropped by a <code>concat</code> of frames with conflicting attrs — re-stamp if you merge.</p>
-<h3 id="fill_missing-pad-vs-clamp-the-time-grid"><code>fill_missing</code>: pad vs. clamp the time grid</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Default (True): pad the output to the full requested range,</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># leaving NaN where the files have no data</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">padded</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;2024-12-31&#39;</span><span class="p">)</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="c1"># False: clamp the grid to the data&#39;s actual coverage —</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># no leading/trailing NaN rows, no mostly-empty frame from a short file</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">trimmed</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">start</span><span class="o">=</span><span class="s1">&#39;2024-01-01&#39;</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s1">&#39;2024-12-31&#39;</span><span class="p">,</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="n">fill_missing</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="p">)</span>
-</code></pre></div>
-<h2 id="supported-instruments">Supported Instruments</h2>
-<h3 id="black-carbon-absorption">Black Carbon / Absorption</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># AE33 - Magee Scientific 7-wavelength</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">ae33</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># AE43 - Real-time black carbon</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">ae43</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE43&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># BC1054 - MetOne high resolution</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">bc1054</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;BC1054&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># MA350 - AethLabs multi-angle</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="n">ma350</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;MA350&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="scattering">Scattering</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># NEPH - TSI integrating nephelometer</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">neph</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;NEPH&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Aurora - Ecotech 3-wavelength</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">aurora</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;Aurora&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="size-distribution">Size Distribution</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># SMPS - Scanning Mobility Particle Sizer</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;SMPS&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">size_range</span><span class="o">=</span><span class="p">(</span><span class="mf">11.8</span><span class="p">,</span> <span class="mf">593.5</span><span class="p">))</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># APS - Aerodynamic Particle Sizer</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">aps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;APS&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1"># GRIMM - Optical Particle Sizer</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="n">grimm</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;GRIMM&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="chemical-composition">Chemical Composition</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># IGAC - Ion Chromatograph</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">igac</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;IGAC&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># OCEC - Organic Carbon/Elemental Carbon Analyzer</span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">ocec</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;OCEC&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1"># Xact - Xact 625i XRF Analyzer</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="n">xact</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;Xact&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="c1"># VOC - Volatile Organic Compounds Monitor</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="c1"># (deprecated — read VOC CSVs with pandas and pass to voc_potentials; see VOC docs)</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="n">voc</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;VOC&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-</code></pre></div>
-<h2 id="quality-control">Quality Control</h2>
-<h3 id="qc-report">QC Report</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="c1"># Monthly QC report</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>    <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span>
-<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
-<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
-<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="n">qc</span><span class="o">=</span><span class="s1">&#39;1MS&#39;</span>  <span class="c1"># Monthly report</span>
-<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">)</span>
-</code></pre></div>
-<p>Output example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>&gt; Processing: 2024-01-01 to 2024-01-31
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>    &gt; BC Mass Conc. (880 nm)
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>        +-- Sample Rate    :  100.0%
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>        +-- Valid  Rate    :   99.5%
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>        +-- Total  Rate    :   99.5%
-</code></pre></div></p>
-<h3 id="force-re-read">Force Re-read</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="c1"># Ignore cache, re-read raw files</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="n">reset</span><span class="o">=</span><span class="kc">True</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="p">)</span>
-</code></pre></div>
-<h2 id="output-files">Output Files</h2>
-<p>After processing, files are generated in <code>{instrument}_outputs/</code>:</p>
-<table>
-<thead>
-<tr>
-<th>File</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>_read_{inst}_raw.csv</code></td>
-<td>Merged raw data</td>
-</tr>
-<tr>
-<td><code>_read_{inst}_raw.pkl</code></td>
-<td>Raw data (pickle)</td>
-</tr>
-<tr>
-<td><code>_read_{inst}.csv</code></td>
-<td>QC processed data</td>
-</tr>
-<tr>
-<td><code>_read_{inst}.pkl</code></td>
-<td>QC data (pickle)</td>
-</tr>
-<tr>
-<td><code>Output_{inst}</code></td>
-<td>Final processed data</td>
+<td><code>QC_Invalid</code> column</td>
+<td><code>_QC</code> / <code>_process</code> (L2)</td>
+<td>per row</td>
+<td>boolean verdict: did an <em>invalidating</em> rule fire? The only thing masking looks at</td>
 </tr>
 <tr>
 <td><code>{inst}.log</code></td>
-<td>Processing log</td>
+<td>all levels</td>
+<td>per run</td>
+<td>parse warnings, skipped/dropped files, mixed-resolution &amp; stray-date warnings, <strong>QC Summary</strong> (count + % per rule), rates</td>
+</tr>
+<tr>
+<td><code>report.json</code></td>
+<td>L3</td>
+<td>per week / month + timeline</td>
+<td><code>rates.weekly</code> / <code>rates.monthly</code> (acquisition / yield / total), <code>timeline</code> of operational &amp; down periods with reasons</td>
+</tr>
+<tr>
+<td><code>df.attrs</code></td>
+<td>L3 (<code>_stamp</code>)</td>
+<td>per call</td>
+<td>provenance, <code>coverage_*</code> vs <code>requested_*</code>, <code>raw_freq</code>, <code>freq_mixed</code>, <code>acquisition_rate</code> / <code>yield_rate</code> / <code>total_rate</code></td>
+</tr>
+<tr>
+<td><code>_read_{inst}_qc.csv</code></td>
+<td>L2</td>
+<td>per row</td>
+<td>the flagged frame <em>before</em> masking — the only place where flag and value coexist</td>
 </tr>
 </tbody>
 </table>
-<h2 id="advanced-usage">Advanced Usage</h2>
-<h3 id="specify-size-range-smpsaps">Specify Size Range (SMPS/APS)</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span>
-<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="n">instrument</span><span class="o">=</span><span class="s1">&#39;SMPS&#39;</span><span class="p">,</span>
-<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
-<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
-<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="n">size_range</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>  <span class="c1"># nm</span>
-<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a><span class="p">)</span>
+<p><strong>Lifecycle of one flag:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>_QC       → QCRule.condition(df) → mask → QC_Flag   = &quot;Below MDL, Status Error&quot;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>                                        → QC_Invalid = True   (Status Error is severity=&#39;error&#39;;
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>                                                               Below MDL alone would leave it False)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>_process  → may append via update_qc_flag(..., severity=...) → &quot;…, Invalid AAE&quot;
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>log       → &quot;  Status Error: 24312 (4.9%)&quot; / &quot;  Below MDL: 1201 (2.4%) [advisory]&quot;
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>report    → yield counts rows that survived the verdict, so an advisory-only row counts
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>__call__  → QC_Invalid  →  entire row set to NaN; QC_Flag + QC_Invalid dropped
 </code></pre></div>
-<h3 id="multi-instrument-integration">Multi-instrument Integration</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="c1"># Read multiple instruments</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">ae33</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path_ae33</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">neph</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;NEPH&#39;</span><span class="p">,</span> <span class="n">path_neph</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;SMPS&#39;</span><span class="p">,</span> <span class="n">path_smps</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a><span class="c1"># Merge using pandas</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="n">combined</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ae33</span><span class="p">,</span> <span class="n">neph</span><span class="p">,</span> <span class="n">smps</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="admonition info">
+<p class="admonition-title">Not every flag is fatal</p>
+<p>Each rule carries a <strong>severity</strong>. <code>'error'</code> (the default) masks the row;
+<code>'warning'</code> records the flag and keeps the measurement. Advisory today:
+OCEC's <code>Below MDL</code> and Xact's <code>Upscale Warning</code> — a sub-detection-limit value
+or a vendor upscale notice is a real measurement, and masking is per row, so
+invalidating it would delete every other species at that timestamp too.</p>
+<p><code>Insufficient</code> is advisory too: it describes how well an hour is <em>covered</em>,
+which decides whether an average over it is representative, not whether the
+readings are real. <code>Spike</code> remains invalidating — it asserts the value itself
+is wrong. Reclassify per run without editing a reader:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># tighten an advisory flag back into an invalidating one</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;SMPS&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">flag_severity</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Insufficient&#39;</span><span class="p">:</span> <span class="s1">&#39;error&#39;</span><span class="p">})</span>
 </code></pre></div>
-<h2 id="common-issues">Common Issues</h2>
-<h3 id="data-path-format">Data Path Format</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Correct</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;/Users/name/data/AE33&#39;</span><span class="p">)</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Also works</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;./data/AE33&#39;</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="time-format">Time Format</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1"># Correct</span>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1"># Can also specify hours, minutes, seconds</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">59</span><span class="p">)</span>
-</code></pre></div>
-<h3 id="insufficient-memory">Insufficient Memory</h3>
-<p>For large datasets, read in segments:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Read by month</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>    <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>    <span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="n">month</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">month</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">&#39;AE33&#39;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>    <span class="c1"># Process...</span>
-</code></pre></div>
-<h2 id="related-topics">Related Topics</h2>
+<p>To see values behind an invalidating flag, read <code>_read_{inst}_qc.csv</code> (flag,
+verdict and value side by side) or call with <code>qc=False</code> (returns L1 — no QC,
+and no resampling either).</p>
+</div>
+<h3 id="qc_flag-vocabulary">QC_Flag vocabulary</h3>
+<p>Severity is <code>error</code> unless marked <strong>advisory</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Meaning</th>
+<th>Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Valid</code></td>
+<td>passed every rule</td>
+<td>all</td>
+</tr>
+<tr>
+<td><code>Status Error</code></td>
+<td>instrument status register reports a non-whitelisted condition</td>
+<td>AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM</td>
+</tr>
+<tr>
+<td><code>Insufficient</code></td>
+<td>an hour holds &lt; 50 % of the points it could have held, given how much of that hour the read covers — <strong>advisory</strong></td>
+<td>AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM, GRIMM</td>
+</tr>
+<tr>
+<td><code>Invalid BC</code></td>
+<td>any BC channel ≤ 0 or &gt; 20 000 ng/m³</td>
+<td>AE33, AE43, BC1054, MA350</td>
+</tr>
+<tr>
+<td><code>Invalid AAE</code></td>
+<td>|AAE| outside 0.7–2.0 (added in <code>_process</code>)</td>
+<td>AE33, AE43, BC1054, MA350</td>
+</tr>
+<tr>
+<td><code>Invalid Number Conc</code></td>
+<td>total number concentration outside range (SMPS 2 000–1e7, APS 1–700 #/cm³)</td>
+<td>SMPS, APS</td>
+</tr>
+<tr>
+<td><code>DMA Water Ingress</code></td>
+<td>any bin &gt; 400 nm exceeds 4 000 dN/dlogDp</td>
+<td>SMPS</td>
+</tr>
+<tr>
+<td><code>Invalid Scat Value</code></td>
+<td>any scattering channel ≤ 0 or &gt; 2 000 Mm⁻¹</td>
+<td>Aurora, NEPH</td>
+</tr>
+<tr>
+<td><code>Invalid Scat Rel</code></td>
+<td>B &lt; G &lt; R — inverted wavelength dependence</td>
+<td>Aurora, NEPH</td>
+</tr>
+<tr>
+<td><code>No Data</code></td>
+<td>every measurement channel NaN</td>
+<td>Aurora, NEPH, GRIMM</td>
+</tr>
+<tr>
+<td><code>High Noise</code></td>
+<td>TEOM <code>noise</code> ≥ 0.01</td>
+<td>TEOM</td>
+</tr>
+<tr>
+<td><code>Non-positive</code></td>
+<td><code>PM_NV</code> ≤ 0 or <code>PM_Total</code> ≤ 0</td>
+<td>TEOM</td>
+</tr>
+<tr>
+<td><code>NV &gt; Total</code></td>
+<td><code>PM_NV</code> &gt; <code>PM_Total</code> (physically impossible)</td>
+<td>TEOM</td>
+</tr>
+<tr>
+<td><code>Spike</code></td>
+<td>change &gt; 3 × median absolute change, or a large up-down reversal</td>
+<td>TEOM, BAM1020, OCEC</td>
+</tr>
+<tr>
+<td><code>Negative Conc</code></td>
+<td>any size channel is negative</td>
+<td>GRIMM</td>
+</tr>
+<tr>
+<td><code>Invalid Conc</code></td>
+<td>PM ≤ 0 or &gt; 500 µg/m³</td>
+<td>BAM1020</td>
+</tr>
+<tr>
+<td><code>Invalid Carbon</code></td>
+<td>any carbon fraction ≤ −5 or &gt; 100 µgC/m³</td>
+<td>OCEC</td>
+</tr>
+<tr>
+<td><code>Below MDL</code></td>
+<td>value at or below the method detection limit — <strong>advisory</strong></td>
+<td>OCEC</td>
+</tr>
+<tr>
+<td><code>Missing OC</code></td>
+<td><code>Thermal_OC</code> or <code>Optical_OC</code> missing</td>
+<td>OCEC</td>
+</tr>
+<tr>
+<td><code>Above MR</code></td>
+<td>concentration above the instrument's stated measurement range</td>
+<td>IGAC</td>
+</tr>
+<tr>
+<td><code>Mass Closure</code></td>
+<td>Σ ions &gt; PM2.5</td>
+<td>IGAC</td>
+</tr>
+<tr>
+<td><code>Missing Main</code></td>
+<td>any of NH₄⁺ / SO₄²⁻ / NO₃⁻ missing</td>
+<td>IGAC</td>
+</tr>
+<tr>
+<td><code>Ion Balance</code></td>
+<td>cation/anion ratio outside 1.5 × IQR</td>
+<td>IGAC</td>
+</tr>
+<tr>
+<td><code>Calibration Mode</code></td>
+<td><code>SAMPLE_TYPE != 1</code></td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Instrument Error</code></td>
+<td><code>ALARM</code> in 100–110</td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Upscale Warning</code></td>
+<td><code>ALARM</code> in 200–203 — <strong>advisory</strong> (the instrument's own warning class)</td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Invalid Value</code></td>
+<td>element concentration outside 0–100 000 ng/m³</td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Internal Std Drift</code></td>
+<td>Nb outside ±20 % of its median</td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>High Uncertainty</code></td>
+<td>a normally-quantitative element reported above its detection limit with &lt; 3σ confidence — <strong>advisory</strong></td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Negative</code></td>
+<td>any numeric column &lt; 0</td>
+<td>EPA</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-aethalometers-bc-monitors">3. Aethalometers / BC monitors</h2>
+<h3 id="ae33">AE33</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>[!ST|!CT|!FV]*[!log]_AE33*.dat</code></td>
+</tr>
+<tr>
+<td><strong>Native freq</strong></td>
+<td><code>1min</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td><code>read_table(delimiter=r'\s+', skiprows=5, usecols=range(67))</code>; header is line 6, semicolon-suffixed names are stripped; index built from columns 0+1 (<code>Date(yyyy/MM/dd)</code> + <code>Time(hh:mm:ss)</code>)</td>
+</tr>
+<tr>
+<td><strong>Quirks</strong></td>
+<td>Files &lt; 550 KB log "may not be a whole daily data". The pattern's <code>[!ST|!CT|!FV]</code> is a <em>single-character</em> negated class (excludes <code>S T C F V | !</code> as the first character), <strong>not</strong> an alternation of <code>ST</code>/<code>CT</code>/<code>FV</code> prefixes — it happens to filter the ST/CT/FV log files but not for the reason it looks like.</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>column <code>Status</code>, mode <code>bitwise</code>. Raw file also carries <code>ContStatus</code>, <code>DetectStatus</code>, <code>LedStatus</code>, <code>ValveStatus</code>, which are <strong>not</strong> checked.</td>
+</tr>
+<tr>
+<td><strong>Error codes</strong></td>
+<td>1 tape advance / fast cal / warm-up · 2 first measurement (obtaining ATN0) · 3 stopped · 4 flow off by &gt; 0.5 LPM · 16 calibrating LED · 32 calibration error · 1024 stability test · 2048 clean-air test · 4096 optical test</td>
+</tr>
+<tr>
+<td><strong>Deliberately not errors</strong></td>
+<td>128 / 256 (tape <em>low</em> warnings) and therefore 384 — data is still valid</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Status Error</code>, <code>Invalid BC</code> (0–20 000 ng/m³ over BC1–BC7), <code>Insufficient</code>; <code>Invalid AAE</code> added in <code>_process</code></td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td><code>BC1</code>–<code>BC7</code>, <code>abs_370</code>…<code>abs_950</code>, <code>abs_550</code>, <code>AAE</code>, <code>eBC</code>, <code>BB(%)</code> when present, <code>QC_Flag</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ae43">AE43</h3>
+<p>Identical to AE33 except:</p>
 <ul>
-<li><a href="../../api/RawDataReader/">API Reference</a></li>
-<li><a href="../../api/instruments/">Supported Instruments List</a></li>
+<li><strong>Pattern</strong> <code>[!ST|!CT|!FV]*[!log]_AE43*.dat</code>; parsed with
+  <code>read_csv(parse_dates=['StartTime'], index_col='StartTime')</code>.</li>
+<li>Keeps only the rows of the <strong>last <code>SetupID</code></strong> in the file (a setup change
+  mid-file discards the earlier segment).</li>
+<li><code>ERROR_STATES</code> is now <strong>identical to AE33's</strong> — it used to keep <code>384</code>, which
+  AE33 had dropped as a tape-<em>low</em> warning. A test pins the two lists equal.</li>
+</ul>
+<h3 id="bc1054">BC1054</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.csv</code>, native <code>1min</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td>header row located by scanning the first 20 lines for one starting with <code>Time</code> or <code>Raw_Time</code> (variants seen: header on line 1; <code>Raw_Time,Time,…</code>; a <code>Data Report</code> / <code>User Report</code> block plus 3 metadata lines; leading blank lines). Then <code>read_csv(parse_dates=True, index_col=0, skiprows=skip)</code>; spaces stripped from column names; <code>BC1 (ng/m3)</code>→<code>BC1</code> … <code>BC10</code>, <code>Flow(lpm)</code>→<code>Flow</code>, <code>WS</code>, <code>WD</code>, <code>AT</code>, <code>RH</code>, <code>BP</code></td>
+</tr>
+<tr>
+<td><strong>Two clocks</strong></td>
+<td>a file may carry both. <code>Time</code> is Met One's own field — <em>"the date and timestamp for the data record. The timestamp is end of the minute"</em> — written from the instrument's internal RTC, which an operator sets by hand (manual §3.5.7 SET CLOCK) and which can therefore be wrong. <code>Raw_Time</code> appears <strong>nowhere in the manual</strong>, so it comes from whatever logged or downloaded the file, on that host's clock.</td>
+</tr>
+<tr>
+<td><strong>Which is the index</strong></td>
+<td><code>Raw_Time</code>: the measurement happened at the wall-clock instant whatever the instrument believed, and in the corpus it is the well-behaved column — strictly increasing, no duplicates. The instrument clock is not: one fixture repeats timestamps and jumps 14 h 42 m mid-file, another sits a constant <strong>12 h 04 m</strong> behind for all 1440 rows of a day (an RTC set to the wrong AM/PM, plus drift). The instrument's timestamp is kept as <code>Instrument_Time</code>, and a median disagreement over 60 s is <strong>warned</strong> — dropping it silently, as this reader used to, also discarded the only evidence that a clock needed resetting.</td>
+</tr>
+<tr>
+<td><strong>Quirks</strong></td>
+<td><code>_QC</code> first removes rows identical to their previous <em>or</em> next row (consecutive-duplicate filter) before flagging.</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>column <code>Status</code>, mode <code>bitwise</code></td>
+</tr>
+<tr>
+<td><strong>Error codes</strong></td>
+<td>1 power failure · 2 digital sensor link failure · 4 tape move failure · 8 maintenance · 16 flow failure · 32 automatic tape advance · 64 detector failure · 256 sensor range · 512 nozzle move failure · 1024 SPI link failure · 2048 calibration audit · 65536 tape move</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Status Error</code>, <code>Invalid BC</code> (BC1–BC10), <code>Insufficient</code>, + <code>Invalid AAE</code></td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td><code>abs_370</code>…<code>abs_950</code>, <code>abs_550</code>, <code>AAE</code>, <code>eBC</code>, <strong>plus every non-BC source column</strong> (Flow, AT, RH, BP, …), <code>QC_Flag</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ma350">MA350</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.csv</code>, native <code>1min</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td><code>read_csv(parse_dates=['Date / time local'], index_col='Date / time local')</code>; renames <code>UV/Blue/Green/Red/IR BCc</code>→<code>BC1</code>–<code>BC5</code>, <code>Biomass BCc</code>→<code>BB mass</code>, <code>Fossil fuel BCc</code>→<code>FF mass</code>, <code>Delta-C</code>, <code>AAE</code>→<code>AAE_ref</code>, <code>BB (%)</code>→<code>BB</code></td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>column <code>Status</code>, mode <code>bitwise</code> (rule is inert if the firmware labels it differently)</td>
+</tr>
+<tr>
+<td><strong>Error codes</strong></td>
+<td>1 power failure · 2 start up · 4 tape advance · 16 optical saturation · 32 sample timing error · 128 flow unstable · 256 pump drive limit · 2048 system busy · 8192 tape jam · 16384 tape at end · 32768 tape not ready · 65536 tape transport not ready · 262144 invalid date/time · 524288 tape error</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Status Error</code>, <code>Invalid BC</code> (BC1–BC5), <code>Insufficient</code>, + <code>Invalid AAE</code></td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td><code>abs_375</code>, <code>abs_470</code>, <code>abs_528</code>, <code>abs_625</code>, <code>abs_880</code>, <code>abs_550</code>, <code>AAE</code>, <code>eBC</code>, all non-BC columns, <code>QC_Flag</code>. Note the vendor's own <code>AAE</code> is preserved separately as <code>AAE_ref</code>.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-particle-sizers">4. Particle sizers</h2>
+<h3 id="smps">SMPS</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.txt</code>, <code>*.csv</code>; native <code>6min</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td>opened with <code>encoding='utf-8', errors='ignore'</code> (real files contain non-UTF-8 bytes in the sample-path metadata). Header row is found by scanning for a first cell of <code>Sample #</code> (TXT / AIM 10.3, ~row 25) or <code>Scan Number</code> (CSV / AIM 11.x, ~row 52). Delimiter: tab for <code>.txt</code>, comma for <code>.csv</code>. Time from <code>Date</code> + <code>Start Time</code>, or <code>DateTime Sample Start</code>; date formats tried in order (<code>%m/%d/%y</code>, <code>%m/%d/%Y</code>, <code>%Y/%m/%d</code> for TXT; <code>%d/%m/%Y</code> for CSV). Some exports are <strong>transposed</strong> — if no date column is found the frame is rotated and re-parsed.</td>
+</tr>
+<tr>
+<td><strong>Size bins</strong></td>
+<td>numeric column names → float; expected 11.8–593.5 nm. A mismatch <strong>warns</strong>; the file is only rejected when the caller passed an explicit <code>size_range</code>.</td>
+</tr>
+<tr>
+<td><strong>AIM reconciliation</strong></td>
+<td>Two independent problems. (1) <em>Mixed bin grids in one folder</em> → <code>_partition_compatible_scans</code> keeps the group with the most rows and names every dropped file in a warning. (2) <em>Renamed metadata</em> → <code>METADATA_ALIASES</code> rewrites AIM 11.x names to the AIM 10.3 canonical form (<code>Total Concentration (#/cm³)</code>→<code>Total Conc. (#/cm)</code>, <code>Aerosol Temperature (C)</code>→<code>Sample Temp (C)</code>, <code>Aerosol Humidity (%)</code>→<code>Relative Humidity (%)</code>, <code>Aerosol Density (g/cm³)</code>→<code>Density (g/cm)</code>, <code>Impactor D50 (nm)</code>→<code>D50 (nm)</code>, <code>Test Name</code>→<code>Title</code>, <code>Geo. Std. Dev</code>→<code>Geo. Std. Dev.</code>, <code>DMA Column transit time Tf (s)</code>→<code>tf (s)</code>, <code>DMA Exit to Optical Detector Td (s)</code>→<code>td + 0.5 (s)</code>). AIM 11.x-only columns keep their own names.</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td><strong>six</strong> columns, mode <code>text</code>, masks OR'd — whichever are present. The same information is reported under <strong>different names per host-software version</strong>:<br><br><code>Status Flag</code> (10.3) ↔ <code>Detector Status</code> (11.x) — positive sentinel, OK when <code>'Normal Scan'</code><br><code>Instrument Errors</code> (10.3) ↔ <code>Classifier Errors</code> (11.x) — error tokens, OK when empty<br><code>Communication Status</code> (11.x only) — OK when <code>'0'</code><br><code>Neutralizer Status</code> (11.x only) — OK when <code>'ON'</code><br><br>Two value shapes: a <em>positive sentinel</em> column (OK when it equals a known-good string) and an <em>error-token</em> column (OK when empty, otherwise comma-separated fault names). <code>'Normal Scan'</code> is auto-whitelisted on the token columns too, because some sites write the positive sentinel there instead of leaving it blank.</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Status Error</code>, <code>Insufficient</code>, <code>Invalid Number Conc</code> (2 000–1e7 #/cm³, NaN total ⇒ flagged), <code>DMA Water Ingress</code> (any bin ≥ 400 nm &gt; 4 000 dN/dlogDp)</td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td><strong>the dN/dlogDp matrix only</strong> (diameters in nm as columns) + <code>QC_Flag</code>. Statistics are <em>not</em> in the frame.</td>
+</tr>
+<tr>
+<td><strong>CPC</strong></td>
+<td>the file names the counter that did the counting (<code>Detector Model</code>, <code>Detector S/N</code>, <code>Nano Enhancer</code>), reported in <code>df.attrs</code> as <code>cpc_*</code>. Its cut-off decides how far the lowest channels under-report — see <a href="../counting-efficiency/">Counting Efficiency</a>. Not corrected for.</td>
+</tr>
+<tr>
+<td><strong>L3 sidecars</strong></td>
+<td><code>{prefix}_dNdlogDp.csv</code>, <code>_dSdlogDp.csv</code> (<code>πd²·dN</code>), <code>_dVdlogDp.csv</code> (<code>πd³/6·dN</code>), <code>_stats.csv</code> (from <code>psd_stats</code>). Pass <code>append_stats=True</code> to also append the statistics columns to the returned frame.</td>
+</tr>
+<tr>
+<td><strong>Was a gap</strong></td>
+<td>an AIM 11.x export has <strong>neither</strong> AIM 10.3 name, so until all six were listed its <code>Status Error</code> rule could never fire — every scan passed the status check regardless of what the instrument reported. Verified on the CSV fixture: <code>Detector Status='Normal Scan'</code>, <code>Classifier Errors='Low aerosol flow'</code>, <code>Communication Status='0'</code>, <code>Neutralizer Status='ON'</code> on all 62 scans, so the flag now fires (and <code>ignored_status_errors=['Low aerosol flow']</code> clears it, as on the 10.3 dialect).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="aps">APS</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.txt</code>; native <code>6min</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td>tab-separated; ~6 metadata lines (<code>Sample File</code>, <code>Sample Time</code>, <code>Density</code>, <code>Stokes Correction</code>, <code>Lower/Upper Channel Bound</code>) then a <code>Sample #</code> header row. Transposed exports are rotated (<code>set_index('Sample #').T</code>), and a failure there raises <code>NotImplementedError</code> <strong>with the original exception attached</strong>. Date from <code>Date</code> + <code>Start Time</code>, formats <code>%m/%d/%y %H:%M:%S</code> then <code>%m/%d/%Y %H:%M:%S</code>; the winning format is logged.</td>
+</tr>
+<tr>
+<td><strong>Sampling period</strong></td>
+<td>the file header carries <code>Sample Time</code> (115 s in the corpus) — <strong>not</strong> a whole number of minutes, and not the <code>6min</code> in the config. The native grid follows the detected period, so scans are not lost to bin collisions; <code>df.attrs['raw_freq']</code> reports what was actually used.</td>
+</tr>
+<tr>
+<td><strong>Size bins</strong></td>
+<td>numeric column names in 0.5–20 (µm) → float, rounded to 4 dp. Expected grid <code>(0.542, 19.81, 51 bins)</code>; deviation <strong>warns loudly</strong> (an 8-year × 4-station audit of 1 485 files showed zero drift, so a deviation means a firmware change — and would reproduce the NaN-poisoned-concat problem SMPS had). The under-range <code>&lt;0.523</code> column is kept as metadata, not a bin.</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>column <code>Status Flags</code>, mode <code>binary_string</code>; OK is <code>'0000 0000 0000 0000'</code></td>
+</tr>
+<tr>
+<td><strong>Bit meanings</strong></td>
+<td>0 laser fault · 1 total flow out of range · 2 sheath flow out of range · 3 excessive sample concentration · 4 accumulator clipped (&gt; 65535) · 5 autocal failed · 6 internal temp &lt; 10 °C · 7 internal temp &gt; 40 °C · 8 detector voltage out of range · 9 reserved</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Status Error</code>, <code>Insufficient</code>, <code>Invalid Number Conc</code> (1–700 #/cm³)</td>
+</tr>
+<tr>
+<td><strong>L2 output / sidecars</strong></td>
+<td>as SMPS, diameters in <strong>µm</strong></td>
+</tr>
+<tr>
+<td><strong>Counting efficiency</strong></td>
+<td>the APS under-counts at both ends — 85–99 % for solid particles, but falling from 75 % at 0.8 µm to 25 % at 10 µm for droplets (Volckens &amp; Peters 2005). Not corrected for; see <a href="../counting-efficiency/">Counting Efficiency</a>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="grimm">GRIMM</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.dat</code>; native <code>6min</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td><code>read_csv(header=233, delimiter='\t', index_col=0, parse_dates=[0], encoding='ISO-8859-1', dayfirst=True)</code> — the header row is a <strong>hard-coded line number</strong>; then columns 0–10 and the trailing 5 (or from column 128 for files named <code>A407ST*</code>) are dropped, and all values are divided by <code>0.035</code>. Empty files are reported with <code>print</code> (not the logger) and skipped.</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>none</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>No Data</code> (all channels NaN), <code>Negative Conc</code> (any channel &lt; 0 — impossible for a counter), <code>Insufficient</code></td>
+</tr>
+<tr>
+<td><strong>Deliberately absent</strong></td>
+<td>concentration <em>range</em> limits, the equivalent of SMPS's <code>MIN_TOTAL_CONC</code> / APS's <code>MAX_TOTAL_CONC</code>. There is no GRIMM sample corpus to calibrate a plausible range against, and a wrong threshold silently deletes good data. The three rules above need no site-specific tuning.</td>
+</tr>
+<tr>
+<td><strong>Note</strong></td>
+<td>like every reader, the completeness rule measures against the <strong>detected</strong> frequency (<code>_resolved_freq</code>), falling back to the config value only when detection fails.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-nephelometers-mass-chemistry-external-sources">5. Nephelometers, mass, chemistry, external sources</h2>
+<h3 id="aurora">Aurora</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.csv</code>; native <code>1min</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td><code>read_csv(low_memory=False, index_col=0)</code>; index coerced to datetime; column aliases <code>0°σspB/G/R</code>→<code>B/G/R</code>, <code>90°σspB/G/R</code>→<code>BB/BG/BR</code>, and <code>Blue/Green/Red</code>→<code>B/G/R</code>, <code>B_Blue/B_Green/B_Red</code>→<code>BB/BG/BR</code>; <code>Raw_Data_Time</code> dropped</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>first match among <code>Status</code>, <code>status</code>, <code>Error</code>, <code>error</code>, <code>Flag</code>, <code>flag</code>, <strong><code>S1</code></strong> is renamed to <code>Status</code>; mode <code>numeric</code>, <code>ok_value=0</code></td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Status Error</code>, <code>No Data</code>, <code>Invalid Scat Value</code> (0–2 000 Mm⁻¹), <code>Invalid Scat Rel</code> (<code>B &lt; G &amp; G &lt; R</code>), <code>Insufficient</code></td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td><code>sca_550</code>, <code>SAE</code>, plus all non-scattering columns (T1, T2, RH, P, S1, S2, …), <code>QC_Flag</code></td>
+</tr>
+<tr>
+<td><strong><code>S1</code> is the status</strong></td>
+<td>the production CSV (<code>Data_Time, Raw_Data_Time, Red, Green, Blue, B_Red, B_Green, B_Blue, T1, T2, RH, P, S1, S2</code>) contains none of the <em>obvious</em> status names — the status is <code>S1</code>, and it is now recognised. Evidence from 120 one-minute scans: <code>S1 ∈ {0, 4}</code>; the 17 rows with <code>S1 == 4</code> are <strong>contiguous</strong> (00:06–00:22) and their scattering decays 185 → 0.78 Mm⁻¹ while <code>S1 == 0</code> rows average 193 Mm⁻¹ — the signature of the <strong>zero/span check</strong>, where the instrument samples filtered air. Those rows pass the 0–2000 range check happily, so before this fix they were averaged into ambient means: on that fixture, dropping them raises the green-channel mean from 170.8 to 193.2 Mm⁻¹, i.e. a <strong>13% low bias</strong> removed.</td>
+</tr>
+<tr>
+<td><strong><code>S2</code></strong></td>
+<td>moves in step (<code>0x07</code> while ambient, <code>0xAB</code>/<code>0xA8</code> during the check) and is evidently a bitfield. Its individual bits are <strong>not</strong> decoded — no manual to hand, and guessing bit meanings would be worse than leaving it as data.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="neph">NEPH</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.dat</code>; native <code>5min</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td>record-oriented, no header: <code>read_csv(header=None, names=range(11))</code> then grouped by the record type in column 0. <code>T</code> = timestamp (<code>YYYY MM DD HH MM SS</code> across columns 1–6, zero-padded and concatenated). <code>D</code> = data; the <code>NBXX</code> sub-group is used, falling back to <code>NTXX</code>, columns 3–8 × 1e6 → <code>B, G, R, BB, BG, BR</code>. <code>Y</code> = state: col 2 pressure, 3 temp1, 4 temp2, 5 RH, <strong>9 status</strong>. A file containing a record type outside <code>{B,G,R,D,T,Y,Z}</code> is skipped with a warning.</td>
+</tr>
+<tr>
+<td><strong>Quirks</strong></td>
+<td><code>Y</code>-row fields are attached to the data frame <strong>positionally</strong> (<code>.values</code>), so a file with unequal <code>D</code> and <code>Y</code> counts misaligns or raises.</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>column <code>status</code> (from <code>Y</code> row field 9, e.g. <code>0000</code>), mode <code>numeric</code>, <code>ok_value=0</code></td>
+</tr>
+<tr>
+<td><strong>QC rules / output</strong></td>
+<td>same five rules and same outputs as Aurora</td>
+</tr>
+</tbody>
+</table>
+<h3 id="teom">TEOM</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.csv</code>; native <code>6min</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td><code>read_csv(skiprows=3, index_col=False)</code>; <strong>both</strong> alias maps are applied to every file because real exports mix conventions. <code>remote</code>/GUI names (<code>Time Stamp</code>→<code>time</code>, <code>System status</code>→<code>status</code>, <code>PM-2.5 base MC</code>→<code>PM_NV</code>, <code>PM-2.5 MC</code>→<code>PM_Total</code>, <code>PM-2.5 TEOM noise</code>→<code>noise</code>, …) and <code>usb</code>/SNMP names (<code>tmoStatusCondition_0</code>→<code>status</code>, <code>tmoTEOMABaseMC_0</code>→<code>PM_NV</code>, <code>tmoTEOMAMC_0</code>→<code>PM_Total</code>, <code>tmoTEOMANoise_0</code>→<code>noise</code>, …) land on the same canonical short names. Format is then detected post-rename and logged: <code>time</code> present ⇒ remote (timestamps like <code>07 - 六月 - 2025 12:00:00</code>, Chinese month names mapped, <code>format='%d - %m - %Y %X'</code>); <code>Date</code>+<code>Time</code> ⇒ usb. Neither ⇒ a file-named <code>NotImplementedError</code>.</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>column <code>status</code>, mode <strong><code>bitwise</code></strong> — this is the subtle one: the TEOM <code>status condition</code> register is a <strong>32-bit bitfield</strong> (TEOM 1405 / 1405-F manual, Appendix A, Table A-1), so the instrument reports the <em>decimal sum</em> of every active warning. Treating it as a flat code (<code>status != 0</code>) makes any co-set bit unmaskable; bitwise mode lets one condition be whitelisted regardless of what else is set. <code>ERROR_STATES = [1 &lt;&lt; b for b in range(32)]</code> — every bit counts as an error by default.</td>
+</tr>
+<tr>
+<td><strong>Documented bits</strong></td>
+<td>30 (1073741824) %RH high side A · 29 (536870912) dryer A · 28 (268435456) cooler A · 27 (134217728) exchange filter A · 26 (67108864) flow A · 25 (33554432) heaters side A · 24 (16777216) mass transducer A · 22–16 the same for side B · 14 user I/O · 13 FDMS device · 12 head 1 · 11 head 0 · 10 MFC 1 · 9 MFC 0 · 8 system bus · 7 vacuum pressure · 6 case/cap heater · 5 FDMS valve · 4 bypass flow · 3 ambient RH &amp; temp sensor · 2 database log failure · 1 enclosure temp · 0 power failure</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Status Error</code>, <code>High Noise</code> (≥ 0.01), <code>Non-positive</code>, <code>NV &gt; Total</code>, <code>Spike</code>, <code>Insufficient</code></td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td><code>Volatile_Fraction = (PM_Total − PM_NV) / PM_Total</code> <strong>plus every other column</strong> — <code>OUTPUT_COLUMNS</code> exists but is never applied</td>
+</tr>
+</tbody>
+</table>
+<h3 id="bam1020">BAM1020</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.csv</code>; native <code>1h</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td><code>read_csv(parse_dates=True, index_col=0, usecols=range(0, 21))</code>; <code>Conc (mg/m3)</code>→<code>Conc</code>; the literal value <code>1</code> is replaced with NA; then ×1000 (mg/m³ → µg/m³)</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>none</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Invalid Conc</code> (0–500 µg/m³), <code>Spike</code></td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td><code>Conc</code>, <code>QC_Flag</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="ocec">OCEC</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*LCRes.csv</code>; native <code>1h</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td><code>read_csv(skiprows=3, on_bad_lines='skip')</code>; time from <code>Start Date/Time</code>, formats <code>%m/%d/%Y %I:%M:%S %p</code> (RTCalc705 default) then <code>%m/%d/%Y %H:%M:%S</code>, then <strong>rounded to <code>1h</code></strong>. Three alias maps are applied unconditionally: RTCalc705 (<code>Thermal/Optical OC (ugC/LCm^3)</code>→<code>Thermal_OC</code>, <code>OC=TC-BC (ugC/LCm^3)</code>→<code>Optical_OC</code>, <code>BC (ugC/LCm^3)</code>→<code>Optical_EC</code>, …), RTCalc802 (<code>OC ugC/m^3 (Thermal/Optical)</code>→<code>Thermal_OC</code>, <code>OptEC ugC/m^3</code>→<code>Optical_EC</code>, …), and the shared per-peak set (<code>OCPk1-4-ug C</code>→<code>OC1_raw</code>…, <code>Pyrolized C ug</code>→<code>PC_raw</code>, <code>ECPk1-5-ug C</code>→<code>EC*_raw</code>, <code>Sample Volume Local Condition Actual m^3</code>→<code>Sample_Volume</code>). Firmware is inferred from the presence of per-peak columns and logged.</td>
+</tr>
+<tr>
+<td><strong>Derived at L1</strong></td>
+<td><code>OC{i} = OC{i}_raw / Sample_Volume</code> (NaN on RTCalc705, which has no per-peak columns, or if <code>Sample_Volume</code> is missing — warned); <code>PC = Thermal_OC − OC1 − OC2 − OC3 − OC4</code> when all four exist, else NaN</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>none</td>
+</tr>
+<tr>
+<td><strong>MDL</strong></td>
+<td><code>Thermal_OC</code> 0.3, <code>Optical_OC</code> 0.3, <code>Thermal_EC</code> 0.015, <code>Optical_EC</code> 0.015 µgC/m³ (class constant, <strong>not</strong> the config <code>meta</code>)</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Invalid Carbon</code> (−5 … 100 µgC/m³), <code>Below MDL</code> (<code>value &lt;= MDL</code>), <code>Spike</code>, <code>Missing OC</code></td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td><code>Thermal_OC</code>, <code>Thermal_EC</code>, <code>Optical_OC</code>, <code>Optical_EC</code>, <code>TC</code>, <code>OC1</code>–<code>OC4</code>, <code>PC</code>, <code>QC_Flag</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="igac">IGAC</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.csv</code>; native <code>1h</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td><code>read_csv(parse_dates=True, index_col=0, na_values='-')</code> with <code>encoding='utf-8-sig'</code>; column names stripped; everything coerced to numeric</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>none</td>
+</tr>
+<tr>
+<td><strong>MDL / MR</strong></td>
+<td>from <code>meta['IGAC']</code> — the <a href="https://www.yangyao-env.com/web/product/product_in2.jsp?pd_id=PD1640151884502">vendor specification</a>, 17 species covering <strong>gases and aerosol ions</strong>, exposed as <code>reader.MDL</code> / <code>reader.MR</code>. Species whose spec entry is <code>None</code> (HF, F⁻, PO₄³⁻ — not measured) are skipped everywhere. This replaced a second, disagreeing class-level copy of the 9 aerosol ions.</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Mass Closure</code> (Σ <em>aerosol ions</em> &gt; <code>PM2.5</code> when that column exists — gases are not part of the PM budget), <code>Missing Main</code> (NH₄⁺/SO₄²⁻/NO₃⁻), <code>Above MR</code> (any species above its stated measurement range), <code>Ion Balance</code> (cation/anion ratio outside 1.5 × IQR)</td>
+</tr>
+<tr>
+<td><strong>Below MDL</strong></td>
+<td>a <strong>per-species diagnostic</strong>, not a flag: the log reports what fraction of each species sits below its limit, worst-first. (OCEC keeps a <code>Below MDL</code> flag, but at <code>severity='warning'</code> — same outcome by a different route. IGAC has 17 species, so a per-column count is more useful than one row-level flag.)</td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td>every spec species present in the file (gases included — they used to be dropped) + <code>QC_Flag</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="xact">Xact</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Pattern</strong></td>
+<td><code>*.csv</code>; native <code>1h</code></td>
+</tr>
+<tr>
+<td><strong>Parse</strong></td>
+<td><strong>two</strong> header rows: line 0 is element names in caps (<code>MAGNESIUM,,ALUMINIUM,,…</code>), line 1 is the real header; the data rows carry one extra trailing field, absorbed as <code>_extra_</code> and dropped. <code>TIME</code> parsed as <code>%m/%d/%Y %H:%M:%S</code>. Rows with <code>Sample Type != 1</code> are dropped <strong>before</strong> rounding to <code>1h</code> (the daily 00:00–00:30 QA check would otherwise displace a valid 00:30 sample). Element columns are matched by pattern (<code>Mg 12 (ng/m3)</code>→<code>Mg</code>, <code>Al Uncert (ng/m3)</code>→<code>Al_uncert</code>); environment columns are renamed to short forms (<code>AT (C)</code>→<code>AT</code>, <code>FLOW 25 (slpm)</code>→<code>FLOW_25</code>, …); <code>PUMP START TIME</code>, <code>Output Pin 7</code>, <code>XC VER</code> dropped.</td>
+</tr>
+<tr>
+<td><strong>Status</strong></td>
+<td>column <code>ALARM</code>, matched by <strong>exact code</strong>, not bitwise; <code>0</code> = normal. <code>decode_alarm()</code> turns a code into text.</td>
+</tr>
+<tr>
+<td><strong>Alarm codes</strong></td>
+<td>errors 100 X-ray voltage · 101 X-ray current · 102 tube temperature · 103 enclosure temperature · 104 tape · 105 pump · 106 filter wheel · 107 dynamic rod · 108 nozzle · 109 energy calibration · 110 software. Warnings 200 upscale Cr · 201 upscale Pb · 202 upscale Cd · 203 upscale Nb.</td>
+</tr>
+<tr>
+<td><strong>QC rules</strong></td>
+<td><code>Calibration Mode</code>, <code>Instrument Error</code> (100–110), <code>Upscale Warning</code> (200–203), <code>Invalid Value</code> (0–100 000 ng/m³), <code>Internal Std Drift</code> (Nb ±20 % of median). Each is registered only if its source column exists.</td>
+</tr>
+<tr>
+<td><strong>MDL</strong></td>
+<td>the <strong>manual's own table</strong> (Operation Manual Appendix p.73, <code>Xact.MANUAL_MDL</code>) for the 29 elements it covers, selected by the file's <code>SAMPLE_TIME</code> — the limits vary ~8× between a 15-min and a 240-min sample, so one fixed number is right for only one configuration. <code>meta['Xact']['MDL']</code> supplies the other 16, for which CES publishes nothing. Exposed as <code>reader.MDL</code> / <code>reader.manual_mdl(minutes)</code>.</td>
+</tr>
+<tr>
+<td><strong>Uncertainty</strong></td>
+<td>every element has a paired <code>{element}_uncert</code> column. The manual's limits are <em>"interference free </em><em>one sigma</em><em> detection limits … at 68 % Confidence Level (C1σ) per US EPA IO 3.3 and Currie, 1968"</em>, and that uncertainty column is the same 1σ quantity — which is what lets Currie's criteria apply to it directly: <strong>detected</strong> at <code>value ≥ 3σ</code>, <strong>quantifiable</strong> at <code>value ≥ 10σ</code>.</td>
+</tr>
+<tr>
+<td><strong>Element reliability</strong></td>
+<td><code>element_reliability(df)</code> classifies each element from the fraction of samples meeting those criteria — <code>quantitative</code> / <code>semi-quantitative</code> / <code>below-detection</code> — and reports <em>separately</em> whether the manual publishes a limit for it at all (the two are independent: Nb, the internal standard, is measured superbly and has no published limit). Written to <code>{prefix}_element_reliability.csv</code> and summarised in the log. On the test corpus: 11 quantitative (S, K, Ca, Cl, Fe, Cu, Zn, Br, Mn, Pb, As), 7 semi-quantitative (Ti, Cr, Ni, Se, Ba, Bi, Sr), the rest below detection.</td>
+</tr>
+<tr>
+<td><strong>Below MDL</strong></td>
+<td>a <strong>diagnostic, not a flag</strong> (same reasoning as IGAC, and more acute here): in the test fixture alone a dozen elements sit 100 % below their limit, so an "any element below MDL" rule would flag — and therefore NaN — every single row. The log reports the per-element fraction instead.</td>
+</tr>
+<tr>
+<td><strong>Why <code>High Uncertainty</code> is scoped</strong></td>
+<td>the same trap. A rule firing when <em>any</em> element fails the 3σ test hits <strong>96–100 % of rows</strong> on both fixtures, because a dozen elements are permanently below detection at any real site — a property of the element, not of the row. Scoped to elements this run measures well <em>and</em> the manual specifies, it fires on 0 % of clean rows and 8 % of the degraded fixture, where it caught S, K, Ca, Fe, Zn and Br degrading together: an instrument event rather than element noise.</td>
+</tr>
+<tr>
+<td><strong>L2 output</strong></td>
+<td>all columns + <code>QC_Flag</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="epa-external-pre-aggregated">EPA — external, pre-aggregated</h3>
+<p><code>*.csv</code>, native <code>1h</code>, <code>encoding='big5'</code>. Accepts the Taiwan EPA hourly exports
+(測項 / 直式). Raises if more than one 測站 is present; drops 測站; pivots
+<code>測項</code>/<code>資料</code> into columns when present; renames <code>AMB_TEMP</code>→<code>AT</code>,
+<code>WIND_SPEED</code>→<code>WS</code>, <code>WIND_DIREC</code>→<code>WD</code>. Invalid-value markers are normalised by
+regex (<code>…#</code>→<code>#</code>, <code>…L</code>→<code>_</code>) and then coerced to NaN. Columns reordered to
+<code>SO2, NO, NOx, NO2, CO, O3, THC, NMHC, CH4, PM10, PM2.5, PM1, WS, WD, AT, RH</code>.
+No status; one QC rule: <code>Negative</code>.</p>
+<h3 id="removed-voc-and-minion">Removed: VOC and Minion</h3>
+<p>Both were <strong>pre-aggregated, second-hand data</strong> — somebody else's processed
+output, not an instrument's raw log — so there was no raw format for a reader to
+parse and the readers only ran generic checks. They were withdrawn from
+<code>RawDataReader</code>; <code>RawDataReader('VOC', …)</code> / <code>('Minion', …)</code> now raises a
+<code>KeyError</code> carrying migration advice.</p>
+<p>Read them yourself and go straight to the analysis functions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;voc.csv&#39;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>                 <span class="n">na_values</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;N.D.&#39;</span><span class="p">))</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">out</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>      <span class="c1"># validates species against support_voc.json</span>
+</code></pre></div>
+<p>Minion arrives as a monthly report spreadsheet (<code>read_excel</code>), with a units row
+at the top and site-specific invalid markers (<code>維護校正</code>, <code>Nodata</code>, <code>0L</code>); the
+handling depends on who produced that particular report, which is exactly why it
+does not belong behind a general-purpose reader.</p>
+<h3 id="q-acsm-reader-not-implemented-yet">Q-ACSM — reader not implemented yet</h3>
+<p>A <strong>real instrument</strong>, but no reader exists: no sample export has been available
+to write and test a parser against. It stays in <code>meta</code> (the 30-min native
+frequency is known) and is registered in <code>supported_instruments.pending</code>, so
+<code>RawDataReader('Q-ACSM', …)</code> raises a plain</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>NotImplementedError: Q-ACSM is a real instrument, but its reader is not
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>implemented yet — no sample export has been available to write and test a parser
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>against. Contribute one by adding AeroViz/rawDataReader/script/Q-ACSM.py with
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>_raw_reader and _QC ...
+</code></pre></div>
+<p>rather than the abstract-class <code>TypeError</code> it used to. Removing the <code>pending</code>
+entry is all that is needed once a reader lands.</p>
+<hr />
+<h2 id="6-coverage-gaps">6. Coverage gaps</h2>
+<p>Where the status/QC machinery was, or still is, doing less than it appears to:</p>
+<table>
+<thead>
+<tr>
+<th>Instrument</th>
+<th>Symptom</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Aurora</strong></td>
+<td><code>Status Error</code> never fired — no obvious status column</td>
+<td><strong>fixed</strong>: <code>S1</code> recognised; the zero/span-check rows it marks were biasing ambient means 13% low</td>
+</tr>
+<tr>
+<td><strong>SMPS</strong> (AIM 11.x CSV)</td>
+<td><code>Status Error</code> never fired — 10.3 names absent</td>
+<td><strong>fixed</strong>: all six column names across both AIM dialects are checked</td>
+</tr>
+<tr>
+<td><strong>Any reader whose status column gets renamed</strong></td>
+<td>degraded silently to "no errors ever"</td>
+<td><strong>fixed</strong>: <code>check_status_columns</code> warns, naming what it looked for and what the file has</td>
+</tr>
+<tr>
+<td><strong>MA350</strong></td>
+<td><code>Status</code> column presence never verified against a real export</td>
+<td><strong>open</strong> — no fixture. The warning above will now say so at runtime instead of passing everything</td>
+</tr>
+<tr>
+<td><strong>GRIMM</strong></td>
+<td>no concentration range check</td>
+<td><strong>open by choice</strong>: no sample corpus to calibrate one against, and a guessed threshold silently deletes good data</td>
+</tr>
+<tr>
+<td><strong>Any reader using <code>Insufficient</code></strong></td>
+<td>partial first/last hours look sparse merely because the data starts mid-hour</td>
+<td><strong>open</strong> — see P2-i in <a href="../data-levels/#7-non-conformance-what-still-needs-fixing">Data Levels §7</a></td>
+</tr>
+</tbody>
+</table>
+<p>Full remediation list, with priorities and suggested order:
+<a href="../data-levels/#7-non-conformance-what-still-needs-fixing">Data Levels §7</a>.</p>
+<hr />
+<h2 id="7-summary-matrix">7. Summary matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Instrument</th>
+<th>Pattern</th>
+<th>Native</th>
+<th>Status column</th>
+<th>Mode</th>
+<th style="text-align: center;">QC rules</th>
+<th style="text-align: center;"><code>_process</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AE33</td>
+<td><code>…_AE33*.dat</code></td>
+<td>1 min</td>
+<td><code>Status</code></td>
+<td>bitwise</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>AE43</td>
+<td><code>…_AE43*.dat</code></td>
+<td>1 min</td>
+<td><code>Status</code></td>
+<td>bitwise</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>BC1054</td>
+<td><code>*.csv</code></td>
+<td>1 min</td>
+<td><code>Status</code></td>
+<td>bitwise</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>MA350</td>
+<td><code>*.csv</code></td>
+<td>1 min</td>
+<td><code>Status</code></td>
+<td>bitwise</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>Aurora</td>
+<td><code>*.csv</code></td>
+<td>1 min</td>
+<td><code>Status</code> (absent in practice)</td>
+<td>numeric</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>NEPH</td>
+<td><code>*.dat</code></td>
+<td>5 min</td>
+<td><code>status</code> (<code>Y</code> row f9)</td>
+<td>numeric</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>SMPS</td>
+<td><code>*.txt</code>, <code>*.csv</code></td>
+<td>6 min</td>
+<td><code>Status Flag</code> + <code>Instrument Errors</code></td>
+<td>text ×2</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>APS</td>
+<td><code>*.txt</code></td>
+<td>6 min</td>
+<td><code>Status Flags</code></td>
+<td>binary_string</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>GRIMM</td>
+<td><code>*.dat</code></td>
+<td>6 min</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>TEOM</td>
+<td><code>*.csv</code></td>
+<td>6 min</td>
+<td><code>status</code></td>
+<td>bitwise (32-bit)</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">✅</td>
+</tr>
+<tr>
+<td>BAM1020</td>
+<td><code>*.csv</code></td>
+<td>1 h</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>OCEC</td>
+<td><code>*LCRes.csv</code></td>
+<td>1 h</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>IGAC</td>
+<td><code>*.csv</code></td>
+<td>1 h</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>Xact</td>
+<td><code>*.csv</code></td>
+<td>1 h</td>
+<td><code>ALARM</code></td>
+<td>exact code</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>EPA</td>
+<td><code>*.csv</code></td>
+<td>1 h</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">❌</td>
+</tr>
+<tr>
+<td>Q-ACSM</td>
+<td><code>*.csv</code></td>
+<td>30 min</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;"><em>reader pending</em></td>
+<td style="text-align: center;">—</td>
+</tr>
+</tbody>
+</table>
+<p><code>Native</code> is the <code>meta['freq']</code> fallback; the grid actually used is detected per
+file at run time and reported as <code>df.attrs['raw_freq']</code>.</p>
+<p><strong>Three registry categories</strong> (<code>config/supported_instruments.py</code>):</p>
+<ul>
+<li><strong>supported</strong> — every row above except Q-ACSM: a module in <code>script/</code> plus a
+  <code>meta</code> entry.</li>
+<li><strong>pending</strong> — <code>Q-ACSM</code>: a real instrument, reader not written yet →
+  <code>NotImplementedError</code>.</li>
+<li><strong>removed</strong> — <code>VOC</code>, <code>Minion</code>: pre-aggregated second-hand data, no raw log to
+  parse → <code>KeyError</code> with migration advice, see
+  <a href="#removed-voc-and-minion">above</a>.</li>
 </ul>
 
 
@@ -4466,7 +5265,7 @@ dropped by a <code>concat</code> of frames with conflicting attrs — re-stamp i
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="May 29, 2026 18:02:52 UTC">May 29, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 27, 2026 09:17:52 UTC">July 27, 2026</span>
   </span>
 
     
@@ -4476,7 +5275,7 @@ dropped by a <code>concat</code> of frames with conflicting attrs — re-stamp i
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="December 25, 2025 05:30:11 UTC">December 25, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 26, 2026 10:02:12 UTC">July 26, 2026</span>
   </span>
 
     
@@ -4511,7 +5310,7 @@ dropped by a <code>concat</code> of frames with conflicting attrs — re-stamp i
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started">
+          <a href="../data-levels/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Data Levels (L0-L3)">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4521,20 +5320,20 @@ dropped by a <code>concat</code> of frames with conflicting attrs — re-stamp i
                 Previous
               </span>
               <div class="md-ellipsis">
-                Getting Started
+                Data Levels (L0-L3)
               </div>
             </div>
           </a>
         
         
           
-          <a href="../data-levels/" class="md-footer__link md-footer__link--next" aria-label="Next: Data Levels (L0-L3)">
+          <a href="../counting-efficiency/" class="md-footer__link md-footer__link--next" aria-label="Next: Counting Efficiency (CPC &amp; APS)">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Data Levels (L0-L3)
+                Counting Efficiency (CPC & APS)
               </div>
             </div>
             <div class="md-footer__button md-icon">

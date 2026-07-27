@@ -88,7 +88,7 @@ def merge_SMPS_APS(df_smps, df_aps, df_pm1, aps_unit='um', smps_overlap_lowbound
     # --- final merge at the daily density + decoupled APS counting correction ---
     shift = np.sqrt(rho_daily.clip(*density_range)).to_frame()
     _, _, _corr = merge_data(smps, aps, shift, smps_overlap_lowbound, aps_fit_highbound, 'mobility')
-    corr = _corr.resample('1d').mean().reindex(idx).ffill()
+    corr = _corr.resample('1D').mean().reindex(idx).ffill()
     corr = corr.mask(corr < 1, 1)
     aps_c = aps.copy()
     aps_c.loc[:, corr.keys()] *= corr

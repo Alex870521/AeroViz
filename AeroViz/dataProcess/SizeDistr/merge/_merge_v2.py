@@ -38,7 +38,7 @@ def merge_SMPS_APS(df_smps, df_aps, aps_unit='um', smps_overlap_lowbound=500, ap
         density.columns = ['density']
 
         if _count == 0:
-            corr = _corr.resample('1d').mean().reindex(smps.index).ffill()
+            corr = _corr.resample('1D').mean().reindex(smps.index).ffill()
             corr = corr.mask(corr < 1, 1)
             aps_ori.loc[:, corr.keys()] *= corr
 

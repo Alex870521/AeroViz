@@ -82,7 +82,7 @@ def merge_SMPS_APS(df_smps, df_aps, aps_unit='um', smps_overlap_lowbound=500, ap
             merge_data_dn, density_dn = merge_data.copy(), density.copy()
 
             ## correct aps data
-            corr = _corr.resample('1d').mean().reindex(smps.index).ffill()
+            corr = _corr.resample('1D').mean().reindex(smps.index).ffill()
             corr = corr.mask(corr < 1, 1)
 
             aps_input.loc[:, corr.keys()] *= corr

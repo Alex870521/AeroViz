@@ -137,9 +137,15 @@ class TestSMPSDialects:
 
     @staticmethod
     def _frame(**status_columns):
-        """A two-row frame with one size bin plus whichever status columns."""
+        """A two-row frame with a few size bins plus whichever status columns.
+
+        Three bins, not two: the reader derives dlogDp from ``columns[:-1]``, so
+        two bins leave a single diameter, ``np.diff`` returns an empty array and
+        the mean of it is NaN — harmless for these assertions but it fills the
+        log with `Mean of empty slice`.
+        """
         idx = pd.date_range('2024-01-01', periods=2, freq='6min')
-        data = {11.8: [3000.0, 3100.0], 20.0: [4000.0, 4100.0]}
+        data = {11.8: [3000.0, 3100.0], 15.0: [3500.0, 3600.0], 20.0: [4000.0, 4100.0]}
         data.update(status_columns)
         return pd.DataFrame(data, index=idx)
 

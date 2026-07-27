@@ -257,9 +257,13 @@ class Reader(AbstractReader):
             headers.append('_extra_')  # data has one extra field at end
             _df = read_csv(f, names=headers, on_bad_lines='skip')
 
-        # Parse time column
-        _df['time'] = to_datetime(_df['TIME'], format='%m/%d/%Y %H:%M:%S', errors='coerce')
-        _df = _df.set_index('time')
+        # Parse the time column into the index directly. Assigning it as a
+        # column first fragments the frame — harmless when the reader narrowed to
+        # a handful of columns, a PerformanceWarning per file now that all ~75
+        # are kept.
+        index = to_datetime(_df['TIME'], format='%m/%d/%Y %H:%M:%S', errors='coerce')
+        _df = _df.set_index(index)
+        _df.index.name = 'time'
         _df = _df.loc[~_df.index.duplicated() & _df.index.notna()]
 
         # Filter out calibration samples BEFORE rounding to avoid losing valid 00:30 samples

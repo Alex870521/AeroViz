@@ -169,7 +169,15 @@ class TestKeepsSourceColumns:
         assert 'QC_Flag' in out.columns and 'QC_Invalid' in out.columns
 
     def test_textual_columns_are_not_blanked(self, raw_data_path, tmp_path):
-        """Coercing everything to numeric would silently empty the text columns."""
+        """Coercing everything to numeric would silently empty the text columns.
+
+        Asserted on the *values*, not on dtype identity: pandas 3.0 gives string
+        columns a ``str`` dtype where 2.x gave ``object``, so a
+        ``dtype == object`` check finds the columns on 2.x and nothing on 3.x.
+        This test did exactly that - green locally on 2.2, red in CI on 3.0.
+        """
+        import pandas as pd
+
         from AeroViz.rawDataReader.script.OCEC import Reader
 
         src = next((raw_data_path / 'OCEC' / 'normal').glob('*LCRes.csv'), None)
@@ -177,7 +185,9 @@ class TestKeepsSourceColumns:
             pytest.skip('OCEC fixture not available')
 
         df = Reader(path=tmp_path, qc=False, quiet=True)._raw_reader(src)
-        text_columns = [c for c in df.columns if df[c].dtype == object]
+        text_columns = [c for c in df.columns
+                        if not pd.api.types.is_numeric_dtype(df[c])]
 
         assert text_columns, 'the Sunset export has textual metadata columns'
-        assert any(df[c].notna().any() for c in text_columns)
+        assert 'Sample ID' in df.columns
+        assert df['Sample ID'].notna().any(), 'Sample ID was blanked by coercion'

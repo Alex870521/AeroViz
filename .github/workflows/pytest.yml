@@ -60,6 +60,14 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.12", "3.14" ]
+        # `pandas>=2.2.0` in pyproject is a claim, and pip only ever resolves the
+        # newest, so the floor went untested — until a test that keyed on
+        # `dtype == object` passed on 2.2 and failed on 3.0, where string columns
+        # became `str`. One job pins the floor so the lower bound means something.
+        pandas: [ "" ]
+        include:
+          - python-version: "3.12"
+            pandas: "==2.2.*"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -78,6 +86,10 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install ".[test]"
+          if [ -n "${{ matrix.pandas }}" ]; then
+            pip install "pandas${{ matrix.pandas }}"
+          fi
+          python -c "import pandas; print('pandas', pandas.__version__)"
       - name: Run reader tests
         run: |
           pytest tests/test_readers/ -m "not requires_data" \

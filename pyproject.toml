@@ -86,6 +86,11 @@ dev = [
     "build",
     "twine",
     "commitizen>=3.0",
+    # `tox.ini` sits in the repo root and drives py310-py314 locally, but tox
+    # itself was never declared anywhere — so a fresh `pip install .[dev]`
+    # gave you the config without the tool. CI does not use tox; this is for
+    # the local sweep across the versions the per-push matrix no longer runs.
+    "tox>=4.0",
 ]
 docs = [
     # Everything `mkdocs build` needs for THIS mkdocs.yml. Keep it complete:

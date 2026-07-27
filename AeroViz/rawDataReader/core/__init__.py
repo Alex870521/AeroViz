@@ -218,7 +218,13 @@ class AbstractReader(ABC):
         meta_columns = [c for c in (FLAG_COLUMN, INVALID_COLUMN) if c in _f_qc]
         if meta_columns:
             if INVALID_COLUMN in _f_qc:
-                invalid_mask = _f_qc[INVALID_COLUMN].fillna(False).astype(bool)
+                # `.eq(True)` rather than `.fillna(False).astype(bool)`: the
+                # column arrives as object dtype (bools alongside NaN for rows
+                # the builder never touched), and filling an object column is
+                # exactly the silent-downcasting path pandas 2.2 deprecates and
+                # pandas 3 changed. `.eq(True)` maps NaN to False by comparison
+                # instead of by dtype coercion, so both versions agree.
+                invalid_mask = _f_qc[INVALID_COLUMN].eq(True)
             else:
                 invalid_mask = _f_qc[FLAG_COLUMN] != 'Valid'
 
@@ -1037,7 +1043,9 @@ class AbstractReader(ABC):
             out.loc[out['Rule'] == 'Valid', ['Count', 'Percentage']] = [
                 valid, f'{valid / total * 100:.1f}%']
         if INVALID_COLUMN in df.columns:
-            usable = int((~df[INVALID_COLUMN].fillna(False).astype(bool)).sum())
+            # `.eq(True)` for the same reason as in `_timeIndex_process`: filling
+            # an object column is the path pandas 2.2 deprecates.
+            usable = int((~df[INVALID_COLUMN].eq(True)).sum())
             out.loc[out['Rule'] == 'Usable', ['Count', 'Percentage']] = [
                 usable, f'{usable / total * 100:.1f}%']
 

@@ -10,13 +10,21 @@ jobs:
   # --------------------------------------------------------------------------
   # Fast feedback for every PR: dataProcess + imports only. Skips the
   # rawDataReader fixtures (the slow part of the suite).
+  #
+  # Only the two ends of the supported range run here. The versions in
+  # between are not abandoned — `wheels.yml` runs CIBW_TEST_COMMAND (import
+  # + the Fortran extension) on cp310-cp314 for every release, so "does it
+  # install and import" is gated on all five before anything reaches PyPI.
+  # What this job adds on top of that is the dataProcess maths, and that is
+  # pure numpy/pandas: it breaks at the ends (oldest/newest resolvable
+  # dependency set), not in the middle.
   # --------------------------------------------------------------------------
   quick:
     name: quick (dataProcess) py${{ matrix.python-version }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.11", "3.12", "3.13", "3.14" ]
+        python-version: [ "3.10", "3.14" ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -50,24 +58,32 @@ jobs:
           if-no-files-found: error
 
   # --------------------------------------------------------------------------
-  # Full reader pipeline. Slower; runs on push to main/master and on PRs
-  # that touch the reader code (matrix kept narrower to save CI minutes).
+  # Full reader pipeline — the bulk of the suite, and the slow part.
+  #
+  # Two jobs, each pinned to one *corner* of the supported space rather than
+  # to a version picked for being popular:
+  #
+  #   py3.10 + pandas 2.2  -> both declared floors at once
+  #   py3.14 + pandas 3.x  -> both ceilings at once
+  #
+  # `pandas>=2.2.0` in pyproject is a claim, and pip only ever resolves the
+  # newest, so the floor went untested — until a test that keyed on
+  # `dtype == object` passed on 2.2 and failed on 3.0, where string columns
+  # became `str`. Pinning the floor onto the oldest Python folds that check
+  # into a job that had to exist anyway: pandas 3.0 requires >=3.11, so 3.10
+  # is where a pandas-2 environment is the honest one to test.
   # --------------------------------------------------------------------------
   readers:
-    name: readers py${{ matrix.python-version }}
+    name: readers py${{ matrix.python-version }} (pandas${{ matrix.pandas || ' latest' }})
     needs: quick
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.12", "3.14" ]
-        # `pandas>=2.2.0` in pyproject is a claim, and pip only ever resolves the
-        # newest, so the floor went untested — until a test that keyed on
-        # `dtype == object` passed on 2.2 and failed on 3.0, where string columns
-        # became `str`. One job pins the floor so the lower bound means something.
-        pandas: [ "" ]
         include:
-          - python-version: "3.12"
+          - python-version: "3.10"
             pandas: "==2.2.*"
+          - python-version: "3.14"
+            pandas: ""
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -58,7 +58,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "pandas>=2.2.0",
+    # Not 2.2.0: pandas capped `numpy<2` until 2.2.2, so `pandas>=2.2.0`
+    # alongside `numpy>=2.0.0` below was a pair of claims no resolver could
+    # satisfy at the floor. It stayed invisible because pip only ever picks
+    # the newest match (2.2.3), never the boundary being claimed.
+    "pandas>=2.2.2",
     "numpy>=2.0.0",
     "matplotlib>=3.8.4",
     "scipy>=1.15.0",

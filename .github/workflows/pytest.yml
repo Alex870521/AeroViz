@@ -20,11 +20,15 @@ jobs:
   # dependency set), not in the middle.
   # --------------------------------------------------------------------------
   quick:
-    name: quick (dataProcess) py${{ matrix.python-version }}
+    name: quick (dataProcess) py${{ matrix.python-version }}${{ matrix.floors && ' [floors]' || '' }}
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.10", "3.14" ]
+        include:
+          - python-version: "3.10"
+            floors: true
+          - python-version: "3.14"
+            floors: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +38,11 @@ jobs:
           cache: 'pip'
       - name: Install gfortran
         run: sudo apt-get update && sudo apt-get install -y gfortran
+      - name: Pin every dependency to its declared floor
+        if: matrix.floors
+        run: |
+          python .github/scripts/floor_constraints.py > floors.txt
+          cat floors.txt
       - name: Install
         # Non-editable install: pip builds the wheel once, installs it,
         # and the test run uses the installed package. Avoids
@@ -42,7 +51,8 @@ jobs:
         # cleaned up).
         run: |
           python -m pip install --upgrade pip
-          pip install ".[test]"
+          pip install ".[test]" ${{ matrix.floors && '-c floors.txt' || '' }}
+          pip list | grep -iE '^(pandas|numpy|matplotlib|scipy|numba|plotly|cartopy|scikit-learn) '
       - name: Run tests
         run: |
           pytest tests/test_imports.py tests/test_dataprocess/ \
@@ -63,27 +73,33 @@ jobs:
   # Two jobs, each pinned to one *corner* of the supported space rather than
   # to a version picked for being popular:
   #
-  #   py3.10 + pandas 2.2  -> both declared floors at once
-  #   py3.14 + pandas 3.x  -> both ceilings at once
+  #   py3.10, every dependency at its declared floor  -> the whole lower corner
+  #   py3.14, everything newest                       -> the whole upper corner
   #
-  # `pandas>=2.2.0` in pyproject is a claim, and pip only ever resolves the
-  # newest, so the floor went untested — until a test that keyed on
-  # `dtype == object` passed on 2.2 and failed on 3.0, where string columns
-  # became `str`. Pinning the floor onto the oldest Python folds that check
-  # into a job that had to exist anyway: pandas 3.0 requires >=3.11, so 3.10
-  # is where a pandas-2 environment is the honest one to test.
+  # Every `>=` in pyproject is a claim, and pip only ever resolves the newest
+  # match, so floors are the versions that never get installed. Two of these
+  # claims had already gone bad by the time anyone looked: a test keyed on
+  # `dtype == object` passed on pandas 2.2 and failed on 3.0 (string columns
+  # became `str`), and `pandas>=2.2.0` was flatly unsatisfiable next to
+  # `numpy>=2.0.0`, because pandas capped `numpy<2` until 2.2.2 — nobody could
+  # install the combination the metadata advertised.
+  #
+  # So the floor job pins *all* of them, not just pandas, via constraints
+  # generated from pyproject itself. Generated rather than committed so the
+  # two cannot drift: change a floor, and this job tests the new one. 3.10 is
+  # the honest place for it, since pandas 3 requires >=3.11.
   # --------------------------------------------------------------------------
   readers:
-    name: readers py${{ matrix.python-version }} (pandas${{ matrix.pandas || ' latest' }})
+    name: readers py${{ matrix.python-version }}${{ matrix.floors && ' [floors]' || '' }}
     needs: quick
     strategy:
       fail-fast: false
       matrix:
         include:
           - python-version: "3.10"
-            pandas: "==2.2.*"
+            floors: true
           - python-version: "3.14"
-            pandas: ""
+            floors: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -93,6 +109,11 @@ jobs:
           cache: 'pip'
       - name: Install gfortran
         run: sudo apt-get update && sudo apt-get install -y gfortran
+      - name: Pin every dependency to its declared floor
+        if: matrix.floors
+        run: |
+          python .github/scripts/floor_constraints.py > floors.txt
+          cat floors.txt
       - name: Install
         # Non-editable install: pip builds the wheel once, installs it,
         # and the test run uses the installed package. Avoids
@@ -101,11 +122,8 @@ jobs:
         # cleaned up).
         run: |
           python -m pip install --upgrade pip
-          pip install ".[test]"
-          if [ -n "${{ matrix.pandas }}" ]; then
-            pip install "pandas${{ matrix.pandas }}"
-          fi
-          python -c "import pandas; print('pandas', pandas.__version__)"
+          pip install ".[test]" ${{ matrix.floors && '-c floors.txt' || '' }}
+          pip list | grep -iE '^(pandas|numpy|matplotlib|scipy|numba|plotly|cartopy|scikit-learn) '
       - name: Run reader tests
         run: |
           pytest tests/test_readers/ -m "not requires_data" \

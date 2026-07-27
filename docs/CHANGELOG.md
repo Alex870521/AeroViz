@@ -1,3 +1,33 @@
+## v0.4.0 (2026-07-27)
+
+### BREAKING CHANGE
+
+- `_read_*_qc.pkl` / `.csv` gain a `QC_Invalid` column and
+existing caches are invalidated (CACHE_FORMAT 3), so the next read re-parses
+from raw. Rows flagged only `Below MDL` (OCEC) or `Upscale Warning` (Xact)
+now keep their values instead of being NaN, which also raises those
+instruments' yield rates. Pass flag_severity={...} to restore the old
+strictness.
+- RawDataReader('VOC', ...) and RawDataReader('Minion', ...)
+now raise KeyError. Read those files with pandas and pass the DataFrame to
+the analysis functions (VOC -> voc_potentials).
+
+### Feat
+
+- **xact**: classify elements by measurement uncertainty, from the manual
+- **qc**: split QC flags into invalidating vs advisory severity
+- **reader**: give GRIMM QC, register Q-ACSM as pending, wire Xact/IGAC MDL
+- remove VOC and Minion from RawDataReader
+
+### Fix
+
+- **deps**: make the [docs] extra able to build the docs
+- **tests**: make the OCEC text-column check pandas-3 proof, and test the floor
+- **qc**: stop Insufficient deleting the head and tail of every read
+- **reader**: keep the metadata L1 was discarding; record BC1054's two clocks
+- **time-grid**: keep the native grid at the instrument's real period
+- **reader**: correct completeness freq, honour mean_freq, find every status column
+
 ## v0.3.4 (2026-05-29)
 
 ### Feat

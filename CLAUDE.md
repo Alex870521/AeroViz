@@ -144,7 +144,8 @@ timeseries_interactive(df, columns=['eBC', 'AAE'])   # show=True by default
 ### AE33/AE43
 - `BC1`-`BC7`: Black carbon at 7 wavelengths (ng/m³)
 - `abs_370`-`abs_950`: Absorption coefficients (Mm⁻¹)
-- `AAE`: Absorption Ångström Exponent
+- `AAE`: Absorption Ångström Exponent (positive by convention; ~1 for black
+  carbon, 2–3 when brown carbon or dust dominates)
 - `eBC`: Equivalent black carbon
 
 ### SMPS/APS
@@ -173,7 +174,7 @@ above).
 
 ### Aurora/NEPH
 - `sca_550`: Scattering coefficient at 550 nm (Mm⁻¹) — **primary output**
-- `SAE`: Scattering Ångström Exponent — **primary output**
+- `SAE`: Scattering Ångström Exponent (positive by convention) — **primary output**
 - Aurora also keeps the per-wavelength raw channels: `B`, `G`, `R` (0° total
   scattering at blue/green/red) and `BB`, `BG`, `BR` (90° backscatter)
 - NEPH keeps the same `B`, `G`, `R`, `BB`, `BG`, `BR` channels plus any

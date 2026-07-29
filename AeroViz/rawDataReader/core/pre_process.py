@@ -68,6 +68,31 @@ def calculate_bulk_angstrom_numba(abs_values, log_wavelengths):
     return results
 
 
+def _angstrom_exponent(values, band):
+    """
+    Ångström exponent per row, in the positive sign convention.
+
+    A log-log fit of X(λ) = K·λ^(-AE) has slope -AE, so the raw slope returned by
+    ``calculate_bulk_angstrom_numba`` is negated here. AAE and SAE are reported as
+    positive numbers throughout AeroViz (and in the literature), and that is also
+    what ``calculate_specific_wavelengths_numba`` expects.
+
+    Parameters
+    ----------
+    values : array_like
+        2D array of measurements [n_samples, n_wavelengths]
+    band : numpy.ndarray
+        Wavelengths (nm) matching the columns of ``values``
+
+    Returns
+    -------
+    numpy.ndarray
+        Positive Ångström exponent per row (NaN where the fit is undefined)
+    """
+    fit = calculate_bulk_angstrom_numba(np.ascontiguousarray(values, dtype=np.float64), np.log(band))
+    return -fit[:, 0]
+
+
 @numba.jit(nopython=True)
 def calculate_specific_wavelengths_numba(ref_values, ae_values, ratio_factor):
     """
@@ -120,6 +145,14 @@ def calculate_specific_wavelengths_numba(ref_values, ae_values, ratio_factor):
     return results
 
 
+SCA_BANDS = {
+    'NEPH': np.array([450, 550, 700]),  # TSI 3563
+    'AURORA': np.array([450, 525, 635]),  # Ecotech Aurora 3000
+}
+
+SCA_CHANNELS = ['B', 'G', 'R']
+
+
 def _scaCoe(df, instru, specified_band: list):
     """
     Calculate scattering coefficients and Ångström exponent for scattering.
@@ -127,85 +160,56 @@ def _scaCoe(df, instru, specified_band: list):
     Parameters
     ----------
     df : pandas.DataFrame
-        Data frame containing scattering measurements
+        Data frame containing scattering measurements (needs columns B, G, R)
     instru : str
-        Instrument type ('Neph' or 'Aurora')
+        Instrument type ('NEPH' or 'Aurora'), matched case-insensitively
     specified_band : list
         List of wavelengths to calculate scattering coefficients for
 
     Returns
     -------
     pandas.DataFrame
-        Data frame with scattering coefficients and Ångström exponent
+        Data frame with scattering coefficients and Ångström exponent.
+        ``SAE`` is reported positive, following the usual convention.
     """
-    band_Neph = np.array([450, 550, 700])
-    band_Aurora = np.array([450, 525, 635])
+    key = str(instru).upper()
+    if key not in SCA_BANDS:
+        raise KeyError(f'Unknown nephelometer {instru!r}; expected one of {sorted(SCA_BANDS)}')
+    band = SCA_BANDS[key]
 
-    band = band_Neph if instru == 'Neph' else band_Aurora
+    # Drop repeats while keeping order — a duplicated wavelength would otherwise
+    # create duplicate columns and break the .loc assignments below
+    target_bands = list(dict.fromkeys(specified_band))
 
     # Create mask for valid rows to avoid copying data
-    mask = ~df[['B', 'G', 'R']].isna().any(axis=1)
+    mask = ~df[SCA_CHANNELS].isna().any(axis=1)
 
     # Pre-allocate output DataFrame
-    result_columns = [f'sca_{_band}' for _band in specified_band] + ['SAE']
+    result_columns = [f'sca_{wl}' for wl in target_bands] + ['SAE']
     result_df = pd.DataFrame(np.nan, index=df.index, columns=result_columns)
 
-    # Calculate only for valid rows
-    if mask.any():
-        if instru == 'Neph':
-            # For Nephelometer, directly use G column
-            if len(specified_band) == 1 and specified_band[0] == 550:
-                # Common case optimization
-                result_df.loc[mask, f'sca_550'] = df.loc[mask, 'G']
-            else:
-                # Need to extrapolate to other wavelengths
-                bgr_values = df.loc[mask, ['B', 'G', 'R']].values
-                log_band = np.log(band)
+    # Exit early if no valid data
+    if not mask.any():
+        return pd.concat([df, result_df], axis=1)
 
-                # Calculate SAE using numba function
-                sae_results = calculate_bulk_angstrom_numba(bgr_values, log_band)
+    # SAE from a log-log fit over all three channels, positive by convention
+    sae_values = _angstrom_exponent(df.loc[mask, SCA_CHANNELS].values, band)
+    result_df.loc[mask, 'SAE'] = sae_values
 
-                # Use the calculated SAE to get scattering at specified wavelengths
-                for i, wl in enumerate(specified_band):
-                    closest_idx = np.abs(band - wl).argmin()
-                    ref_wl = band[closest_idx]
-                    ref_idx = ['B', 'G', 'R'][closest_idx]
+    for wl in target_bands:
+        exact = np.flatnonzero(band == wl)
+        if exact.size:
+            # Measured directly — use the channel as-is rather than round-tripping
+            # it through the power law (which would also drop rows with no SAE)
+            result_df.loc[mask, f'sca_{wl}'] = df.loc[mask, SCA_CHANNELS[exact[0]]].values
+            continue
 
-                    # Get reference measurements
-                    ref_values = df.loc[mask, ref_idx].values
-
-                    # Calculate scattering at target wavelength
-                    ratio = wl / ref_wl
-                    result_df.loc[mask, f'sca_{wl}'] = ref_values * (ratio ** -sae_results[:, 0])
-
-                # Store SAE values
-                result_df.loc[mask, 'SAE'] = sae_results[:, 0]
-        else:
-            # For Aurora, calculate using numba-optimized function instead of get_species_wavelength
-            bgr_values = df.loc[mask, ['B', 'G', 'R']].values
-            log_band = np.log(band)
-
-            # Calculate SAE using numba function
-            sae_results = calculate_bulk_angstrom_numba(bgr_values, log_band)
-
-            # Store SAE values
-            result_df.loc[mask, 'SAE'] = sae_results[:, 0]
-
-            # Calculate scattering at specified wavelengths
-            for i, wl in enumerate(specified_band):
-                closest_idx = np.abs(band - wl).argmin()
-                ref_wl = band[closest_idx]
-                ref_idx = ['B', 'G', 'R'][closest_idx]
-
-                # Get reference measurements
-                ref_values = df.loc[mask, ref_idx].values
-
-                # Calculate using the same function as for absorption, but with negative SAE
-                ratio = wl / ref_wl
-                # Note the negative sign for SAE
-                neg_sae_values = -sae_results[:, 0]  # Negative SAE for scattering
-                result_df.loc[mask, f'sca_{wl}'] = calculate_specific_wavelengths_numba(
-                    ref_values, neg_sae_values, ratio)
+        # Extrapolate from the nearest channel: sca(λ₂) = sca(λ₁)·(λ₂/λ₁)^(-SAE)
+        closest_idx = int(np.abs(band - wl).argmin())
+        ref_values = df.loc[mask, SCA_CHANNELS[closest_idx]].values.astype(float)
+        ratio = wl / band[closest_idx]
+        result_df.loc[mask, f'sca_{wl}'] = calculate_specific_wavelengths_numba(
+            ref_values, sae_values, ratio)
 
     # Combine with original data
     return pd.concat([df, result_df], axis=1)
@@ -218,7 +222,8 @@ def _absCoe(df, instru, specified_band: list):
     Parameters
     ----------
     df : pandas.DataFrame
-        Data frame containing black carbon measurements
+        Data frame containing black carbon measurements — exactly one column per
+        instrument wavelength, in ascending-wavelength order
     instru : str
         Instrument type ('AE33', 'BC1054', or 'MA350')
     specified_band : list
@@ -227,8 +232,9 @@ def _absCoe(df, instru, specified_band: list):
     Returns
     -------
     pandas.DataFrame
-        Data frame with original data, absorption coefficients,
-        coefficients at specified wavelengths, and Ångström exponent
+        Data frame with original data, absorption coefficients, coefficients at
+        specified wavelengths, and Ångström exponent. ``AAE`` is reported
+        positive, following the usual convention.
     """
     config = {
         'AE33': {
@@ -249,14 +255,26 @@ def _absCoe(df, instru, specified_band: list):
     }
 
     # Get configuration for the instrument
+    if instru not in config:
+        raise KeyError(f'Unknown aethalometer {instru!r}; expected one of {sorted(config)}')
     band_config = config[instru]
+    band = band_config['band']
+
+    # The BC channels are matched to wavelengths positionally, so the caller must
+    # hand over exactly one column per band, in ascending-wavelength order
+    if df.shape[1] != len(band):
+        raise ValueError(
+            f'{instru} expects {len(band)} BC columns (one per wavelength {band.tolist()}), '
+            f'got {df.shape[1]}: {list(df.columns)}')
 
     # Create mask for valid rows - non-zero and non-NaN
     mask = ~((df == 0).all(axis=1) | df.isna().any(axis=1))
 
-    # Pre-allocate output columns
-    result_columns = ([f'abs_{_band}' for _band in band_config['band']] +
-                      [f'abs_{_band}' for _band in specified_band] +
+    # Pre-allocate output columns. Wavelengths that the instrument measures
+    # directly are skipped in the specified list, so no column is duplicated
+    extra_bands = [wl for wl in dict.fromkeys(specified_band) if wl not in band]
+    result_columns = ([f'abs_{_band}' for _band in band] +
+                      [f'abs_{_band}' for _band in extra_bands] +
                       ['eBC', 'AAE'])
     result_df = pd.DataFrame(np.nan, index=df.index, columns=result_columns)
 
@@ -268,35 +286,25 @@ def _absCoe(df, instru, specified_band: list):
     df_valid = df[mask]
 
     # Calculate absorption coefficients (vectorized)
-    for i, wl in enumerate(band_config['band']):
-        col_name = f'abs_{wl}'
-        if col_name not in result_df.columns:
-            continue
-        result_df.loc[mask, col_name] = df_valid[df_valid.columns[i]] * band_config['MAE'][i]
+    for i, wl in enumerate(band):
+        result_df.loc[mask, f'abs_{wl}'] = df_valid[df_valid.columns[i]] * band_config['MAE'][i]
 
     # Extract absorption values as array for AAE calculation
-    abs_cols = [f'abs_{wl}' for wl in band_config['band']]
+    abs_cols = [f'abs_{wl}' for wl in band]
     abs_values = result_df.loc[mask, abs_cols].values
 
-    # Calculate AAE with numba
-    log_wavelengths = np.log(band_config['band'])
-    aae_results = calculate_bulk_angstrom_numba(abs_values, log_wavelengths)
+    # AAE from a log-log fit over all bands, positive by convention
+    aae_values = _angstrom_exponent(abs_values, band)
+    result_df.loc[mask, 'AAE'] = aae_values
 
-    # Store AAE values
-    result_df.loc[mask, 'AAE'] = aae_results[:, 0]
-
-    # Calculate absorption at specified wavelengths
-    for target_wl in specified_band:
+    # Calculate absorption at the requested wavelengths that are not measured directly
+    for target_wl in extra_bands:
         # Find the closest reference wavelength
-        closest_idx = np.abs(band_config['band'] - target_wl).argmin()
-        ref_wl = band_config['band'][closest_idx]
-        ref_col = f'abs_{ref_wl}'
+        closest_idx = int(np.abs(band - target_wl).argmin())
+        ref_wl = band[closest_idx]
 
-        # Get reference values and AAE
-        ref_values = result_df.loc[mask, ref_col].values
-        aae_values = result_df.loc[mask, 'AAE'].values
-
-        # Calculate using ratio
+        # Extrapolate: abs(λ₂) = abs(λ₁)·(λ₂/λ₁)^(-AAE)
+        ref_values = result_df.loc[mask, f'abs_{ref_wl}'].values
         ratio = target_wl / ref_wl
         result_df.loc[mask, f'abs_{target_wl}'] = calculate_specific_wavelengths_numba(
             ref_values, aae_values, ratio)

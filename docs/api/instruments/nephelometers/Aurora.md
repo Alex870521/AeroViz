@@ -102,7 +102,7 @@ The processed data contains the following columns:
 | B, G, R | Mm⁻¹ | Total scattering coefficients |
 | BB, BG, BR | Mm⁻¹ | Backscattering coefficients |
 | sca_550 | Mm⁻¹ | Scattering at 550nm |
-| SAE | - | Scattering Angstrom Exponent |
+| SAE | - | Scattering Angstrom Exponent (positive by convention) |
 
 !!! note "QC_Flag Handling"
 

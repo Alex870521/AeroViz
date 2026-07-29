@@ -106,7 +106,7 @@ Severity is `error` unless marked **advisory**.
 | `Status Error` | instrument status register reports a non-whitelisted condition | AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM |
 | `Insufficient` | an hour holds < 50 % of the points it could have held, given how much of that hour the read covers — **advisory** | AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM, GRIMM |
 | `Invalid BC` | any BC channel ≤ 0 or > 20 000 ng/m³ | AE33, AE43, BC1054, MA350 |
-| `Invalid AAE` | \|AAE\| outside 0.7–2.0 (added in `_process`) | AE33, AE43, BC1054, MA350 |
+| `Invalid AAE` | AAE outside 0.7–3.0 (added in `_process`) | AE33, AE43, BC1054, MA350 |
 | `Invalid Number Conc` | total number concentration outside range (SMPS 2 000–1e7, APS 1–700 #/cm³) | SMPS, APS |
 | `DMA Water Ingress` | any bin > 400 nm exceeds 4 000 dN/dlogDp | SMPS |
 | `Invalid Scat Value` | any scattering channel ≤ 0 or > 2 000 Mm⁻¹ | Aurora, NEPH |
@@ -243,7 +243,7 @@ Identical to AE33 except:
 | **Parse** | `read_csv(low_memory=False, index_col=0)`; index coerced to datetime; column aliases `0°σspB/G/R`→`B/G/R`, `90°σspB/G/R`→`BB/BG/BR`, and `Blue/Green/Red`→`B/G/R`, `B_Blue/B_Green/B_Red`→`BB/BG/BR`; `Raw_Data_Time` dropped |
 | **Status** | first match among `Status`, `status`, `Error`, `error`, `Flag`, `flag`, **`S1`** is renamed to `Status`; mode `numeric`, `ok_value=0` |
 | **QC rules** | `Status Error`, `No Data`, `Invalid Scat Value` (0–2 000 Mm⁻¹), `Invalid Scat Rel` (`B < G & G < R`), `Insufficient` |
-| **L2 output** | `sca_550`, `SAE`, plus all non-scattering columns (T1, T2, RH, P, S1, S2, …), `QC_Flag` |
+| **L2 output** | `sca_550`, `SAE` (positive by convention), plus all non-scattering columns (T1, T2, RH, P, S1, S2, …), `QC_Flag` |
 | **`S1` is the status** | the production CSV (`Data_Time, Raw_Data_Time, Red, Green, Blue, B_Red, B_Green, B_Blue, T1, T2, RH, P, S1, S2`) contains none of the *obvious* status names — the status is `S1`, and it is now recognised. Evidence from 120 one-minute scans: `S1 ∈ {0, 4}`; the 17 rows with `S1 == 4` are **contiguous** (00:06–00:22) and their scattering decays 185 → 0.78 Mm⁻¹ while `S1 == 0` rows average 193 Mm⁻¹ — the signature of the **zero/span check**, where the instrument samples filtered air. Those rows pass the 0–2000 range check happily, so before this fix they were averaged into ambient means: on that fixture, dropping them raises the green-channel mean from 170.8 to 193.2 Mm⁻¹, i.e. a **13% low bias** removed. |
 | **`S2`** | moves in step (`0x07` while ambient, `0xAB`/`0xA8` during the check) and is evidently a bitfield. Its individual bits are **not** decoded — no manual to hand, and guessing bit meanings would be worse than leaving it as data. |
 

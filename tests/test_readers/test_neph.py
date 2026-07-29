@@ -66,15 +66,15 @@ class TestNEPHReader(BaseReaderTest):
         assert 'sca_550' in df.columns, "sca_550 column not found"
 
     def test_sae_calculation(self, data_path, date_range, temp_output_dir):
-        """Test that SAE is calculated."""
+        """Test that SAE is calculated, positive by convention."""
         normal_path = data_path / 'normal'
         if not normal_path.exists():
             normal_path = data_path
 
         df = self.read_data(normal_path, date_range)
 
-        if 'SAE' in df.columns:
-            valid_sae = df['SAE'].dropna()
-            if len(valid_sae) > 0:
-                assert valid_sae.min() > -2, "SAE seems unreasonably low"
-                assert valid_sae.max() < 5, "SAE seems unreasonably high"
+        assert 'SAE' in df.columns, "SAE column not found"
+        valid_sae = df['SAE'].dropna()
+        if len(valid_sae) > 0:
+            assert valid_sae.min() > -1, "SAE seems unreasonably low"
+            assert valid_sae.max() < 5, "SAE seems unreasonably high"

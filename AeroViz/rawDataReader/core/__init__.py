@@ -32,7 +32,11 @@ INVALID_COLUMN = QCFlagBuilder.INVALID_COLUMN
 # Bumped to 3 when QC gained flag severity: the cached QC frame now carries a
 # `QC_Invalid` verdict column alongside `QC_Flag`. A version-2 pickle has no
 # verdict, so it is re-parsed rather than silently treated as all-invalidating.
-CACHE_FORMAT = 3
+# Bumped to 4 when the Angstrom exponents were fixed: `AAE`/`SAE` are now
+# positive, `abs_550` / extrapolated `sca_*` were being computed with an inverted
+# exponent, and MAX_AAE was relaxed 2.0 -> 3.0. A version-3 pickle holds both the
+# wrong values and the old QC verdict, so it is re-parsed rather than served.
+CACHE_FORMAT = 4
 
 
 class AbstractReader(ABC):

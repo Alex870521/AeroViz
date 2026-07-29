@@ -29,8 +29,9 @@ class Reader(AbstractReader):
     # =========================================================================
     MIN_BC = 0           # Minimum BC concentration (ng/m³)
     MAX_BC = 20000       # Maximum BC concentration (ng/m³)
-    MIN_AAE = 0.7        # Minimum valid AAE (absolute value)
-    MAX_AAE = 2.0        # Maximum valid AAE (absolute value)
+    MIN_AAE = 0.7        # Minimum valid AAE
+    MAX_AAE = 3.0        # Maximum valid AAE — loose enough to keep BrC-rich
+                         # biomass burning / dust episodes, where bulk AAE runs 2-3
 
     #: Where the instrument's own timestamp is kept when a file carries both
     #: clocks. The index uses the logger clock; see `_check_clock_offset`.
@@ -241,7 +242,7 @@ class Reader(AbstractReader):
         df_out = concat([_df_cal, _df[non_bc_cols]], axis=1)
 
         # Validate AAE and update QC_Flag
-        invalid_aae = (-df_out['AAE'] < self.MIN_AAE) | (-df_out['AAE'] > self.MAX_AAE)
+        invalid_aae = (df_out['AAE'] < self.MIN_AAE) | (df_out['AAE'] > self.MAX_AAE)
         df_out = self.update_qc_flag(df_out, invalid_aae, 'Invalid AAE')
 
         # Log the combined summary: `Invalid AAE` can only be counted here,

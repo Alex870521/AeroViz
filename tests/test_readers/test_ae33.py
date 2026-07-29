@@ -51,10 +51,7 @@ class TestAE33Reader(BaseReaderTest):
             assert f'abs_{wl}' in df.columns, f"abs_{wl} column not found"
 
     def test_aae_calculation(self, data_path, date_range, temp_output_dir):
-        """Test that AAE is calculated.
-
-        Note: AE33 stores AAE as negative values (convention), so we check abs(AAE).
-        """
+        """Test that AAE is calculated, positive by convention."""
         normal_path = data_path / 'normal'
         if not normal_path.exists():
             normal_path = data_path
@@ -62,9 +59,9 @@ class TestAE33Reader(BaseReaderTest):
         df = self.read_data(normal_path, date_range)
 
         assert 'AAE' in df.columns, "AAE column not found"
-        valid_aae = df['AAE'].dropna().abs()
+        valid_aae = df['AAE'].dropna()
         if len(valid_aae) > 0:
-            assert valid_aae.min() > 0, "AAE absolute value should be positive"
+            assert valid_aae.min() > 0, "AAE should be positive"
             assert valid_aae.max() < 5, "AAE seems unreasonably high"
 
     def test_ebc_calculation(self, data_path, date_range, temp_output_dir):

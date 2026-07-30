@@ -89,7 +89,8 @@ class QCFlagBuilder:
     #: recorded without deleting the measurement.
     INVALID_COLUMN = 'QC_Invalid'
 
-    def __init__(self, severity_overrides: dict | None = None, logger=None):
+    def __init__(self, severity_overrides: dict | None = None, logger=None,
+                 extra_flags: tuple[str, ...] = ()):
         """
         Parameters
         ----------
@@ -101,10 +102,33 @@ class QCFlagBuilder:
             Where to report a rule that raises. Defaults to ``print``, which is
             easy to miss in a long read — pass the reader's logger so the failure
             lands in the log file alongside the QC summary.
+        extra_flags : tuple of str, optional
+            Flags the reader raises *after* this builder runs, through
+            `AbstractReader.update_qc_flag` (e.g. ``'Invalid AAE'``). They are not
+            rules here, but an override naming one is still legitimate, so they
+            count as known names when the override keys are checked.
         """
         self.rules: list[QCRule] = []
         self.severity_overrides = dict(severity_overrides or {})
         self.logger = logger
+        self.extra_flags = tuple(extra_flags)
+
+    def known_flags(self) -> set[str]:
+        """Every flag name an override may legitimately name."""
+        return {rule.name for rule in self.rules} | set(self.extra_flags)
+
+    def _check_override_names(self) -> None:
+        """Reject an override that names no rule this instrument actually has.
+
+        An unknown key used to be silently ignored, so a typo — or a rule name
+        borrowed from a different instrument — looked like it had been applied
+        while QC carried on unchanged.
+        """
+        unknown = set(self.severity_overrides) - self.known_flags()
+        if unknown:
+            raise ValueError(
+                f"flag_severity names no QC rule of this instrument: {sorted(unknown)}. "
+                f"Available: {sorted(self.known_flags())}")
 
     def add_rule(self, rule: QCRule) -> 'QCFlagBuilder':
         """Add a QC rule. Returns self for method chaining."""
@@ -177,6 +201,7 @@ class QCFlagBuilder:
                 advisory flag is recorded against them.
         """
         df = df.copy()
+        self._check_override_names()
 
         if not self.rules:
             df[self.FLAG_COLUMN] = 'Valid'

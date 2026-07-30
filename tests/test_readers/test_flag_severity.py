@@ -126,13 +126,38 @@ class TestOverrides:
             qc.apply(frame)
 
 
+class _StubReader(AbstractReader):
+    """The bare bones of a reader, enough to exercise the late-flag path.
+
+    Skips the base ``__init__`` (which wants a real data directory) and sets only
+    what `update_qc_flag` reads.
+    """
+
+    nam = 'Stub'
+    LATE_QC_FLAGS = ('Invalid AAE',)
+
+    def __init__(self, overrides=None):
+        self.qc_severity_overrides = dict(overrides or {})
+        self.logger = None
+
+    def _raw_reader(self, file):  # pragma: no cover - never called
+        raise NotImplementedError
+
+    def _QC(self, df):  # pragma: no cover - never called
+        raise NotImplementedError
+
+
+def _late_flagger(overrides=None):
+    return _StubReader(overrides)
+
+
 class TestUpdateQCFlag:
     """`_process` adds late rules (e.g. Invalid AAE) through this path."""
 
     def test_error_marks_invalid(self, frame):
         df = QCFlagBuilder().apply(frame)
         mask = pd.Series([False, True, False, False], index=df.index)
-        out = AbstractReader.update_qc_flag(df, mask, 'Late Error')
+        out = _late_flagger().update_qc_flag(df, mask, 'Late Error')
 
         assert out[FLAG].iloc[1] == 'Late Error'
         assert out[INVALID].iloc[1]
@@ -140,7 +165,7 @@ class TestUpdateQCFlag:
     def test_warning_records_only(self, frame):
         df = QCFlagBuilder().apply(frame)
         mask = pd.Series([False, True, False, False], index=df.index)
-        out = AbstractReader.update_qc_flag(df, mask, 'Late Note', severity='warning')
+        out = _late_flagger().update_qc_flag(df, mask, 'Late Note', severity='warning')
 
         assert out[FLAG].iloc[1] == 'Late Note'
         assert not out[INVALID].iloc[1]
@@ -148,9 +173,83 @@ class TestUpdateQCFlag:
     def test_appends_to_existing_flag(self, frame):
         df = QCFlagBuilder().add_rule(_rule('First', [1])).apply(frame)
         mask = pd.Series([False, True, False, False], index=df.index)
-        out = AbstractReader.update_qc_flag(df, mask, 'Second')
+        out = _late_flagger().update_qc_flag(df, mask, 'Second')
 
         assert out[FLAG].iloc[1] == 'First, Second'
+
+    def test_flag_severity_demotes_a_late_flag(self, frame):
+        """The whole point: `Invalid AAE` used to be un-reclassifiable."""
+        df = QCFlagBuilder().apply(frame)
+        mask = pd.Series([False, True, False, False], index=df.index)
+        stub = _late_flagger({'Invalid AAE': 'warning'})
+
+        out = stub.update_qc_flag(df, mask, 'Invalid AAE')
+
+        assert out[FLAG].iloc[1] == 'Invalid AAE'
+        assert not out[INVALID].iloc[1], 'demoted flag must keep the measurement'
+
+    def test_flag_severity_promotes_a_late_flag(self, frame):
+        df = QCFlagBuilder().apply(frame)
+        mask = pd.Series([False, True, False, False], index=df.index)
+        stub = _late_flagger({'Late Note': 'error'})
+
+        out = stub.update_qc_flag(df, mask, 'Late Note', severity='warning')
+
+        assert out[INVALID].iloc[1]
+
+    def test_rejects_a_bad_override_value(self, frame):
+        df = QCFlagBuilder().apply(frame)
+        mask = pd.Series([False, True, False, False], index=df.index)
+        stub = _late_flagger({'Late Note': 'nope'})
+
+        with pytest.raises(ValueError, match='severity override'):
+            stub.update_qc_flag(df, mask, 'Late Note')
+
+
+class TestOverrideNamesAreChecked:
+    """An override naming no rule used to be silently ignored."""
+
+    def test_unknown_name_raises(self, frame):
+        qc = QCFlagBuilder({'Invald AAE': 'warning'}).add_rule(_rule('Spike', [1]))
+
+        with pytest.raises(ValueError, match='names no QC rule'):
+            qc.apply(frame)
+
+    def test_message_lists_the_available_names(self, frame):
+        qc = QCFlagBuilder({'Nope': 'warning'}).add_rule(_rule('Spike', [1]))
+
+        with pytest.raises(ValueError, match='Spike'):
+            qc.apply(frame)
+
+    def test_known_rule_name_is_accepted(self, frame):
+        qc = QCFlagBuilder({'Spike': 'warning'}).add_rule(_rule('Spike', [1]))
+
+        assert not qc.apply(frame)[INVALID].any()
+
+    def test_late_flag_name_is_accepted(self, frame):
+        """`Invalid AAE` is not a rule here, but naming it is still legitimate."""
+        qc = QCFlagBuilder({'Invalid AAE': 'warning'},
+                           extra_flags=('Invalid AAE',)).add_rule(_rule('Spike', [1]))
+
+        assert qc.apply(frame)[INVALID].iloc[1]
+
+    def test_qc_builder_carries_the_readers_late_flags(self, frame):
+        """`qc_builder()` must hand `LATE_QC_FLAGS` to the builder, or naming a
+        late flag would be rejected as unknown before it is ever raised."""
+        qc = _late_flagger({'Invalid AAE': 'warning'}).qc_builder()
+        qc.add_rule(_rule('Spike', [1]))
+
+        assert 'Invalid AAE' in qc.known_flags()
+        qc.apply(frame)  # must not raise
+
+    def test_aethalometers_declare_their_late_flag(self):
+        from AeroViz.rawDataReader.script.AE33 import Reader as AE33
+        from AeroViz.rawDataReader.script.AE43 import Reader as AE43
+        from AeroViz.rawDataReader.script.BC1054 import Reader as BC1054
+        from AeroViz.rawDataReader.script.MA350 import Reader as MA350
+
+        for reader in (AE33, AE43, BC1054, MA350):
+            assert 'Invalid AAE' in reader.LATE_QC_FLAGS
 
 
 # =============================================================================

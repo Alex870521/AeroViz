@@ -90,7 +90,19 @@ __call__  → QC_Invalid  →  entire row set to NaN; QC_Flag + QC_Invalid dropp
     ```python
     # tighten an advisory flag back into an invalidating one
     RawDataReader('SMPS', path, flag_severity={'Insufficient': 'error'})
+
+    # the other direction — the closest thing to switching a check off
+    RawDataReader('AE33', path, flag_severity={'Invalid AAE': 'warning'})
     ```
+
+    Demoting to `warning` does not stop the rule running: it still fires and
+    still lands in `QC_Flag`, the row just keeps its values. Nothing short of
+    `qc=False` stops a rule running altogether.
+
+    Every flag in the vocabulary below can be named, including `Invalid AAE`,
+    which is raised after the main pass once the derived AAE column exists. A key
+    naming no rule of the instrument being read raises `ValueError` listing that
+    instrument's flags — a typo cannot silently do nothing.
 
     To see values behind an invalidating flag, read `_read_{inst}_qc.csv` (flag,
     verdict and value side by side) or call with `qc=False` (returns L1 — no QC,

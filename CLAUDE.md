@@ -201,7 +201,15 @@ Each rule has a severity: `error` (default, masks the row) or `warning`
 ```python
 # tighten an advisory flag back into an invalidating one
 RawDataReader('SMPS', path, flag_severity={'Insufficient': 'error'})
+
+# demote one — the closest thing to switching a check off (rule still runs and
+# still shows in QC_Flag, but the row keeps its values)
+RawDataReader('AE33', path, flag_severity={'Invalid AAE': 'warning'})
 ```
+
+Any flag can be named, including `Invalid AAE` (raised late, once AAE exists). A
+key naming no rule of that instrument raises `ValueError` — typos are not
+silently ignored. Only `qc=False` stops rules running altogether.
 
 Flag values:
 - `Valid`: Data passed all QC checks

@@ -24,6 +24,10 @@ class Reader(AbstractReader):
     CAL_COLUMNS = ['abs_550', 'AAE', 'eBC']
     BB_COLUMN = 'BB(%)'  # Biomass Burning percentage from source apportionment
 
+    #: `Invalid AAE` needs the derived AAE column, so it is raised in
+    #: `_process` via `update_qc_flag`, not as a `QCRule`.
+    LATE_QC_FLAGS = ('Invalid AAE',)
+
     # =========================================================================
     # QC Thresholds
     # =========================================================================

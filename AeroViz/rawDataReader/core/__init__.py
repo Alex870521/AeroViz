@@ -72,6 +72,12 @@ class AbstractReader(ABC):
 
     nam = 'AbstractReader'
 
+    #: Flags this reader raises in `_process` rather than through a `QCRule`,
+    #: i.e. everything it passes to `update_qc_flag`. They never reach the
+    #: `QCFlagBuilder`, so listing them here is what lets `flag_severity` name
+    #: them without being rejected as unknown.
+    LATE_QC_FLAGS: tuple[str, ...] = ()
+
     #: Summary table stashed by `_QC` for readers whose `_process` adds a
     #: further rule (see `extend_qc_summary`). None when `_QC` logged it itself.
     _qc_summary = None
@@ -991,10 +997,27 @@ class AbstractReader(ABC):
         """A `QCFlagBuilder` carrying this run's severity overrides.
 
         Readers should use this instead of `QCFlagBuilder()` directly so that
-        ``flag_severity={'Insufficient': 'warning'}`` reaches their rules, and so
-        a rule that raises is reported through the reader's log.
+        ``flag_severity={'Insufficient': 'warning'}`` reaches their rules, so a
+        rule that raises is reported through the reader's log, and so an override
+        naming no rule of this instrument is rejected instead of ignored.
         """
-        return QCFlagBuilder(self.qc_severity_overrides, logger=self.logger)
+        return QCFlagBuilder(self.qc_severity_overrides, logger=self.logger,
+                             extra_flags=self.LATE_QC_FLAGS)
+
+    def qc_severity(self, flag_name: str, default: str = ERROR) -> str:
+        """Effective severity of ``flag_name`` under this run's ``flag_severity``.
+
+        `QCFlagBuilder` resolves its own rules; this is the same lookup for the
+        flags a reader raises later in ``_process``, which never reach the
+        builder. Route every late flag through here — hard-coding a severity is
+        what made ``Invalid AAE`` impossible to reclassify.
+        """
+        severity = self.qc_severity_overrides.get(flag_name, default)
+        if severity not in SEVERITIES:
+            raise ValueError(
+                f"severity override for '{flag_name}' is {severity!r}; "
+                f"expected one of {SEVERITIES}")
+        return severity
 
     @staticmethod
     def qc_columns(df: pd.DataFrame) -> list[str]:
@@ -1025,8 +1048,11 @@ class AbstractReader(ABC):
         df : pd.DataFrame
             The frame *after* `update_qc_flag` applied ``rule``.
         rule, mask, description, severity
-            The late rule's name, boolean mask, description and severity.
+            The late rule's name, boolean mask, description and severity. As in
+            `update_qc_flag`, this run's ``flag_severity`` wins over ``severity``,
+            so the summary reports the severity that was actually applied.
         """
+        severity = self.qc_severity(rule, severity)
         total = len(df) or 1
         count = int(mask.sum())
         row = pd.DataFrame([{
@@ -1122,8 +1148,7 @@ class AbstractReader(ABC):
 
         return report
 
-    @staticmethod
-    def update_qc_flag(df: pd.DataFrame, mask: pd.Series, flag_name: str,
+    def update_qc_flag(self, df: pd.DataFrame, mask: pd.Series, flag_name: str,
                        severity: str = ERROR) -> pd.DataFrame:
         """
         Add a flag to ``QC_Flag`` for rows matching the mask, after ``_QC`` ran.
@@ -1138,10 +1163,12 @@ class AbstractReader(ABC):
         mask : pd.Series
             Boolean mask indicating rows to flag
         flag_name : str
-            Name of the flag to add
+            Name of the flag to add. Must appear in the reader's
+            ``LATE_QC_FLAGS`` so ``flag_severity`` can name it.
         severity : {'error', 'warning'}, default='error'
             ``'error'`` also marks the rows invalid, so they are masked in the
-            public output; ``'warning'`` records the flag only.
+            public output; ``'warning'`` records the flag only. This run's
+            ``flag_severity`` wins over the value passed here.
 
         Returns
         -------
@@ -1149,8 +1176,7 @@ class AbstractReader(ABC):
             DataFrame with updated ``QC_Flag`` (and ``QC_Invalid`` when the flag
             is invalidating)
         """
-        if severity not in SEVERITIES:
-            raise ValueError(f"severity={severity!r}; expected one of {SEVERITIES}")
+        severity = self.qc_severity(flag_name, severity)
 
         if FLAG_COLUMN not in df.columns:
             df[FLAG_COLUMN] = 'Valid'

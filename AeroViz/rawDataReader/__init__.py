@@ -126,6 +126,17 @@ def RawDataReader(instrument: str,
         reader), OCEC's ``Below MDL`` and Xact's ``Upscale Warning``, which
         describe a circumstance rather than a broken reading and are advisory.
 
+        Demoting a rule to ``'warning'`` is the closest thing to switching one
+        QC check off: the rule still runs and still records in ``QC_Flag``, but
+        the row keeps its values. There is no way to stop a rule running short
+        of ``qc=False``, which skips QC entirely.
+
+        Flags raised after the main QC pass can be named too — currently
+        ``'Invalid AAE'`` on the four aethalometers. A key naming no rule of the
+        instrument being read raises ``ValueError`` rather than being ignored,
+        so a typo (or a rule borrowed from another instrument) cannot look
+        applied while QC carries on unchanged.
+
     output_dir : Path or str, optional
         Directory for all output files (pkl, csv, log, report).
         Default: ``path/{instrument}_outputs/``

@@ -23,6 +23,10 @@ class Reader(AbstractReader):
     ABS_COLUMNS = ['abs_375', 'abs_470', 'abs_528', 'abs_625', 'abs_880']
     CAL_COLUMNS = ['abs_550', 'AAE', 'eBC']
 
+    #: `Invalid AAE` needs the derived AAE column, so it is raised in
+    #: `_process` via `update_qc_flag`, not as a `QCRule`.
+    LATE_QC_FLAGS = ('Invalid AAE',)
+
     # =========================================================================
     # QC Thresholds
     # =========================================================================

@@ -1627,6 +1627,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.LATE_QC_FLAGS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LATE_QC_FLAGS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._freq_mixed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2253,6 +2264,17 @@
     <span class="md-ellipsis">
       
         qc_columns
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.qc_severity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qc_severity
       
     </span>
   </a>
@@ -4302,6 +4324,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.LATE_QC_FLAGS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LATE_QC_FLAGS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader._freq_mixed" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4935,6 +4968,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.core.AbstractReader.qc_severity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        qc_severity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.core.AbstractReader.reorder_dataframe_columns" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -5327,6 +5371,29 @@ Sets up paths for pickle files, CSV files, and report outputs.</p>
 
 
 <h4 id="AeroViz.rawDataReader.core.AbstractReader-attributes">Attributes</h4>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.LATE_QC_FLAGS" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">LATE_QC_FLAGS</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">LATE_QC_FLAGS</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-attribute">
 
@@ -7211,7 +7278,9 @@ recomputed from <code>df</code>'s QC columns so they account for the late rule.<
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The late rule's name, boolean mask, description and severity.</p>
+                <p>The late rule's name, boolean mask, description and severity. As in
+<code>update_qc_flag</code>, this run's <code>flag_severity</code> wins over <code>severity</code>,
+so the summary reports the severity that was actually applied.</p>
               </div>
             </td>
             <td>
@@ -7227,7 +7296,9 @@ recomputed from <code>df</code>'s QC columns so they account for the late rule.<
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The late rule's name, boolean mask, description and severity.</p>
+                <p>The late rule's name, boolean mask, description and severity. As in
+<code>update_qc_flag</code>, this run's <code>flag_severity</code> wins over <code>severity</code>,
+so the summary reports the severity that was actually applied.</p>
               </div>
             </td>
             <td>
@@ -7243,7 +7314,9 @@ recomputed from <code>df</code>'s QC columns so they account for the late rule.<
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The late rule's name, boolean mask, description and severity.</p>
+                <p>The late rule's name, boolean mask, description and severity. As in
+<code>update_qc_flag</code>, this run's <code>flag_severity</code> wins over <code>severity</code>,
+so the summary reports the severity that was actually applied.</p>
               </div>
             </td>
             <td>
@@ -7259,7 +7332,9 @@ recomputed from <code>df</code>'s QC columns so they account for the late rule.<
             </td>
             <td>
               <div class="doc-md-description">
-                <p>The late rule's name, boolean mask, description and severity.</p>
+                <p>The late rule's name, boolean mask, description and severity. As in
+<code>update_qc_flag</code>, this run's <code>flag_severity</code> wins over <code>severity</code>,
+so the summary reports the severity that was actually applied.</p>
               </div>
             </td>
             <td>
@@ -7504,8 +7579,9 @@ both reported — they differ by the rows carrying only advisory flags.</p>
 
         <p>A <code>QCFlagBuilder</code> carrying this run's severity overrides.</p>
 <p>Readers should use this instead of <code>QCFlagBuilder()</code> directly so that
-<code>flag_severity={'Insufficient': 'warning'}</code> reaches their rules, and so
-a rule that raises is reported through the reader's log.</p>
+<code>flag_severity={'Insufficient': 'warning'}</code> reaches their rules, so a
+rule that raises is reported through the reader's log, and so an override
+naming no rule of this instrument is rejected instead of ignored.</p>
 
 
     </div>
@@ -7535,6 +7611,30 @@ of them through — <code>QC_Flag</code> (the record) <em>and</em> <code>QC_Inva
 verdict the presentation layer masks on). Slicing with a hard-coded
 <code>+ ['QC_Flag']</code> silently drops the verdict, which would make every flag
 fatal again.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h5 id="AeroViz.rawDataReader.core.AbstractReader.qc_severity" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">qc_severity</span>
+
+
+</h5>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">qc_severity</span><span class="p">(</span><span class="n">flag_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">default</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.qc.ERROR">ERROR</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="str">str</span></span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Effective severity of <code>flag_name</code> under this run's <code>flag_severity</code>.</p>
+<p><code>QCFlagBuilder</code> resolves its own rules; this is the same lookup for the
+flags a reader raises later in <code>_process</code>, which never reach the
+builder. Route every late flag through here — hard-coding a severity is
+what made <code>Invalid AAE</code> impossible to reclassify.</p>
 
 
     </div>
@@ -7658,10 +7758,6 @@ fatal again.</p>
             <span class="doc doc-object-name doc-function-name">update_qc_flag</span>
 
 
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
-  </span>
-
 </h5>
 <div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">update_qc_flag</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span><span class="p">,</span> <span class="n">mask</span><span class="p">:</span> <span class="n"><span title="pandas.Series">Series</span></span><span class="p">,</span> <span class="n">flag_name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">severity</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="n"><span title="AeroViz.rawDataReader.core.qc.ERROR">ERROR</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span>
 </code></pre></div>
@@ -7725,7 +7821,8 @@ derived quantities exist (e.g. <code>Invalid AAE</code>).</p>
             </td>
             <td>
               <div class="doc-md-description">
-                <p>Name of the flag to add</p>
+                <p>Name of the flag to add. Must appear in the reader's
+<code>LATE_QC_FLAGS</code> so <code>flag_severity</code> can name it.</p>
               </div>
             </td>
             <td>
@@ -7742,7 +7839,8 @@ derived quantities exist (e.g. <code>Invalid AAE</code>).</p>
             <td>
               <div class="doc-md-description">
                 <p><code>'error'</code> also marks the rows invalid, so they are masked in the
-public output; <code>'warning'</code> records the flag only.</p>
+public output; <code>'warning'</code> records the flag only. This run's
+<code>flag_severity</code> wins over the value passed here.</p>
               </div>
             </td>
             <td>

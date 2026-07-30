@@ -3935,6 +3935,15 @@ RawDataReader(&#39;SMPS&#39;, path, flag_severity={&#39;Insufficient&#39;: &#39;
 <p>Rules ship as <code>'error'</code> except <code>Insufficient</code> (every size/optical
 reader), OCEC's <code>Below MDL</code> and Xact's <code>Upscale Warning</code>, which
 describe a circumstance rather than a broken reading and are advisory.</p>
+<p>Demoting a rule to <code>'warning'</code> is the closest thing to switching one
+QC check off: the rule still runs and still records in <code>QC_Flag</code>, but
+the row keeps its values. There is no way to stop a rule running short
+of <code>qc=False</code>, which skips QC entirely.</p>
+<p>Flags raised after the main QC pass can be named too — currently
+<code>'Invalid AAE'</code> on the four aethalometers. A key naming no rule of the
+instrument being read raises <code>ValueError</code> rather than being ignored,
+so a typo (or a rule borrowed from another instrument) cannot look
+applied while QC carries on unchanged.</p>
               </div>
             </td>
             <td>

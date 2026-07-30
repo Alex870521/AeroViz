@@ -1,3 +1,10 @@
+## v0.4.1 (2026-07-30)
+
+### Fix
+
+- **optical**: report AAE/SAE positive and stop inverting the extrapolation
+- **deps**: correct the pandas floor, and test every floor instead of one
+
 ## v0.4.0 (2026-07-27)
 
 ### BREAKING CHANGE

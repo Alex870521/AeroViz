@@ -1,3 +1,10 @@
+## v0.4.2 (2026-08-11)
+
+### Fix
+
+- **TEOM**: parse English month names in remote-format timestamps
+- **qc**: let flag_severity reach late flags, and reject names it cannot match
+
 ## v0.4.1 (2026-07-30)
 
 ### Fix

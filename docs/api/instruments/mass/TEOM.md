@@ -10,14 +10,15 @@ The TEOM is used for continuous monitoring of PM2.5 mass concentrations using mi
 - Sampling frequency: 6 minutes
 - File naming pattern: `*.csv`
 - Supported formats:
-    - Remote Download Format (Time Stamp column)
-    - USB Download/Auto Export Format (tmoStatusCondition_0 column)
+    - Remote Download Format (single timestamp column — `Time Stamp`, or the
+      SNMP-named `time_stamp` some 1405 auto-exports use)
+    - USB Download/Auto Export Format (separate `Date` + `Time` columns)
 
 ### Remote Download Format
 
 | Column | Mapping | Description |
 |--------|---------|-------------|
-| Time Stamp | time | Timestamp (DD - MM - YYYY HH:MM:SS) |
+| Time Stamp | time | Timestamp (`DD - MM - YYYY HH:MM:SS`; the month may be a number or a localized name, e.g. `六月` / `Aug`) |
 | System status | status | Instrument status |
 | PM-2.5 base MC | PM_NV | Non-volatile PM2.5 |
 | PM-2.5 MC | PM_Total | Total PM2.5 |
@@ -46,7 +47,11 @@ The TEOM is used for continuous monitoring of PM2.5 mass concentrations using mi
 ### Data Reading
 
 - Unifies column names across different data formats
-- Handles various time formats, including Chinese month name conversion
+- Handles various time formats. The TEOM host writes the month in the operating
+  system's language, so the same instrument emits `07 - 六月 - 2025 12:00:00`
+  on a Chinese UI and `10 - Aug - 2026 00:00:01` after the machine is switched
+  to English. Both names — plus a plain number — are mapped to `06`/`08` before
+  parsing, so a directory may freely mix them
 - Converts all measurement values to numeric format
 - Removes duplicate timestamps and invalid indices
 

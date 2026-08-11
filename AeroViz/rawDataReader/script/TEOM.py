@@ -1,3 +1,5 @@
+import re
+
 from pandas import to_datetime, read_csv, to_numeric, Series, concat
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
@@ -119,11 +121,28 @@ class Reader(AbstractReader):
         'tmoAmbientRH_0': 'ambient_RH',
         'tmoVacPumpPressure_0': 'pump_pressure',
     }
-    # Chinese month names (remote-download GUI sometimes localizes them).
-    _CHINESE_MONTHS = {'十一月': '11', '十二月': '12',
-                       '一月': '01', '二月': '02', '三月': '03', '四月': '04',
-                       '五月': '05', '六月': '06', '七月': '07', '八月': '08',
-                       '九月': '09', '十月': '10'}
+    # Month NAMES that turn up where the timestamp format wants a number.
+    # The GUI export localizes them ('八月'), and 1405 USB exports write the
+    # English abbreviation ('10 - Aug - 2026 00:00:01') — both are normalized
+    # to '08' before parsing. Strptime's own `%b` is deliberately NOT used:
+    # it follows the process locale, so an English file would stop parsing
+    # the moment the machine runs under a Chinese locale (and vice versa).
+    # Keys are matched case-insensitively; `.lower()` leaves Chinese as-is.
+    _MONTH_NAMES = {
+        '一月': '01', '二月': '02', '三月': '03', '四月': '04',
+        '五月': '05', '六月': '06', '七月': '07', '八月': '08',
+        '九月': '09', '十月': '10', '十一月': '11', '十二月': '12',
+        'january': '01', 'jan': '01', 'february': '02', 'feb': '02',
+        'march': '03', 'mar': '03', 'april': '04', 'apr': '04',
+        'may': '05', 'june': '06', 'jun': '06', 'july': '07', 'jul': '07',
+        'august': '08', 'aug': '08', 'september': '09', 'sept': '09',
+        'sep': '09', 'october': '10', 'oct': '10', 'november': '11',
+        'nov': '11', 'december': '12', 'dec': '12',
+    }
+    # Longest-first alternation so '十一月' wins over '一月' and 'june' over
+    # 'jun' — otherwise the shorter key eats the prefix and leaves a stray
+    # character behind ('06e'), which parses as NaT just as silently.
+    _MONTH_PATTERN = '|'.join(sorted(map(re.escape, _MONTH_NAMES), key=len, reverse=True))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -135,8 +154,10 @@ class Reader(AbstractReader):
         to _QC() and _process() stages.
 
         Supported formats (auto-detected and logged):
-        - 'remote': Time Stamp with Chinese month names, columns like 'PM-2.5 base MC'
-        - 'usb':    Date + Time columns, columns like 'tmoTEOMABaseMC_0'
+        - 'remote': one timestamp column ('Time Stamp' / 'time_stamp') written
+                    `dd - <month> - yyyy HH:MM:SS`, where <month> is a number,
+                    a Chinese name or an English one
+        - 'usb':    separate Date + Time columns, columns like 'tmoTEOMABaseMC_0'
         """
         _df = read_csv(file, skiprows=3, index_col=False)
 
@@ -151,10 +172,23 @@ class Reader(AbstractReader):
         if 'time' in _df.columns:
             fmt = 'remote'
             self.logger.debug(f"{file.name}: TEOM remote-download/auto-export format")
-            _tm_idx = _df.time
-            for _ori, _rpl in self._CHINESE_MONTHS.items():
-                _tm_idx = _tm_idx.str.replace(_ori, _rpl)
-            _df = _df.set_index(to_datetime(_tm_idx, errors='coerce', format='%d - %m - %Y %X'))
+            _tm_idx = _df.time.astype(str).str.replace(
+                self._MONTH_PATTERN,
+                lambda m: self._MONTH_NAMES[m.group(0).lower()],
+                regex=True, flags=re.IGNORECASE)
+            _tm_idx = to_datetime(_tm_idx, errors='coerce', format='%d - %m - %Y %H:%M:%S')
+
+            # A wholesale parse failure used to be invisible: every row became
+            # NaT, the notna() filter below emptied the frame, and the batch
+            # died on a generic "all files were empty" much further up. Say
+            # which file and what the timestamp actually looked like.
+            if len(_df) and _tm_idx.isna().all():
+                self.logger.error(
+                    f"{file.name}: no timestamp parsed — expected "
+                    f"`dd - mm - yyyy HH:MM:SS`, got {_df.time.iloc[0]!r}. "
+                    f"The file is being skipped as empty.")
+
+            _df = _df.set_index(_tm_idx)
 
         elif 'Date' in _df.columns and 'Time' in _df.columns:
             fmt = 'usb'

@@ -64,20 +64,31 @@ dependencies = [
     # the newest match (2.2.3), never the boundary being claimed.
     "pandas>=2.2.2",
     "numpy>=2.0.0",
+    "scipy>=1.15.0",      # Mie / size-distribution maths — dataProcess/
+    "numba>=0.63.0",      # rawDataReader QC + pre-process hot loops
+    "rich~=13.9.4",       # reader console output / report
+    "tabulate>=0.9.0",    # tools/dataprinter
+]
+
+[project.optional-dependencies]
+# Everything under AeroViz/plot/ — matplotlib and friends account for the bulk
+# of the install (plotly ~88MB, scikit-learn ~34MB, cartopy pulls pyproj/shapely).
+# Consumers that only read data or run the optical/size maths (e.g. a web
+# backend calling RawDataReader / psd_stats / Mie_SD) no longer pay for them.
+# `AeroViz.plot` is resolved lazily in __init__.py, so the base install still
+# imports cleanly and only errors — with an actionable message — on first use.
+plot = [
     "matplotlib>=3.8.4",
-    "scipy>=1.15.0",
     "seaborn>=0.13.2",
     "scikit-learn>=1.5.1",
     "windrose>=1.9.2",
     "cartopy>=0.24.1",
-    "tabulate>=0.9.0",
-    "rich~=13.9.4",
-    "numba>=0.63.0",
-    "plotly>=5.0"
+    "plotly>=5.0",
 ]
-
-[project.optional-dependencies]
 test = [
+    # tests/test_plot.py 與 test_plot_interactive.py 會實際畫圖,
+    # 所以測試環境必須帶上 plot extra。
+    "AeroViz[plot]",
     "pytest>=7.0.0",
     "pytest-cov>=4.1.0",
     "pytest-mock>=3.10.0",

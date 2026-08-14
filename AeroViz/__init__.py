@@ -9,7 +9,6 @@
 # Use whichever style suits your code; they all resolve to the same
 # underlying implementations.
 
-from AeroViz import plot
 from AeroViz.rawDataReader import RawDataReader
 from AeroViz.tools import DataBase, DataClassifier
 
@@ -56,6 +55,32 @@ from AeroViz.voc import voc_potentials
 # Legacy entry point (deprecated; will be removed in a future release).
 # Prefer the top-level functions above.
 from AeroViz.dataProcess import DataProcess
+
+
+def __getattr__(name):
+    """Lazily resolve `AeroViz.plot` (PEP 562).
+
+    Plotting pulls in matplotlib, seaborn, cartopy, windrose, plotly and
+    scikit-learn — none of which the reader / optical / size code needs. They
+    now live behind the `plot` extra, so importing them eagerly here would make
+    `import AeroViz` fail for anyone who installed the base package. Resolving
+    on first access keeps `from AeroViz import plot` and `AeroViz.plot.xxx`
+    working unchanged when the extra IS installed, and gives an actionable
+    error when it is not.
+    """
+    if name == 'plot':
+        import importlib
+        try:
+            module = importlib.import_module('AeroViz.plot')
+        except ImportError as e:
+            raise ImportError(
+                "AeroViz.plot requires the plotting dependencies, which are not "
+                "installed. Install them with:  pip install 'AeroViz[plot]'\n"
+                f"(original error: {e})"
+            ) from e
+        globals()['plot'] = module
+        return module
+    raise AttributeError(f"module 'AeroViz' has no attribute '{name}'")
 
 __all__ = [
     # I/O

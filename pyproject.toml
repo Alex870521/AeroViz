@@ -65,7 +65,13 @@ dependencies = [
     "pandas>=2.2.2",
     "numpy>=2.0.0",
     "scipy>=1.15.0",      # Mie / size-distribution maths — dataProcess/
-    "numba>=0.63.0",      # rawDataReader QC + pre-process hot loops
+    # Only `@numba.jit(nopython=True)` is used (rawDataReader QC + pre-process
+    # hot loops) — an API stable for a decade, so the floor does not need to
+    # track the latest release. It was raised to 0.63.0 in passing by a commit
+    # about SMPS/APS sorting, with no functional need; that made AeroViz
+    # unresolvable alongside esat, which pins numba==0.61.2 exactly. Full suite
+    # passes identically on 0.61.2 (524 passed / 153 skipped).
+    "numba>=0.61.2",
     "rich~=13.9.4",       # reader console output / report
     "tabulate>=0.9.0",    # tools/dataprinter
 ]

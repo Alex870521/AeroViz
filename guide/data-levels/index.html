@@ -3974,11 +3974,11 @@ the current call's <code>start</code> / <code>end</code> / <code>fill_missing</c
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>L1  parsed measurement  ── canonical, native res, ALL source columns, no verdict
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>      │  _read_{inst}_raw.pkl / .csv          ← cacheable
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>      │
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>      │  _QC     — QCFlagBuilder → QC_Flag (&quot;Valid&quot; | &quot;Rule1, Rule2&quot;)
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>      │  _QC     — QCFlagBuilder → QC_Flag ("Valid" | "Rule1, Rule2")
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>      │                          + QC_Invalid (True if an *error*-severity rule fired)
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>      │  _process — derived quantities, may add more flags
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>      ▼
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>L2  QC&#39;d + derived      ── canonical, native res, flags ADDED not applied
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>L2  QC'd + derived      ── canonical, native res, flags ADDED not applied
 <a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>      │  _read_{inst}_qc.pkl / .csv           ← cacheable
 <a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>      ▼─────────────────── cache boundary ───────────────────
 <a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>      │  _timeIndex_process(start, end, fill_missing)  — place on requested range

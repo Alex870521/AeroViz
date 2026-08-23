@@ -4315,7 +4315,7 @@ per-instrument parsing recipes and the authoritative status/error-code tables.</
 <a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>┌─────────────────────────────────────────────────────────────────────────────┐
 <a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>│  3. _QC()                                                                   │
 <a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>│     ├─ QCFlagBuilder applies declarative QC rules                           │
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│     ├─ Adds `QC_Flag`    (&quot;Valid&quot; / &quot;Status Error&quot; / &quot;Insufficient&quot;...)      │
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>│     ├─ Adds `QC_Flag`    ("Valid" / "Status Error" / "Insufficient"...)      │
 <a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>│     ├─ Adds `QC_Invalid` (True iff an *error*-severity rule fired)          │
 <a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>│     └─ Stores QC Summary (emitted by _process or directly here)             │
 <a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>└─────────────────────────────────────────────────────────────────────────────┘
@@ -4479,8 +4479,8 @@ Column selection happens in <code>_QC</code> / <code>_process</code> per-instrum
 <a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>                         │   DataFrame      │
 <a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>                         ├──────────────────┤
 <a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>                         │ + QC_Flag column │
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>                         │   &quot;Valid&quot; or     │
-<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>                         │   &quot;Rule1, Rule2&quot; │
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>                         │   "Valid" or     │
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>                         │   "Rule1, Rule2" │
 <a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>                         └──────────────────┘
 <a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>
 <a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>Instruments using QCFlagBuilder:
@@ -4625,7 +4625,7 @@ whitelist semantics and known coverage gaps — are in
 <a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  MAX_TOTAL_CONC     = 1e7   #/cm³
 <a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  MAX_LARGE_BIN_CONC = 4000  dN/dlogDp (DMA water-ingress indicator)
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  LARGE_BIN_THRESH   = 400   nm
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  STATUS_OK          = &quot;Normal Scan&quot;
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  STATUS_OK          = "Normal Scan"
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
 <a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>┌─────────────────────────────────────────────────────────────────────┐
 <a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>│  STAGE 1: _QC()                                                     │
@@ -4660,7 +4660,7 @@ whitelist semantics and known coverage gaps — are in
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>QC Thresholds
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  MIN_TOTAL_CONC   = 1      #/cm³
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  MAX_TOTAL_CONC   = 700    #/cm³
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  STATUS_OK        = &quot;0000 0000 0000 0000&quot;  (16-bit binary, all zeros)
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  STATUS_OK        = "0000 0000 0000 0000"  (16-bit binary, all zeros)
 <a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
 <a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>Status flag bit definitions (TSI RF command)
 <a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>  Bit 0  Laser fault                    Bit 5  Autocal failed

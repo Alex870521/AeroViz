@@ -3972,7 +3972,7 @@ $$\ln D_{pg,V} = \ln D_{pg,N} + 3\ln^2\sigma_g\]</div>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess.SizeDistr</span><span class="w"> </span><span class="kn">import</span> <span class="n">SizeDist</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 <a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># Create PSD object</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">psd</span> <span class="o">=</span> <span class="n">SizeDist</span><span class="p">(</span><span class="n">df_pnsd</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">&#39;dlogdp&#39;</span><span class="p">,</span> <span class="n">weighting</span><span class="o">=</span><span class="s1">&#39;n&#39;</span><span class="p">)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="n">psd</span> <span class="o">=</span> <span class="n">SizeDist</span><span class="p">(</span><span class="n">df_pnsd</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">'dlogdp'</span><span class="p">,</span> <span class="n">weighting</span><span class="o">=</span><span class="s1">'n'</span><span class="p">)</span>
 <a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
 <a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="c1"># Distribution conversion</span>
 <a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="n">surface</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_surface</span><span class="p">()</span>  <span class="c1"># Surface area distribution</span>
@@ -3980,17 +3980,17 @@ $$\ln D_{pg,V} = \ln D_{pg,N} + 3\ln^2\sigma_g\]</div>
 <a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
 <a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="c1"># Statistical properties</span>
 <a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="n">props</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># props[&#39;total_n&#39;]  # Total number concentration</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># props[&#39;GMD_n&#39;]    # Geometric mean diameter</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># props[&#39;GSD_n&#39;]    # Geometric standard deviation</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1"># props[&#39;mode_n&#39;]   # Mode diameter</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># props['total_n']  # Total number concentration</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="c1"># props['GMD_n']    # Geometric mean diameter</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="c1"># props['GSD_n']    # Geometric standard deviation</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="c1"># props['mode_n']   # Mode diameter</span>
 <a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
 <a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="c1"># Mode statistics</span>
 <a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="n">stats</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">mode_statistics</span><span class="p">()</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># stats[&#39;number&#39;]     # Number distribution by mode</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1"># stats[&#39;surface&#39;]    # Surface area distribution by mode</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c1"># stats[&#39;volume&#39;]     # Volume distribution by mode</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1"># stats[&#39;statistics&#39;] # GMD, GSD, total for each mode</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># stats['number']     # Number distribution by mode</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1"># stats['surface']    # Surface area distribution by mode</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="c1"># stats['volume']     # Volume distribution by mode</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="c1"># stats['statistics'] # GMD, GSD, total for each mode</span>
 </code></pre></div>
 <h2 id="multi-modal-fitting">Multi-modal Fitting</h2>
 <p>Log-normal mixture model:</p>

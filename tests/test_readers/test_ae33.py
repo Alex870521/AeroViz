@@ -73,3 +73,37 @@ class TestAE33Reader(BaseReaderTest):
         df = self.read_data(normal_path, date_range)
 
         assert 'eBC' in df.columns, "eBC column not found"
+
+    def test_delta_c_calculation(self, data_path, date_range, temp_output_dir):
+        """Delta-C = BC1 − BC6 (370 nm − 880 nm), NaN where either band is NaN."""
+        import numpy as np
+
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = self.read_data(normal_path, date_range)
+
+        assert 'Delta-C' in df.columns, "Delta-C column not found"
+        expected = df['BC1'] - df['BC6']
+        valid = expected.notna()
+        assert valid.any(), "fixture should yield at least one valid Delta-C"
+        # Hourly output is rounded, so mean(BC1 − BC6) and mean(BC1) − mean(BC6)
+        # can differ by one unit in the last kept decimal; native-freq is exact.
+        np.testing.assert_allclose(df.loc[valid, 'Delta-C'], expected[valid], atol=1e-3)
+        assert df.loc[~valid, 'Delta-C'].isna().all()
+
+    def test_k_columns_passthrough(self, data_path, date_range, temp_output_dir):
+        """K1–K7 (dual-spot loading-compensation k) are passed through."""
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = self.read_data(normal_path, date_range)
+
+        for i in range(1, 8):
+            assert f'K{i}' in df.columns, f"K{i} column not found"
+        k = df[[f'K{i}' for i in range(1, 8)]].dropna(how='all')
+        assert len(k) > 0, "fixture should yield some K values"
+        # Sanity: k is a small dimensionless number, |k| well below 0.1
+        assert (k.abs() < 0.1).all().all()

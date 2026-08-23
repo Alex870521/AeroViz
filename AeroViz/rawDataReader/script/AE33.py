@@ -21,8 +21,22 @@ class Reader(AbstractReader):
     # =========================================================================
     BC_COLUMNS = ['BC1', 'BC2', 'BC3', 'BC4', 'BC5', 'BC6', 'BC7']
     ABS_COLUMNS = ['abs_370', 'abs_470', 'abs_520', 'abs_590', 'abs_660', 'abs_880', 'abs_950']
-    CAL_COLUMNS = ['abs_550', 'AAE', 'eBC']
+    CAL_COLUMNS = ['abs_550', 'AAE', 'eBC', 'Delta-C']
     BB_COLUMN = 'BB(%)'  # Biomass Burning percentage from source apportionment
+
+    #: Delta-C = BC(370 nm) − BC(880 nm), in ng/m³. The UV-channel excess over
+    #: the IR reference — a brown-carbon / biomass-burning tracer (Wang et al.
+    #: 2011, Atmos. Environ.; Allen et al. 2004). Negative values (AAE < 1) are
+    #: real and kept. Same name as the MA350's native `Delta-C` column.
+    DELTA_C_BANDS = ('BC1', 'BC6')
+
+    #: Per-wavelength loading-compensation parameter k of the dual-spot
+    #: algorithm (Drinovec et al. 2015): BC = BC_spot / (1 − k·ATN). The
+    #: instrument re-estimates k every timebase from the two spots and writes
+    #: it to the raw file; typical |k| ≈ 1e-3, ≈0 for aged/coated aerosol,
+    #: negative values occur. Passed through untouched as a loading-effect
+    #: diagnostic — it is not used to re-compensate anything here.
+    K_COLUMNS = ['K1', 'K2', 'K3', 'K4', 'K5', 'K6', 'K7']
 
     #: `Invalid AAE` needs the derived AAE column, so it is raised in
     #: `_process` via `update_qc_flag`, not as a `QCRule`.
@@ -146,7 +160,8 @@ class Reader(AbstractReader):
         1. Calculate absorption coefficients at each wavelength
         2. Calculate AAE (Absorption Ångström Exponent)
         3. Calculate eBC (equivalent Black Carbon)
-        4. Validate AAE range and update QC_Flag
+        4. Calculate Delta-C = BC1 − BC6 (370 nm − 880 nm)
+        5. Validate AAE range and update QC_Flag
 
         Parameters
         ----------
@@ -156,17 +171,20 @@ class Reader(AbstractReader):
         Returns
         -------
         pd.DataFrame
-            DataFrame with absorption coefficients, AAE, eBC, and updated QC_Flag
+            DataFrame with absorption coefficients, AAE, eBC, Delta-C, and updated QC_Flag
         """
         _index = _df.index.copy()
 
         # Calculate absorption coefficients, AAE, and eBC
         _df_cal = _absCoe(_df[self.BC_COLUMNS], instru=self.nam, specified_band=[550])
 
-        # Combine with Status, BB(%), and the QC bookkeeping columns
-        extra_cols = ['Status'] + self.qc_columns(_df)
-        if self.BB_COLUMN in _df.columns:
-            extra_cols.insert(0, self.BB_COLUMN)
+        # Delta-C: UV minus IR black carbon (ng/m³). NaN propagates from either band.
+        uv, ir = self.DELTA_C_BANDS
+        _df_cal['Delta-C'] = _df_cal[uv] - _df_cal[ir]
+
+        # Combine with Status, K1–K7, BB(%), and the QC bookkeeping columns
+        passthrough = [c for c in self.K_COLUMNS + [self.BB_COLUMN] if c in _df.columns]
+        extra_cols = passthrough + ['Status'] + self.qc_columns(_df)
         df_out = concat([_df_cal, _df[extra_cols]], axis=1)
 
         # Validate AAE and update QC_Flag
@@ -181,7 +199,5 @@ class Reader(AbstractReader):
                 description=f'AAE outside valid range {self.MIN_AAE}-{self.MAX_AAE}'))
 
         # Reorder columns
-        all_data_cols = self.BC_COLUMNS + self.ABS_COLUMNS + self.CAL_COLUMNS
-        if self.BB_COLUMN in df_out.columns:
-            all_data_cols.append(self.BB_COLUMN)
+        all_data_cols = self.BC_COLUMNS + self.ABS_COLUMNS + self.CAL_COLUMNS + passthrough
         return df_out[all_data_cols + self.qc_columns(df_out)].reindex(_index)

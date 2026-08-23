@@ -161,7 +161,7 @@ Severity is `error` unless marked **advisory**.
 | **Error codes** | 1 tape advance / fast cal / warm-up · 2 first measurement (obtaining ATN0) · 3 stopped · 4 flow off by > 0.5 LPM · 16 calibrating LED · 32 calibration error · 1024 stability test · 2048 clean-air test · 4096 optical test |
 | **Deliberately not errors** | 128 / 256 (tape *low* warnings) and therefore 384 — data is still valid |
 | **QC rules** | `Status Error`, `Invalid BC` (0–20 000 ng/m³ over BC1–BC7), `Insufficient`; `Invalid AAE` added in `_process` |
-| **L2 output** | `BC1`–`BC7`, `abs_370`…`abs_950`, `abs_550`, `AAE`, `eBC`, `BB(%)` when present, `QC_Flag` |
+| **L2 output** | `BC1`–`BC7`, `abs_370`…`abs_950`, `abs_550`, `AAE`, `eBC`, `Delta-C` (= BC1 − BC6), `K1`–`K7` and `BB(%)` when present, `QC_Flag` |
 
 ### AE43
 

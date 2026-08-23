@@ -1,3 +1,14 @@
+## v0.4.3 (2026-08-23)
+
+### Feat
+
+- **AE33**: add Delta-C and pass K1–K7 through the reader output
+- **deps**: move plotting stack behind a [plot] extra, 12 core deps down to 6
+
+### Fix
+
+- **deps**: lower the numba floor to 0.61.2 so AeroViz can coexist with esat
+
 ## v0.4.2 (2026-08-11)
 
 ### Fix

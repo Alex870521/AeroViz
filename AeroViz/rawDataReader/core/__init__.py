@@ -82,6 +82,12 @@ class AbstractReader(ABC):
     #: further rule (see `extend_qc_summary`). None when `_QC` logged it itself.
     _qc_summary = None
 
+    #: The summary as finally logged — captured by `log_qc_summary` so `_stamp`
+    #: can put the per-rule verdict into df.attrs. Every reader ends its QC
+    #: pipeline by logging, including the ones that extend the table in
+    #: `_process`, so hooking the logger is what catches the *final* version.
+    _qc_summary_final = None
+
     def __init__(self,
                  path: Path | str,
                  reset: bool | str = False,
@@ -334,6 +340,7 @@ class AbstractReader(ABC):
                 qc_freq=self.qc_freq,
                 **(self.overall_rates or {}),
             )
+            meta['qc_rules'] = self._qc_summary_rows()
         # Drop the internal cache marker carried over from the canonical frame.
         df.attrs.pop('cache_format', None)
         return stamp_attrs(df, **meta)
@@ -1081,6 +1088,37 @@ class AbstractReader(ABC):
 
         return out
 
+    def _qc_summary_rows(self) -> list[dict] | None:
+        """The final QC summary as JSON-friendly rows, for ``df.attrs``.
+
+        ``acquisition_rate``/``yield_rate`` say *how much* data was lost;
+        these rows say *which rule* lost it. A downstream monitor holding only
+        the rates can report an outage but not explain one — "all values are
+        null" is a symptom, "Status Error 12%" is a cause.
+
+        Percentages come back as floats: the summary table formats them as
+        ``'12.3%'`` for the log, which is the wrong type to do arithmetic or
+        thresholding on.
+        """
+        summary = self._qc_summary_final
+        if summary is None or summary.empty:
+            return None
+
+        rows = []
+        for _, row in summary.iterrows():
+            try:
+                percentage = float(str(row.get('Percentage', '')).rstrip('%'))
+            except ValueError:
+                percentage = None
+            rows.append({
+                'rule': row['Rule'],
+                'count': int(row['Count']),
+                'percentage': percentage,
+                'severity': row.get('Severity') or None,
+                'description': row.get('Description') or None,
+            })
+        return rows
+
     def log_qc_summary(self, summary: pd.DataFrame) -> None:
         """Log a `QCFlagBuilder.get_summary` table.
 
@@ -1088,6 +1126,7 @@ class AbstractReader(ABC):
         ``Valid`` (passed everything) and ``Usable`` (nothing invalidating) are
         both reported — they differ by the rows carrying only advisory flags.
         """
+        self._qc_summary_final = summary
         self.logger.info(f"{self.nam} QC Summary:")
         for _, row in summary.iterrows():
             note = ' [advisory]' if row.get('Severity') == WARNING else ''

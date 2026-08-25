@@ -205,7 +205,16 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
     write `_dNdlogDp` / `_dSdlogDp` / `_dVdlogDp` / `_stats` sidecars via
     `finalize_size_dist`.
 19. **Stamp** — `_stamp` writes `df.attrs` (provenance, coverage, requested
-    range, native freq, rates) and removes the internal `cache_format` marker.
+    range, native freq, rates, and `qc_rules`) and removes the internal
+    `cache_format` marker.
+
+    `qc_rules` is the QC summary as JSON-ready rows —
+    `{rule, count, percentage, severity, description}` per rule, plus the
+    `Valid` and `Usable` totals. The rates say *how much* was lost, these say
+    *which rule* lost it, which is the difference between a consumer being able
+    to report an outage and being able to explain one. Captured from whatever
+    `log_qc_summary` was last handed, so readers that add a rule in `_process`
+    (via `extend_qc_summary`) contribute their rule too. `None` when `qc=False`.
 
 !!! warning "`qc=False` short-circuits L2 and most of L3"
     With `qc=False`, `__call__` returns the **L1** frame placed on the requested

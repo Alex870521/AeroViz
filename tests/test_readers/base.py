@@ -256,6 +256,33 @@ class BaseReaderTest(ABC):
             assert rate in attrs, f"{rate} missing from df.attrs"
             assert 0 <= attrs[rate] <= 100
 
+    def test_attrs_qc_rules(self, data_path, date_range, temp_output_dir):
+        """QC path records the per-rule verdict in df.attrs, JSON-ready.
+
+        The rates say how much was lost; these say which rule lost it, and a
+        consumer persisting them (a monitor, a report) needs plain types.
+        """
+        import json
+
+        normal_path = data_path / 'normal'
+        if not normal_path.exists():
+            normal_path = data_path
+
+        df = self.read_data(normal_path, date_range, qc=True, mean_freq='1h')
+
+        rules = df.attrs.get('qc_rules')
+        assert rules, "qc_rules missing from df.attrs"
+
+        names = {row['rule'] for row in rules}
+        assert {'Valid', 'Usable'} <= names, f"totals missing from {names}"
+
+        for row in rules:
+            assert isinstance(row['count'], int)
+            assert row['percentage'] is None or 0 <= row['percentage'] <= 100
+            assert row['severity'] in (None, 'error', 'warning')
+
+        json.dumps(rules)  # must survive being written to disk as-is
+
     def test_mean_freq_optional(self, data_path, date_range, temp_output_dir):
         """Omitting mean_freq returns native resolution; passing it resamples."""
         normal_path = data_path / 'normal'

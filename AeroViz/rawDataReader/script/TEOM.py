@@ -40,21 +40,46 @@ class Reader(AbstractReader):
     # can then whitelist an individual condition (e.g. a known dryer warning)
     # by its decimal value regardless of which other bits are co-set.
     #
-    # Documented bit meanings (Table A-1; "A"/"B" = FDMS dual-channel sides):
-    #   bit 30 (1073741824) %RH High Side A (>=98%)   bit 22 (4194304) %RH High Side B
-    #   bit 29 (536870912)  Dryer A (>2)              bit 21 (2097152) Dryer B
-    #   bit 28 (268435456)  Cooler A (>0.5C dev)      bit 20 (1048576) Cooler B
-    #   bit 27 (134217728)  Exchange Filter A (>90)   bit 19 (524288)  Exchange Filter B
-    #   bit 26 (67108864)   Flow A (>10% dev)         bit 18 (262144)  Flow B
-    #   bit 25 (33554432)   Heaters Side A (>2% dev)  bit 17 (131072)  Heaters Side B
-    #   bit 24 (16777216)   Mass Transducer A (<10Hz) bit 16 (65536)   Mass Transducer B
-    #   bit 14 (16384) User I/O   bit 13 (8192) FDMS Device   bit 12 (4096) Head 1
-    #   bit 11 (2048)  Head 0     bit 10 (1024) MFC 1         bit 9  (512)  MFC 0
-    #   bit 8  (256)   System Bus bit 7  (128)  Vacuum Pressure (<0.1 atm)
-    #   bit 6  (64)    Case/Cap Heater (>2% dev)      bit 5 (32) FDMS Valve
-    #   bit 4  (16)    Bypass Flow (>10% dev)         bit 3 (8)  Ambient RH&Temp sensor
-    #   bit 2  (4)     Database (log failure)         bit 2 (2)  Enclosure Temp (>60C)
-    #   bit 0  (1)     Power Failure
+    # Table A-1, as data rather than prose: a comment cannot tell anyone what
+    # a status of 8 meant, and that is the only thing an operator actually
+    # wants to know. `_status_condition_rows` decodes the register with this.
+    # "A"/"B" = FDMS dual-channel sides.
+    STATUS_BITS = {
+        1 << 30: '%RH High Side A (>=98%)',
+        1 << 29: 'Dryer A (>2)',
+        1 << 28: 'Cooler A (>0.5C deviation)',
+        1 << 27: 'Exchange Filter A (>90)',
+        1 << 26: 'Flow A (>10% deviation)',
+        1 << 25: 'Heaters Side A (>2% deviation)',
+        1 << 24: 'Mass Transducer A (<10Hz)',
+        1 << 22: '%RH High Side B (>=98%)',
+        1 << 21: 'Dryer B (>2)',
+        1 << 20: 'Cooler B (>0.5C deviation)',
+        1 << 19: 'Exchange Filter B (>90)',
+        1 << 18: 'Flow B (>10% deviation)',
+        1 << 17: 'Heaters Side B (>2% deviation)',
+        1 << 16: 'Mass Transducer B (<10Hz)',
+        1 << 14: 'User I/O',
+        1 << 13: 'FDMS Device',
+        1 << 12: 'Head 1',
+        1 << 11: 'Head 0',
+        1 << 10: 'MFC 1',
+        1 << 9: 'MFC 0',
+        1 << 8: 'System Bus',
+        1 << 7: 'Vacuum Pressure (<0.1 atm)',
+        1 << 6: 'Case/Cap Heater (>2% deviation)',
+        1 << 5: 'FDMS Valve',
+        1 << 4: 'Bypass Flow (>10% deviation)',
+        1 << 3: 'Ambient RH & Temp sensor',
+        1 << 2: 'Database (log failure)',
+        # Enclosure Temp is bit 1 (decimal 2). The table this was transcribed
+        # from listed it as "bit 2" twice, alongside Database — decimal 2 is
+        # bit 1, and encoding the typo would have made 2 and 4 the same
+        # condition forever.
+        1 << 1: 'Enclosure Temp (>60C)',
+        1 << 0: 'Power Failure',
+    }
+
     STATUS_COLUMN = 'status'
     STATUS_OK = 0  # 0 = no condition set ("Normal status")
     # Every set bit counts as an error by default (== the old `status != 0`

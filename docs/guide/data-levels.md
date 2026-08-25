@@ -216,6 +216,16 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
     `log_qc_summary` was last handed, so readers that add a rule in `_process`
     (via `extend_qc_summary`) contribute their rule too. `None` when `qc=False`.
 
+    `status_conditions` goes one level further for readers with a bitwise
+    status register and a transcribed `STATUS_BITS` table (TEOM today):
+    `{code, name, count, percentage}` per condition that actually fired,
+    busiest first. `Status Error` can only report that *a* bit was set — the QC
+    verdict is a boolean, so the identity of the bit is gone the moment it is
+    computed. This is what makes a status of `8` legible as
+    *Ambient RH & Temp sensor*. `None` where no table exists (an incomplete map
+    would read as "that condition never fired"), `[]` where the register was
+    clean.
+
 !!! warning "`qc=False` short-circuits L2 and most of L3"
     With `qc=False`, `__call__` returns the **L1** frame placed on the requested
     range — no QC, no masking, no `outlier.json`, no report, **and no

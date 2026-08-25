@@ -116,6 +116,18 @@ Severity is `error` unless marked **advisory**.
 |------|---------|---------|
 | `Valid` | passed every rule | all |
 | `Status Error` | instrument status register reports a non-whitelisted condition | AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM |
+
+!!! tip "Which condition, not just *a* condition"
+
+    `Status Error` is a boolean verdict — it cannot say which bit tripped it.
+    A reader that declares `STATUS_BITS` (`{decimal_bit: condition_name}`) gets
+    the register decoded into `df.attrs['status_conditions']`, so a TEOM status
+    of `8` is reported as *Ambient RH & Temp sensor* rather than left as a
+    number. **TEOM is the only table transcribed so far**; the other bitwise
+    readers list their codes in prose in `ERROR_STATES` and need a pass against
+    the instrument manual before being encoded — a partly-filled map is worse
+    than an empty one, because a missing entry silently reads as "that
+    condition never fired".
 | `Insufficient` | an hour holds < 50 % of the points it could have held, given how much of that hour the read covers — **advisory** | AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM, GRIMM |
 | `Invalid BC` | any BC channel ≤ 0 or > 20 000 ng/m³ | AE33, AE43, BC1054, MA350 |
 | `Invalid AAE` | AAE outside 0.7–3.0 (added in `_process`) | AE33, AE43, BC1054, MA350 |

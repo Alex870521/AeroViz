@@ -82,6 +82,21 @@ class AbstractReader(ABC):
     #: further rule (see `extend_qc_summary`). None when `_QC` logged it itself.
     _qc_summary = None
 
+    #: Machine-readable meaning of a bitwise status register:
+    #: ``{decimal_bit_value: condition_name}``. Empty for readers whose status
+    #: is not a bitfield, or whose manual table has not been transcribed yet —
+    #: an incomplete map is worse than none, since a missing entry reads as
+    #: "that condition never fired" rather than "we don't know what bit 9 is".
+    STATUS_BITS: dict[int, str] = {}
+
+    #: Column holding that register. Readers whose status lives elsewhere
+    #: override it (TEOM uses lowercase `status`, APS `Status Flags`).
+    STATUS_COLUMN = 'Status'
+
+    #: Decoded status conditions for the current run, filled in `__call__`
+    #: while the raw frame (which still has the status column) is in hand.
+    _status_conditions = None
+
     #: The summary as finally logged — captured by `log_qc_summary` so `_stamp`
     #: can put the per-rule verdict into df.attrs. Every reader ends its QC
     #: pipeline by logging, including the ones that extend the table in
@@ -257,6 +272,10 @@ class AbstractReader(ABC):
         # Generate data acquisition and quality rate report (instrument time
         # resolution). Yield counts rows that survived the verdict, so a row kept
         # under an advisory flag counts as data obtained.
+        # Decode the status register before the raw frame goes out of scope —
+        # the public output has no status column at all.
+        self._status_conditions = self._status_condition_rows(_f_raw)
+
         self._generate_report(_f_raw.apply(pd.to_numeric, errors='coerce'),
                               _f_qc.apply(pd.to_numeric, errors='coerce'),
                               qc_flag=valid_mask if valid_mask is not None else qc_flag)
@@ -341,6 +360,7 @@ class AbstractReader(ABC):
                 **(self.overall_rates or {}),
             )
             meta['qc_rules'] = self._qc_summary_rows()
+            meta['status_conditions'] = self._status_conditions
         # Drop the internal cache marker carried over from the canonical frame.
         df.attrs.pop('cache_format', None)
         return stamp_attrs(df, **meta)
@@ -1087,6 +1107,44 @@ class AbstractReader(ABC):
                 usable, f'{usable / total * 100:.1f}%']
 
         return out
+
+    def _status_condition_rows(self, df: pd.DataFrame) -> list[dict] | None:
+        """Which status conditions actually fired, and how often.
+
+        The ``Status Error`` rule can only say that a non-whitelisted bit was
+        set — the QC verdict is a boolean, so the identity of the bit is lost
+        the moment it is computed. Decoding the register here is the difference
+        between "Status Error 8.3%" and "Ambient RH & Temp sensor 8.3%", which
+        is the difference between knowing something is wrong and knowing what
+        to go and fix.
+
+        Counted over every row, flagged or not: a condition that fired on rows
+        that survived QC is still worth seeing.
+        """
+        if not self.STATUS_BITS or self.STATUS_COLUMN not in df.columns:
+            return None
+
+        status = pd.to_numeric(df[self.STATUS_COLUMN], errors='coerce')
+        status = status[status.notna() & (status > 0)]
+        if status.empty:
+            return []
+
+        codes = status.astype('int64')
+        total = len(df) or 1
+
+        rows = []
+        for value, name in self.STATUS_BITS.items():
+            count = int((codes & value).astype(bool).sum())
+            if count:
+                rows.append({
+                    'code': value,
+                    'name': name,
+                    'count': count,
+                    'percentage': round(count / total * 100, 1),
+                })
+
+        rows.sort(key=lambda row: row['count'], reverse=True)
+        return rows
 
     def _qc_summary_rows(self) -> list[dict] | None:
         """The final QC summary as JSON-friendly rows, for ``df.attrs``.

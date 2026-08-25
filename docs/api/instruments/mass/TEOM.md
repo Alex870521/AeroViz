@@ -121,6 +121,62 @@ The TEOM reader uses the declarative **QCFlagBuilder** system with the following
 | **Spike** | Sudden value change | Unreasonable sudden change detected |
 | **Insufficient** | < 50% hourly data | Less than 50% hourly data completeness |
 
+#### Status Condition Register
+
+`status` (`System status` / `tmoStatusCondition_0`) is a **32-bit bitfield**, not
+a flat code: the instrument OR-sums every active warning and reports the decimal
+sum. A status of `24` is therefore two conditions at once (`8 | 16`), not a
+condition numbered 24.
+
+The reader carries this table as `Reader.STATUS_BITS`, which is what decodes the
+register into `df.attrs['status_conditions']` — so a status of `8` is reported as
+*Ambient RH & Temp sensor* rather than left for the reader of a log to look up.
+"A"/"B" denote the FDMS dual-channel sides. Source: TEOM 1405 / 1405-F manual,
+Appendix A, Table A-1.
+
+| Bit | Decimal | Condition |
+|-----|---------|-----------|
+| 30 | `1073741824` | %RH High Side A (>=98%) |
+| 29 | `536870912` | Dryer A (>2) |
+| 28 | `268435456` | Cooler A (>0.5C deviation) |
+| 27 | `134217728` | Exchange Filter A (>90) |
+| 26 | `67108864` | Flow A (>10% deviation) |
+| 25 | `33554432` | Heaters Side A (>2% deviation) |
+| 24 | `16777216` | Mass Transducer A (<10Hz) |
+| 22 | `4194304` | %RH High Side B (>=98%) |
+| 21 | `2097152` | Dryer B (>2) |
+| 20 | `1048576` | Cooler B (>0.5C deviation) |
+| 19 | `524288` | Exchange Filter B (>90) |
+| 18 | `262144` | Flow B (>10% deviation) |
+| 17 | `131072` | Heaters Side B (>2% deviation) |
+| 16 | `65536` | Mass Transducer B (<10Hz) |
+| 14 | `16384` | User I/O |
+| 13 | `8192` | FDMS Device |
+| 12 | `4096` | Head 1 |
+| 11 | `2048` | Head 0 |
+| 10 | `1024` | MFC 1 |
+| 9 | `512` | MFC 0 |
+| 8 | `256` | System Bus |
+| 7 | `128` | Vacuum Pressure (<0.1 atm) |
+| 6 | `64` | Case/Cap Heater (>2% deviation) |
+| 5 | `32` | FDMS Valve |
+| 4 | `16` | Bypass Flow (>10% deviation) |
+| 3 | `8` | Ambient RH & Temp sensor |
+| 2 | `4` | Database (log failure) |
+| 1 | `2` | Enclosure Temp (>60C) |
+| 0 | `1` | Power Failure |
+
+Bits 15, 23 and 31 are not assigned in Table A-1. Any of them being set still
+counts as a `Status Error` — `ERROR_STATES` covers all 32 bits — it simply has no
+name to report.
+
+To stop treating one condition as an error, whitelist its decimal value; bitwise
+testing means it stays whitelisted no matter what else is co-set:
+
+```python
+RawDataReader('TEOM', path, ignored_status_errors=[536870912])  # ignore Dryer A
+```
+
 ## Output Data
 
 The processed data contains the following columns:

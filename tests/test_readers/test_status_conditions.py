@@ -4,6 +4,8 @@
 is a boolean. These tests pin the layer that turns "Status Error 8.3%" into
 "Ambient RH & Temp sensor 8.3%".
 """
+import pathlib
+
 import pandas as pd
 import pytest
 
@@ -72,3 +74,45 @@ class TestReadersWithoutATable:
         reader = OCECReader.__new__(OCECReader)
         df = pd.DataFrame({'Status': [8]})
         assert OCECReader._status_condition_rows(reader, df) is None
+
+
+class TestDocsMatchTheTable:
+    """文件與程式各存一份表就一定會漂 —— 這支測試是唯一擋得住的東西。
+
+    A status table that disagrees with the code is worse than no table: someone
+    looks up bit 3, reads the wrong condition, and goes to check the wrong part
+    of the instrument.
+    """
+
+    DOC = pathlib.Path(__file__).resolve().parents[2] / 'docs/api/instruments/mass/TEOM.md'
+
+    def _doc_rows(self):
+        text = self.DOC.read_text()
+        start = text.index('#### Status Condition Register')
+        table = text[start:text.index('## Output Data', start)]
+
+        rows = {}
+        for line in table.splitlines():
+            cells = [c.strip() for c in line.strip().strip('|').split('|')]
+            if len(cells) != 3 or not cells[1].startswith('`'):
+                continue
+            rows[int(cells[1].strip('`'))] = cells[2]
+        return rows
+
+    def test_doc_table_is_the_same_table(self):
+        assert self._doc_rows() == TEOMReader.STATUS_BITS
+
+    def test_bit_column_agrees_with_the_decimal(self):
+        text = self.DOC.read_text()
+        start = text.index('#### Status Condition Register')
+        table = text[start:text.index('## Output Data', start)]
+
+        checked = 0
+        for line in table.splitlines():
+            cells = [c.strip() for c in line.strip().strip('|').split('|')]
+            if len(cells) != 3 or not cells[1].startswith('`'):
+                continue
+            bit, decimal = int(cells[0]), int(cells[1].strip('`'))
+            assert 1 << bit == decimal, f'bit {bit} is not {decimal}'
+            checked += 1
+        assert checked == len(TEOMReader.STATUS_BITS)

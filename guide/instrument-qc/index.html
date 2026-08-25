@@ -4306,148 +4306,104 @@ and no resampling either).</p>
 <td>instrument status register reports a non-whitelisted condition</td>
 <td>AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM</td>
 </tr>
+</tbody>
+</table>
+<div class="admonition tip">
+<p class="admonition-title">Which condition, not just <em>a</em> condition</p>
+<p><code>Status Error</code> is a boolean verdict — it cannot say which bit tripped it.
+A reader that declares <code>STATUS_BITS</code> (<code>{decimal: condition_name}</code>) gets the
+register decoded into <code>df.attrs['status_conditions']</code>, so a TEOM status of
+<code>8</code> is reported as <em>Ambient RH &amp; Temp sensor</em> rather than left as a number.</p>
+<table>
+<thead>
 <tr>
-<td><code>Insufficient</code></td>
-<td>an hour holds &lt; 50 % of the points it could have held, given how much of that hour the read covers — <strong>advisory</strong></td>
-<td>AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM, GRIMM</td>
+<th>Reader</th>
+<th>Column</th>
+<th>Encoding</th>
+<th>Named conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AE33 / AE43</td>
+<td><code>Status</code></td>
+<td><code>int</code></td>
+<td>8 (<code>3</code> = <code>1｜2</code> stays unnamed)</td>
 </tr>
 <tr>
-<td><code>Invalid BC</code></td>
-<td>any BC channel ≤ 0 or &gt; 20 000 ng/m³</td>
-<td>AE33, AE43, BC1054, MA350</td>
+<td>BC1054</td>
+<td><code>Status</code></td>
+<td><code>int</code></td>
+<td>12</td>
 </tr>
 <tr>
-<td><code>Invalid AAE</code></td>
-<td>AAE outside 0.7–3.0 (added in <code>_process</code>)</td>
-<td>AE33, AE43, BC1054, MA350</td>
+<td>MA350</td>
+<td><code>Status</code></td>
+<td><code>int</code></td>
+<td>14</td>
 </tr>
 <tr>
-<td><code>Invalid Number Conc</code></td>
-<td>total number concentration outside range (SMPS 2 000–1e7, APS 1–700 #/cm³)</td>
-<td>SMPS, APS</td>
+<td>APS</td>
+<td><code>Status Flags</code></td>
+<td><code>binary_string</code></td>
+<td>9</td>
 </tr>
 <tr>
-<td><code>DMA Water Ingress</code></td>
-<td>any bin &gt; 400 nm exceeds 4 000 dN/dlogDp</td>
+<td>TEOM</td>
+<td><code>status</code></td>
+<td><code>int</code></td>
+<td>29</td>
+</tr>
+<tr>
+<td>Aurora / NEPH</td>
+<td><code>Status</code> / <code>status</code></td>
+<td><code>numeric</code></td>
+<td>— flat codes, only <code>0</code> (OK) is defined</td>
+</tr>
+<tr>
 <td>SMPS</td>
-</tr>
-<tr>
-<td><code>Invalid Scat Value</code></td>
-<td>any scattering channel ≤ 0 or &gt; 2 000 Mm⁻¹</td>
-<td>Aurora, NEPH</td>
-</tr>
-<tr>
-<td><code>Invalid Scat Rel</code></td>
-<td>B &lt; G &lt; R — inverted wavelength dependence</td>
-<td>Aurora, NEPH</td>
-</tr>
-<tr>
-<td><code>No Data</code></td>
-<td>every measurement channel NaN</td>
-<td>Aurora, NEPH, GRIMM</td>
-</tr>
-<tr>
-<td><code>High Noise</code></td>
-<td>TEOM <code>noise</code> ≥ 0.01</td>
-<td>TEOM</td>
-</tr>
-<tr>
-<td><code>Non-positive</code></td>
-<td><code>PM_NV</code> ≤ 0 or <code>PM_Total</code> ≤ 0</td>
-<td>TEOM</td>
-</tr>
-<tr>
-<td><code>NV &gt; Total</code></td>
-<td><code>PM_NV</code> &gt; <code>PM_Total</code> (physically impossible)</td>
-<td>TEOM</td>
-</tr>
-<tr>
-<td><code>Spike</code></td>
-<td>change &gt; 3 × median absolute change, or a large up-down reversal</td>
-<td>TEOM, BAM1020, OCEC</td>
-</tr>
-<tr>
-<td><code>Negative Conc</code></td>
-<td>any size channel is negative</td>
-<td>GRIMM</td>
-</tr>
-<tr>
-<td><code>Invalid Conc</code></td>
-<td>PM ≤ 0 or &gt; 500 µg/m³</td>
-<td>BAM1020</td>
-</tr>
-<tr>
-<td><code>Invalid Carbon</code></td>
-<td>any carbon fraction ≤ −5 or &gt; 100 µgC/m³</td>
-<td>OCEC</td>
-</tr>
-<tr>
-<td><code>Below MDL</code></td>
-<td>value at or below the method detection limit — <strong>advisory</strong></td>
-<td>OCEC</td>
-</tr>
-<tr>
-<td><code>Missing OC</code></td>
-<td><code>Thermal_OC</code> or <code>Optical_OC</code> missing</td>
-<td>OCEC</td>
-</tr>
-<tr>
-<td><code>Above MR</code></td>
-<td>concentration above the instrument's stated measurement range</td>
-<td>IGAC</td>
-</tr>
-<tr>
-<td><code>Mass Closure</code></td>
-<td>Σ ions &gt; PM2.5</td>
-<td>IGAC</td>
-</tr>
-<tr>
-<td><code>Missing Main</code></td>
-<td>any of NH₄⁺ / SO₄²⁻ / NO₃⁻ missing</td>
-<td>IGAC</td>
-</tr>
-<tr>
-<td><code>Ion Balance</code></td>
-<td>cation/anion ratio outside 1.5 × IQR</td>
-<td>IGAC</td>
-</tr>
-<tr>
-<td><code>Calibration Mode</code></td>
-<td><code>SAMPLE_TYPE != 1</code></td>
-<td>Xact</td>
-</tr>
-<tr>
-<td><code>Instrument Error</code></td>
-<td><code>ALARM</code> in 100–110</td>
-<td>Xact</td>
-</tr>
-<tr>
-<td><code>Upscale Warning</code></td>
-<td><code>ALARM</code> in 200–203 — <strong>advisory</strong> (the instrument's own warning class)</td>
-<td>Xact</td>
-</tr>
-<tr>
-<td><code>Invalid Value</code></td>
-<td>element concentration outside 0–100 000 ng/m³</td>
-<td>Xact</td>
-</tr>
-<tr>
-<td><code>Internal Std Drift</code></td>
-<td>Nb outside ±20 % of its median</td>
-<td>Xact</td>
-</tr>
-<tr>
-<td><code>High Uncertainty</code></td>
-<td>a normally-quantitative element reported above its detection limit with &lt; 3σ confidence — <strong>advisory</strong></td>
-<td>Xact</td>
-</tr>
-<tr>
-<td><code>Negative</code></td>
-<td>any numeric column &lt; 0</td>
-<td>EPA</td>
+<td><code>Instrument Errors</code></td>
+<td><code>text</code></td>
+<td>— free-text tokens, not codes</td>
 </tr>
 </tbody>
 </table>
+<p>Each reader's page carries the full table, and a test parses it back out and
+compares it with <code>STATUS_BITS</code>: two copies of a lookup table drift, and a
+status table that disagrees with the code sends someone to check the wrong
+part of the instrument.</p>
+<p><code>percentage</code> in <code>status_conditions</code> shares its denominator with <code>qc_rules</code>
+(the whole frame, padding included) so the two can be read in one sentence;
+<code>count</code> is the absolute, and the one to trust for a sparse reader.</p>
+</div>
+<p>| <code>Insufficient</code> | an hour holds &lt; 50 % of the points it could have held, given how much of that hour the read covers — <strong>advisory</strong> | AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM, GRIMM |
+| <code>Invalid BC</code> | any BC channel ≤ 0 or &gt; 20 000 ng/m³ | AE33, AE43, BC1054, MA350 |
+| <code>Invalid AAE</code> | AAE outside 0.7–3.0 (added in <code>_process</code>) | AE33, AE43, BC1054, MA350 |
+| <code>Invalid Number Conc</code> | total number concentration outside range (SMPS 2 000–1e7, APS 1–700 #/cm³) | SMPS, APS |
+| <code>DMA Water Ingress</code> | any bin &gt; 400 nm exceeds 4 000 dN/dlogDp | SMPS |
+| <code>Invalid Scat Value</code> | any scattering channel ≤ 0 or &gt; 2 000 Mm⁻¹ | Aurora, NEPH |
+| <code>Invalid Scat Rel</code> | B &lt; G &lt; R — inverted wavelength dependence | Aurora, NEPH |
+| <code>No Data</code> | every measurement channel NaN | Aurora, NEPH, GRIMM |
+| <code>High Noise</code> | TEOM <code>noise</code> ≥ 0.01 | TEOM |
+| <code>Non-positive</code> | <code>PM_NV</code> ≤ 0 or <code>PM_Total</code> ≤ 0 | TEOM |
+| <code>NV &gt; Total</code> | <code>PM_NV</code> &gt; <code>PM_Total</code> (physically impossible) | TEOM |
+| <code>Spike</code> | change &gt; 3 × median absolute change, or a large up-down reversal | TEOM, BAM1020, OCEC |
+| <code>Negative Conc</code> | any size channel is negative | GRIMM |
+| <code>Invalid Conc</code> | PM ≤ 0 or &gt; 500 µg/m³ | BAM1020 |
+| <code>Invalid Carbon</code> | any carbon fraction ≤ −5 or &gt; 100 µgC/m³ | OCEC |
+| <code>Below MDL</code> | value at or below the method detection limit — <strong>advisory</strong> | OCEC |
+| <code>Missing OC</code> | <code>Thermal_OC</code> or <code>Optical_OC</code> missing | OCEC |
+| <code>Above MR</code> | concentration above the instrument's stated measurement range | IGAC |
+| <code>Mass Closure</code> | Σ ions &gt; PM2.5 | IGAC |
+| <code>Missing Main</code> | any of NH₄⁺ / SO₄²⁻ / NO₃⁻ missing | IGAC |
+| <code>Ion Balance</code> | cation/anion ratio outside 1.5 × IQR | IGAC |
+| <code>Calibration Mode</code> | <code>SAMPLE_TYPE != 1</code> | Xact |
+| <code>Instrument Error</code> | <code>ALARM</code> in 100–110 | Xact |
+| <code>Upscale Warning</code> | <code>ALARM</code> in 200–203 — <strong>advisory</strong> (the instrument's own warning class) | Xact |
+| <code>Invalid Value</code> | element concentration outside 0–100 000 ng/m³ | Xact |
+| <code>Internal Std Drift</code> | Nb outside ±20 % of its median | Xact |
+| <code>High Uncertainty</code> | a normally-quantitative element reported above its detection limit with &lt; 3σ confidence — <strong>advisory</strong> | Xact |
+| <code>Negative</code> | any numeric column &lt; 0 | EPA |</p>
 <hr />
 <h2 id="3-aethalometers-bc-monitors">3. Aethalometers / BC monitors</h2>
 <h3 id="ae33">AE33</h3>
@@ -4819,7 +4775,7 @@ and no resampling either).</p>
 </tr>
 <tr>
 <td><strong>Documented bits</strong></td>
-<td>30 (1073741824) %RH high side A · 29 (536870912) dryer A · 28 (268435456) cooler A · 27 (134217728) exchange filter A · 26 (67108864) flow A · 25 (33554432) heaters side A · 24 (16777216) mass transducer A · 22–16 the same for side B · 14 user I/O · 13 FDMS device · 12 head 1 · 11 head 0 · 10 MFC 1 · 9 MFC 0 · 8 system bus · 7 vacuum pressure · 6 case/cap heater · 5 FDMS valve · 4 bypass flow · 3 ambient RH &amp; temp sensor · 2 database log failure · 1 enclosure temp · 0 power failure</td>
+<td>29 named conditions across bits 0–30 (15/23/31 unassigned). Full table — bit, decimal and condition — in <a href="../../api/instruments/mass/TEOM/#status-condition-register">the TEOM reference</a>; it is generated from <code>Reader.STATUS_BITS</code> and a test pins the two together.</td>
 </tr>
 <tr>
 <td><strong>QC rules</strong></td>
@@ -5275,7 +5231,7 @@ file at run time and reported as <code>df.attrs['raw_freq']</code>.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 23, 2026 18:07:35 UTC">August 23, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 18:30:25 UTC">August 25, 2026</span>
   </span>
 
     

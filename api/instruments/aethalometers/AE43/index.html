@@ -1929,6 +1929,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.AE43.Reader.STATUS_BITS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        STATUS_BITS
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2062,6 +2073,17 @@
     <span class="md-ellipsis">
       
         Error Status Codes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-condition-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status Condition Register
       
     </span>
   </a>
@@ -3947,6 +3969,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.AE43.Reader.STATUS_BITS" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        STATUS_BITS
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4080,6 +4113,17 @@
     <span class="md-ellipsis">
       
         Error Status Codes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#status-condition-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Status Condition Register
       
     </span>
   </a>
@@ -4415,6 +4459,29 @@ file layout, status codes and QC rules.</p>
 
 </div>
 
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="AeroViz.rawDataReader.script.AE43.Reader.STATUS_BITS" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">STATUS_BITS</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">STATUS_BITS</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="s1">'Tape advance / fast calibration / warm-up'</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">'First measurement (obtaining ATN0)'</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="s1">'Flow off by more than 0.5 LPM'</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span> <span class="s1">'Calibrating LED'</span><span class="p">,</span> <span class="mi">32</span><span class="p">:</span> <span class="s1">'Calibration error (at least one channel OK)'</span><span class="p">,</span> <span class="mi">1024</span><span class="p">:</span> <span class="s1">'Stability test'</span><span class="p">,</span> <span class="mi">2048</span><span class="p">:</span> <span class="s1">'Clean air test'</span><span class="p">,</span> <span class="mi">4096</span><span class="p">:</span> <span class="s1">'Optical test'</span><span class="p">}</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
 
 <h3 id="AeroViz.rawDataReader.script.AE43.Reader-functions">Methods:</h3>
 
@@ -4681,6 +4748,69 @@ to _QC() and _process() stages.</p>
 </tr>
 </tbody>
 </table>
+<h4 id="status-condition-register">Status Condition Register</h4>
+<p>The <code>Status</code> column is a bitfield: the instrument OR-sums every
+active condition and reports the sum, so one value can mean several things at
+once. <code>Reader.STATUS_BITS</code> carries this table, and it is what turns a raw status
+into <code>df.attrs['status_conditions']</code> — a named condition instead of a number.</p>
+<table>
+<thead>
+<tr>
+<th>Bit</th>
+<th>Decimal</th>
+<th>Condition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>12</td>
+<td><code>4096</code></td>
+<td>Optical test</td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>2048</code></td>
+<td>Clean air test</td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>1024</code></td>
+<td>Stability test</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>32</code></td>
+<td>Calibration error (at least one channel OK)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>16</code></td>
+<td>Calibrating LED</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>4</code></td>
+<td>Flow off by more than 0.5 LPM</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>2</code></td>
+<td>First measurement (obtaining ATN0)</td>
+</tr>
+<tr>
+<td>0</td>
+<td><code>1</code></td>
+<td>Tape advance / fast calibration / warm-up</td>
+</tr>
+</tbody>
+</table>
+<p><code>ERROR_STATES</code> also lists <code>3</code> ("Stopped"), which has no row here: 3 is
+<code>1 | 2</code>, so under bitwise testing it fires whenever tape advance or
+first-measurement does. It still counts as an error — it simply has no
+unambiguous name to report.</p>
+<p>To stop treating one condition as an error, whitelist its decimal value:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'AE43'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># ignore Tape advance / fast calibration / warm-up</span>
+</code></pre></div>
 <h2 id="output-data">Output Data</h2>
 <p>The processed data contains the following columns:</p>
 <table>
@@ -4755,7 +4885,7 @@ to _QC() and _process() stages.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 29, 2026 16:06:18 UTC">July 29, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 18:30:25 UTC">August 25, 2026</span>
   </span>
 
     

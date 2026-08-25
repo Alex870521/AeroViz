@@ -4117,8 +4117,27 @@ pipeline is unreliable — see <code>core/metadata.py</code>.</p>
 <li><strong>Write outputs</strong> — <code>output_{inst}.csv</code>, <code>report.json</code>; SMPS/APS additionally
     write <code>_dNdlogDp</code> / <code>_dSdlogDp</code> / <code>_dVdlogDp</code> / <code>_stats</code> sidecars via
     <code>finalize_size_dist</code>.</li>
-<li><strong>Stamp</strong> — <code>_stamp</code> writes <code>df.attrs</code> (provenance, coverage, requested
-    range, native freq, rates) and removes the internal <code>cache_format</code> marker.</li>
+<li>
+<p><strong>Stamp</strong> — <code>_stamp</code> writes <code>df.attrs</code> (provenance, coverage, requested
+    range, native freq, rates, and <code>qc_rules</code>) and removes the internal
+    <code>cache_format</code> marker.</p>
+<p><code>qc_rules</code> is the QC summary as JSON-ready rows —
+<code>{rule, count, percentage, severity, description}</code> per rule, plus the
+<code>Valid</code> and <code>Usable</code> totals. The rates say <em>how much</em> was lost, these say
+<em>which rule</em> lost it, which is the difference between a consumer being able
+to report an outage and being able to explain one. Captured from whatever
+<code>log_qc_summary</code> was last handed, so readers that add a rule in <code>_process</code>
+(via <code>extend_qc_summary</code>) contribute their rule too. <code>None</code> when <code>qc=False</code>.</p>
+<p><code>status_conditions</code> goes one level further for readers with a bitwise
+status register and a transcribed <code>STATUS_BITS</code> table (TEOM today):
+<code>{code, name, count, percentage}</code> per condition that actually fired,
+busiest first. <code>Status Error</code> can only report that <em>a</em> bit was set — the QC
+verdict is a boolean, so the identity of the bit is gone the moment it is
+computed. This is what makes a status of <code>8</code> legible as
+<em>Ambient RH &amp; Temp sensor</em>. <code>None</code> where no table exists (an incomplete map
+would read as "that condition never fired"), <code>[]</code> where the register was
+clean.</p>
+</li>
 </ol>
 <div class="admonition warning">
 <p class="admonition-title"><code>qc=False</code> short-circuits L2 and most of L3</p>
@@ -4444,7 +4463,7 @@ catch real events).</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 27, 2026 09:17:18 UTC">July 27, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="August 25, 2026 18:05:16 UTC">August 25, 2026</span>
   </span>
 
     

@@ -1,3 +1,14 @@
+## v0.4.4 (2026-08-25)
+
+### Feat
+
+- **reader**: decode the status register into named conditions
+- **reader**: record the per-rule QC verdict in df.attrs
+
+### Refactor
+
+- **readers**: one status-decode contract for every instrument
+
 ## v0.4.3 (2026-08-23)
 
 ### Feat

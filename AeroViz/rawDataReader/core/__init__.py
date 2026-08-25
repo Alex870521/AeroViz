@@ -93,6 +93,13 @@ class AbstractReader(ABC):
     #: override it (TEOM uses lowercase `status`, APS `Status Flags`).
     STATUS_COLUMN = 'Status'
 
+    #: How that column encodes the register. `'int'` is a decimal number (the
+    #: aethalometers, TEOM); `'binary_string'` is a space-grouped bit string
+    #: (APS: `'0000 0000 0000 0000'`). Declared rather than sniffed: `'0010'`
+    #: is 10 read as a number and 2 read as bits, and guessing wrong renames
+    #: every condition silently.
+    STATUS_ENCODING = 'int'
+
     #: Decoded status conditions for the current run, filled in `__call__`
     #: while the raw frame (which still has the status column) is in hand.
     _status_conditions = None
@@ -1108,6 +1115,22 @@ class AbstractReader(ABC):
 
         return out
 
+    def _status_register(self, series: pd.Series) -> pd.Series:
+        """The status column as integers, whichever way it was written down."""
+        if self.STATUS_ENCODING == 'binary_string':
+            def parse(value):
+                if not isinstance(value, str):
+                    return float('nan')
+                bits = value.replace(' ', '').strip()
+                try:
+                    return int(bits, 2)
+                except ValueError:
+                    return float('nan')
+
+            return series.map(parse)
+
+        return pd.to_numeric(series, errors='coerce')
+
     def _status_condition_rows(self, df: pd.DataFrame) -> list[dict] | None:
         """Which status conditions actually fired, and how often.
 
@@ -1120,11 +1143,19 @@ class AbstractReader(ABC):
 
         Counted over every row, flagged or not: a condition that fired on rows
         that survived QC is still worth seeing.
+
+        ``percentage`` shares its denominator with ``qc_rules`` — the whole
+        frame, including the empty rows that placing a sparse instrument on a
+        time grid creates. That makes the two directly comparable (a consumer
+        can put "Status Error 0.1%" and the condition that caused it in the same
+        sentence), at the cost of looking small for a sparse reader. ``count``
+        is the absolute, and is the number to trust when the grid is mostly
+        padding.
         """
         if not self.STATUS_BITS or self.STATUS_COLUMN not in df.columns:
             return None
 
-        status = pd.to_numeric(df[self.STATUS_COLUMN], errors='coerce')
+        status = self._status_register(df[self.STATUS_COLUMN])
         status = status[status.notna() & (status > 0)]
         if status.empty:
             return []

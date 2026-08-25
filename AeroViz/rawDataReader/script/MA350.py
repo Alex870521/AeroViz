@@ -56,6 +56,26 @@ class Reader(AbstractReader):
         524288,  # Tape error
     ]
 
+    #: Named conditions in the status register, `{decimal: name}` — see
+    #: `AbstractReader.STATUS_BITS`. `ERROR_STATES` decides what counts as an
+    #: error; this map decides what it is called.
+    STATUS_BITS = {
+        1: 'Power Failure',
+        2: 'Start up',
+        4: 'Tape advance',
+        16: 'Optical saturation',
+        32: 'Sample timing error',
+        128: 'Flow unstable',
+        256: 'Pump drive limit',
+        2048: 'System busy',
+        8192: 'Tape jam',
+        16384: 'Tape at end',
+        32768: 'Tape not ready',
+        65536: 'Tape transport not ready',
+        262144: 'Invalid date/time',
+        524288: 'Tape error',
+    }
+
     def _raw_reader(self, file):
         """Read and parse raw MA350 Aethalometer data files.
 

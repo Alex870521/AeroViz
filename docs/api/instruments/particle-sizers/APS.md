@@ -120,6 +120,36 @@ The APS reader uses the declarative **QCFlagBuilder** system with the following 
        +----------------------------> Time
 ```
 
+#### Status Condition Register
+
+The `Status Flags` column is a bitfield: the instrument OR-sums every
+active condition and reports the sum, so one value can mean several things at
+once. `Reader.STATUS_BITS` carries this table, and it is what turns a raw status
+into `df.attrs['status_conditions']` — a named condition instead of a number.
+
+| Bit | Decimal | Condition |
+|-----|---------|-----------|
+| 8 | `256` | Detector voltage out of range |
+| 7 | `128` | Internal temperature > 40°C |
+| 6 | `64` | Internal temperature < 10°C |
+| 5 | `32` | Autocal failed |
+| 4 | `16` | Accumulator clipped |
+| 3 | `8` | Excessive sample concentration |
+| 2 | `4` | Sheath Flow out of range |
+| 1 | `2` | Total Flow out of range |
+| 0 | `1` | Laser fault |
+
+The register is written as a space-grouped bit string
+(`'0000 0000 0000 0001'` is bit 0, not the number one thousand). Bit 9 is
+reserved. Every non-whitelisted bit counts as an error — this table names
+the conditions, it does not decide which of them matter.
+
+To stop treating one condition as an error, whitelist its decimal value:
+
+```python
+RawDataReader('APS', path, ignored_status_errors=[1])  # ignore Laser fault
+```
+
 ## Output Data
 
 The processed data contains:

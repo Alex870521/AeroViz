@@ -54,6 +54,25 @@ class Reader(AbstractReader):
         4096,  # Optical test
     ]
 
+    #: Named conditions in the status register, `{decimal: name}` — see
+    #: `AbstractReader.STATUS_BITS`.
+    #:
+    #: `ERROR_STATES` also carries `3` ("Stopped"), which is deliberately absent
+    #: here: 3 is 1|2, so under bitwise matching it fires whenever tape advance
+    #: or first-measurement does, and naming it would attach "Stopped" to rows
+    #: that are neither. It stays in `ERROR_STATES` — dropping it would change
+    #: what counts as an error — it simply has no unambiguous name to report.
+    STATUS_BITS = {
+        1: 'Tape advance / fast calibration / warm-up',
+        2: 'First measurement (obtaining ATN0)',
+        4: 'Flow off by more than 0.5 LPM',
+        16: 'Calibrating LED',
+        32: 'Calibration error (at least one channel OK)',
+        1024: 'Stability test',
+        2048: 'Clean air test',
+        4096: 'Optical test',
+    }
+
     def _raw_reader(self, file):
         """Read and parse raw AE43 Aethalometer data files.
 

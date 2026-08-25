@@ -62,6 +62,26 @@ class Reader(AbstractReader):
         65536,  # Tape Move
     ]
 
+    #: Named conditions in the status register, `{decimal: name}` — the same
+    #: contract every reader with a documented register uses, so one decoder
+    #: serves them all (`_status_condition_rows`). Mirrors `ERROR_STATES`
+    #: above; that list decides what counts as an error, this map decides what
+    #: it is called.
+    STATUS_BITS = {
+        1: 'Power Failure',
+        2: 'Digital Sensor Link Failure',
+        4: 'Tape Move Failure',
+        8: 'Maintenance',
+        16: 'Flow Failure',
+        32: 'Automatic Tape Advance',
+        64: 'Detector Failure',
+        256: 'Sensor Range',
+        512: 'Nozzle Move Failure',
+        1024: 'SPI Link Failure',
+        2048: 'Calibration Audit',
+        65536: 'Tape Move',
+    }
+
     def _raw_reader(self, file):
         """Read and parse raw BC1054 data files.
 

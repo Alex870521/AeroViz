@@ -30,19 +30,27 @@ class Reader(AbstractReader):
     # All zeros status means no error
     STATUS_OK = '0000 0000 0000 0000'
 
-    # APS Status Flag bit definitions (from TSI RF command)
-    # Format: bit_position: description
-    ERROR_STATES = {
-        0: 'Laser fault',
-        1: 'Total Flow out of range',
-        2: 'Sheath Flow out of range',
-        3: 'Excessive sample concentration',
-        4: 'Accumulator clipped',
-        5: 'Autocal failed',
-        6: 'Internal temperature < 10°C',
-        7: 'Internal temperature > 40°C',
-        8: 'Detector voltage out of range',
-        # 9: Reserved (unused)
+    #: The status column is a space-grouped bit string, not a number.
+    STATUS_ENCODING = 'binary_string'
+
+    #: Named conditions in the status register, `{decimal: name}` (TSI RF
+    #: command). Was `ERROR_STATES`, keyed by bit *position* — a shape and a
+    #: name shared with the aethalometers' `ERROR_STATES`, which is a list of
+    #: codes the QC layer actually consumes. This one never reached QC (the
+    #: `filter_error_status` call passes no `error_codes`; every non-whitelisted
+    #: bit is an error), so it was documentation wearing a config's name. Under
+    #: the shared key it feeds `_status_condition_rows` and becomes live.
+    STATUS_BITS = {
+        1 << 0: 'Laser fault',
+        1 << 1: 'Total Flow out of range',
+        1 << 2: 'Sheath Flow out of range',
+        1 << 3: 'Excessive sample concentration',
+        1 << 4: 'Accumulator clipped',
+        1 << 5: 'Autocal failed',
+        1 << 6: 'Internal temperature < 10°C',
+        1 << 7: 'Internal temperature > 40°C',
+        1 << 8: 'Detector voltage out of range',
+        # bit 9 reserved (unused)
     }
 
     # Date formats observed across the corpus, tried in order. The first

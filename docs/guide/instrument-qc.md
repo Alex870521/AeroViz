@@ -120,14 +120,28 @@ Severity is `error` unless marked **advisory**.
 !!! tip "Which condition, not just *a* condition"
 
     `Status Error` is a boolean verdict — it cannot say which bit tripped it.
-    A reader that declares `STATUS_BITS` (`{decimal_bit: condition_name}`) gets
-    the register decoded into `df.attrs['status_conditions']`, so a TEOM status
-    of `8` is reported as *Ambient RH & Temp sensor* rather than left as a
-    number. **TEOM is the only table transcribed so far**; the other bitwise
-    readers list their codes in prose in `ERROR_STATES` and need a pass against
-    the instrument manual before being encoded — a partly-filled map is worse
-    than an empty one, because a missing entry silently reads as "that
-    condition never fired".
+    A reader that declares `STATUS_BITS` (`{decimal: condition_name}`) gets the
+    register decoded into `df.attrs['status_conditions']`, so a TEOM status of
+    `8` is reported as *Ambient RH & Temp sensor* rather than left as a number.
+
+    | Reader | Column | Encoding | Named conditions |
+    |---|---|---|---|
+    | AE33 / AE43 | `Status` | `int` | 8 (`3` = `1｜2` stays unnamed) |
+    | BC1054 | `Status` | `int` | 12 |
+    | MA350 | `Status` | `int` | 14 |
+    | APS | `Status Flags` | `binary_string` | 9 |
+    | TEOM | `status` | `int` | 29 |
+    | Aurora / NEPH | `Status` / `status` | `numeric` | — flat codes, only `0` (OK) is defined |
+    | SMPS | `Instrument Errors` | `text` | — free-text tokens, not codes |
+
+    Each reader's page carries the full table, and a test parses it back out and
+    compares it with `STATUS_BITS`: two copies of a lookup table drift, and a
+    status table that disagrees with the code sends someone to check the wrong
+    part of the instrument.
+
+    `percentage` in `status_conditions` shares its denominator with `qc_rules`
+    (the whole frame, padding included) so the two can be read in one sentence;
+    `count` is the absolute, and the one to trust for a sparse reader.
 | `Insufficient` | an hour holds < 50 % of the points it could have held, given how much of that hour the read covers — **advisory** | AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM, GRIMM |
 | `Invalid BC` | any BC channel ≤ 0 or > 20 000 ng/m³ | AE33, AE43, BC1054, MA350 |
 | `Invalid AAE` | AAE outside 0.7–3.0 (added in `_process`) | AE33, AE43, BC1054, MA350 |

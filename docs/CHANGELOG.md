@@ -1,3 +1,9 @@
+## v0.4.5 (2026-08-28)
+
+### Fix
+
+- **MA350**: divide the published cross section by C, so abs is absorption
+
 ## v0.4.4 (2026-08-25)
 
 ### Feat

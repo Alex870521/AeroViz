@@ -9,16 +9,15 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from AeroViz.rawDataReader.core.pre_process import _absCoe, _scaCoe
+from AeroViz.rawDataReader.core.pre_process import ABSORPTION_CONFIG, _absCoe, _scaCoe
 
-# (instrument, wavelengths, mass absorption efficiencies) — mirrors the reader config
+# (instrument, wavelengths, mass absorption cross sections) read from the reader's
+# own config. Transcribing them here is what let the MA350 numbers drift: the copy
+# still held AethLabs' σ_ATN after the reader started dividing it by C, so four
+# tests failed for a change that was correct.
 ABS_INSTRUMENTS = [
-    ('AE33', [370, 470, 520, 590, 660, 880, 950],
-     [18.47, 14.54, 13.14, 11.58, 10.35, 7.77, 7.19]),
-    ('BC1054', [370, 430, 470, 525, 565, 590, 660, 700, 880, 950],
-     [18.48, 15.90, 14.55, 13.02, 12.10, 11.59, 10.36, 9.77, 7.77, 7.20]),
-    ('MA350', [375, 470, 528, 625, 880],
-     [24.069, 19.070, 17.028, 14.091, 10.120]),
+    (instru, cfg['band'].tolist(), (cfg['MAE'] * 1e3).tolist())
+    for instru, cfg in ABSORPTION_CONFIG.items()
 ]
 
 SCA_INSTRUMENTS = [
@@ -155,3 +154,29 @@ def test_sca_all_nan_input_returns_nan_columns():
 
     assert out['SAE'].isna().all()
     assert out['sca_550'].isna().all()
+
+
+def test_ma350_cross_section_is_absorption_not_attenuation():
+    """MA350 must be on the same scale as the other two aethalometers.
+
+    AethLabs publish σ_ATN — attenuation, inflated by the filter's multiple
+    scattering. Used as-is it made NZ's absorption read ~30% high against the
+    AE33 stations, which is invisible at a single site and only shows up when
+    the network is compared. Dividing by C = 1.3 lands within a few percent of
+    the AE33 and BC1054 cross sections at every shared wavelength, which is the
+    check worth keeping: not that the numbers equal some transcribed constant,
+    but that the three instruments agree.
+    """
+    ma350 = dict(zip(ABSORPTION_CONFIG['MA350']['band'],
+                     ABSORPTION_CONFIG['MA350']['MAE'] * 1e3))
+
+    for other in ('AE33', 'BC1054'):
+        cfg = ABSORPTION_CONFIG[other]
+        ref = dict(zip(cfg['band'], cfg['MAE'] * 1e3))
+        for wl, mac in ma350.items():
+            nearest = min(ref, key=lambda r: abs(r - wl))
+            if abs(nearest - wl) > 10:          # no comparable channel
+                continue
+            assert mac == pytest.approx(ref[nearest], rel=0.06), (
+                f'MA350 {wl}nm = {mac:.3f} vs {other} {nearest}nm = {ref[nearest]:.3f} '
+                f'— the two are meant to measure the same thing')

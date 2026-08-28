@@ -215,6 +215,35 @@ def _scaCoe(df, instru, specified_band: list):
     return pd.concat([df, result_df], axis=1)
 
 
+#: Wavelengths and mass absorption cross sections per aethalometer.
+#:
+#: Module level, not local to `_absCoe`, so the tests read the same numbers the
+#: reader uses instead of keeping a transcribed copy that drifts.
+ABSORPTION_CONFIG = {
+    'AE33': {
+        'band': np.array([370, 470, 520, 590, 660, 880, 950]),
+        'MAE': np.array([18.47, 14.54, 13.14, 11.58, 10.35, 7.77, 7.19]) * 1e-3,
+        'eBC': 'BC6'
+    },
+    'BC1054': {
+        'band': np.array([370, 430, 470, 525, 565, 590, 660, 700, 880, 950]),
+        'MAE': np.array([18.48, 15.90, 14.55, 13.02, 12.10, 11.59, 10.36, 9.77, 7.77, 7.20]) * 1e-3,
+        'eBC': 'BC9'
+    },
+    'MA350': {
+        'band': np.array([375, 470, 528, 625, 880]),
+        # AethLabs publish σ_ATN, the *attenuation* cross section — BC × σ_ATN
+        # gives the attenuation coefficient, not absorption. The filter scatters
+        # light multiple times and inflates it by C; dividing by C = 1.3 for the
+        # MA-series recovers the mass absorption cross section. The published
+        # numbers are kept visible rather than folded in, so the correction is
+        # something you can see and argue with.
+        'MAE': np.array([24.069, 19.070, 17.028, 14.091, 10.120]) / 1.3 * 1e-3,
+        'eBC': 'BC5'
+    }
+}
+
+
 def _absCoe(df, instru, specified_band: list):
     """
     Calculate absorption coefficients and Ångström exponent for absorption.
@@ -236,24 +265,7 @@ def _absCoe(df, instru, specified_band: list):
         specified wavelengths, and Ångström exponent. ``AAE`` is reported
         positive, following the usual convention.
     """
-    config = {
-        'AE33': {
-            'band': np.array([370, 470, 520, 590, 660, 880, 950]),
-            'MAE': np.array([18.47, 14.54, 13.14, 11.58, 10.35, 7.77, 7.19]) * 1e-3,
-            'eBC': 'BC6'
-        },
-        'BC1054': {
-            'band': np.array([370, 430, 470, 525, 565, 590, 660, 700, 880, 950]),
-            'MAE': np.array([18.48, 15.90, 14.55, 13.02, 12.10, 11.59, 10.36, 9.77, 7.77, 7.20]) * 1e-3,
-            'eBC': 'BC9'
-        },
-        'MA350': {
-            'band': np.array([375, 470, 528, 625, 880]),
-            'MAE': np.array([24.069, 19.070, 17.028, 14.091, 10.120]) * 1e-3,
-            'eBC': 'BC5'
-        }
-    }
-
+    config = ABSORPTION_CONFIG
     # Get configuration for the instrument
     if instru not in config:
         raise KeyError(f'Unknown aethalometer {instru!r}; expected one of {sorted(config)}')

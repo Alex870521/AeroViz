@@ -1,3 +1,13 @@
+## v0.4.6 (2026-09-09)
+
+### Feat
+
+- **SMPS**: reject scans where a bin exceeds what the CPC can count
+
+### Fix
+
+- **readers**: total concentration used a natural log, inflating it 2.3x
+
 ## v0.4.5 (2026-08-28)
 
 ### Fix

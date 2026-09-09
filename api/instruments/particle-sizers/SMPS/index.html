@@ -2171,6 +2171,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader.CPC_MAX_CONC" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPC_MAX_CONC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader.REFERENCE_MEAN_FREE_PATH_NM" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REFERENCE_MEAN_FREE_PATH_NM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.SMPS.Reader.STATUS_COLUMN" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2280,6 +2302,28 @@
     <span class="md-ellipsis">
       
         _partition_compatible_scans
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._rated_max_conc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _rated_max_conc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._cpc_bin_ceiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _cpc_bin_ceiling
       
     </span>
   </a>
@@ -3992,6 +4036,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader.CPC_MAX_CONC" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPC_MAX_CONC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader.REFERENCE_MEAN_FREE_PATH_NM" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        REFERENCE_MEAN_FREE_PATH_NM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.SMPS.Reader.STATUS_COLUMN" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4101,6 +4167,28 @@
     <span class="md-ellipsis">
       
         _partition_compatible_scans
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._rated_max_conc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _rated_max_conc
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._cpc_bin_ceiling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _cpc_bin_ceiling
       
     </span>
   </a>
@@ -4376,7 +4464,7 @@ file layout, status codes and QC rules.</p>
   </span>
 
 </h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">MIN_TOTAL_CONC</span> <span class="o">=</span> <span class="mi">2000</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">MIN_TOTAL_CONC</span> <span class="o">=</span> <span class="mi">10</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4399,7 +4487,7 @@ file layout, status codes and QC rules.</p>
   </span>
 
 </h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">MAX_TOTAL_CONC</span> <span class="o">=</span> <span class="mf">10000000.0</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">MAX_TOTAL_CONC</span> <span class="o">=</span> <span class="mf">1000000.0</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4491,7 +4579,53 @@ file layout, status codes and QC rules.</p>
   </span>
 
 </h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DETECTOR_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'Detector Model'</span><span class="p">,</span> <span class="s1">'Detector S/N'</span><span class="p">,</span> <span class="s1">'Nano Enhancer'</span><span class="p">)</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">DETECTOR_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'Detector Model'</span><span class="p">,</span> <span class="s1">'CPC Model'</span><span class="p">,</span> <span class="s1">'Detector S/N'</span><span class="p">,</span> <span class="s1">'Nano Enhancer'</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="AeroViz.rawDataReader.script.SMPS.Reader.CPC_MAX_CONC" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">CPC_MAX_CONC</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">CPC_MAX_CONC</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'3772'</span><span class="p">:</span> <span class="mf">10000.0</span><span class="p">,</span> <span class="s1">'3787'</span><span class="p">:</span> <span class="mf">250000.0</span><span class="p">,</span> <span class="s1">'3788'</span><span class="p">:</span> <span class="mf">400000.0</span><span class="p">,</span> <span class="s1">'3022'</span><span class="p">:</span> <span class="mf">10000000.0</span><span class="p">,</span> <span class="s1">'3022A'</span><span class="p">:</span> <span class="mf">10000000.0</span><span class="p">}</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="AeroViz.rawDataReader.script.SMPS.Reader.REFERENCE_MEAN_FREE_PATH_NM" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">REFERENCE_MEAN_FREE_PATH_NM</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">REFERENCE_MEAN_FREE_PATH_NM</span> <span class="o">=</span> <span class="mf">67.3</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4725,6 +4859,171 @@ file is named in a warning, so the user can re-run them in isolation
 <div class="doc doc-object doc-function">
 
 
+<h4 id="AeroViz.rawDataReader.script.SMPS.Reader._rated_max_conc" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_rated_max_conc</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_rated_max_conc</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Look up a counter's rated maximum from a free-text model string.</p>
+<p>The field is whatever the operator's software wrote — <code>3772</code>,
+<code>3788 Low Flow</code>, <code>3022A</code> — so match on the longest known key contained
+in it rather than requiring equality. Longest-first matters: <code>3022A</code>
+must not be answered by the <code>3022</code> entry when both are listed.</p>
+<p>Returns <code>None</code> when nothing matches, which leaves the rule inert.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="AeroViz.rawDataReader.script.SMPS.Reader._cpc_bin_ceiling" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_cpc_bin_ceiling</span>
+
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_cpc_bin_ceiling</span><span class="p">(</span><span class="n">dp</span><span class="p">,</span> <span class="n">beta</span><span class="p">,</span> <span class="n">cpc_max</span><span class="p">,</span> <span class="n">mean_free_path_nm</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Highest credible <code>dN/dlogDp</code> per bin before the CPC is over-range.</p>
+<p>The DMA passes one narrow mobility band at a time, so the counter sees</p>
+<div class="highlight"><pre><span></span><code>N_counted(Dp) ~ dN/dlogDp(Dp) x dlog10(Dp)_transfer
+</code></pre></div>
+<p>and the rated maximum applies to <em>that</em>, not to the integrated total.
+Inverting gives the ceiling. The transfer function's width in mobility
+is <code>beta = q_aerosol / q_sheath</code>; converting to diameter needs the
+local slope <code>|dlnZ/dlnDp|</code>, which runs from ~2 in the free-molecular
+regime to ~1 in the continuum — so <strong>the ceiling is a curve, not a
+constant</strong>, about 40% lower at 600 nm than at 12 nm.</p>
+<p>A higher sheath ratio narrows the transfer function and therefore
+<em>raises</em> the ceiling: the same counter tolerates a denser aerosol when
+it only ever sees a thinner slice of it.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>dp</code>
+            </td>
+            <td>
+                  <code><span title="ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Bin midpoints (nm).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>beta</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span> or <span title="ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Aerosol/sheath flow ratio. Scalar, or one value per scan.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>cpc_max</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Rated maximum concentration of the counter (#/cm³).</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mean_free_path_nm</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Defaults to <code>REFERENCE_MEAN_FREE_PATH_NM</code>; pass the file's own
+<code>Mean Free Path (m)</code> when available.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code><span title="ndarray">ndarray</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Ceiling per bin — shape <code>(len(dp),)</code> for scalar <code>beta</code>,
+<code>(len(beta), len(dp))</code> otherwise.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h4 id="AeroViz.rawDataReader.script.SMPS.Reader._QC" class="doc doc-heading">
             <span class="doc doc-object-name doc-function-name">_QC</span>
 
@@ -4742,8 +5041,10 @@ file is named in a warning, so the user can re-run them in isolation
   <summary>QC Rules Applied</summary>
   <ol>
 <li>Status Error        : Non-empty status flag indicates instrument error</li>
-<li>Insufficient        : Less than 5 measurements per hour</li>
-<li>Invalid Number Conc : Total number concentration outside valid range (2000-1e7 #/cm³)</li>
+<li>Insufficient        : Less than 50% hourly data completeness (WARNING, not dropped)</li>
+<li>Invalid Number Conc : Total number concentration outside plausible range (10-1e6 #/cm³);
+                         total = sum(dN/dlogDp x dlogDp) with per-bin widths</li>
+<li>CPC Over-range      : A bin exceeds what the counter can count (per-instrument, from the file header)</li>
 <li>DMA Water Ingress   : Bins &gt;400nm with concentration &gt; 4000 dN/dlogDp (indicates water in DMA)</li>
 </ol>
 </details>

@@ -11,7 +11,44 @@ from typing import Literal
 import numpy as np
 from pandas import DataFrame
 
-__all__ = ['SizeDist', 'get_required_format']
+__all__ = ['SizeDist', 'bin_widths', 'get_required_format']
+
+
+def bin_widths(dp) -> np.ndarray:
+    """Per-bin log10 width (``dlogDp``) for a diameter grid.
+
+    Each bin's width is taken from the geometric midpoints to its neighbours,
+    so a grid whose spacing changes partway — a merged SMPS+APS distribution,
+    or an instrument that switches channel density — gets the right width in
+    every bin without being told where the change is. The two outermost edges
+    have no neighbour on one side, so they are extrapolated half a bin using
+    the *local* ratio rather than a grid-wide one, which keeps them correct on
+    hybrid grids too.
+
+    This replaces ``np.diff(np.log10(dp)).mean()``. A single mean is only
+    correct when every bin is equally log-spaced; on a hybrid grid it silently
+    over-counts the coarse half and under-counts the fine half.
+
+    Parameters
+    ----------
+    dp : array_like
+        Bin midpoint diameters, ascending. Any unit — the result depends only
+        on ratios.
+
+    Returns
+    -------
+    ndarray
+        ``dlogDp`` per bin, same length as ``dp``.
+    """
+    dp = np.asarray(dp, dtype=float)
+    if dp.size < 2:
+        # Single bin carries no spacing information; 0.014 is the historical
+        # fallback (≈ the 64-channels-per-decade SMPS step).
+        return np.full(dp.shape, 0.014)
+    inner = np.sqrt(dp[:-1] * dp[1:])
+    first = dp[0] * np.sqrt(dp[0] / dp[1])
+    last = dp[-1] * np.sqrt(dp[-1] / dp[-2])
+    return np.diff(np.log10(np.concatenate(([first], inner, [last]))))
 
 
 class SizeDist:
@@ -139,17 +176,12 @@ class SizeDist:
 
         self._data = data
         self._dp = np.array(self._data.columns, dtype=float)
-        # Infer dlogdp (log10 bin width) from the actual diameter grid.
-        # For uniformly log-spaced bins (the SMPS/APS norm) this is the
-        # constant log10 step between successive dp values. For
-        # non-uniform grids we fall back to the mean step, which is what
-        # SizeDistr.basic() does — callers with hybrid grids should
-        # assign `psd.dlogdp` explicitly after construction.
-        if len(self._dp) >= 2:
-            step = float(np.diff(np.log10(self._dp)).mean())
-        else:
-            step = 0.014  # only reachable for single-bin data
-        self._dlogdp = np.full_like(self._dp, step)
+        # Infer dlogdp (log10 bin width) per bin from the actual diameter
+        # grid — see `bin_widths`. Previously this was a single mean step,
+        # which is only right for a uniformly log-spaced grid; a hybrid grid
+        # (merged SMPS+APS) got the coarse half over-counted. Callers can
+        # still assign `psd.dlogdp` explicitly after construction.
+        self._dlogdp = bin_widths(self._dp)
         self._index = self._data.index.copy()
         self._state = state
         self._weighting = weighting

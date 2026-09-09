@@ -23,8 +23,9 @@ def psd_stats(df, hybrid_bin_start_loc=None, unit='nm', bin_range=(11.8, 19810),
         diameters convertible to ``float``.
     hybrid_bin_start_loc : int, optional
         Column index where the bin spacing changes (for hybrid instruments
-        such as merged SMPS+APS). If ``None``, a single mean ``dlogdp`` is
-        used for all bins.
+        such as merged SMPS+APS). **No longer needed** — when ``None`` the
+        per-bin widths are used, which handle a hybrid grid correctly on their
+        own. Kept so existing callers reproduce their previous numbers.
     unit : {'nm', 'um'}, default 'nm'
         Unit of the diameter columns.
     bin_range : tuple of float, default (11.8, 19810)
@@ -52,9 +53,15 @@ def psd_stats(df, hybrid_bin_start_loc=None, unit='nm', bin_range=(11.8, 19810),
 
     dp = data.keys().to_numpy()
 
-    # Calculate dlogdp
+    # Calculate dlogdp. The default is now per-bin (`bin_widths`), which gets
+    # a hybrid grid right on its own — the geometric midpoint to each
+    # neighbour already narrows in the fine half and widens in the coarse
+    # half, so `hybrid_bin_start_loc` is no longer needed. It is still honoured
+    # when passed, so existing callers keep their previous numbers.
+    from AeroViz.dataProcess.SizeDistr._size_dist import bin_widths
+
     if hybrid_bin_start_loc is None:
-        dlog_dp = np.full(dp.size, np.diff(np.log10(dp)).mean())
+        dlog_dp = bin_widths(dp)
     else:
         dlog_dp = np.ones(dp.size)
         dlog_dp[:hybrid_bin_start_loc] = np.diff(np.log10(dp[:hybrid_bin_start_loc])).mean()

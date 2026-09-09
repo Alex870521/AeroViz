@@ -1,4 +1,6 @@
 import numpy as np
+
+from AeroViz.dataProcess.SizeDistr._size_dist import bin_widths
 from pandas import to_datetime, read_table, Series
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
@@ -205,9 +207,16 @@ class Reader(AbstractReader):
         numeric_cols = [col for col in _df.columns if isinstance(col, (int, float))]
         df_numeric = _df[numeric_cols]
 
-        # Calculate total concentration
-        dlogDp = np.diff(np.log(df_numeric.columns.to_numpy(float))).mean()
-        total_conc = df_numeric.sum(axis=1, min_count=1) * dlogDp
+        # Total number concentration = sum of dN = sum(dN/dlogDp x dlogDp).
+        #
+        # `np.log` (natural) was used here until 2026-09-09 where the data is
+        # dN/dlog10Dp, inflating every total by ln(10) = 2.303x. That matters
+        # more for APS than for SMPS because the range is tight: a
+        # `MAX_TOTAL_CONC` of 700 was really 304 /cm3, so valid high-loading
+        # scans were being rejected. Now per-bin (`bin_widths`) rather than a
+        # single mean step.
+        dlogDp = bin_widths(df_numeric.columns.to_numpy(float))
+        total_conc = (df_numeric * dlogDp).sum(axis=1, min_count=1)
 
         # Warn if the status column is missing: `filter_error_status` would
         # otherwise report "no errors" for a renamed column.

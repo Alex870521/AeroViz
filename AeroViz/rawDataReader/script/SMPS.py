@@ -1,7 +1,9 @@
 import csv
 
 import numpy as np
-from pandas import to_datetime, read_csv, Series
+
+from AeroViz.dataProcess.SizeDistr._size_dist import bin_widths
+from pandas import Series, read_csv, to_datetime, to_numeric
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
 from AeroViz.rawDataReader.script._size_dist_output import finalize_size_dist
@@ -26,8 +28,22 @@ class Reader(AbstractReader):
     # threshold=0.5), not a fixed count: the expected points per hour follow the
     # frequency detected from the files. A `MIN_HOURLY_COUNT = 5` constant used to
     # sit here, never read and true only for a 6-minute grid.
-    MIN_TOTAL_CONC = 2000          # Minimum total concentration (#/cm³)
-    MAX_TOTAL_CONC = 1e7           # Maximum total concentration (#/cm³)
+    # Plausibility bounds on the integrated total, in #/cm³. These are a coarse
+    # backstop — the physical limit is per-bin and lives in `CPC Over-range`.
+    # Both are overridable per run: `min_total_conc=` / `max_total_conc=`.
+    #
+    # ⚠️ `MIN_TOTAL_CONC` was 2000 until 2026-09-09, which made the reader
+    # unusable at any clean site: EBAS background stations sit at 50–300 /cm³
+    # (Zeppelin's median is 95), so 99–100% of their record was being rejected
+    # as invalid. A minimum is there to catch "instrument off / no flow", which
+    # reads ~0, not to encode an urban site's typical loading.
+    #
+    # ⚠️ `MAX_TOTAL_CONC` was 1e7, which caught 19% of the scans a five-station
+    # TCLab audit found implausible; measured against the same set, 1e6 catches
+    # 30% and is still above any credible ambient total (roadside peaks reach
+    # 2–5e5). The rest is the CPC and shape rules' job, not this one's.
+    MIN_TOTAL_CONC = 10
+    MAX_TOTAL_CONC = 1e6
     MAX_LARGE_BIN_CONC = 4000      # Maximum concentration for >400nm bins (DMA water ingress indicator)
     LARGE_BIN_THRESHOLD = 400      # Size threshold for large bin filter (nm)
 
@@ -69,7 +85,33 @@ class Reader(AbstractReader):
     #: Metadata fields naming the CPC that did the counting. Captured from the
     #: block above the data header and reported in `df.attrs`; the CPC's cut-off
     #: sets how far the lowest size channels under-report.
-    DETECTOR_FIELDS = ('Detector Model', 'Detector S/N', 'Nano Enhancer')
+    #: `CPC Model` is the AIM 10.3 spelling of `Detector Model`; without it the
+    #: whole 10.3 dialect reported no detector at all, which also left the
+    #: `CPC Over-range` rule below permanently inert on those files.
+    DETECTOR_FIELDS = ('Detector Model', 'CPC Model', 'Detector S/N', 'Nano Enhancer')
+
+    #: Rated maximum concentration per CPC model (#/cm³) — the top of the range
+    #: over which the counter's accuracy is specified. Above it the coincidence
+    #: correction is extrapolation, so a bin reading higher is not trustworthy.
+    #:
+    #: ⚠️ This is a *per-bin* limit, not a limit on the integrated total: the
+    #: DMA passes one narrow mobility band at a time, so the counter only ever
+    #: sees a slice of the distribution. Comparing it against the total is a
+    #: category error — see `_cpc_bin_ceiling`.
+    #:
+    #: Models absent here leave the rule inert (logged, not silently skipped).
+    #: Override or extend with `cpc_max_conc={'3022': 1e7}`.
+    CPC_MAX_CONC = {
+        '3772': 1e4,      # single-count only, no photometric mode
+        '3787': 2.5e5,
+        '3788': 4.0e5,
+        '3022': 1.0e7,    # photometric above ~1e4; effectively unconstrained here
+        '3022A': 1.0e7,
+    }
+
+    #: Air mean free path (nm) at the SMPS reference state (296.15 K,
+    #: 101.3 kPa). Only used when a file does not record its own.
+    REFERENCE_MEAN_FREE_PATH_NM = 67.3
 
     # Kept for backwards compatibility with callers that referenced these.
     STATUS_COLUMN = 'Status Flag'
@@ -313,6 +355,74 @@ class Reader(AbstractReader):
 
         return kept
 
+    @classmethod
+    def _rated_max_conc(cls, model: str):
+        """Look up a counter's rated maximum from a free-text model string.
+
+        The field is whatever the operator's software wrote — `3772`,
+        `3788 Low Flow`, `3022A` — so match on the longest known key contained
+        in it rather than requiring equality. Longest-first matters: `3022A`
+        must not be answered by the `3022` entry when both are listed.
+
+        Returns ``None`` when nothing matches, which leaves the rule inert.
+        """
+        if not model:
+            return None
+        for key in sorted(cls.CPC_MAX_CONC, key=len, reverse=True):
+            if key in model:
+                return cls.CPC_MAX_CONC[key]
+        return None
+
+    def _cpc_bin_ceiling(self, dp, beta, cpc_max, mean_free_path_nm=None):
+        """Highest credible ``dN/dlogDp`` per bin before the CPC is over-range.
+
+        The DMA passes one narrow mobility band at a time, so the counter sees
+
+            N_counted(Dp) ~ dN/dlogDp(Dp) x dlog10(Dp)_transfer
+
+        and the rated maximum applies to *that*, not to the integrated total.
+        Inverting gives the ceiling. The transfer function's width in mobility
+        is ``beta = q_aerosol / q_sheath``; converting to diameter needs the
+        local slope ``|dlnZ/dlnDp|``, which runs from ~2 in the free-molecular
+        regime to ~1 in the continuum — so **the ceiling is a curve, not a
+        constant**, about 40% lower at 600 nm than at 12 nm.
+
+        A higher sheath ratio narrows the transfer function and therefore
+        *raises* the ceiling: the same counter tolerates a denser aerosol when
+        it only ever sees a thinner slice of it.
+
+        Parameters
+        ----------
+        dp : ndarray
+            Bin midpoints (nm).
+        beta : float or ndarray
+            Aerosol/sheath flow ratio. Scalar, or one value per scan.
+        cpc_max : float
+            Rated maximum concentration of the counter (#/cm³).
+        mean_free_path_nm : float, optional
+            Defaults to `REFERENCE_MEAN_FREE_PATH_NM`; pass the file's own
+            ``Mean Free Path (m)`` when available.
+
+        Returns
+        -------
+        ndarray
+            Ceiling per bin — shape ``(len(dp),)`` for scalar ``beta``,
+            ``(len(beta), len(dp))`` otherwise.
+        """
+        lam = mean_free_path_nm or self.REFERENCE_MEAN_FREE_PATH_NM
+        dp = np.asarray(dp, dtype=float)
+
+        def _log_mobility(d):
+            kn = 2 * lam / d
+            return np.log((1 + kn * (1.257 + 0.4 * np.exp(-1.1 / kn))) / d)
+
+        h = 1e-4
+        slope = np.abs((_log_mobility(dp * (1 + h)) - _log_mobility(dp * (1 - h))) / (2 * h))
+
+        beta = np.asarray(beta, dtype=float)
+        width = np.expand_dims(beta, -1) / (slope * np.log(10))   # dlog10(Dp) per band
+        return cpc_max / width
+
     def _QC(self, _df):
         """
         Perform quality control on SMPS particle size distribution data.
@@ -320,9 +430,11 @@ class Reader(AbstractReader):
         QC Rules Applied
         ----------------
         1. Status Error        : Non-empty status flag indicates instrument error
-        2. Insufficient        : Less than 5 measurements per hour
-        3. Invalid Number Conc : Total number concentration outside valid range (2000-1e7 #/cm³)
-        4. DMA Water Ingress   : Bins >400nm with concentration > 4000 dN/dlogDp (indicates water in DMA)
+        2. Insufficient        : Less than 50% hourly data completeness (WARNING, not dropped)
+        3. Invalid Number Conc : Total number concentration outside plausible range (10-1e6 #/cm³);
+                                 total = sum(dN/dlogDp x dlogDp) with per-bin widths
+        4. CPC Over-range      : A bin exceeds what the counter can count (per-instrument, from the file header)
+        5. DMA Water Ingress   : Bins >400nm with concentration > 4000 dN/dlogDp (indicates water in DMA)
         """
         _df = _df.copy()
         _index = _df.index.copy()
@@ -334,12 +446,64 @@ class Reader(AbstractReader):
         size_mask = (df_numeric.columns.astype(float) >= size_range[0]) & (df_numeric.columns.astype(float) <= size_range[1])
         df_numeric = df_numeric.loc[:, size_mask]
 
-        # Calculate total concentration for QC checks
-        dlogDp = np.diff(np.log(df_numeric.columns[:-1].to_numpy(float))).mean()
-        total_conc = df_numeric.sum(axis=1, min_count=1) * dlogDp
+        # Total number concentration for the QC checks below: sum of dN over
+        # the bins, i.e. sum(dN/dlogDp x dlogDp).
+        #
+        # Two bugs lived here until 2026-09-09, and both made the
+        # `Invalid Number Conc` thresholds mean something other than they say:
+        #   1. `np.log` (natural) was used where the data is dN/dlog10Dp, so
+        #      every total came out ln(10) = 2.303x too high. `MAX_TOTAL_CONC`
+        #      of 1e7 was really 4.34e6 and `MIN_TOTAL_CONC` of 2000 was 868.
+        #   2. `columns[:-1]` dropped a column before diffing, averaging over
+        #      n-2 gaps instead of n-1.
+        # Now uses the per-bin widths (`bin_widths`) rather than a single mean
+        # step, which also makes the total correct on a non-uniform grid.
+        # Verified against the instrument's own `Total Conc.` column: 0.996-0.999.
+        dlogDp = bin_widths(df_numeric.columns.to_numpy(float))
+        total_conc = (df_numeric * dlogDp).sum(axis=1, min_count=1)
 
         # Get large bins (>400nm)
         large_bins = df_numeric.columns[df_numeric.columns.astype(float) >= self.LARGE_BIN_THRESHOLD]
+
+        min_total = self.kwargs.get('min_total_conc', self.MIN_TOTAL_CONC)
+        max_total = self.kwargs.get('max_total_conc', self.MAX_TOTAL_CONC)
+
+        # ---- CPC over-range: the counter's rated maximum, per bin -------------
+        # Everything here is read from the file itself (detector model in the
+        # header, flows in the data rows), so changing counter or sheath ratio
+        # mid-record is picked up without configuration.
+        cpc_model = str(self.kwargs.get('cpc_model')
+                        or self._detector.get('CPC Model')
+                        or self._detector.get('Detector Model') or '').strip()
+        cpc_max = self.kwargs.get('cpc_max_conc')
+        if cpc_max is None:
+            cpc_max = self._rated_max_conc(cpc_model)
+
+        beta = None
+        if {'Aerosol Flow(lpm)', 'Sheath Flow(lpm)'} <= set(_df.columns):
+            qa = to_numeric(_df['Aerosol Flow(lpm)'], errors='coerce')
+            qsh = to_numeric(_df['Sheath Flow(lpm)'], errors='coerce')
+            ratio = (qa / qsh).replace([np.inf, -np.inf], np.nan)
+            if ratio.notna().any():
+                beta = ratio.fillna(ratio.median()).to_numpy()
+
+        lam_nm = None
+        if 'Mean Free Path (m)' in _df.columns:
+            lam = to_numeric(_df['Mean Free Path (m)'], errors='coerce').median()
+            if np.isfinite(lam) and lam > 0:
+                lam_nm = float(lam) * 1e9
+
+        if cpc_max is None or beta is None:
+            missing = 'detector model' if cpc_max is None else 'sheath/aerosol flow'
+            self.logger.debug(
+                f'CPC Over-range rule inert: {missing} unavailable '
+                f'(model={cpc_model or "unknown"}). Supply `cpc_max_conc=` to enable.')
+            cpc_over = Series(False, index=_df.index)
+        else:
+            ceiling = self._cpc_bin_ceiling(
+                df_numeric.columns.to_numpy(float), beta, float(cpc_max), lam_nm)
+            cpc_over = Series(
+                (df_numeric.to_numpy(float) > ceiling).any(axis=1), index=_df.index)
 
         # Build QC rules declaratively
         qc = self.qc_builder()
@@ -410,11 +574,20 @@ class Reader(AbstractReader):
             ),
             QCRule(
                 name='Invalid Number Conc',
-                condition=lambda df, tc=total_conc: Series(
-                    (tc < self.MIN_TOTAL_CONC) | (tc > self.MAX_TOTAL_CONC),
-                    index=df.index
+                condition=lambda df, tc=total_conc, lo=min_total, hi=max_total: Series(
+                    (tc < lo) | (tc > hi), index=df.index
                 ).fillna(True),
-                description=f'Total number concentration outside valid range ({self.MIN_TOTAL_CONC}-{self.MAX_TOTAL_CONC:.0e} #/cm³)'
+                description=f'Total number concentration outside plausible range ({min_total:g}-{max_total:.0e} #/cm³)'
+            ),
+            QCRule(
+                name='CPC Over-range',
+                condition=lambda df, m=cpc_over: m.reindex(df.index).fillna(False),
+                description=(
+                    f'A bin exceeded what a {cpc_model or "unknown"} CPC can count '
+                    f'({cpc_max:,.0f} #/cm³) given the recorded sheath ratio'
+                    if cpc_max is not None and beta is not None
+                    else 'CPC over-range (rule inert: detector model or flows unavailable)'
+                )
             ),
             QCRule(
                 name='DMA Water Ingress',

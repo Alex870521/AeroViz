@@ -1,3 +1,9 @@
+## v0.4.7 (2026-09-11)
+
+### Fix
+
+- **plot**: remove stray breakpoint() from corr_matrix
+
 ## v0.4.6 (2026-09-09)
 
 ### Feat

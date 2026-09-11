@@ -22,7 +22,6 @@ def corr_matrix(data: pd.DataFrame,
     fig, ax = plt.subplots(**kwargs.get('fig_kws', {})) if ax is None else (ax.get_figure(), ax)
 
     _corr = data.corr()
-    breakpoint()
     corr = pd.melt(_corr.reset_index(), id_vars='index')
     corr.columns = ['x', 'y', 'value']
 

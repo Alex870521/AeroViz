@@ -21,6 +21,8 @@ pip install AeroViz
 ```
 
 Pre-built for Linux, macOS, and Windows — no compiler needed.
+Plotting lives in an extra: `pip install "AeroViz[plot]"`. Details, building from
+source and troubleshooting: [Installation](https://alex870521.github.io/AeroViz/installation/).
 
 ## Quick Start
 
@@ -99,7 +101,8 @@ See the [user guide](https://alex870521.github.io/AeroViz/) for details.
 ## Documentation
 
 - [Full Documentation](https://alex870521.github.io/AeroViz/)
-- [RawDataReader API](https://alex870521.github.io/AeroViz/api/RawDataReader/)
+- [Installation](https://alex870521.github.io/AeroViz/installation/) · [Getting Started](https://alex870521.github.io/AeroViz/guide/) · [RawDataReader Usage](https://alex870521.github.io/AeroViz/guide/rawdatareader/)
+- [Supported Instruments](https://alex870521.github.io/AeroViz/api/instruments/) · [Gallery](https://alex870521.github.io/AeroViz/gallery/)
 - [Changelog](docs/CHANGELOG.md)
 
 ## Contributing

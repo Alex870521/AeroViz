@@ -344,7 +344,7 @@ class TestDetectorMetadata:
     how far the lowest size channels under-report — a 3750 cuts off at 7 nm, a
     375010 at 10 nm, a 3756 at 2.5 nm. It is a separate instrument that can be
     swapped, so the dataset should say which one produced it rather than leaving
-    the reader to assume. See docs/guide/counting-efficiency.md.
+    the reader to assume. See docs/theory/counting_efficiency.md.
     """
 
     @pytest.mark.parametrize('scenario', ['normal', 'csv_format'])

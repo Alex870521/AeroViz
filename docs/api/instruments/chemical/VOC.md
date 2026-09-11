@@ -126,5 +126,5 @@ potential is returned as NaN rather than zero.
 
 - [DataProcess / VOC](../../DataProcess/VOC.md) — `voc_potentials` API and outputs
 - [VOC Analysis guide](../../../guide/voc_analysis.md) — end-to-end workflow
-- [Data Levels §7](../../../guide/data-levels.md#resolved) — why the reader was
+- [RawDataReader Reference §5.6](../../../guide/reader-reference.md#removed-voc-and-minion) — why the reader was
   withdrawn

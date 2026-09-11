@@ -86,38 +86,9 @@ Possible sources:
 - Analytical errors
 - Unmeasured components
 
-## AeroViz Implementation
+## In AeroViz
 
-```python
-from AeroViz import reconstruct_mass
-
-# Mass reconstruction
-result = reconstruct_mass(df_chem, df_ref=df_chem[['PM25']])
-
-# Output
-result['mass']         # Reconstructed mass DataFrame
-#   AS, AN, OM, Soil, SS, EC, total   ('total' = reconstructed PM mass)
-
-result['NH4_status']   # DataFrame with 'ratio' and 'status' (status: Enough / Deficiency)
-result['volume']       # Component volumes (µm³/m³)
-result['density_rec']  # Reconstructed density
-result['RI_550']       # Volume-weighted refractive index at 550 nm
-
-# Split OM into POA / SOA via EC-tracer method
-result_split = reconstruct_mass(df_chem, df_ref=df_chem[['PM25']], split_om=True)
-```
-
-### Input Format
-
-```python
-required_columns = [
-    'SO42-', 'NO3-', 'NH4+',      # Ions
-    'OC', 'EC',                    # Carbon components
-    'Na+', 'Cl-',                  # Sea salt
-    'Al', 'Fe', 'Ti', 'Ca',        # Crustal elements
-    'PM25'                         # Total mass
-]
-```
+Usage lives in the guide: [Mass Reconstruction](../guide/chemical_analysis.md#mass-reconstruction) for `reconstruct_mass`, its return keys and `split_om`, and the required input columns in [Input Format Requirements](../guide/dataprocess.md#input-format-requirements).
 
 ## References
 

@@ -12,7 +12,7 @@ class Reader(AbstractReader):
     scattering properties at multiple wavelengths.
 
     See ``docs/api/instruments/nephelometers/Aurora.md`` for usage and
-    ``docs/guide/instrument-qc.md`` for the
+    ``docs/guide/reader-reference.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'Aurora'

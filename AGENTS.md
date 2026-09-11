@@ -62,7 +62,7 @@ df = RawDataReader(
 | `mean_freq` | str | Averaging frequency ('1h', '30min', '1D'); omit for native resolution (no resampling) |
 | `qc` | bool/str | True=apply QC, 'MS'=monthly stats |
 | `reset` | bool/str | True=reprocess, 'append'=add new data |
-| `size_range` | tuple | (min_nm, max_nm) for SMPS/APS only |
+| `size_range` | tuple | SMPS only (accepted but ignored by APS/GRIMM): exact `(first_bin, last_bin)` nm of the grid to keep, e.g. `(11.8, 593.5)`; a non-matching file is rejected |
 | `fill_missing` | bool | True (default)=pad to requested range; False=clamp to data coverage |
 | `raw_freq` | str | Override auto-detected resolution (e.g. '6min'); skips detection |
 | `drop_outlier_dates` | bool | Stray timestamps far outside the data bulk (e.g. a year-2000 row in 2023 data) are always detected and warned about. False (default)=keep them (warning tells you how to fix the source); True=drop them automatically before gridding |
@@ -195,8 +195,9 @@ masked to NaN in the output; both columns are then dropped. So a rule can flag
 something without deleting the measurement.
 
 Each rule has a severity: `error` (default, masks the row) or `warning`
-(advisory — recorded and logged, data kept). Advisory by default: OCEC
-`Below MDL`, Xact `Upscale Warning`. Reclassify per run:
+(advisory — recorded and logged, data kept). Advisory by default:
+`Insufficient` (every reader that has it), OCEC `Below MDL`, Xact
+`Upscale Warning` and `High Uncertainty`. Reclassify per run:
 
 ```python
 # tighten an advisory flag back into an invalidating one

@@ -38,6 +38,14 @@ The International Commission on Radiological Protection (ICRP) human respiratory
 - Activity intensity and breathing patterns
 - Deposition fraction calculation
 
+### [Counting Efficiency (CPC & APS)](counting_efficiency.md)
+
+Neither counter behind a size distribution counts every particle: the CPC's cut-off under-reports the lowest SMPS channels and the APS under-counts at both ends, severely so for droplets. Recorded here so the bias is known; AeroViz does not correct for it.
+
+- Which CPC is attached, and its D50 / efficiency curve
+- APS aspiration, transmission and detector losses (solid vs droplet)
+- What it means for an SMPS–APS merge
+
 ## Chemical Properties
 
 ### [kappa-Kohler Theory](kappa.md)

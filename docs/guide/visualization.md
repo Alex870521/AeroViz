@@ -2,7 +2,10 @@
 
 AeroViz provides rich visualization tools for aerosol data analysis and publication.
 
-All plot functions take a time-indexed `DataFrame` and return `(fig, ax)`.
+The matplotlib functions return `(fig, ax)`; `timeseries_interactive` returns a
+Plotly figure. `scatter`, `box`, `timeseries` and `diurnal_pattern` take a
+time-indexed `DataFrame`; `bar`, `violin` and `pie` take pre-aggregated inputs
+(described with each function).
 
 ## Basic Usage
 
@@ -49,26 +52,30 @@ multiple_linear_regression(data, x=['BC', 'NO2', 'O3'], y='PM25')
 
 ### Box Plot
 
-`box` bins a **numeric** x-axis column into intervals (via `x_bins`) and draws one
-box per bin — it does not accept a categorical/string x-axis. Provide a numeric
-column for `x` and the bin edges in `x_bins`. Note: edges are rounded to integers
-internally, so use **integer edges with a width of 2 or more** (e.g.
-`np.arange(0, 11, 2)`; width-1 bins collide after rounding).
+`box(df, x, y, x_bins=None)` draws `y` grouped by `x`, choosing one of two
+modes automatically:
+
+- **Categorical** — `x` is non-numeric (a `'season'` label, say) or `x_bins`
+  is omitted: one box per unique value of `x`.
+- **Binned** — `x` is numeric and `x_bins` is given: `x` is cut at those edges
+  (integer or float, any width, no rounding) and one box is drawn per bin.
 
 ```python
 import numpy as np
 from AeroViz.plot import box
 
-# Boxes of PM2.5 grouped by wind-speed bins (0-2, 2-4, ... m/s)
+# Categorical: one box per season label
+box(data, x='season', y='PM25')
+
+# Binned: PM2.5 by wind-speed bins (0-2, 2-4, ... m/s)
 box(data, x='WS', y='PM25', x_bins=np.arange(0, 11, 2))
 
-# Boxes of PM2.5 grouped by 2-month bins
-data['month'] = data.index.month
-box(data, x='month', y='PM25', x_bins=np.arange(0, 13, 2))
+# Binned with float edges
+box(data, x='RH', y='PM25', x_bins=[0, 42.5, 65, 80, 100])
 ```
 
-> To split by a true category (e.g. season label), use `violin` instead, which
-> takes a wide DataFrame with one column per category (see below).
+> `violin` is the alternative when your data is already *wide* — one column per
+> category (see below).
 
 ### Bar Chart
 
@@ -142,12 +149,20 @@ plot.diurnal_pattern(data, y=['BC', 'PM25'])
 
 ## Advanced Charts
 
-### Contour
+### Size-distribution heatmap
 
 ```python
-# 2-D contour of a wide DataFrame (e.g. a size-distribution matrix:
-# index = time, columns = diameters)
-plot.contour(df_pnsd)
+# Time × diameter heatmap of a dN/dlogDp matrix (index = time, columns = diameters)
+plot.distribution.heatmap_tms(df_pnsd, unit='Number')   # 'Surface' | 'Volume' | 'Extinction'
+```
+
+### Extinction contour
+
+```python
+# Koschmieder-style fit: extinction as a power law of PM2.5 × gRH,
+# drawn as a contour over the PM2.5 / gRH plane.
+# df needs the scalar columns 'PM25', 'gRH' and 'Extinction'.
+plot.contour(df[['PM25', 'gRH', 'Extinction']])
 ```
 
 ### Wind Rose
@@ -173,102 +188,13 @@ plot.corr_matrix(data[cols])
 
 ---
 
-## Chart Customization
+## Styling and saving
 
-### Basic Settings
-
-```python
-import matplotlib.pyplot as plt
-
-# Set style
-plt.style.use('seaborn-v0_8-paper')
-
-# Custom chart
-fig, ax = plt.subplots(figsize=(10, 6))
-scatter(data, x='BC', y='PM25', ax=ax)
-ax.set_title('BC vs PM2.5')
-ax.set_xlabel('BC (ug/m3)')
-ax.set_ylabel('PM2.5 (ug/m3)')
-```
-
-### Multi-panel Figures
-
-```python
-import numpy as np
-
-fig, axes = plt.subplots(2, 2, figsize=(12, 10))
-
-scatter(data, x='BC', y='PM25', ax=axes[0, 0])
-box(data, x='month', y='BC', x_bins=np.arange(0, 13, 2), ax=axes[0, 1])
-plot.diurnal_pattern(data, y='BC', ax=axes[1, 0])
-plot.timeseries(data, y='BC', ax=axes[1, 1])
-
-plt.tight_layout()
-```
-
-### Saving Figures
-
-```python
-# High resolution PNG
-plt.savefig('figure.png', dpi=300, bbox_inches='tight')
-
-# Vector formats
-plt.savefig('figure.pdf', format='pdf', bbox_inches='tight')
-plt.savefig('figure.svg', format='svg', bbox_inches='tight')
-```
-
----
-
-## Publication Quality Settings
-
-### Font Settings
-
-```python
-import matplotlib.pyplot as plt
-
-plt.rcParams.update({
-    'font.family': 'Arial',
-    'font.size': 12,
-    'axes.labelsize': 14,
-    'axes.titlesize': 16,
-    'xtick.labelsize': 12,
-    'ytick.labelsize': 12,
-    'legend.fontsize': 11,
-})
-```
-
-### Color Settings
-
-```python
-# Use colorblind-friendly palette
-colors = ['#0077BB', '#EE7733', '#009988', '#CC3311']
-
-# Or use ColorBrewer
-from matplotlib.cm import get_cmap
-cmap = get_cmap('Set2')
-```
-
-### Figure Dimensions
-
-Common journal requirements:
-
-| Journal | Single Column Width | Double Column Width |
-|---------|---------------------|---------------------|
-| ACP | 8.3 cm | 17.6 cm |
-| ES&T | 8.5 cm | 17.8 cm |
-| JGR | 8.4 cm | 17.4 cm |
-
-```python
-# Single column figure
-fig, ax = plt.subplots(figsize=(3.27, 2.5))  # 8.3 cm
-
-# Double column figure
-fig, ax = plt.subplots(figsize=(6.93, 4))    # 17.6 cm
-```
-
----
+Drawing into your own axes, multi-panel layouts, fonts, colour-blind-safe
+palettes, journal column widths and `savefig` settings are collected in
+[Publication Figures](publication-figures.md).
 
 ## Related Topics
 
-- [Plot API Reference](../api/plot/index.md)
+- [Plot API Reference](../api/plot/index.md) · [Publication Figures](publication-figures.md)
 - [Size Distribution](size_distribution.md) · [Optical Closure](optical_closure.md) · [Chemical Analysis](chemical_analysis.md) · [VOC Analysis](voc_analysis.md)

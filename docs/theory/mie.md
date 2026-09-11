@@ -58,33 +58,9 @@ $$b_{ext} = \sum_i b_{ext,i}$$
 
 EC as the core with other components as the shell. Suitable for aged aerosols.
 
-## AeroViz Implementation
+## In AeroViz
 
-```python
-from AeroViz import mie
-
-# Single-material RI: pass a Series of complex numbers (n + ik per row)
-result = mie(
-    df_pnsd,           # Particle number size distribution
-    df_RI_complex,     # Series of complex RI, one per row
-    wavelength=550,    # Wavelength (nm)
-)
-
-# Output: DataFrame with extinction, scattering, absorption (Mm-1)
-
-# Species mixing-table: DataFrame with '*_volume_ratio' columns
-result_mix = mie(
-    df_pnsd,
-    df_mixing_table,           # AS_volume_ratio, AN_volume_ratio, ...
-    wavelength=550,
-    mixing='internal',         # 'internal' | 'external' | 'both'
-)
-
-# Per-bin distribution instead of totals
-dext = mie(df_pnsd, df_RI_complex, wavelength=550, distribution=True)
-```
-
-`mie` replaces the legacy `Mie` / `extinction_distribution` / `extinction_full` triplet — behavior is selected by the shape of `ri` and the `mixing` / `distribution` keywords.
+Usage lives in the guide: [`mie`](../guide/dataprocess.md#mie-calculation) for the call and its `mixing` / `distribution` options, and [Optical Closure](../guide/optical_closure.md#mie-closure) for a worked comparison against measured extinction.
 
 ## References
 

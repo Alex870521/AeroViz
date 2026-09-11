@@ -58,48 +58,13 @@ drives the changelog and the next version number, so a clear subject matters.
 
 ## Adding a new instrument
 
-Instrument readers are auto-discovered — there's no central registry to edit.
-Two steps:
-
-1. **Create `AeroViz/rawDataReader/script/<NAME>.py`** with a `Reader` subclass.
-   Implement `_raw_reader` (parse one file into a DataFrame with a
-   `DatetimeIndex`) and `_QC` (flag rows via the QC builder); add `_process` for
-   derived parameters if needed.
-
-   ```python
-   from AeroViz.rawDataReader.core import AbstractReader, QCFlagBuilder, QCRule
-
-
-   class Reader(AbstractReader):
-       nam = '<NAME>'
-
-       def _raw_reader(self, file):
-           df = ...  # parse `file` -> DataFrame indexed by time
-           return df
-
-       def _QC(self, df):
-           qc = QCFlagBuilder()
-           qc.add_rules([
-               QCRule(name='Invalid', condition=lambda d: ..., description='...'),
-           ])
-           return qc.apply(df)
-   ```
-
-2. **Register it in `AeroViz/rawDataReader/config/supported_instruments.py`** by
-   adding an entry to the `meta` dict:
-
-   ```python
-   "<NAME>": {"pattern": ["*.csv"], "freq": "1h"},
-   ```
-
-   `pattern` is the glob(s) for the raw files; `freq` is a fallback resolution
-   (the reader auto-detects the real frequency per file).
-
-3. Add a fixture under `tests/fixtures/raw_data/<NAME>/normal/` and a test that
-   subclasses `BaseReaderTest` in `tests/test_readers/`.
-
-The file in `script/` is imported automatically on startup, so once `meta` knows
-about it, `RawDataReader('<NAME>', ...)` just works.
+A reader is a `Reader` subclass in `AeroViz/rawDataReader/script/<NAME>.py`
+(auto-imported) plus a `meta` entry in
+`AeroViz/rawDataReader/config/supported_instruments.py`, a fixture-backed test
+in `tests/test_readers/`, and a docs page. The step-by-step contract — hooks,
+status register, severities, what the tests pin — is in
+[Contributing a Reader](https://alex870521.github.io/AeroViz/guide/contributing-reader/)
+(`docs/guide/contributing-reader.md`).
 
 ## Releases (maintainers)
 

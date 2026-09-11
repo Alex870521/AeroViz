@@ -59,37 +59,9 @@ The relationship between particle size and total deposition efficiency shows a U
 - **Accumulation mode (0.1-1 um)**: Lowest deposition efficiency ("penetration window")
 - **Coarse particles (>1 um)**: Impaction and sedimentation dominated, high deposition efficiency
 
-## AeroViz Implementation
+## In AeroViz
 
-```python
-from AeroViz.dataProcess.SizeDistr import SizeDist
-
-# Create PSD object
-psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')
-
-# Calculate lung deposition
-result = psd.lung_deposition(activity='light')
-
-# Output
-result['DF']         # Deposition fraction DataFrame (HA, TB, AL, Total)
-result['deposited']  # Deposited distribution (dN/dlogDp x DF)
-result['dose']       # Regional dose
-result['total_dose'] # Total deposited dose
-```
-
-### Output Example
-
-```python
-# Deposition fractions (by particle size)
-result['DF']
-#           HA       TB       AL    Total
-# 11.8   0.012    0.045    0.285    0.342
-# 20.5   0.008    0.032    0.198    0.238
-# 50.0   0.005    0.018    0.112    0.135
-# 100    0.004    0.012    0.085    0.101
-# 200    0.006    0.015    0.095    0.116
-# 500    0.025    0.035    0.125    0.185
-```
+Usage lives in the guide: [Lung Deposition Calculation](../guide/size_distribution.md#lung-deposition-calculation) shows `SizeDist.lung_deposition()`, its return keys and a per-diameter example.
 
 ## Health Significance
 

@@ -43,19 +43,24 @@ theme:
 nav:
   - Home:
       - Overview: index.md
+      - Installation: installation.md
+      - Gallery: gallery.md
+      - Contributing: contributing.md
+      - Citation & License: citation.md
       - Changelog: CHANGELOG.md
 
   - Guide:
       - Getting Started: guide/index.md
       - Tutorials:
-          - RawDataReader: guide/rawdatareader.md
           - Data Levels (L0-L3): guide/data-levels.md
-          - Instrument Formats & QC: guide/instrument-qc.md
-          - Counting Efficiency (CPC & APS): guide/counting-efficiency.md
-          - RawDataReader Internals: guide/reader-internals.md
           - DataProcess: guide/dataprocess.md
           - Visualization: guide/visualization.md
+          - Publication Figures: guide/publication-figures.md
+      - Reference:
+          - RawDataReader Reference: guide/reader-reference.md
+          - Contributing a Reader: guide/contributing-reader.md
       - Examples:
+          - RawDataReader Usage: guide/rawdatareader.md
           - Size Distribution: guide/size_distribution.md
           - Optical Closure: guide/optical_closure.md
           - Chemical Analysis: guide/chemical_analysis.md
@@ -66,6 +71,7 @@ nav:
       - Mie Theory: theory/mie.md
       - IMPROVE Equation: theory/improve.md
       - Log-Normal Distribution: theory/lognormal.md
+      - Counting Efficiency (CPC & APS): theory/counting_efficiency.md
       - ICRP 66 Model: theory/icrp.md
       - κ-Köhler Theory: theory/kappa.md
       - Mass Reconstruction: theory/mass_reconstruction.md
@@ -99,32 +105,23 @@ nav:
               - Mass:
                   - TEOM: api/instruments/mass/TEOM.md
                   - BAM1020: api/instruments/mass/BAM1020.md
-      - DataProcess:
-          - Overview: api/DataProcess/index.md
-          - SizeDistr: api/DataProcess/SizeDistr.md
-          - Chemistry: api/DataProcess/Chemistry.md
-          - Optical: api/DataProcess/Optical.md
-          - VOC: api/DataProcess/VOC.md
+              - Other:
+                  - EPA: api/instruments/other/EPA.md
+      - Post-processing:
+          - Overview & migration: api/DataProcess/index.md
+          - size: api/DataProcess/SizeDistr.md
+          - chemistry: api/DataProcess/Chemistry.md
+          - optical: api/DataProcess/Optical.md
+          - voc: api/DataProcess/VOC.md
+      - Utilities: api/utilities.md
       - Plotting:
           - Overview: api/plot/index.md
-          - Basic:
-              - scatter: api/plot/basic/scatter.md
-              - regression: api/plot/basic/regression.md
-              - box: api/plot/basic/box.md
-              - bar: api/plot/basic/bar.md
-              - violin: api/plot/basic/violin.md
-              - pie: api/plot/basic/pie.md
-              - radar: api/plot/basic/radar.md
-          - Time Series:
-              - timeseries: api/plot/timeseries/timeseries.md
-          - Distribution:
-              - distribution: api/plot/distribution/distribution.md
-          - Meteorology:
-              - wind_rose: api/plot/meteorology/wind_rose.md
-              - CBPF: api/plot/meteorology/CBPF.md
-              - hysplit: api/plot/meteorology/hysplit.md
-          - Optical:
-              - optical: api/plot/optical/optical.md
+          - Basic charts: api/plot/basic.md
+          - Time series: api/plot/timeseries.md
+          - Size distribution: api/plot/distribution.md
+          - Meteorology: api/plot/meteorology.md
+          - Optical: api/plot/optical.md
+          - Templates: api/plot/templates.md
 
   - About: https://aeroviz.org/
 

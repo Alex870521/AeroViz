@@ -62,24 +62,9 @@ $$b_{sg} = 11.4\ Mm^{-1}$$ (at sea level standard conditions)
 
 $$b_{ag} = 0.33 \times [NO_2]\ (ppb)$$
 
-## AeroViz Implementation
+## In AeroViz
 
-```python
-from AeroViz import improve
-
-# IMPROVE calculation
-result = improve(
-    df_mass,            # Mass concentration (AS, AN, OM, Soil, SS, EC)
-    df_RH,              # Relative humidity
-    method='revised',   # 'revised', 'modified', or 'localized'
-)
-
-# Output
-result['dry']    # Dry extinction by component
-result['wet']    # Wet extinction by component
-result['ALWC']   # Aerosol liquid water contribution
-result['fRH']    # Hygroscopic growth factor
-```
+Usage lives in the guide: [`improve`](../guide/dataprocess.md#improve-extinction) for the call and return keys, and [Optical Closure](../guide/optical_closure.md#improve-closure) for a worked example.
 
 ## References
 

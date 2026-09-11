@@ -63,32 +63,9 @@ $$\ln\sigma_g = \sqrt{\frac{\sum n_i (\ln D_{p,i} - \ln D_{pg})^2}{\sum n_i}}$$
 
 The diameter corresponding to the distribution peak.
 
-## AeroViz Implementation
+## In AeroViz
 
-```python
-from AeroViz.dataProcess.SizeDistr import SizeDist
-
-# Create PSD object
-psd = SizeDist(df_pnsd, state='dlogdp', weighting='n')
-
-# Distribution conversion
-surface = psd.to_surface()  # Surface area distribution
-volume = psd.to_volume()    # Volume distribution
-
-# Statistical properties
-props = psd.properties()
-# props['total_n']  # Total number concentration
-# props['GMD_n']    # Geometric mean diameter
-# props['GSD_n']    # Geometric standard deviation
-# props['mode_n']   # Mode diameter
-
-# Mode statistics
-stats = psd.mode_statistics()
-# stats['number']     # Number distribution by mode
-# stats['surface']    # Surface area distribution by mode
-# stats['volume']     # Volume distribution by mode
-# stats['statistics'] # GMD, GSD, total for each mode
-```
+Usage lives in the guide: [Distribution Conversion and Statistics](../guide/size_distribution.md#distribution-conversion-and-statistics) covers `SizeDist.properties()` / `mode_statistics()` and the `psd_stats` shortcut.
 
 ## Multi-modal Fitting
 

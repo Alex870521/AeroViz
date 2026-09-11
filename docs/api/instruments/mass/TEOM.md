@@ -4,35 +4,98 @@ The TEOM is used for continuous monitoring of PM2.5 mass concentrations using mi
 
 ::: AeroViz.rawDataReader.script.TEOM.Reader
 
-## Data Format
+## Raw format
 
-- File format: CSV file
-- Sampling frequency: 6 minutes
-- File naming pattern: `*.csv`
-- Supported formats:
-    - Remote Download Format (single timestamp column — `Time Stamp`, or the
-      SNMP-named `time_stamp` some 1405 auto-exports use)
-    - USB Download/Auto Export Format (separate `Date` + `Time` columns)
+- File pattern: `*.csv`
+- Native frequency: `6min` (config `meta['freq']`; the grid actually found in a
+  file is reported as `df.attrs['raw_freq']`)
+- Header layout: three metadata rows, then the column header
+  (`read_csv(skiprows=3, index_col=False)`)
+- Two export dialects, auto-detected and logged per file:
+    - **Remote download / GUI export** — a single timestamp column (`Time Stamp`,
+      or the SNMP-named `time_stamp` some 1405 auto-exports use)
+    - **USB download / auto export** — separate `Date` + `Time` columns and
+      SNMP-style `tmoXxx_0` column names
 
-### Remote Download Format
+### Parse recipe
+
+1. **Both** alias maps below are applied to every file, unconditionally.
+   Real exports mix conventions — a remote-download file may carry a stray
+   `tmoTEOMAMC12Hr_0` column from firmware that pre-populates SNMP names — and
+   every key lands on the same canonical short name, so downstream QC sees one
+   schema regardless of source.
+2. The dialect is detected **after** renaming and logged: a `time` column ⇒
+   remote; `Date` + `Time` ⇒ usb; neither ⇒ a file-named `NotImplementedError`
+   (the log lists the first columns seen so the offending file can be found).
+3. **Remote timestamps** are written `DD - <month> - YYYY HH:MM:SS`, where the
+   month may be a number, a Chinese name or an English name. The TEOM host
+   writes the month in the operating system's language, so the same instrument
+   emits `07 - 六月 - 2025 12:00:00` on a Chinese UI and `10 - Aug - 2026 00:00:01`
+   after the machine is switched to English. Both name sets — plus a plain
+   number — are mapped to `06` / `08` before parsing with
+   `format='%d - %m - %Y %H:%M:%S'`, so a directory may freely mix them.
+   `strptime`'s own `%b` / `%X` are deliberately avoided because they follow the
+   *reading* machine's locale. The month-name alternation is matched
+   longest-first (`十一月` before `一月`, `june` before `jun`) and
+   case-insensitively.
+4. **USB timestamps** are `Date + ' ' + Time` parsed by pandas; `Date` and
+   `Time` are then dropped.
+5. A file whose timestamps *all* fail to parse is logged by name at ERROR
+   (with the first raw value) before it is dropped as empty.
+6. Duplicate and NaT indices are removed. Every column is kept — there is no
+   `OUTPUT_COLUMNS` narrowing — so the instrument's diagnostics stay reachable.
+
+### Remote download / GUI export aliases
 
 | Column | Mapping | Description |
 |--------|---------|-------------|
 | Time Stamp | time | Timestamp (`DD - MM - YYYY HH:MM:SS`; the month may be a number or a localized name, e.g. `六月` / `Aug`) |
-| System status | status | Instrument status |
+| System status | status | Instrument status (32-bit condition register) |
 | PM-2.5 base MC | PM_NV | Non-volatile PM2.5 |
+| PM-2.5 reference MC | PM_ref | Reference-channel PM2.5 |
 | PM-2.5 MC | PM_Total | Total PM2.5 |
+| PM-2.5 1-Hr MC | PM_1Hr | 1-hour average PM2.5 |
+| PM-2.5 24-Hr MC | PM_24Hr | 24-hour average PM2.5 |
+| PM-2.5 TEOM frequency | frequency | Tapered-element oscillation frequency |
 | PM-2.5 TEOM noise | noise | Measurement noise |
+| PM-2.5 TEOM filter load | filter_load | Filter loading |
+| PM-2.5 TEOM filter pressure | filter_pressure | Filter pressure |
+| PM-2.5 vol. flow rate | flow_rate | Sample volumetric flow |
+| Bypass volumetric flow rate | bypass_flow | Bypass volumetric flow |
+| PM-2.5 air tube temp | air_tube_temp | Air-tube temperature |
+| Cap temperature | cap_temp | Cap heater temperature |
+| Case temperature | case_temp | Case heater temperature |
+| PM-2.5 cooler temp | cooler_temp | Cooler temperature |
+| PM-2.5 dryer dew point | dryer_dew_point | Dryer dew point |
+| Ambient temperature | ambient_temp | Ambient temperature |
+| Ambient relative humidity | ambient_RH | Ambient relative humidity |
+| Ambient pressure | ambient_pressure | Ambient pressure |
+| Vacuum pump pressure | pump_pressure | Vacuum pump pressure |
 
-### USB/Auto Export Format
+### USB / auto export aliases
 
 | Column | Mapping | Description |
 |--------|---------|-------------|
-| Date, Time | time | Timestamp |
-| tmoStatusCondition_0 | status | Instrument status |
+| Date, Time | time | Timestamp (two columns, joined) |
+| time_stamp | time | Timestamp (single column, SNMP-named auto-export) |
+| tmoStatusCondition_0 | status | Instrument status (32-bit condition register) |
 | tmoTEOMABaseMC_0 | PM_NV | Non-volatile PM2.5 |
+| tmoTEOMARefMC_0 | PM_ref | Reference-channel PM2.5 |
 | tmoTEOMAMC_0 | PM_Total | Total PM2.5 |
+| tmoTEOMAMC1Hr_0 | PM_1Hr | 1-hour average PM2.5 |
+| tmoTEOMAMC12Hr_0 | PM_12Hr | 12-hour average PM2.5 |
+| tmoTEOMAFrequency_0 | frequency | Tapered-element oscillation frequency |
 | tmoTEOMANoise_0 | noise | Measurement noise |
+| tmoTEOMAFilterLoad_0 | filter_load | Filter loading |
+| tmoTEOMADryerDewPoint_0 | dryer_dew_point | Dryer dew point |
+| tmoTEOMAFlowVolumetric_0 | flow_rate | Sample volumetric flow |
+| tmoBypassFlowVolumetric_0 | bypass_flow | Bypass volumetric flow |
+| tmoTEOMAAirTubeHeatTemp_0 | air_tube_temp | Air-tube heater temperature |
+| tmoCapHeatTemp_0 | cap_temp | Cap heater temperature |
+| tmoCaseHeatTemp_0 | case_temp | Case heater temperature |
+| tmoAmbientTemp_0 | ambient_temp | Ambient temperature |
+| tmoAmbientRH_0 | ambient_RH | Ambient relative humidity |
+| tmoVacPumpPressure_0 | pump_pressure | Vacuum pump pressure |
 
 ## Measurement Parameters
 
@@ -42,84 +105,17 @@ The TEOM is used for continuous monitoring of PM2.5 mass concentrations using mi
 | PM_NV | μg/m³ | Non-volatile PM2.5 concentration |
 | noise | - | TEOM measurement noise |
 
-## Data Processing
+## Status & error codes
 
-### Data Reading
-
-- Unifies column names across different data formats
-- Handles various time formats. The TEOM host writes the month in the operating
-  system's language, so the same instrument emits `07 - 六月 - 2025 12:00:00`
-  on a Chinese UI and `10 - Aug - 2026 00:00:01` after the machine is switched
-  to English. Both names — plus a plain number — are mapped to `06`/`08` before
-  parsing, so a directory may freely mix them
-- Converts all measurement values to numeric format
-- Removes duplicate timestamps and invalid indices
-
-### Quality Control
-
-The TEOM reader uses the declarative **QCFlagBuilder** system with the following rules:
-
-```
-+-----------------------------------------------------------------------+
-|                         QC Thresholds                                 |
-+-----------------------------------------------------------------------+
-| MAX_NOISE          = 0.01                                             |
-| MIN_VOL_FRAC       = 0.01      PM_NV / PM_Total minimum               |
-| MAX_VOL_FRAC       = 0.9       PM_NV / PM_Total maximum               |
-| STATUS_OK          = 0         (status is a 32-bit bitfield)          |
-| ERROR_STATES       = bits 0-31 (any set warning bit = error)          |
-+-----------------------------------------------------------------------+
-
-+-----------------------------------------------------------------------+
-|                            _QC() Pipeline                             |
-+-----------------------------------------------------------------------+
-|                                                                       |
-|  [Pre-process] Calculate volatile fraction (PM_NV / PM_Total)         |
-|       |                                                               |
-|       v                                                               |
-|  +-------------------------+                                          |
-|  | Rule: Status Error      |                                          |
-|  +-------------------------+                                          |
-|  | Any warning bit set     |                                          |
-|  +-------------------------+                                          |
-|           |                                                           |
-|           v                                                           |
-|  +-------------------------+    +-------------------------+           |
-|  | Rule: High Noise        |    | Rule: Non-positive      |           |
-|  +-------------------------+    +-------------------------+           |
-|  | noise > 0.01            |    | PM_Total <= 0 OR        |           |
-|  +-------------------------+    | PM_NV <= 0              |           |
-|           |                     +-------------------------+           |
-|           v                              |                            |
-|  +-------------------------+             v                            |
-|  | Rule: NV > Total        |    +-------------------------+           |
-|  +-------------------------+    | Rule: Invalid Vol Frac  |           |
-|  | PM_NV > PM_Total        |    +-------------------------+           |
-|  | (physically impossible) |    | Ratio > 0.9 OR < 0.01   |           |
-|  +-------------------------+    +-------------------------+           |
-|           |                              |                            |
-|           v                              v                            |
-|  +-------------------------+    +-------------------------+           |
-|  | Rule: Spike             |    | Rule: Insufficient      |           |
-|  +-------------------------+    +-------------------------+           |
-|  | Sudden value change     |    | < 50% hourly data       |           |
-|  | (vectorized detection)  |    | completeness            |           |
-|  +-------------------------+    +-------------------------+           |
-|                                                                       |
-+-----------------------------------------------------------------------+
-```
-
-#### QC Rules Applied
-
-| Rule | Condition | Description |
-|------|-----------|-------------|
-| **Status Error** | Any non-whitelisted warning bit set | `status` is a 32-bit bitfield (TEOM manual Table A-1); tested bitwise so individual conditions (e.g. `536870912` = Dryer A) can be whitelisted via `ignored_status_errors` |
-| **High Noise** | noise ≥ 0.01 | Measurement noise exceeds threshold |
-| **Non-positive** | PM_Total ≤ 0 OR PM_NV ≤ 0 | Non-positive concentration values |
-| **NV > Total** | PM_NV > PM_Total | Non-volatile exceeds total (physically impossible) |
-| **Invalid Vol Frac** | Ratio < 0 OR > 1 | Volatile fraction outside valid range (0-1) |
-| **Spike** | Sudden value change | Unreasonable sudden change detected |
-| **Insufficient** | < 50% hourly data | Less than 50% hourly data completeness |
+Column `status` (raw `System status` / `tmoStatusCondition_0`), mode
+**`bitwise`** — see [status modes](../../../guide/reader-reference.md#3-how-a-status-judgement-is-made).
+`STATUS_OK = 0` ("Normal status"). `ERROR_STATES = [1 << b for b in range(32)]`,
+so every set bit counts as an error by default — the same verdict as the old
+`status != 0` numeric test, but bitwise mode lets one condition be whitelisted
+regardless of what else is co-set, which a flat comparison cannot do. Narrow the
+list once a site decides which conditions are advisory. The reader calls
+`check_status_columns` first, so a renamed status column is logged rather than
+silently passing every fault.
 
 #### Status Condition Register
 
@@ -177,19 +173,40 @@ testing means it stays whitelisted no matter what else is co-set:
 RawDataReader('TEOM', path, ignored_status_errors=[536870912])  # ignore Dryer A
 ```
 
-## Output Data
 
-The processed data contains the following columns:
+## QC rules
+
+| Rule | Condition | Severity |
+|------|-----------|----------|
+| `Status Error` | any non-whitelisted bit of the 32-bit `status` register is set | error |
+| `High Noise` | `noise >= 0.01` (`MAX_NOISE`) | error |
+| `Non-positive` | `PM_NV <= 0` or `PM_Total <= 0` | error |
+| `NV > Total` | `PM_NV > PM_Total` (physically impossible) | error |
+| `Spike` | sudden change in `PM_NV` / `PM_Total` (`spike_detection`, `max_change_rate=3.0`) | error |
+| `Insufficient` | an hour holds < 50 % of the points it could have held (`hourly_completeness_QC` over the PM columns at the resolved frequency) | advisory |
+
+`Insufficient` is a statement about representativeness, not validity, which is
+why it is advisory; promote it per run with
+`flag_severity={'Insufficient': 'error'}` (see
+[severity](../../../guide/reader-reference.md#severity-not-every-flag-is-fatal)).
+There is no volatile-fraction range rule: `Volatile_Fraction` is derived in
+`_process` after QC and is never tested.
+
+## Output
+
+L2 carries `Volatile_Fraction = (PM_Total − PM_NV) / PM_Total` (rounded to 4
+decimals, added in `_process`) **plus every other column** of the raw file —
+on purpose, so the instrument's diagnostics stay reachable.
 
 | Column | Unit | Description |
 |--------|------|-------------|
 | PM_Total | μg/m³ | Total PM2.5 mass concentration |
 | PM_NV | μg/m³ | Non-volatile PM2.5 concentration |
+| Volatile_Fraction | - | `(PM_Total − PM_NV) / PM_Total`, derived |
+| noise, status, frequency, flow_rate, … | as exported | every remaining aliased column (see the alias tables above) |
 
-!!! note "QC_Flag Handling"
-
-    - The intermediate file (`_read_teom_qc.pkl/csv`) contains the `QC_Flag` column
-    - The final output has invalid data set to NaN and `QC_Flag` column removed
+Files written per read are listed in
+[RawDataReader Reference §1](../../../guide/reader-reference.md#files-written).
 
 ## Usage Example
 

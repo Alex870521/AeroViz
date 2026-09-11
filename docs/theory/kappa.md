@@ -58,30 +58,9 @@ Calculate growth factor GF from kappa:
 
 $$GF = \left(\frac{D_{wet}}{D_{dry}}\right) = \left(1 + \kappa \frac{RH/100}{1 - RH/100}\right)^{1/3}$$
 
-## AeroViz Implementation
+## In AeroViz
 
-```python
-import pandas as pd
-from AeroViz import reconstruct_mass, growth_factor, kappa
-
-# 1. Reconstruct volumes from chemistry
-mass_result = reconstruct_mass(df_chem)
-df_volume   = mass_result['volume']
-
-# 2. Growth factor (needs total_dry + ALWC)
-df_gRH = growth_factor(df_volume, df_alwc)        # column: gRH
-
-# 3. kappa (needs gRH + AT + RH columns)
-df_kappa = kappa(
-    pd.concat([df_gRH, met_data[['AT', 'RH']]], axis=1),
-    diameter=0.5,
-)                                                  # column: kappa_chem
-
-# Example output
-#                     gRH     kappa_chem
-# 2024-01-01 00:00    1.42    0.35
-# 2024-01-01 01:00    1.45    0.38
-```
+Usage lives in the guide: [Hygroscopicity (kappa)](../guide/chemical_analysis.md#hygroscopicity-kappa-calculation) shows `growth_factor` and `kappa` end to end from reconstructed volumes.
 
 ## Applications
 

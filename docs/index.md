@@ -12,7 +12,7 @@ A modern Python package for aerosol data processing and visualization
             New to AeroViz? Check out the Beginner's Guide. It contains an introduction to AeroViz's main features and examples to get you started quickly.
         </div>
         <div class="card-action">
-            <a href="guide/index.md" class="card-button">To the beginner's guide</a>
+            <a href="guide/" class="card-button">To the beginner's guide</a>
         </div>
     </div>
     <div class="doc-card">
@@ -24,7 +24,7 @@ A modern Python package for aerosol data processing and visualization
             The user guide provides in-depth information on key concepts of AeroViz with detailed explanations of data processing and visualization capabilities.
         </div>
         <div class="card-action">
-            <a href="guide/index.md" class="card-button">To the user guide</a>
+            <a href="guide/data-levels/" class="card-button">To the user guide</a>
         </div>
     </div>
     <div class="doc-card">
@@ -53,17 +53,6 @@ A modern Python package for aerosol data processing and visualization
     </div>
 
 </div>
-
-## **Installation**
-
-You can install AeroViz using pip:
-
-```bash
-pip install AeroViz
-```
-
-For detailed installation instructions, system requirements, and troubleshooting, please see
-the [Getting Started Guide](guide/index.md).
 
 ## **Quick Start**
 
@@ -104,15 +93,22 @@ visualizations.
 
 ## **Documentation**
 
-- [Installation Guide](guide/index.md) - Setup instructions
+- [Installation](installation.md) — base install, the `plot` extra, building from source
+- [Getting Started](guide/index.md) — first read, core concepts
+- [Data Levels](guide/data-levels.md) — what the reader did to your data
+- [Examples](guide/rawdatareader.md) — RawDataReader usage, size distribution, optical closure, chemistry, VOC
+- [API Reference](api/index.md) — every function, every instrument
+- [Changelog](CHANGELOG.md)
 
-[//]: # (- [Tutorials]&#40;guide/tutorials.md&#41; - Step-by-step guides)
+## **Gallery**
 
-- [API Reference](api/index.md) - Detailed function documentation
+![WindRose and CBPF](assets/windrose_CBPF.png)
 
-[//]: # (- [Examples Gallery]&#40;guide/examples.md&#41; - Real-world application examples)
+More in the [Gallery](gallery.md): regressions, time series, size-distribution
+heatmaps, correlation matrices, Mie curves.
 
 ## **Contributing**
 
-AeroViz is an open-source project. Contributions and suggestions are welcome! Visit
-our [GitHub repository](https://github.com/alex870521/AeroViz) to get involved.
+AeroViz is open source (MIT). Bug reports, feature requests and new instrument
+readers are welcome — see [Contributing](contributing.md), and
+[Citation & License](citation.md) if you use it in a publication.

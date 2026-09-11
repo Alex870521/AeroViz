@@ -1,134 +1,32 @@
-# Optical 模組
+# `AeroViz.optical`
 
-光學特性數據處理模組。
+Bulk optical properties, IMPROVE extinction, Mie theory (bulk, lognormal,
+multimodal, core-shell, angular), gas extinction, brown-carbon separation and
+refractive-index retrieval. Worked examples:
+[Optical Closure](../../guide/optical_closure.md); call-by-call summary:
+[Post-Processing Functions](../../guide/dataprocess.md#optical).
+Theory: [IMPROVE](../../theory/improve.md), [Mie](../../theory/mie.md).
 
-## 結構
-
-```
-Optical/
-├── __init__.py       # Optical (Writer 入口)
-├── _IMPROVE.py       # IMPROVE 消光方程
-├── _mie.py           # Mie 理論計算
-├── _mie_sd.py        # Mie 粒徑分布計算
-├── _retrieve_RI.py   # 折射率反演
-├── _derived.py       # 衍生光學參數
-├── mie_theory.py     # Mie 混合模式
-└── coefficient.py    # 散射/吸收係數
-```
-
----
-
-## 快速開始
+## Input
 
 ```python
-from pathlib import Path
-from AeroViz.dataProcess import DataProcess
-
-dp = DataProcess('Optical', Path('./output'))
-result = dp.IMPROVE(df_mass, df_RH, method='revised')
+df_sca.columns ⊇ ['sca_550', 'SAE']          # nephelometer reader output (lower-case)
+df_abs.columns ⊇ ['abs_550', 'AAE', 'eBC']   # aethalometer reader output; abs_370 … abs_950 also available
+df_mass.columns ⊇ ['AS', 'AN', 'OM', 'Soil', 'SS', 'EC']   # µg/m³, from reconstruct_mass(...)['mass']
 ```
 
----
+!!! note "Reading `improve(...)` results"
+    `df_RH` must be a **Series** (e.g. `met['RH']`), not a one-column
+    DataFrame. Each returned frame (`dry`, `wet`) carries the per-species
+    columns plus a lower-case `total`; use `dry['total']`, never
+    `dry.sum(axis=1)`, which would count `total` twice.
 
-## 方法列表
+Mixing modes for Mie: `internal` (volume-weighted mean refractive index),
+`external` (each species computed separately, then summed), `core_shell`
+(EC core with the remaining species as shell) and `sensitivity`. The first
+two are selected with `mie(..., mixing=...)`; all four are available on
+`SizeDist.to_extinction(method=...)`.
 
-| 方法 | 說明 | 相關理論 |
-|------|------|----------|
-| `basic(df_sca, df_abs)` | 基本消光特性 | - |
-| `IMPROVE(df_mass, df_RH, method)` | IMPROVE 消光方程 | → [IMPROVE](../../theory/improve.md) |
-| `gas_extinction(df_no2, df_temp)` | 氣體消光貢獻 | → [IMPROVE](../../theory/improve.md) |
-| `Mie(df_pnsd, df_m, wave_length)` | Mie 消光計算 | → [Mie 理論](../../theory/mie.md) |
-| `retrieve_RI(df_optical, df_pnsd)` | 折射率反演 | → [Mie 理論](../../theory/mie.md) |
-| `derived(...)` | 衍生光學參數 | - |
+## Functions
 
----
-
-## 輸出說明
-
-### IMPROVE
-
-| 輸出 | 說明 |
-|------|------|
-| `dry` | 乾燥消光 (欄位：AS, AN, OM, Soil, SS, EC, total；小寫 total = 各成分加總) |
-| `wet` | 濕消光 (同上欄位) |
-| `ALWC` | 液態水貢獻 (wet - dry) |
-| `fRH` | 吸濕成長因子 |
-
-> `df_RH` 必須是 Series（例如 `met['RH']`），不可傳單欄 DataFrame。
-> 總消光請用 `dry['total']` / `wet['total']`，勿用 `.sum(axis=1)`（會把 total 欄重複計入）。
-
-### Mie
-
-| 輸出 | 說明 |
-|------|------|
-| `extinction` | 消光係數 (Mm⁻¹) |
-| `scattering` | 散射係數 (Mm⁻¹) |
-| `absorption` | 吸收係數 (Mm⁻¹) |
-
-### retrieve_RI
-
-| 輸出 | 說明 |
-|------|------|
-| `n` | 實部 |
-| `k` | 虛部 |
-
-### derived
-
-| 輸出 | 說明 |
-|------|------|
-| PG | 總消光 (Sca + Abs + Gas) |
-| MAC | 質量吸收截面 (m²/g) |
-| Ox | 氧化劑濃度 (NO₂ + O₃) |
-| Vis_cal | 計算能見度 (km) |
-| fRH_IMPR | IMPROVE fRH |
-| OCEC_ratio | OC/EC 比值 |
-| PM1_PM25 | PM1/PM2.5 比值 |
-
----
-
-## Mie 混合模式
-
-| 模式 | 說明 |
-|------|------|
-| `internal` | 內混合：體積加權平均折射率 |
-| `external` | 外混合：分別計算後加總 |
-| `core_shell` | 核殼結構：EC 核心 + 其他殼層 |
-| `sensitivity` | 敏感度分析 |
-
----
-
-## 輸入格式
-
-### 散射係數（NEPH 輸出；欄位小寫）
-
-```python
-df_sca.columns = ['sca_550', 'SAE']  # optical_basic 需要這兩欄
-```
-
-### 吸收係數（AE33 輸出；欄位小寫）
-
-```python
-df_abs.columns = ['abs_550', 'AAE', 'eBC']  # optical_basic 需要這三欄
-# AE33 也提供多波長 abs_370 ~ abs_950 (Mm⁻¹)
-```
-
-### 質量濃度（IMPROVE 用）
-
-```python
-required = ['AS', 'AN', 'OM', 'Soil', 'SS', 'EC']  # μg/m³
-```
-
----
-
-## 相關資源
-
-- **範例**: [光學閉合分析](../../guide/optical_closure.md)
-- **理論**: [IMPROVE 方程](../../theory/improve.md) | [Mie 理論](../../theory/mie.md)
-
----
-
-## API 參考
-
-::: AeroViz.dataProcess.Optical.Optical
-    options:
-      show_root_heading: true
+::: AeroViz.optical

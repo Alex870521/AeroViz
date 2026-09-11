@@ -78,38 +78,9 @@ $$SOAP_i = C_i \times SOAP_{factor,i}$$
 | Aldehydes | High | Formaldehyde, Acetaldehyde |
 | Terpenes | Very High | Isoprene, alpha-Pinene |
 
-## AeroViz Implementation
+## In AeroViz
 
-```python
-from AeroViz import voc_potentials
-
-# Calculate OFP and SOAP
-result = voc_potentials(df_voc)
-
-# Output: dict with keys 'Conc', 'OFP', 'SOAP', 'LOH' (each a DataFrame)
-result['OFP']           # OFP per species (ug O3/m3)
-result['SOAP']          # SOAP per species
-# Each frame also has per-class '*_total' columns and a grand 'Total' column:
-result['OFP']['Total']  # total OFP across all species (a time-indexed Series)
-```
-
-### Input Format
-
-```python
-# Columns are VOC species names
-df_voc.columns = ['Benzene', 'Toluene', 'Ethylbenzene', 'm,p-Xylene', 'o-Xylene', ...]
-
-# Units: ppb or ug/m3
-```
-
-### Supported Species
-
-See `support_voc.json`, including:
-- Alkanes (C2-C12)
-- Alkenes (C2-C6)
-- Aromatics (BTEX, etc.)
-- Halogenated hydrocarbons
-- Oxygenated VOCs (OVOCs)
+Usage lives in the guide: [VOC Analysis](../guide/voc_analysis.md) for reading the file with pandas and calling `voc_potentials`; the supported species and their MIR / SOAP factors are on the [VOC data page](../api/instruments/chemical/VOC.md).
 
 ## Applications
 

@@ -11,7 +11,7 @@ class Reader(AbstractReader):
     black carbon at multiple wavelengths and provide source apportionment.
 
     See ``docs/api/instruments/aethalometers/MA350.md`` for usage and
-    ``docs/guide/instrument-qc.md`` for the
+    ``docs/guide/reader-reference.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'MA350'

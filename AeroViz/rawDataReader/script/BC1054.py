@@ -11,7 +11,7 @@ class Reader(AbstractReader):
     concentrations using light absorption at 10 wavelengths.
 
     See ``docs/api/instruments/aethalometers/BC1054.md`` for usage and
-    ``docs/guide/instrument-qc.md`` for the
+    ``docs/guide/reader-reference.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'BC1054'

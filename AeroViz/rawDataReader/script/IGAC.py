@@ -14,7 +14,7 @@ class Reader(AbstractReader):
     particulate matter.
 
     See ``docs/api/instruments/chemical/IGAC.md`` for usage and
-    ``docs/guide/instrument-qc.md`` for the
+    ``docs/guide/reader-reference.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'IGAC'

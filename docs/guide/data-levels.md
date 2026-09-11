@@ -1,13 +1,17 @@
 # Data Levels (L0–L3)
 
-> **Who is this for?** Anyone adding a reader, a QC rule, a derived parameter, or
-> a new output file. It defines *which level* each of those belongs to, so new
-> code has an obvious home and the pipeline stays auditable.
+> **Start here after your first read.** The frame `RawDataReader` hands back has
+> been through four stages, and this page says what each one did to it: which
+> columns were kept, where a value became NaN and why, what was cached and what
+> is recomputed on every call, and what `df.attrs` is telling you. Read it once
+> and the rest of the reader's behaviour — a mostly-NaN frame, a cache hit that
+> still honours a new date range, a flag that did not delete its row — stops
+> being surprising.
 >
-> For the mechanics of the existing pipeline see
-> [RawDataReader Internals](reader-internals.md); for the per-instrument
-> file formats and status-code tables see
-> [Instrument Formats & QC](instrument-qc.md).
+> The same four levels are the rules for anyone *adding* a reader, a QC rule or
+> a derived parameter (§5 says where new code goes). Per-instrument file
+> formats, status codes and the full flag vocabulary are in the
+> [RawDataReader Reference](reader-reference.md).
 
 `RawDataReader` is not a single transformation — it is a **four-level pipeline**,
 each level with a different contract about what may be added, what may be
@@ -29,7 +33,7 @@ split appears under two older names — **canonical** (L1+L2, cacheable) versus
 | **L0** | Vendor raw files, exactly as the instrument / host software wrote them | — (input only) | whatever the file has | never written by AeroViz | — |
 | **L1** | **Parsed measurement.** One frame per instrument, every source column kept, placed on the *native* grid over the *files' own* coverage. No quality judgement. | `_raw_reader` → `_partition_compatible_scans` → `_flag_outlier_dates` → `_timeIndex_process` → numeric coercion | native (detected per file) | `_read_{inst}_raw.pkl` / `.csv` | ✅ |
 | **L2** | **Quality-controlled + derived.** Adds `QC_Flag` (what fired) + `QC_Invalid` (the verdict) and instrument-derived quantities (abs coefficients, AAE, eBC, sca_550, SAE, Volatile_Fraction). Still native resolution, still the files' own coverage. **Nothing is deleted.** | `_QC` → `_process` | native | `_read_{inst}_qc.pkl` / `.csv` | ✅ |
-| **L3** | **Presentation.** Places L2 on the *requested* range, applies `outlier.json`, masks every `QC_Invalid` row to NaN, drops both QC columns, resamples to `mean_freq`, computes rates, stamps `df.attrs`. | `_timeIndex_process(start, end)` → `_outlier_process` → mask → `resample` → `_generate_report` → `_stamp` | requested (`mean_freq`) | `output_{inst}.csv`, `report.json`, `{prefix}_dNdlogDp/dSdlogDp/dVdlogDp/_stats.csv`, `{inst}.log` | ❌ |
+| **L3** | **Presentation.** Places L2 on the *requested* range, applies `outlier.json`, masks every `QC_Invalid` row to NaN, drops both QC columns, resamples to `mean_freq`, computes rates, stamps `df.attrs`. | `_timeIndex_process(start, end)` → `_outlier_process` → mask → `_generate_report` → `resample` → `_stamp` | requested (`mean_freq`) | `output_{inst}.csv`, `report.json`, `{prefix}_dNdlogDp/dSdlogDp/dVdlogDp/_stats.csv`, `{inst}.log` | ❌ |
 
 L1 and L2 are what `_load_or_parse` returns; L3 is everything `_run` and
 `__call__` do afterwards. That boundary is the reason a cache hit still honours
@@ -95,6 +99,22 @@ is thinly covered — a statement about whether an **average over that hour** wo
 be representative, not about whether the readings in it are real. They are real,
 so it is advisory. `Invalid BC` says the number itself is impossible; that one
 invalidates.
+
+*Classifying a new rule.* Default to `severity='error'`. Choose `'warning'`
+only when the *value itself* is trustworthy and the flag describes a
+circumstance around it. Two questions:
+
+- *Would a careful analyst still use this number, given the flag?* If yes →
+  advisory.
+- *Does the flag describe this row's value, or its neighbours / its context?* A
+  flag about context (hourly completeness, a nearby calibration) is a weak reason
+  to delete a real measurement.
+
+Advisory today: `Insufficient` (every reader that has it), OCEC `Below MDL`,
+Xact `Upscale Warning` and `High Uncertainty`. `Spike` stays invalidating,
+though arguably: it asserts the value is wrong, but the detector is a heuristic
+that can catch real events — demote it per run with `flag_severity=` if your
+analysis wants those points.
 
 **R3 — native resolution is stored once; anything coarser is derived.**
 L1/L2 are always at the frequency detected from the files
@@ -214,24 +234,25 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
     *which rule* lost it, which is the difference between a consumer being able
     to report an outage and being able to explain one. Captured from whatever
     `log_qc_summary` was last handed, so readers that add a rule in `_process`
-    (via `extend_qc_summary`) contribute their rule too. `None` when `qc=False`.
+    (via `extend_qc_summary`) contribute their rule too. Absent from `df.attrs` when `qc=False`.
 
     `status_conditions` goes one level further for readers with a bitwise
-    status register and a transcribed `STATUS_BITS` table (TEOM today):
+    status register and a transcribed `STATUS_BITS` table (AE33, AE43, BC1054,
+    MA350, APS, TEOM):
     `{code, name, count, percentage}` per condition that actually fired,
     busiest first. `Status Error` can only report that *a* bit was set — the QC
     verdict is a boolean, so the identity of the bit is gone the moment it is
     computed. This is what makes a status of `8` legible as
-    *Ambient RH & Temp sensor*. `None` where no table exists (an incomplete map
-    would read as "that condition never fired"), `[]` where the register was
-    clean.
+    *Ambient RH & Temp sensor*. Absent from `df.attrs` where no table exists (an
+    incomplete map would read as "that condition never fired") or the status
+    column is missing; `[]` where the register was clean.
 
-!!! warning "`qc=False` short-circuits L2 and most of L3"
+!!! warning "`qc=False` returns L1, not \"the same data without filtering\""
     With `qc=False`, `__call__` returns the **L1** frame placed on the requested
-    range — no QC, no masking, no `outlier.json`, no report, **and no
-    resampling** (`mean_freq` is silently ignored on that branch). Use
-    `qc=False` to inspect raw parsed data, not as "the same data without
-    filtering".
+    range and resampled to `mean_freq` if given — but no masking, no
+    `outlier.json`, no report. On a fresh parse `_QC` and `_process` still run
+    and the L2 cache is still written; the switch only changes which frame
+    comes back. Use it to inspect raw parsed data.
 
 ---
 
@@ -245,7 +266,7 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
 | Invalidated by | `reset=True`, `cache_format` mismatch | — |
 | Extended by | `reset='append'` (parses new files, concats, re-saves) | — |
 
-`CACHE_FORMAT = 2` is stamped into `df.attrs['cache_format']`; a pickle written
+`CACHE_FORMAT = 4` is stamped into `df.attrs['cache_format']`; a pickle written
 by an older layout is detected as stale and re-parsed automatically. Parse
 provenance (`n_files`, `raw_freq`, `freq_mixed`) round-trips through the pickle
 so a cache hit still reports it in `df.attrs`.
@@ -254,26 +275,11 @@ so a cache hit still reports it in `df.attrs`.
 
 ## 5. Placement rules — where does new code go?
 
-**Is it about reading the vendor's bytes?** (a new header layout, a renamed
-column, a date format, an encoding, a firmware alias map) → **L1**, in that
-reader's `_raw_reader`. Keep all columns; alias to canonical names; never filter
-rows on quality grounds here.
-
-**Is it a verdict about data quality?** → **L2**, as a `QCRule` in `_QC`.
-Give it a stable flag name, a `description` that states the threshold, and a
-vectorised `condition`. Never NaN values yourself.
-
-**Is it a quantity computed from measurements?** → **L2** `_process` if it is
-cheap, deterministic, and instrument-intrinsic (absorption coefficients, AAE,
-volatile fraction). Otherwise **outside the reader** entirely, in
-`AeroViz.size` / `optical` / `chemistry` / `voc` — anything with tunable
-parameters or an optimisation loop does not belong in a reader.
-
-**Is it about shape, resolution, or range of the answer?** → **L3**. Do not
-store it; recompute it per call.
-
-**Is it a file for a human or a downstream tool?** → **L3**, next to
-`output_{inst}.csv`, and register it in the file-output list.
+The level a change belongs to follows from what it is about — reading the
+vendor's bytes (L1), judging quality (L2), deriving a quantity (L2 `_process`,
+or outside the reader), shaping the answer (L3), writing a file (L3). The
+decision list, together with the registry entry, hook contract, tests and docs
+a new reader needs, is in [Contributing a Reader](contributing-reader.md).
 
 ---
 
@@ -288,7 +294,8 @@ store it; recompute it per call.
 | `df.attrs` | L3 | provenance, `coverage_*` vs `requested_*`, `raw_freq`, `freq_mixed`, `fill_missing`, version, `acquisition_rate` / `yield_rate` / `total_rate` | in-memory; survives pickle + resample |
 | `_read_*_raw.csv` / `_read_*_qc.csv` | L1 / L2 | the levels themselves, auditable side by side | until `reset=True` |
 
-Rate definitions (all from `QC_Flag`, on a 1 h resample; a period counts as
+Rate definitions (all from the `QC_Invalid` verdict, on a 1 h resample — rows
+carrying only advisory flags count as valid; a period counts as
 valid when **> 50 %** of its points are `Valid`):
 
 | Rate | Definition |
@@ -296,91 +303,3 @@ valid when **> 50 %** of its points are `Valid`):
 | Acquisition | periods with data / expected periods |
 | Yield | periods passing QC / periods with data |
 | Total | periods passing QC / expected periods |
-
----
-
-## 7. Non-conformance — what still needs fixing
-
-Audited against the rules above. **P0 items are reproducible failures**, verified
-by running the code; P1 breaks a rule; P2 is consistency / dead code / doc drift.
-
-!!! success "Recently resolved"
-    - **VOC and Minion withdrawn from the reader.** Both were pre-aggregated,
-      second-hand data — somebody else's processed output, not an instrument's
-      raw log — so there was nothing for a reader to parse and the readers only
-      ran generic checks. `RawDataReader('VOC'|'Minion', …)` now raises a
-      `KeyError` carrying migration advice.
-    - **GRIMM has QC.** It is a real instrument with a raw format, so it kept its
-      reader and gained three rules (`No Data`, `Negative Conc`,
-      `Insufficient`) — no invented concentration thresholds. `report_dict` also
-      defaults to `{}` now, so a future flag-less reader degrades to a rate-less
-      report instead of crashing.
-    - **Q-ACSM is registered as *pending*.** Also a real instrument, but with no
-      sample export to write a parser against, so it has no reader yet and says
-      so: `NotImplementedError` instead of an abstract-class `TypeError`.
-    - **Xact and IGAC read their detection limits from `meta`.** One source of
-      truth, `None` entries skipped; IGAC also stopped dropping its gas species
-      and gained `Above MR`.
-
-### P0 — live breakage
-
-*None outstanding.* Both former P0 items are resolved (see the note above); the
-labels **P0-a** and **P0-b** are retired rather than reused.
-
-### P1 — rule violations
-
-*None outstanding.* All six are resolved (see below); labels are retired, not
-reused.
-
-### P2 — consistency, dead code, doc drift
-
-*None outstanding.*
-
-### Resolved
-
-Kept as a record of what the labels used to mean:
-
-| Was | What it was | How it was resolved |
-|---|---|---|
-| P0 | `Minion` could not read any file (`meta['XRF']`, a key that never existed) | reader removed — pre-aggregated second-hand data |
-| P0-a | a reader with no `QC_Flag` crashed on the default `qc=True` | GRIMM gained three rules; `report_dict` defaults to `{}` so a flag-less reader degrades instead of crashing |
-| P0-b | `Q-ACSM` raised an abstract-class `TypeError` | registered in `supported_instruments.pending` → `NotImplementedError` naming what to contribute |
-| P1-a | R2 violated by GRIMM / VOC / Minion (no verdict, or destroyed values at L2) | GRIMM flags; the other two are gone |
-| P2-c | `meta['Xact']['MDL']` / `meta['IGAC']['MDL']` had no consumer | both readers now source their limits from `meta` (`reader.MDL`, `reader.MR`), `None` entries skipped |
-| P1-b | no flag severity — advisory flags (`Below MDL`, `Upscale Warning`, …) NaN'd the row as hard as `Status Error` | `QCRule(severity=...)` + a `QC_Invalid` verdict column; L3 masks on the verdict, not on the presence of a flag. `flag_severity={...}` reclassifies per run |
-| P2-e | OCEC still flagged `Below MDL` row-level | now `severity='warning'` — recorded, kept. Xact's `Upscale Warning` likewise (the instrument calls 200–203 warnings, 100–110 errors) |
-| P1-c | completeness QC measured against the *config* frequency | all nine callers now use `self._resolved_freq or self.meta['freq']`. The APS fixture showed why: it samples every 115 s while its config says 6 min, a 3× understatement |
-| P1-d | `mean_freq` silently ignored when `qc=False` | both branches go through `_resample`, which also names the non-numeric columns it drops instead of losing them silently |
-| P1-e | status QC silently inert for two real formats | Aurora recognises `S1`; SMPS knows all six column names across AIM 10.3/11.x; **every** status reader warns when no known column is present |
-| P1-f | AE33 and AE43 disagreed on code `384` | AE43 aligned; a test pins the two lists equal |
-| P2-a | `SMPS`/`APS.MIN_HOURLY_COUNT` and `TEOM.OUTPUT_COLUMNS` were never read | deleted, with a note saying what actually governs each (completeness is a *fraction* of the detected frequency's points; TEOM returns every column on purpose) |
-| P2-d | `report.py` defaulted the known-issues file to one developer's home directory | opt-in via `KNOWN_ISSUES_PATH` only, and a set-but-unusable path now warns instead of being swallowed. A second hardcoded `~/Desktop` path in `plot/templates/corr_matrix.py` went with it |
-| P2-g | `_process` was documented as being allowed to skip flagged rows | the docstring was the wrong half: skipping would violate R2 (a derived value belongs in `_read_*_qc.csv` whatever the verdict) and, since severity, would drop values for rows that are *kept*. Rewritten to say so, and to note that rule counts overlap by design |
-| P2-b | L2 column-narrowing policy differed per reader | unified on **keeping metadata**. The bigger find was in L1: OCEC's `_raw_reader` narrowed a ~45-column Sunset export to 11, so the instrument's own diagnostics were unreachable without re-reading the raw archive — an R1 violation, not a policy question. BAM1020 narrowed to a single column there too (which is why its `* 1000` mg→µg conversion could be applied to the whole frame; it is now scoped to `Conc`) |
-| P2-f | BC1054 carried two clocks and silently dropped one | answered from the manual plus the data. `Time` is Met One's field — *"the date and timestamp for the data record … end of the minute"* — from the instrument's hand-set RTC. `Raw_Time` appears nowhere in the manual, so it is the logging host's clock. The index stays on `Raw_Time` (the well-behaved one); `Time` is kept as `Instrument_Time` and a disagreement beyond a minute is **warned**, naming the likely AM/PM cause and the manual section that fixes it |
-| P2-i | hourly completeness measured every hour against a *full* hour, so the first and last hour of every read were condemned however well the instrument ran — users reported losing the head and tail of their data, and a 22-minute file lost all of it | two changes. The expectation is now scaled by how much of each hour the coverage spans, so a partial edge hour is judged on what it could have held; and `Insufficient` is **advisory**, because a sparse hour is a statement about *representativeness* — an average over it would mislead — not about the readings, which are fine. Interior hours are untouched, so a genuine outage is still caught |
-| P2-h | docs drift | 13 reader docstrings repointed at pages that exist; `instruments/index.md` no longer claims instrument auto-detection and lists EPA / Q-ACSM / the removed readers; three broken cross-links and four malformed docstrings fixed — **`mkdocs build --strict` now passes with zero warnings**, for the first time |
-| — | the native grid was rounded to whole minutes, so a 115 s APS was gridded at 2 min and ~3 % of each day's scans collapsed into an occupied bin, silently | `detect_freq` resolves to the second once ≥ 30 intervals support it; `snap_to_grid` warns whenever rows are actually lost |
-
-### Suggested order
-
-Nothing outstanding. The list is kept so that a future finding has an obvious
-home, and so the reasoning behind each resolved item stays available.
-
-### Classifying a new rule
-
-Default to `severity='error'`. Choose `'warning'` only when the *value itself* is
-trustworthy and the flag describes a circumstance around it. Two questions:
-
-- *Would a careful analyst still use this number, given the flag?* If yes →
-  advisory.
-- *Does the flag describe this row's value, or its neighbours / its context?* A
-  flag about context (hourly completeness, a nearby calibration) is a weak reason
-  to delete a real measurement.
-
-Currently advisory: OCEC `Below MDL`, Xact `Upscale Warning`. Deliberately still
-invalidating, though arguable — flip them per run with `flag_severity=` if your
-analysis wants them: `Insufficient` (the row is fine; the *hour* is sparse, and
-demoting it changes every hourly mean and every rate in `report.json`) and
-`Spike` (asserts the value is wrong, but the detector is a heuristic that can
-catch real events).

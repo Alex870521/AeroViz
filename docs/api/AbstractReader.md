@@ -1,42 +1,22 @@
 # AbstractReader
 
-The `AbstractReader` class is the foundation of AeroViz's data reading system, providing a standardized interface for
-reading and processing aerosol instrument data.
+`AbstractReader` is the base class every instrument reader subclasses. It owns
+the pipeline — file discovery, native-grid detection, caching, the L3
+presentation steps, reporting and `df.attrs` stamping — and leaves three hooks
+to the subclass: `_raw_reader`, `_QC` and (optionally) `_process`.
 
-!!! info "Core Architecture"
+- What each stage may add or destroy, and what is cached:
+  [Data Levels (L0–L3)](../guide/data-levels.md).
+- The QC machinery and status decoding the hooks plug into:
+  [RawDataReader Reference](../guide/reader-reference.md).
+- Writing a new subclass, step by step, with the registry entry, the tests and
+  the docs page it needs: [Contributing a reader](../guide/contributing-reader.md).
 
-    AbstractReader serves as the base class for all instrument-specific readers in AeroViz. It defines the common interface
-    and provides shared functionality for data processing, quality control, and output formatting.
+You do not instantiate it directly — the
+[`RawDataReader`](RawDataReader/index.md) factory picks the subclass from the
+instrument name.
 
-## Overview
-
-The AbstractReader implements a consistent workflow for all aerosol instruments:
-
-1. **Data Ingestion** - Read raw instrument files
-2. **Format Detection** - Automatically identify data structure
-3. **Quality Control** - Apply built-in validation and filtering
-4. **Standardization** - Convert to unified output format
-5. **Metadata Handling** - Preserve instrument and measurement metadata
-
-!!! tip "Usage Pattern"
-
-    While you can use AbstractReader directly, it's typically accessed through the `RawDataReader` factory function which
-    automatically selects the appropriate reader based on your instrument type.
-
-## Key Features
-
-- **Flexible Input Handling** - Supports various file formats and structures
-- **Built-in Quality Control** - Configurable data validation and filtering
-- **Metadata Preservation** - Maintains instrument configuration and measurement context
-- **Extensible Design** - Easy to subclass for new instruments
-- **Error Handling** - Robust error reporting and recovery
-
-!!! warning "Implementation Note"
-
-    AbstractReader is an abstract base class. For actual data reading, use instrument-specific implementations or the
-    `RawDataReader` factory function.
-
-## API Reference
+## API
 
 ::: AeroViz.rawDataReader.core.AbstractReader
     options:
@@ -54,39 +34,3 @@ The AbstractReader implements a consistent workflow for all aerosol instruments:
         separate_signature: true
         group_by_category: true
         show_category_heading: true
-
-## Related Documentation
-
-- **[RawDataReader Factory](RawDataReader/index.md)** - High-level interface for instrument data reading
-- **[Quality Control](QualityControl.md)** - Data validation and filtering options
-- **[Supported Instruments](instruments/index.md)** - Available instrument implementations
-
-!!! example "Quick Example"
-
-    ````python
-    from AeroViz import RawDataReader
-    from datetime import datetime
-    
-    # Using the factory function (recommended)
-    data = RawDataReader(
-        instrument='AE33',
-        path='/path/to/data',
-        start=datetime(2024, 1, 1),
-        end=datetime(2024, 12, 31)
-    )
-    
-    # Direct usage (advanced - for custom implementations)
-    from AeroViz.rawDataReader.core import AbstractReader
-    
-    
-    class MyInstrumentReader(AbstractReader):
-        nam = 'MyInstrument'
-    
-        def _raw_reader(self, file):
-            # Custom file reading logic
-            pass
-    
-        def _QC(self, df):
-            # Custom QC logic
-            return df
-    ````

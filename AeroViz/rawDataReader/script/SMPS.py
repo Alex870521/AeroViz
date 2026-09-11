@@ -16,7 +16,7 @@ class Reader(AbstractReader):
     in the range of 11.8-593.5 nm.
 
     See ``docs/api/instruments/particle-sizers/SMPS.md`` for usage and
-    ``docs/guide/instrument-qc.md`` for the
+    ``docs/guide/reader-reference.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'SMPS'
@@ -190,7 +190,7 @@ class Reader(AbstractReader):
             The block before the header names the CPC doing the counting
             (`Detector Model`, `Nano Enhancer`). That decides where the counting
             efficiency rolls off, and therefore how far the lowest channels
-            under-report — see `docs/guide/counting-efficiency.md`. The CPC is a
+            under-report — see `docs/theory/counting_efficiency.md`. The CPC is a
             separate instrument that can be swapped, so it is worth recording
             which one produced a given dataset rather than assuming.
             """

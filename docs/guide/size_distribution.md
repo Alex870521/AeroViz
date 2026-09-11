@@ -76,9 +76,8 @@ density = result['density']       # estimated effective density (g/cm³)
 ```
 
 > **Unified output.** All versions return a dict with `'data'` (the recommended
-> merged dN/dlogDp) and `'density'`. Saved via `DataProcess('SizeDistr')`, these
-> become `data.csv` / `density.csv` in the output folder, so filenames are
-> consistent across versions.
+> merged dN/dlogDp) and `'density'`. Nothing is written to disk — call
+> `result['data'].to_csv(...)` yourself if you want a file.
 >
 > **`density_range` (QC).** Each timestamp's shift² is its estimated effective
 > density; timestamps outside `density_range` (g/cm³) are dropped. Default
@@ -89,8 +88,10 @@ density = result['density']       # estimated effective density (g/cm³)
 
 | Parameter | Description |
 |-----------|-------------|
-| `version` | Algorithm version: 1, 2, 3, or 4 (default 4, recommended) |
+| `version` | Algorithm version 1–5 (default 4, recommended). 5 is **experimental**: mass-anchored density from PM1 closure, emits a warning, API not stable |
 | `df_pm25` | PM2.5 reference DataFrame (required for `version=4`) |
+| `df_pm1` | PM1 mass reference, µg/m³, preferably volatile-corrected (required for `version=5`) |
+| `times_range` | `(start, stop, step)` of the SMPS-times grid search (default `(0.8, 1.25, 0.05)`, `version=4` only) |
 | `density_range` | QC: plausible effective-density range g/cm³ (default `(0.6, 2.6)`; `(0.3, 2.6)` = looser). Applied in every version |
 | `aps_unit` | `'um'` (default) or `'nm'` |
 | `smps_overlap_lowbound` | SMPS bin lower bound for overlap region (nm, default 500) |
@@ -129,8 +130,9 @@ print(f"GSD: {props['GSD_n'].mean():.2f}")
 # Calculate mode statistics
 stats = psd.mode_statistics()
 
-# stats['number'] / ['surface'] / ['volume'] are the dN/dS/dV-dlogDp matrices
-# (columns = diameters). The per-mode summary lives in stats['statistics'] as
+# stats['number'] / ['surface'] / ['volume'] are dN / dS / dV per bin (already
+# multiplied by dlogDp); the per-dlogDp forms are stats['number_norm'] /
+# ['surface_norm'] / ['volume_norm']. Columns = diameters. The per-mode summary lives in stats['statistics'] as
 # wide columns named {total|GMD|GSD|mode}_{num|surf|vol}_{mode}, where mode is
 # one of: all, Nucleation (10-25 nm), Aitken (25-100 nm),
 # Accumulation (100-1000 nm), Coarse (1000-2500 nm; absent if out of range).
@@ -198,8 +200,16 @@ dry_psd = psd.to_dry(df_gRH, uniform=True)
 # Calculate lung deposition
 lung = psd.lung_deposition(activity='light')
 
-# Deposition fractions
+# Deposition fractions, one row per diameter (nm)
 df_fraction = lung['DF']
+print(df_fraction.head())
+#           HA       TB       AL    Total
+# 11.8   0.012    0.045    0.285    0.342
+# 20.5   0.008    0.032    0.198    0.238
+# 50.0   0.005    0.018    0.112    0.135
+# 100    0.004    0.012    0.085    0.101
+# 200    0.006    0.015    0.095    0.116
+# 500    0.025    0.035    0.125    0.185
 print(df_fraction.mean())
 #    HA     TB     AL    Total
 # 0.025  0.082  0.245    0.352
@@ -270,6 +280,29 @@ print(f"Average total N: {props['total_n'].mean():.0f} #/cm3")
 print(f"Average GMD: {props['GMD_n'].mean():.1f} nm")
 print(f"Average lung deposition: {lung['total_dose'].mean():.0f} #/cm3")
 ```
+
+---
+
+## Common Issues
+
+**`merge_psd(..., version=4)` raises `ValueError` about `df_pm25`.** Version 4
+uses a PM2.5 fitness function, so it requires `df_pm25`. Pass a PM2.5 reference
+DataFrame, or use `version=3` to skip the fitness step.
+
+**`merge_psd(..., version=5)` prints a `UserWarning`.** Version 5 is
+experimental (mass-anchored density via PM1 closure) and warns on every call;
+it also requires `df_pm1`. Prefer `version=4` for production work.
+
+**The merged `density` column is mostly NaN.** Each timestamp's estimated
+effective density (shift²) is checked against `density_range` (default
+`(0.6, 2.6)` g/cm³) and out-of-range timestamps are set to NaN. Widen it, e.g.
+`density_range=(0.3, 2.6)`, for looser QC.
+
+**`append_stats=True` broke `psd_stats` / `merge_psd`.** With the statistics
+appended the frame gains string-typed columns and is no longer a pure numeric
+PSD matrix. Keep the default `append_stats=False` for anything you feed to
+`psd_stats`, `merge_psd` or `SizeDist`, and read the statistics from
+`psd_stats(df)['other']` or the `_stats.csv` sidecar.
 
 ---
 

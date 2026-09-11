@@ -1,1 +1,0 @@
-::: AeroViz.plot.bar.bar

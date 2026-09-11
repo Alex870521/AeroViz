@@ -14,7 +14,7 @@ class Reader(AbstractReader):
     in the range of 542-1981 nm (aerodynamic diameter).
 
     See ``docs/api/instruments/particle-sizers/APS.md`` for usage and
-    ``docs/guide/instrument-qc.md`` for the
+    ``docs/guide/reader-reference.md`` for the
     file layout, status codes and QC rules.
     """
     nam = 'APS'

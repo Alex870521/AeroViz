@@ -3,7 +3,7 @@
 AeroViz exposes its post-processing as a flat set of top-level functions, grouped into four namespaces — `chemistry`, `optical`, `size`, and `voc`. Each call is self-contained: it takes a DataFrame (or a few), runs one calculation, and returns a DataFrame or dict.
 
 !!! warning "Legacy API deprecated"
-    The old `DataProcess(...)` factory class — e.g. `dp = DataProcess('Chemistry', Path('./output'))` followed by `dp.ReConstrc_basic(df_chem)` — still exists but is deprecated and will be removed in a future release. New code should use the top-level functions described on this page. The functions take exactly the same inputs and return the same results — they just skip the constructor boilerplate and the `path_out` argument. If you want a CSV, call `.to_csv()` on the returned DataFrame yourself.
+    The old `DataProcess(...)` factory class — e.g. `dp = DataProcess('Chemistry', Path('./output'))` followed by `dp.ReConstrc_basic(df_chem)` — still exists but is deprecated and will be removed in a future release. New code should use the top-level functions described on this page. The functions take exactly the same inputs and return the same results — they just skip the constructor boilerplate and the `path_out` argument. If you want a CSV, call `.to_csv()` on the returned DataFrame yourself. A method-by-method migration table is in the [Post-processing API](../api/DataProcess/index.md#migrating-from-dataprocess).
 
 ## Basic Usage
 
@@ -30,7 +30,7 @@ ext    = optical.mie(df_pnsd, df_RI, wavelength=550)
 | Namespace | Functions |
 |-----------|-----------|
 | `chemistry` | `reconstruct_mass`, `split_oc_ec`, `partition_ratios`, `isoropia`, `volume_ri`, `kappa`, `growth_factor` |
-| `optical` | `optical_basic`, `improve`, `mie`, `gas_extinction`, `retrieve_ri`, `brown_carbon` |
+| `optical` | `optical_basic`, `improve`, `mie`, `gas_extinction`, `retrieve_ri`, `brown_carbon`; Mie building blocks `mie_lognormal`, `mie_multimodal`, `mie_core_shell`, `mie_core_shell_sd`, `scattering_function`, `scattering_function_sd`, `phase_matrix`, `nephelometer_truncation_correction`, `iterative_inversion`, `iterative_inversion_sd`, `contour_intersection` (see the [Optical API](../api/DataProcess/Optical.md)) |
 | `size` | `psd_stats`, `psd_distributions`, `merge_psd` |
 | `voc` | `voc_potentials` |
 
@@ -73,7 +73,7 @@ density  = result['density']         # estimated effective density (g/cm³)
 # v3/v4 variants: result['data_dn'], result['data_dndsdv'], result['data_cor_dn']
 ```
 
-`version` selects the algorithm: 1 (original power-law), 2 (simplified), 3 (dN/dS/dV refinement), 4 (PM2.5 fitness, default and recommended). v4 requires `df_pm25`.
+`version` selects the algorithm: 1 (original power-law), 2 (simplified), 3 (dN/dS/dV refinement), 4 (PM2.5 fitness, default and recommended), 5 (**experimental** — mass-anchored density from PM1 closure; emits a warning). v4 requires `df_pm25`; v5 requires `df_pm1`. `times_range=(start, stop, step)` sets the SMPS-times grid search for v4.
 
 ### Using the SizeDist Class
 
@@ -109,6 +109,7 @@ from AeroViz import reconstruct_mass
 
 result = reconstruct_mass(df_chem, df_ref=df_pm25)
 # result['mass']        - Reconstructed mass (AS, AN, OM, Soil, SS, EC, total)
+# split_om=True additionally splits OM into POA / SOA by the EC-tracer method
 # result['volume']      - Component volumes (*_volume + total_dry)
 # result['NH4_status']  - Ammonium status DataFrame ('ratio', 'status'); status is Enough / Deficiency
 # result['RI_550']      - Refractive index at 550 nm (RI_dry, RI_wet)
@@ -158,8 +159,9 @@ result = split_oc_ec(df_lcres, df_mass=df_pm25)
 from pathlib import Path
 from AeroViz import isoropia
 
-# Keeps path_out: ISORROPIA shells out to a Windows binary
-result = isoropia(df_ions, df_met, path_out=Path('./isoropia_run'))
+# path_out is accepted for backward compatibility only and ignored —
+# the calculation is a native (f2py) extension with no file I/O
+result = isoropia(df_ions, df_met)
 # result['input'], result['output'] (pH, ALWC, gas/aerosol partitioning)
 ```
 
@@ -173,7 +175,7 @@ result = isoropia(df_ions, df_met, path_out=Path('./isoropia_run'))
 from AeroViz import optical_basic
 
 basic = optical_basic(df_sca, df_abs, df_mass=df_mass, df_no2=df_no2, df_temp=df_temp)
-# Derived columns: extinction, SSA, MEE, MSE, MAE, Ångström exponents, etc.
+# Columns: abs, sca, ext, SSA, SAE, AAE, eBC, plus MAE / MSE / MEE when df_mass is given
 ```
 
 ### IMPROVE Extinction
@@ -197,7 +199,7 @@ from AeroViz import mie
 
 # Single-material RI (Series of complex numbers)
 ext = mie(df_pnsd, df_RI_complex, wavelength=550)
-# Columns: extinction, scattering, absorption (Mm⁻¹)
+# Columns: ext, sca, abs (Mm⁻¹)
 
 # Species mixing-table RI (DataFrame with *_volume_ratio columns)
 ext = mie(df_pnsd, df_mix_table, wavelength=550, mixing='internal')
@@ -208,6 +210,66 @@ dext = mie(df_pnsd, df_RI_complex, wavelength=550, distribution=True)
 ```
 
 `mie` replaces the legacy `Mie` / `extinction_distribution` / `extinction_full` triplet. Behavior is controlled by the shape of `ri` and the `mixing` / `distribution` keywords.
+
+### Mie building blocks
+
+Synthetic-PSD shortcuts, core-shell particles and angular scattering, for
+when you do not have a measured size distribution or need more than bulk
+coefficients.
+
+```python
+from AeroViz import mie_lognormal, mie_multimodal, mie_core_shell, mie_core_shell_sd
+
+# One-shot optics from a synthetic lognormal (or multi-mode) PSD
+mie_lognormal(refractive_index, wavelength=550, *, geo_mean=200, geo_std=2.0,
+              total_number=1e6, n_bins=167, dp_range=(1, 2500))   -> {'ext', 'sca', 'abs'}
+mie_multimodal(refractive_index, wavelength=550, *, modes,
+               n_bins=167, dp_range=(1, 2500))                    -> {'ext', 'sca', 'abs'}
+# modes = [(geo_mean, geo_std, total_number), ...]
+
+# Core-shell (Aden-Kerker)
+mie_core_shell(m_core, m_shell, d_core, d_total, wavelength)
+#   -> single-particle efficiencies Q_ext, Q_sca, Q_abs, g, Q_pr, Q_back, Q_ratio
+mie_core_shell_sd(m_core, m_shell, dp_core, dp_total, ndp,
+                  wavelength=550, psd_type='dNdlogDp')
+#   -> PSD-integrated ext, sca, abs (Mm⁻¹) plus g_eff
+```
+
+```python
+from AeroViz import (scattering_function, scattering_function_sd, phase_matrix,
+                     nephelometer_truncation_correction)
+
+scattering_function(m, wavelength, diameter, angles=None, space='theta')
+#   -> {'angles', 'SL', 'SR', 'SU'}   parallel / perpendicular / unpolarised phase function
+scattering_function_sd(m, wavelength, dp, ndp, angles=None, space='theta', psd_type='auto')
+#   -> same keys, PSD-integrated
+phase_matrix(m, wavelength, diameter, mu=None)
+#   -> {'mu', 'S11', 'S12', 'S33', 'S34'}   Mueller phase-matrix elements
+nephelometer_truncation_correction(sae, wavelength=550, instrument='NEPH')
+#   -> Anderson & Ogren (1998) multiplicative factor for an integrating nephelometer
+#      (TSI 3563 default; Aurora 3000 also tabulated); sae = scattering Ångström exponent
+```
+
+### Inverse problems
+
+Besides `retrieve_ri` (below), two retrievals work from bulk (Bext, Bsca, Babs)
+and a PSD description instead of a per-bin matrix:
+
+```python
+from AeroViz import iterative_inversion, iterative_inversion_sd, contour_intersection
+
+# Newton-Raphson on measured (Bext, Bsca, Babs)
+iterative_inversion(b_ext, b_sca, b_abs, lognormal_params,
+                    wavelength=550, n_initial=1.5, k_initial=0.01)
+#   lognormal_params = {'geo_mean': ..., 'geo_std': ..., 'total_number': ...}
+#   -> {'n', 'k', 'iterations', 'converged', 'residuals'}
+iterative_inversion_sd(b_ext, b_sca, b_abs, dp, ndp,
+                       wavelength=550, n_initial=1.5, k_initial=0.01)   # measured PSD instead
+
+# Sumlin (2018) contour-intersection retrieval over an (n, k) grid
+contour_intersection(b_ext, b_sca, b_abs, lognormal_params, wavelength=550,
+                     n_range=(1.3, 2.0), k_range=(0, 0.5), grid=51)
+```
 
 ### Gas Extinction
 
@@ -299,7 +361,7 @@ result = reconstruct_mass(df_chem)
 result['mass'].to_csv('./output/mass.csv')
 ```
 
-(Exception: `isoropia` still keeps `path_out`, because the underlying calculation shells out to a Windows binary that reads/writes temp files on disk.)
+(`isoropia` still *accepts* a `path_out` argument for backward compatibility but ignores it: ISORROPIA II runs as a native f2py extension on every platform, with no temp files. The argument will be removed in a future release.)
 
 ---
 

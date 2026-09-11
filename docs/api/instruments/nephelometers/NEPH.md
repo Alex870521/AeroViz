@@ -4,7 +4,7 @@ The Nephelometer is an instrument used for measuring light scattering properties
 
 ::: AeroViz.rawDataReader.script.NEPH.Reader
 
-## Data Format
+## Raw format
 
 | Time Record Format | T | YYYY | MM | DD | HH | NN | SS |
 |:------------------:|:-:|:----:|:--:|:--:|:--:|:--:|:--:|
@@ -18,17 +18,36 @@ The Nephelometer is an instrument used for measuring light scattering properties
 |:-----------------------:|:-:|:---:|:--------:|:-----------:|:----------:|:----:|:------------:|:------------:|:-----------:|:------:|
 |         Example         | Y | 348 |   973    |    302.8    |    300     | 91.2 |     12.5     |     5.7      |      2      |  0000  |
 
-- File format: Raw data file (.dat)
-- Sampling frequency: 5 minutes
-- File naming pattern: `*.dat`
-- Record types:
-    - T records: Timestamp information
-    - D records: Scattering measurements
-    - Y records: Status and RH information
+- File pattern: `*.dat` (raw data file, record-oriented, no header)
+- Native frequency: `5min` (config fallback; the grid actually used is
+  detected per file and reported as `df.attrs['raw_freq']`)
+- Record types, identified by column 0:
+    - `T` records: Timestamp information
+    - `D` records: Scattering measurements
+    - `Y` records: Status and RH information
 
-## Measurement Parameters
+### Parse recipe
 
-The Nephelometer provides measurements at three wavelengths:
+- `read_csv(header=None, names=range(11))`, then grouped by the record type
+  in column 0
+- `T` = timestamp: `YYYY MM DD HH MM SS` across columns 1–6, zero-padded and
+  concatenated, parsed as `%Y%m%d%H%M%S`
+- `D` = data: the `NBXX` (normal scattering) sub-group is used, falling back
+  to `NTXX` (total scattering); columns 3–8 × 1e6 → `B`, `G`, `R`, `BB`,
+  `BG`, `BR` in Mm⁻¹
+- `Y` = state: column 2 pressure, 3 temp1 (sample temperature), 4 temp2
+  (inlet temperature), 5 RH, **9 status** (e.g. `0000`, coerced to a
+  nullable integer). Column 1 (total counts) and column 8 (status hex) are
+  present in the file but not read.
+- A file containing a record type outside `{B, G, R, D, T, Y, Z}` is skipped
+  with a warning naming the offending rows
+
+**Quirk:** `Y`-row fields are attached to the data frame **positionally**
+(`.values`), so a file with unequal `D` and `Y` counts misaligns or raises.
+
+## Measurement parameters
+
+The Nephelometer provides measurements at three wavelengths (TSI 3563 bands):
 
 | Column | Wavelength | Description |
 |--------|------------|-------------|
@@ -39,91 +58,38 @@ The Nephelometer provides measurements at three wavelengths:
 | BG | 550 nm | Backscattering (green) |
 | BR | 700 nm | Backscattering (red) |
 
-## Data Processing
+## Status & error codes
 
-### Data Reading
+Column `status` (from `Y` record field 9), mode `numeric` with `ok_value=0`
+(see
+[status modes](../../../guide/reader-reference.md#3-how-a-status-judgement-is-made)):
+a row is an error when the status is not `0` and not NaN. Only `0` (normal
+operation) is defined; there is no register table, so
+`df.attrs['status_conditions']` is not produced. A missing status column is
+logged by `check_status_columns` and leaves the rule inert.
 
-- Processes different record types (T, D, Y)
-- Extracts timestamp from T records
-- Extracts scattering measurements from D records
-- Extracts status and RH from Y records
-- Converts raw scattering values to Mm⁻¹
-- Handles both normal (NBXX) and total (NTXX) scattering modes
+To treat a code as OK, whitelist its numeric value:
 
-### Quality Control
-
-The NEPH reader uses the declarative **QCFlagBuilder** system with the following rules:
-
-```
-+-----------------------------------------------------------------------+
-|                         QC Thresholds                                 |
-+-----------------------------------------------------------------------+
-| MIN_SCAT_VALUE = 0       Mm⁻¹                                         |
-| MAX_SCAT_VALUE = 2000    Mm⁻¹                                         |
-| STATUS_OK      = 0       (numeric status code)                        |
-+-----------------------------------------------------------------------+
-
-+-----------------------------------------------------------------------+
-|                            _QC() Pipeline                             |
-+-----------------------------------------------------------------------+
-|                                                                       |
-|  [Pre-process] Calculate scattering Angstrom exponent (SAE)           |
-|       |                                                               |
-|       v                                                               |
-|  +---------------------------+                                        |
-|  | Rule: Status Error        |                                        |
-|  +---------------------------+                                        |
-|  | Status code != 0          |                                        |
-|  | (from Y record col 9)     |                                        |
-|  +---------------------------+                                        |
-|           |                                                           |
-|           v                                                           |
-|  +---------------------------+    +---------------------------+       |
-|  | Rule: No Data             |    | Rule: Invalid Scat Value  |       |
-|  +---------------------------+    +---------------------------+       |
-|  | All columns are NaN       |    | Value <= 0 OR             |       |
-|  +---------------------------+    | Value > 2000 Mm⁻¹         |       |
-|           |                       +---------------------------+       |
-|           v                                |                          |
-|  +---------------------------+             v                          |
-|  | Rule: Invalid Scat Rel    |    +---------------------------+       |
-|  +---------------------------+    | Rule: Insufficient        |       |
-|  | Blue < Green < Red        |    +---------------------------+       |
-|  | (violates physics)        |    | < 50% hourly data         |       |
-|  +---------------------------+    +---------------------------+       |
-|                                                                       |
-+-----------------------------------------------------------------------+
+```python
+RawDataReader('NEPH', path, ignored_status_errors=[4])
 ```
 
-#### QC Rules Applied
+## QC rules
 
-| Rule | Condition | Description |
-|------|-----------|-------------|
-| **Status Error** | Status ≠ 0 | Non-zero status code indicates instrument error |
-| **No Data** | All columns NaN | All scattering columns are missing |
-| **Invalid Scat Value** | Value ≤ 0 OR > 2000 Mm⁻¹ | Scattering outside valid range |
-| **Invalid Scat Rel** | B < G < R | Wavelength dependence violation |
-| **Insufficient** | < 50% hourly data | Less than 50% hourly data completeness |
+| Rule | Condition | Severity |
+|------|-----------|----------|
+| **Status Error** | `status` ≠ 0 and not NaN (see above) | error |
+| **No Data** | all six scattering columns (`B`, `G`, `R`, `BB`, `BG`, `BR`) are NaN | error |
+| **Invalid Scat Value** | any scattering column ≤ 0 or > 2 000 Mm⁻¹ (`MIN_SCAT_VALUE` / `MAX_SCAT_VALUE`) | error |
+| **Invalid Scat Rel** | `B < G` **and** `G < R` — inverted wavelength dependence (expected Blue > Green > Red at 450 / 550 / 700 nm) | error |
+| **Insufficient** | an hour holds < 50 % of the points it could have held at the detected frequency (edge hours scaled by coverage) | advisory (`WARNING`) — recorded, data kept |
 
-#### Wavelength Dependence Check
+SAE and `sca_550` are computed in `_process` after QC, not checked by a rule.
 
-```
-    Scattering (Mm⁻¹)
-       ^
-       |     Expected: Blue > Green > Red
-       |
-       |  B *
-       |      \
-       |       G *
-       |           \
-       |            R *
-       +----+----+----+-----> Wavelength
-           450  550  700
-```
+## Output
 
-## Output Data
-
-The processed data contains the following columns:
+`_process` runs `_scaCoe` on `B`, `G`, `R` (using the 450/550/700 nm bands)
+to add `sca_550` and `SAE`, then re-attaches every non-scattering column.
 
 | Column | Unit | Description |
 |--------|------|-------------|
@@ -131,11 +97,13 @@ The processed data contains the following columns:
 | BB, BG, BR | Mm⁻¹ | Backscattering coefficients |
 | sca_550 | Mm⁻¹ | Scattering at 550nm |
 | SAE | - | Scattering Angstrom Exponent (positive by convention) |
+| RH | % | Relative humidity from the `Y` record |
+| pressure | as exported | Pressure from the `Y` record |
+| temp1, temp2 | as exported | Sample and inlet temperature from the `Y` record |
+| status | - | Raw status code from the `Y` record, carried through unchanged |
 
-!!! note "QC_Flag Handling"
-
-    - The intermediate file (`_read_neph_qc.pkl/csv`) contains the `QC_Flag` column
-    - The final output has invalid data set to NaN and `QC_Flag` column removed
+Files written per read are listed in
+[RawDataReader Reference §1](../../../guide/reader-reference.md#files-written).
 
 ## Notes
 

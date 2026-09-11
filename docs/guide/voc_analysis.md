@@ -8,7 +8,10 @@ Volatile Organic Compounds (VOC) analysis workflow, including OFP and SOAP calcu
     There is no VOC reader — `RawDataReader('VOC', ...)` was removed. VOC data is
     pre-aggregated (second-hand), so there is no raw log to parse. Read the file
     directly with pandas and pass the DataFrame to `voc_potentials`, which
-    validates species against `support_voc.json`.
+    validates species against `support_voc.json` — alkanes (C2–C12), alkenes
+    (C2–C6), aromatics (BTEX and others), halogenated hydrocarbons and
+    oxygenated VOCs; the full species table with MIR / SOAP factors is on the
+    [VOC data page](../api/instruments/chemical/VOC.md).
 
 ```python
 import pandas as pd

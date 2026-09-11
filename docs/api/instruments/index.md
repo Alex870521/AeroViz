@@ -57,13 +57,13 @@ Instruments for PM mass concentration measurement:
 
 Not instruments, but read through the same factory:
 
-- **EPA** - Taiwan EPA hourly air-quality export (`big5`-encoded 測項 / 直式 CSV)
+- **[EPA](other/EPA.md)** - Taiwan EPA hourly air-quality export (`big5`-encoded 測項 / 直式 CSV)
 
 ### Not readable
 
-- **Q-ACSM** - a real instrument, but its reader is not written yet: calling it
-  raises `NotImplementedError` explaining what to contribute. See
-  [Instrument Formats & QC](../../guide/instrument-qc.md#q-acsm-reader-not-implemented-yet).
+- **Q-ACSM** - a real instrument (30-min native resolution), but its reader is
+  not written yet: calling it raises `NotImplementedError` explaining what to
+  contribute — see [Contributing a Reader](../../guide/contributing-reader.md).
 - **VOC**, **Minion** - pre-aggregated, second-hand data with no raw log to
   parse. The readers were removed; calling them raises `KeyError` carrying the
   migration advice. See [VOC Data](chemical/VOC.md).
@@ -92,68 +92,30 @@ Not instruments, but read through the same factory:
 | **MA350** | 1 min | .csv | Status Error, Invalid BC, Invalid AAE, Insufficient |
 | **NEPH** | 5 min | .dat | Status Error, No Data, Invalid Scat Value, Invalid Scat Rel, Insufficient |
 | **Aurora** | 1 min | .csv | Status Error, No Data, Invalid Scat Value, Invalid Scat Rel, Insufficient |
-| **SMPS** | 6 min | .txt, .csv | Status Error, Invalid Number Conc, DMA Water, Insufficient |
+| **SMPS** | 6 min | .txt, .csv | Status Error, Invalid Number Conc, CPC Over-range, DMA Water Ingress, Insufficient |
 | **APS** | 6 min | .txt | Status Error, Invalid Number Conc, Insufficient |
 | **GRIMM** | 6 min | .dat | No Data, Negative Conc, Insufficient |
 | **TEOM** | 6 min | .csv | Status Error, High Noise, Non-positive, NV > Total, Spike, Insufficient |
 | **BAM1020** | 1 h | .csv | Invalid Conc, Spike |
 | **OCEC** | 1 h | *LCRes.csv | Invalid Carbon, Below MDL, Spike, Missing OC |
 | **IGAC** | 1 h | .csv | Mass Closure, Missing Main, Above MR, Ion Balance |
-| **Xact** | 1 h | .csv | Calibration Mode, Instrument Error, Upscale Warning, Invalid Value, Internal Std Drift |
-| **EPA** | 1 h | .csv | Negative Value |
+| **Xact** | 1 h | .csv | Calibration Mode, Instrument Error, Upscale Warning, Invalid Value, High Uncertainty, Internal Std Drift |
+| **EPA** | 1 h | .csv | Negative |
 
-!!! note "Quality Control System"
+Every reader declares its rules as `QCRule`s; what a flag means, which are
+advisory and where the verdict is recorded is explained once in
+[RawDataReader Reference §2](../../guide/reader-reference.md#2-qc-machinery),
+and the files each read writes in
+[Reference §1](../../guide/reader-reference.md#files-written).
 
-    All instruments use the declarative **QCFlagBuilder** system:
+## Adding an instrument
 
-    - **Declarative Rules** - Each instrument defines QC rules as `QCRule` dataclass instances
-    - **Consistent Processing** - All instruments use `QC_Flag` internally for quality control
-    - **Clean Output** - Final output has invalid data set to NaN, `QC_Flag` column removed
+See [Contributing a Reader](../../guide/contributing-reader.md): the `meta`
+entry, the `Reader` class with its `_raw_reader` / `_QC` / `_process` hooks,
+the tests and the docs page.
 
-### QC Flag Processing
+## Related
 
-The `QC_Flag` column is used internally during processing:
-
-- `"Valid"` - All QC rules passed
-- `"Rule1, Rule2"` - Comma-separated list of failed rule names
-
-**Output Files:**
-
-| File | QC_Flag | Description |
-|------|---------|-------------|
-| `_read_{inst}_raw.pkl/csv` | ❌ No | Raw data before QC |
-| `_read_{inst}_qc.pkl/csv` | ✅ Yes | QC'd data with flag |
-| `output_{inst}.csv` | ❌ No | Final output (invalid → NaN) |
-
-## Adding New Instruments
-
-To add support for a new instrument, you need to:
-
-1. Create a new reader class inheriting from `AbstractReader`
-2. Implement the required methods for data parsing
-3. Add instrument detection logic
-4. Include appropriate quality control methods
-
-!!! example "Example Reader Implementation"
-
-    ```python
-    from AeroViz.rawDataReader.core.AbstractReader import AbstractReader
-    
-    class MyInstrumentReader(AbstractReader):
-        def __init__(self, file_path, **kwargs):
-            super().__init__(file_path, **kwargs)
-            
-        def read_data(self):
-            # Implement your data reading logic
-            pass
-            
-        def apply_qc(self):
-            # Implement quality control
-            pass
-    ```
-
-## Related Documentation
-
-- **[AbstractReader](../AbstractReader.md)** - Base class for all instrument readers
-- **[Quality Control](../QualityControl.md)** - Data validation and filtering methods
-- **[RawDataReader](../RawDataReader/index.md)** - Factory function for automatic instrument detection
+- [AbstractReader](../AbstractReader.md) — base class for all readers
+- [Quality Control](../QualityControl.md) — the filters the rules are built from
+- [RawDataReader](../RawDataReader/index.md) — the factory

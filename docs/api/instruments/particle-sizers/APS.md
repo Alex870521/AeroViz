@@ -4,121 +4,72 @@ The APS is an instrument used for measuring aerodynamic particle size distributi
 
 ::: AeroViz.rawDataReader.script.APS.Reader
 
-## Data Format
+## Raw format
 
-- File format: Tab-delimited text file
-- Sampling frequency: 6 minutes (typical)
-- File naming pattern: `*.txt`
-- Data structure:
-    - Header: 6 rows of metadata
-    - Time columns: Date and Start Time
-    - Size distribution data: Columns 3-54
+- File pattern: `*.txt`, tab-delimited
+- Native frequency: `6min` is the config fallback, but the file header carries
+  `Sample Time` (115 s in the corpus) — **not** a whole number of minutes.
+  The native grid follows the period detected per file, so scans are not lost
+  to bin collisions; `df.attrs['raw_freq']` reports what was actually used.
+- Encoding: opened with `encoding='utf-8', errors='ignore'`
+- Header layout: ~6 metadata lines (`Sample File`, `Sample Time`, `Density`,
+  `Stokes Correction`, `Lower/Upper Channel Bound`) then a `Sample #` header
+  row, found by scanning for that first cell (so files with several
+  concatenated headers still locate it)
+- Time columns: `Date` and `Start Time`
+- Size distribution data: columns 3–54 of the export (the under-range
+  `<0.523` column plus the 51 bins)
 
-## Measurement Parameters
+### Parse recipe
+
+- Transposed exports (`Sample #` as a row rather than a column header) are
+  rotated with `set_index('Sample #').T`; if that fails the reader raises
+  `NotImplementedError` **with the original exception attached** and logs
+  the first columns it saw.
+- Date from `Date` + `Start Time`, formats `%m/%d/%y %H:%M:%S` then
+  `%m/%d/%Y %H:%M:%S`; the winning format is logged, and a file matching
+  neither raises with the list of known formats.
+- Size bins are the numeric column names in 0.5–20 (µm), converted to float
+  and rounded to 4 decimal places. Expected grid `(0.542, 19.81, 51 bins)`
+  (TSI 3321/3320 factory-fixed); a deviation **warns loudly** but does not
+  reject — an 8-year × 4-station audit of 1 485 files showed zero drift, so a
+  deviation means a firmware change, and concatenating it with other files
+  would create NaN-poisoned columns. The under-range `<0.523` column is kept
+  as metadata, not a bin.
+- The consumed index columns (`Date`, `Start Time`, `Sample #`,
+  `Aerodynamic Diameter`) are dropped; rows with an unparseable or duplicated
+  timestamp are dropped; every other source column is kept through L1.
+
+## Measurement parameters
 
 The APS provides aerodynamic particle size distribution measurements:
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|
-| Size range | 542-1981 nm | Aerodynamic diameter range |
+| Size range | 0.542–19.81 µm (51 bins) | Aerodynamic diameter range |
 | Output | dN/dlogDp | Number concentration per size bin |
 | Unit | #/cm³ | Particle number concentration |
 
-## Data Processing
+## Status & error codes
 
-### Data Reading
+Column `Status Flags`, mode `binary_string` (see
+[status modes](../../../guide/reader-reference.md#3-how-a-status-judgement-is-made)).
+OK is `'0000 0000 0000 0000'` (16-bit binary, all zeros); any bit still set
+after clearing the whitelist mask is an error. A missing `Status Flags`
+column is logged by `check_status_columns` and leaves the rule inert.
 
-- Automatically skips 6 rows of header metadata
-- Parses date and time into datetime index
-- Extracts particle size distribution data (columns 3-54)
-- Rounds size bin values to 4 decimal places
-- Handles transposed data formats
-- Validates datetime values
+Bit meanings (from the TSI RF command):
 
-### Quality Control
-
-The APS reader uses the declarative **QCFlagBuilder** system with the following rules:
-
-```
-+-----------------------------------------------------------------------+
-|                         QC Thresholds                                 |
-+-----------------------------------------------------------------------+
-| completeness     >= 50% of the detected frequency's hourly points     |
-| MIN_TOTAL_CONC   = 1      #/cm³                                       |
-| MAX_TOTAL_CONC   = 700    #/cm³                                       |
-| STATUS_OK        = "0000 0000 0000 0000" (16-bit binary, all zeros)   |
-+-----------------------------------------------------------------------+
-
-+-----------------------------------------------------------------------+
-|                            _QC() Pipeline                             |
-+-----------------------------------------------------------------------+
-|                                                                       |
-|  [Pre-process] Calculate dlogDp and total concentration               |
-|       |                                                               |
-|       v                                                               |
-|  +-------------------------+                                          |
-|  | Rule: Status Error      |                                          |
-|  +-------------------------+                                          |
-|  | Status Flags != all     |                                          |
-|  | zeros (16-bit binary)   |                                          |
-|  +-------------------------+                                          |
-|           |                                                           |
-|           v                                                           |
-|  +-------------------------+                                          |
-|  | Rule: Insufficient      |                                          |
-|  +-------------------------+                                          |
-|  | < 5 measurements        |                                          |
-|  | per hour                |                                          |
-|  +-------------------------+                                          |
-|           |                                                           |
-|           v                                                           |
-|  +-------------------------+                                          |
-|  | Rule: Invalid Number    |                                          |
-|  |       Conc              |                                          |
-|  +-------------------------+                                          |
-|  | Total number conc.      |                                          |
-|  | outside range (1-700)   |                                          |
-|  +-------------------------+                                          |
-|                                                                       |
-+-----------------------------------------------------------------------+
-```
-
-#### QC Rules Applied
-
-| Rule | Condition | Description |
-|------|-----------|-------------|
-| **Status Error** | Status Flags ≠ 0 | Non-zero status flags indicate instrument error |
-| **Insufficient** | < 5 measurements/hour | Less than 5 measurements per hour |
-| **Invalid Number Conc** | Total < 1 OR > 700 #/cm³ | Total number concentration outside valid range |
-
-#### Error Status Codes (from TSI RF command)
-
-| Bit | Binary Value | Description |
-|-----|--------------|-------------|
-| 0 | 0000 0000 0000 0001 | Laser fault |
-| 1 | 0000 0000 0000 0010 | Total Flow out of range |
-| 2 | 0000 0000 0000 0100 | Sheath Flow out of range |
-| 3 | 0000 0000 0000 1000 | Excessive sample concentration |
-| 4 | 0000 0000 0001 0000 | Accumulator clipped (> 65535) |
-| 5 | 0000 0000 0010 0000 | Autocal failed |
-| 6 | 0000 0000 0100 0000 | Internal temperature < 10°C |
-| 7 | 0000 0000 1000 0000 | Internal temperature > 40°C |
-| 8 | 0000 0001 0000 0000 | Detector voltage out of range (±10% Vb) |
-| 9 | 0000 0010 0000 0000 | Reserved (unused) |
-
-#### Valid Concentration Range
-
-```
-    Total Conc (#/cm³)
-       ^
-   700 +-------------------------------- MAX_TOTAL_CONC
-       |   +-----------------------+    (reject if exceeded)
-       |   |    VALID RANGE        |
-       |   +-----------------------+
-     1 +-------------------------------- MIN_TOTAL_CONC
-     0 +-------------------------------- (reject if below)
-       +----------------------------> Time
-```
+- bit `0` (`0000 0000 0000 0001`) — Laser fault
+- bit `1` (`0000 0000 0000 0010`) — Total Flow out of range
+- bit `2` (`0000 0000 0000 0100`) — Sheath Flow out of range
+- bit `3` (`0000 0000 0000 1000`) — Excessive sample concentration
+- bit `4` (`0000 0000 0001 0000`) — Accumulator clipped (> 65535)
+- bit `5` (`0000 0000 0010 0000`) — Autocal failed
+- bit `6` (`0000 0000 0100 0000`) — Internal temperature < 10°C
+- bit `7` (`0000 0000 1000 0000`) — Internal temperature > 40°C
+- bit `8` (`0000 0001 0000 0000`) — Detector voltage out of range (±10% Vb)
+- bit `9` (`0000 0010 0000 0000`) — Reserved (unused)
 
 #### Status Condition Register
 
@@ -150,22 +101,49 @@ To stop treating one condition as an error, whitelist its decimal value:
 RawDataReader('APS', path, ignored_status_errors=[1])  # ignore Laser fault
 ```
 
-## Output Data
+## QC rules
 
-The processed data contains:
+Before the rules run, the total number concentration is computed as
+Σ (dN/dlogDp × dlogDp) over the per-bin widths. A natural log was used here
+until 2026-09-09 where the data is dN/dlog₁₀Dp, inflating every total by
+ln 10 = 2.303×; that mattered more for APS than for SMPS because the range is
+tight — a `MAX_TOTAL_CONC` of 700 was really 304 /cm³, so valid high-loading
+scans were being rejected.
+
+| Rule | Condition | Severity |
+|------|-----------|----------|
+| **Status Error** | `Status Flags` has any non-whitelisted bit set (see above) | error |
+| **Insufficient** | an hour holds < 50 % of the scans it could have held at the detected frequency (edge hours scaled by coverage) | advisory (`WARNING`) — recorded, data kept |
+| **Invalid Number Conc** | total < 1 or > 700 #/cm³ (`MIN_TOTAL_CONC` / `MAX_TOTAL_CONC`); a NaN total is also flagged | error |
+
+## Output
+
+The L2 frame holds **the dN/dlogDp matrix only** (diameters in **µm** as
+columns) plus the QC bookkeeping; `Status Flags` and the other metadata
+columns are dropped in `_process`. Statistics are *not* in the frame.
 
 | Column | Unit | Description |
 |--------|------|-------------|
-| Size bins (542-1981 nm) | dN/dlogDp | Number concentration for each size |
+| Size bins (0.542–19.81 µm) | dN/dlogDp | Number concentration for each size |
 
-!!! note "QC_Flag Handling"
+At L3 the same sidecars as SMPS are written next to the main output:
+`{prefix}_dNdlogDp.csv`, `{prefix}_dSdlogDp.csv` (`π·d²·dN`),
+`{prefix}_dVdlogDp.csv` (`π·d³/6·dN`) and `{prefix}_stats.csv` (from
+`psd_stats`, QC-aligned; a failure there is logged and never fails the read).
+Pass `append_stats=True` to also append the statistics columns to the
+returned frame; the default keeps it a clean PSD matrix for `psd_stats` /
+`merge_psd` / `SizeDist`.
 
-    - The intermediate file (`_read_aps_qc.pkl/csv`) contains the `QC_Flag` column
-    - The final output has invalid data set to NaN and `QC_Flag` column removed
+Files written per read are listed in
+[RawDataReader Reference §1](../../../guide/reader-reference.md#files-written).
 
 ## Notes
 
 - Measures aerodynamic particle diameter directly
 - Complementary to SMPS for larger particle sizes
-- Size range approximately 0.5-2 μm
+- Size range approximately 0.5–20 μm
 - Logarithmic bin spacing in size distribution
+- Counting efficiency: the APS under-counts at both ends — 85–99 % for solid
+  particles, but falling from 75 % at 0.8 µm to 25 % at 10 µm for droplets
+  (Volckens & Peters 2005). Not corrected for; see
+  [Counting Efficiency](../../../theory/counting_efficiency.md).

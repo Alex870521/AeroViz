@@ -4,27 +4,12 @@ Welcome to AeroViz! This guide will help you get started quickly.
 
 ## Installation
 
-### Using pip
-
 ```bash
-pip install AeroViz
+pip install "AeroViz[plot]"      # drop [plot] if you only read and process data
 ```
 
-### Install from Source
-
-```bash
-git clone https://github.com/alex870521/AeroViz.git
-cd AeroViz
-pip install -e .
-```
-
-### Dependencies
-
-AeroViz requires Python 3.10+ and the following main dependencies:
-
-- numpy, pandas, scipy
-- matplotlib
-- xarray (optional, for NetCDF)
+Python 3.10+; wheels for Linux, macOS and Windows. Extras, building from
+source and common install problems: [Installation](../installation.md).
 
 ---
 
@@ -88,10 +73,15 @@ A unified data reading interface supporting multiple aerosol instruments:
 | Black Carbon | AE33, AE43, BC1054, MA350 |
 | Scattering | NEPH, Aurora |
 | Size Distribution | SMPS, APS, GRIMM |
-| Chemical | IGAC, OCEC, Xact, VOC |
+| Chemical | IGAC, OCEC, Xact |
 | Mass | TEOM, BAM1020 |
+| External / reference | EPA (Taiwan EPA hourly export) |
 
-See [RawDataReader Tutorial](rawdatareader.md)
+`Q-ACSM` is registered but its reader is not implemented yet. `VOC` and
+`Minion` are **not** readable through `RawDataReader` (removed in v0.4.0):
+read them with pandas and go straight to the analysis functions.
+
+See [RawDataReader Usage](rawdatareader.md)
 
 ### Post-Processing Functions
 
@@ -122,6 +112,7 @@ See [Visualization Tutorial](visualization.md)
 
 | Example | Description |
 |---------|-------------|
+| [RawDataReader Usage](rawdatareader.md) | Reading each instrument, date range, resampling, QC report, output files |
 | [Size Distribution Analysis](size_distribution.md) | SMPS-APS merging, distribution conversion, statistical calculation |
 | [Optical Closure Analysis](optical_closure.md) | Mie calculation, IMPROVE, refractive index retrieval |
 | [Chemical Composition Analysis](chemical_analysis.md) | Mass reconstruction, ion balance, kappa calculation |

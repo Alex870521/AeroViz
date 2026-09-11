@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/dataprocess/">
       
       
-        <link rel="prev" href="../reader-internals/">
+        <link rel="prev" href="../data-levels/">
       
       
         <link rel="next" href="../visualization/">
@@ -441,6 +441,14 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -502,6 +510,118 @@
   
   
     <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gallery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../citation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Citation & License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../CHANGELOG/" class="md-nav__link">
         
   
@@ -543,6 +663,8 @@
       
         
           
+        
+      
         
       
         
@@ -625,12 +747,6 @@
       
         
       
-        
-      
-        
-      
-        
-      
     
     
     
@@ -686,34 +802,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../rawdatareader/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    RawDataReader
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../data-levels/" class="md-nav__link">
         
   
@@ -722,90 +810,6 @@
     
   
     Data Levels (L0-L3)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../instrument-qc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Instrument Formats & QC
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../counting-efficiency/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Counting Efficiency (CPC & APS)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../reader-internals/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    RawDataReader Internals
   
 
     
@@ -1097,6 +1101,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#mie-building-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mie building blocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inverse-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inverse problems
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#gas-extinction" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1254,6 +1280,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../publication-figures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Publication Figures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1270,10 +1324,6 @@
   
     
     
-      
-        
-      
-        
       
         
       
@@ -1305,7 +1355,7 @@
   <span class="md-ellipsis">
     
   
-    Examples
+    Reference
   
 
     
@@ -1321,11 +1371,170 @@
             <span class="md-nav__icon md-icon"></span>
             
   
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reader-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing-reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing a Reader
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
     Examples
   
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rawdatareader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -1465,6 +1674,8 @@
       
         
           
+        
+      
         
       
         
@@ -1626,6 +1837,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../theory/counting_efficiency/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Counting Efficiency (CPC & APS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../theory/icrp/" class="md-nav__link">
         
   
@@ -1749,6 +1988,8 @@
       
         
           
+        
+      
         
       
         
@@ -1951,6 +2192,8 @@
       
         
           
+        
+      
         
       
         
@@ -2777,6 +3020,98 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4_7" id="__nav_4_2_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Other
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/instruments/other/EPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2838,7 +3173,7 @@
   <span class="md-ellipsis">
     
   
-    DataProcess
+    Post-processing
   
 
     
@@ -2860,7 +3195,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    DataProcess
+    Post-processing
   
 
           </label>
@@ -2882,7 +3217,7 @@
   <span class="md-ellipsis">
     
   
-    SizeDistr
+    size
   
 
     
@@ -2910,7 +3245,7 @@
   <span class="md-ellipsis">
     
   
-    Chemistry
+    chemistry
   
 
     
@@ -2938,7 +3273,7 @@
   <span class="md-ellipsis">
     
   
-    Optical
+    optical
   
 
     
@@ -2966,7 +3301,7 @@
   <span class="md-ellipsis">
     
   
-    VOC
+    voc
   
 
     
@@ -2983,6 +3318,34 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3011,6 +3374,8 @@
       
         
       
+        
+      
     
     
     
@@ -3024,7 +3389,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -3046,14 +3411,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -3071,83 +3436,15 @@
   
   
   
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_2" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_2" id="__nav_4_4_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Basic
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Basic
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
     <li class="md-nav__item">
-      <a href="../../api/plot/basic/scatter/" class="md-nav__link">
+      <a href="../../api/plot/basic/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    scatter
+    Basic charts
   
 
     
@@ -3168,14 +3465,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/plot/basic/regression/" class="md-nav__link">
+      <a href="../../api/plot/timeseries/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    regression
+    Time series
   
 
     
@@ -3196,14 +3493,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/plot/basic/box/" class="md-nav__link">
+      <a href="../../api/plot/distribution/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    box
+    Size distribution
   
 
     
@@ -3224,336 +3521,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/plot/basic/bar/" class="md-nav__link">
+      <a href="../../api/plot/meteorology/" class="md-nav__link">
         
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    bar
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../api/plot/basic/violin/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    violin
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../api/plot/basic/pie/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    pie
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../api/plot/basic/radar/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    radar
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_3" id="__nav_4_4_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Time Series
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Time Series
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../api/plot/timeseries/timeseries/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    timeseries
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_4" id="__nav_4_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Distribution
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Distribution
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../api/plot/distribution/distribution/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    distribution
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
@@ -3567,42 +3536,6 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Meteorology
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../api/plot/meteorology/wind_rose/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    wind_rose
-  
-
-    
-  </span>
-  
-  
-
       </a>
     </li>
   
@@ -3616,92 +3549,8 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/plot/meteorology/CBPF/" class="md-nav__link">
+      <a href="../../api/plot/optical/" class="md-nav__link">
         
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CBPF
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../api/plot/meteorology/hysplit/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    hysplit
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_6" id="__nav_4_4_6_label" tabindex="0">
-            
   
   
   <span class="md-ellipsis">
@@ -3715,19 +3564,11 @@
   
   
 
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Optical
+      </a>
+    </li>
   
 
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
+              
             
               
                 
@@ -3736,14 +3577,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../api/plot/optical/optical/" class="md-nav__link">
+      <a href="../../api/plot/templates/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    optical
+    Templates
   
 
     
@@ -3752,14 +3593,6 @@
   
 
       </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
     </li>
   
 
@@ -4045,6 +3878,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#mie-building-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mie building blocks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inverse-problems" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inverse problems
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#gas-extinction" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4189,7 +4044,7 @@
 <p>AeroViz exposes its post-processing as a flat set of top-level functions, grouped into four namespaces — <code>chemistry</code>, <code>optical</code>, <code>size</code>, and <code>voc</code>. Each call is self-contained: it takes a DataFrame (or a few), runs one calculation, and returns a DataFrame or dict.</p>
 <div class="admonition warning">
 <p class="admonition-title">Legacy API deprecated</p>
-<p>The old <code>DataProcess(...)</code> factory class — e.g. <code>dp = DataProcess('Chemistry', Path('./output'))</code> followed by <code>dp.ReConstrc_basic(df_chem)</code> — still exists but is deprecated and will be removed in a future release. New code should use the top-level functions described on this page. The functions take exactly the same inputs and return the same results — they just skip the constructor boilerplate and the <code>path_out</code> argument. If you want a CSV, call <code>.to_csv()</code> on the returned DataFrame yourself.</p>
+<p>The old <code>DataProcess(...)</code> factory class — e.g. <code>dp = DataProcess('Chemistry', Path('./output'))</code> followed by <code>dp.ReConstrc_basic(df_chem)</code> — still exists but is deprecated and will be removed in a future release. New code should use the top-level functions described on this page. The functions take exactly the same inputs and return the same results — they just skip the constructor boilerplate and the <code>path_out</code> argument. If you want a CSV, call <code>.to_csv()</code> on the returned DataFrame yourself. A method-by-method migration table is in the <a href="../../api/DataProcess/#migrating-from-dataprocess">Post-processing API</a>.</p>
 </div>
 <h2 id="basic-usage">Basic Usage</h2>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">reconstruct_mass</span><span class="p">,</span> <span class="n">mie</span><span class="p">,</span> <span class="n">psd_distributions</span>
@@ -4220,7 +4075,7 @@
 </tr>
 <tr>
 <td><code>optical</code></td>
-<td><code>optical_basic</code>, <code>improve</code>, <code>mie</code>, <code>gas_extinction</code>, <code>retrieve_ri</code>, <code>brown_carbon</code></td>
+<td><code>optical_basic</code>, <code>improve</code>, <code>mie</code>, <code>gas_extinction</code>, <code>retrieve_ri</code>, <code>brown_carbon</code>; Mie building blocks <code>mie_lognormal</code>, <code>mie_multimodal</code>, <code>mie_core_shell</code>, <code>mie_core_shell_sd</code>, <code>scattering_function</code>, <code>scattering_function_sd</code>, <code>phase_matrix</code>, <code>nephelometer_truncation_correction</code>, <code>iterative_inversion</code>, <code>iterative_inversion_sd</code>, <code>contour_intersection</code> (see the <a href="../../api/DataProcess/Optical/">Optical API</a>)</td>
 </tr>
 <tr>
 <td><code>size</code></td>
@@ -4260,7 +4115,7 @@
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">density</span>  <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'density'</span><span class="p">]</span>         <span class="c1"># estimated effective density (g/cm³)</span>
 <a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># v3/v4 variants: result['data_dn'], result['data_dndsdv'], result['data_cor_dn']</span>
 </code></pre></div>
-<p><code>version</code> selects the algorithm: 1 (original power-law), 2 (simplified), 3 (dN/dS/dV refinement), 4 (PM2.5 fitness, default and recommended). v4 requires <code>df_pm25</code>.</p>
+<p><code>version</code> selects the algorithm: 1 (original power-law), 2 (simplified), 3 (dN/dS/dV refinement), 4 (PM2.5 fitness, default and recommended), 5 (<strong>experimental</strong> — mass-anchored density from PM1 closure; emits a warning). v4 requires <code>df_pm25</code>; v5 requires <code>df_pm1</code>. <code>times_range=(start, stop, step)</code> sets the SMPS-times grid search for v4.</p>
 <h3 id="using-the-sizedist-class">Using the SizeDist Class</h3>
 <p>For per-row distribution conversions (extinction, dry PSD, lung deposition), use the <code>SizeDist</code> class directly:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess.SizeDistr</span><span class="w"> </span><span class="kn">import</span> <span class="n">SizeDist</span>
@@ -4287,10 +4142,11 @@
 <a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
 <a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">result</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">,</span> <span class="n">df_ref</span><span class="o">=</span><span class="n">df_pm25</span><span class="p">)</span>
 <a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># result['mass']        - Reconstructed mass (AS, AN, OM, Soil, SS, EC, total)</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># result['volume']      - Component volumes (*_volume + total_dry)</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="c1"># result['NH4_status']  - Ammonium status DataFrame ('ratio', 'status'); status is Enough / Deficiency</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># result['RI_550']      - Refractive index at 550 nm (RI_dry, RI_wet)</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># result['density_rec'] - Reconstructed density</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="c1"># split_om=True additionally splits OM into POA / SOA by the EC-tracer method</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="c1"># result['volume']      - Component volumes (*_volume + total_dry)</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1"># result['NH4_status']  - Ammonium status DataFrame ('ratio', 'status'); status is Enough / Deficiency</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># result['RI_550']      - Refractive index at 550 nm (RI_dry, RI_wet)</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># result['density_rec'] - Reconstructed density</span>
 </code></pre></div>
 <h3 id="volume-and-refractive-index">Volume and Refractive Index</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">volume_ri</span>
@@ -4321,9 +4177,10 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">isoropia</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Keeps path_out: ISORROPIA shells out to a Windows binary</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">result</span> <span class="o">=</span> <span class="n">isoropia</span><span class="p">(</span><span class="n">df_ions</span><span class="p">,</span> <span class="n">df_met</span><span class="p">,</span> <span class="n">path_out</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s1">'./isoropia_run'</span><span class="p">))</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="c1"># result['input'], result['output'] (pH, ALWC, gas/aerosol partitioning)</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># path_out is accepted for backward compatibility only and ignored —</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="c1"># the calculation is a native (f2py) extension with no file I/O</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="n">result</span> <span class="o">=</span> <span class="n">isoropia</span><span class="p">(</span><span class="n">df_ions</span><span class="p">,</span> <span class="n">df_met</span><span class="p">)</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="c1"># result['input'], result['output'] (pH, ALWC, gas/aerosol partitioning)</span>
 </code></pre></div>
 <hr />
 <h2 id="optical">Optical</h2>
@@ -4331,7 +4188,7 @@
 <div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">optical_basic</span>
 <a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>
 <a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="n">basic</span> <span class="o">=</span> <span class="n">optical_basic</span><span class="p">(</span><span class="n">df_sca</span><span class="p">,</span> <span class="n">df_abs</span><span class="p">,</span> <span class="n">df_mass</span><span class="o">=</span><span class="n">df_mass</span><span class="p">,</span> <span class="n">df_no2</span><span class="o">=</span><span class="n">df_no2</span><span class="p">,</span> <span class="n">df_temp</span><span class="o">=</span><span class="n">df_temp</span><span class="p">)</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Derived columns: extinction, SSA, MEE, MSE, MAE, Ångström exponents, etc.</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="c1"># Columns: abs, sca, ext, SSA, SAE, AAE, eBC, plus MAE / MSE / MEE when df_mass is given</span>
 </code></pre></div>
 <h3 id="improve-extinction">IMPROVE Extinction</h3>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">improve</span>
@@ -4349,7 +4206,7 @@
 <a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>
 <a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="c1"># Single-material RI (Series of complex numbers)</span>
 <a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a><span class="n">ext</span> <span class="o">=</span> <span class="n">mie</span><span class="p">(</span><span class="n">df_pnsd</span><span class="p">,</span> <span class="n">df_RI_complex</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">)</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># Columns: extinction, scattering, absorption (Mm⁻¹)</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="c1"># Columns: ext, sca, abs (Mm⁻¹)</span>
 <a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>
 <a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="c1"># Species mixing-table RI (DataFrame with *_volume_ratio columns)</span>
 <a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a><span class="n">ext</span> <span class="o">=</span> <span class="n">mie</span><span class="p">(</span><span class="n">df_pnsd</span><span class="p">,</span> <span class="n">df_mix_table</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">mixing</span><span class="o">=</span><span class="s1">'internal'</span><span class="p">)</span>
@@ -4359,68 +4216,118 @@
 <a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a><span class="n">dext</span> <span class="o">=</span> <span class="n">mie</span><span class="p">(</span><span class="n">df_pnsd</span><span class="p">,</span> <span class="n">df_RI_complex</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">distribution</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <p><code>mie</code> replaces the legacy <code>Mie</code> / <code>extinction_distribution</code> / <code>extinction_full</code> triplet. Behavior is controlled by the shape of <code>ri</code> and the <code>mixing</code> / <code>distribution</code> keywords.</p>
-<h3 id="gas-extinction">Gas Extinction</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">gas_extinction</span>
+<h3 id="mie-building-blocks">Mie building blocks</h3>
+<p>Synthetic-PSD shortcuts, core-shell particles and angular scattering, for
+when you do not have a measured size distribution or need more than bulk
+coefficients.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mie_lognormal</span><span class="p">,</span> <span class="n">mie_multimodal</span><span class="p">,</span> <span class="n">mie_core_shell</span><span class="p">,</span> <span class="n">mie_core_shell_sd</span>
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">g</span> <span class="o">=</span> <span class="n">gas_extinction</span><span class="p">(</span><span class="n">df_no2</span><span class="p">,</span> <span class="n">df_temp</span><span class="p">)</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="c1"># Columns: ScatteringByGas, AbsorptionByGas, ExtinctionByGas</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1"># One-shot optics from a synthetic lognormal (or multi-mode) PSD</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="n">mie_lognormal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">geo_mean</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">geo_std</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>              <span class="n">total_number</span><span class="o">=</span><span class="mf">1e6</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span>   <span class="o">-&gt;</span> <span class="p">{</span><span class="s1">'ext'</span><span class="p">,</span> <span class="s1">'sca'</span><span class="p">,</span> <span class="s1">'abs'</span><span class="p">}</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="n">mie_multimodal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">modes</span><span class="p">,</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>               <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span>                    <span class="o">-&gt;</span> <span class="p">{</span><span class="s1">'ext'</span><span class="p">,</span> <span class="s1">'sca'</span><span class="p">,</span> <span class="s1">'abs'</span><span class="p">}</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="c1"># modes = [(geo_mean, geo_std, total_number), ...]</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c1"># Core-shell (Aden-Kerker)</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="n">mie_core_shell</span><span class="p">(</span><span class="n">m_core</span><span class="p">,</span> <span class="n">m_shell</span><span class="p">,</span> <span class="n">d_core</span><span class="p">,</span> <span class="n">d_total</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">)</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="c1">#   -&gt; single-particle efficiencies Q_ext, Q_sca, Q_abs, g, Q_pr, Q_back, Q_ratio</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="n">mie_core_shell_sd</span><span class="p">(</span><span class="n">m_core</span><span class="p">,</span> <span class="n">m_shell</span><span class="p">,</span> <span class="n">dp_core</span><span class="p">,</span> <span class="n">dp_total</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>                  <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">psd_type</span><span class="o">=</span><span class="s1">'dNdlogDp'</span><span class="p">)</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="c1">#   -&gt; PSD-integrated ext, sca, abs (Mm⁻¹) plus g_eff</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">scattering_function</span><span class="p">,</span> <span class="n">scattering_function_sd</span><span class="p">,</span> <span class="n">phase_matrix</span><span class="p">,</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>                     <span class="n">nephelometer_truncation_correction</span><span class="p">)</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">scattering_function</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s1">'theta'</span><span class="p">)</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1">#   -&gt; {'angles', 'SL', 'SR', 'SU'}   parallel / perpendicular / unpolarised phase function</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">scattering_function_sd</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s1">'theta'</span><span class="p">,</span> <span class="n">psd_type</span><span class="o">=</span><span class="s1">'auto'</span><span class="p">)</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1">#   -&gt; same keys, PSD-integrated</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="n">phase_matrix</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="c1">#   -&gt; {'mu', 'S11', 'S12', 'S33', 'S34'}   Mueller phase-matrix elements</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="n">nephelometer_truncation_correction</span><span class="p">(</span><span class="n">sae</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s1">'NEPH'</span><span class="p">)</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="c1">#   -&gt; Anderson &amp; Ogren (1998) multiplicative factor for an integrating nephelometer</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="c1">#      (TSI 3563 default; Aurora 3000 also tabulated); sae = scattering Ångström exponent</span>
+</code></pre></div>
+<h3 id="inverse-problems">Inverse problems</h3>
+<p>Besides <code>retrieve_ri</code> (below), two retrievals work from bulk (Bext, Bsca, Babs)
+and a PSD description instead of a per-bin matrix:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">iterative_inversion</span><span class="p">,</span> <span class="n">iterative_inversion_sd</span><span class="p">,</span> <span class="n">contour_intersection</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1"># Newton-Raphson on measured (Bext, Bsca, Babs)</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">iterative_inversion</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">lognormal_params</span><span class="p">,</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>                    <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">n_initial</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">k_initial</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="c1">#   lognormal_params = {'geo_mean': ..., 'geo_std': ..., 'total_number': ...}</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1">#   -&gt; {'n', 'k', 'iterations', 'converged', 'residuals'}</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="n">iterative_inversion_sd</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>                       <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">n_initial</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">k_initial</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>   <span class="c1"># measured PSD instead</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="c1"># Sumlin (2018) contour-intersection retrieval over an (n, k) grid</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="n">contour_intersection</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">lognormal_params</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>                     <span class="n">n_range</span><span class="o">=</span><span class="p">(</span><span class="mf">1.3</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="n">k_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">grid</span><span class="o">=</span><span class="mi">51</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="gas-extinction">Gas Extinction</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">gas_extinction</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">g</span> <span class="o">=</span> <span class="n">gas_extinction</span><span class="p">(</span><span class="n">df_no2</span><span class="p">,</span> <span class="n">df_temp</span><span class="p">)</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Columns: ScatteringByGas, AbsorptionByGas, ExtinctionByGas</span>
 </code></pre></div>
 <h3 id="refractive-index-retrieval">Refractive Index Retrieval</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">retrieve_ri</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">ri</span> <span class="o">=</span> <span class="n">retrieve_ri</span><span class="p">(</span><span class="n">df_optical</span><span class="p">,</span> <span class="n">df_pnsd</span><span class="p">,</span> <span class="n">dlogdp</span><span class="o">=</span><span class="mf">0.014</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">)</span>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Columns: re_real, re_imaginary</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">retrieve_ri</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">ri</span> <span class="o">=</span> <span class="n">retrieve_ri</span><span class="p">(</span><span class="n">df_optical</span><span class="p">,</span> <span class="n">df_pnsd</span><span class="p">,</span> <span class="n">dlogdp</span><span class="o">=</span><span class="mf">0.014</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">)</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># Columns: re_real, re_imaginary</span>
 </code></pre></div>
 <h3 id="brown-carbon-separation">Brown Carbon Separation</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">brown_carbon</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="n">bc_brc</span> <span class="o">=</span> <span class="n">brown_carbon</span><span class="p">(</span><span class="n">df_abs</span><span class="p">,</span> <span class="n">ref_wavelength</span><span class="o">=</span><span class="mi">880</span><span class="p">,</span> <span class="n">aae_bc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Splits multi-wavelength absorption into BC vs BrC components</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">brown_carbon</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">bc_brc</span> <span class="o">=</span> <span class="n">brown_carbon</span><span class="p">(</span><span class="n">df_abs</span><span class="p">,</span> <span class="n">ref_wavelength</span><span class="o">=</span><span class="mi">880</span><span class="p">,</span> <span class="n">aae_bc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Splits multi-wavelength absorption into BC vs BrC components</span>
 </code></pre></div>
 <hr />
 <h2 id="voc">VOC</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">result</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df_voc</span><span class="p">)</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># result['Conc']  - mass concentration per species (ug/m3)</span>
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="c1"># result['OFP']   - Ozone Formation Potential per species (ug O3/m3)</span>
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="c1"># result['SOAP']  - SOAP per species</span>
-<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># result['LOH']   - OH-reactivity per species</span>
-<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="c1"># Each frame also has per-class '*_total' columns and a grand 'Total' column,</span>
-<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="c1"># so the grand total OFP is result['OFP']['Total'].</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="n">result</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df_voc</span><span class="p">)</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># result['Conc']  - mass concentration per species (ug/m3)</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="c1"># result['OFP']   - Ozone Formation Potential per species (ug O3/m3)</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="c1"># result['SOAP']  - SOAP per species</span>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="c1"># result['LOH']   - OH-reactivity per species</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="c1"># Each frame also has per-class '*_total' columns and a grand 'Total' column,</span>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="c1"># so the grand total OFP is result['OFP']['Total'].</span>
 </code></pre></div>
 <hr />
 <h2 id="input-format-requirements">Input Format Requirements</h2>
 <h3 id="size-distribution_1">Size Distribution</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Columns are particle diameters (nm)</span>
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="n">df_pnsd</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="mf">11.8</span><span class="p">,</span> <span class="mf">13.6</span><span class="p">,</span> <span class="mf">15.7</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="mf">523.3</span><span class="p">]</span>
-<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>
-<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># Index is time</span>
-<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="n">df_pnsd</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">DatetimeIndex</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># Columns are particle diameters (nm)</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">df_pnsd</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="mf">11.8</span><span class="p">,</span> <span class="mf">13.6</span><span class="p">,</span> <span class="mf">15.7</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="mf">523.3</span><span class="p">]</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># Index is time</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="n">df_pnsd</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">DatetimeIndex</span>
 </code></pre></div>
 <h3 id="chemical-composition">Chemical Composition</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="c1"># Required columns</span>
-<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>    <span class="s1">'SO42-'</span><span class="p">,</span> <span class="s1">'NO3-'</span><span class="p">,</span> <span class="s1">'NH4+'</span><span class="p">,</span>      <span class="c1"># Ions</span>
-<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>    <span class="s1">'OC'</span><span class="p">,</span> <span class="s1">'EC'</span><span class="p">,</span>                    <span class="c1"># Carbon</span>
-<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="s1">'Na+'</span><span class="p">,</span> <span class="s1">'Cl-'</span><span class="p">,</span>                  <span class="c1"># Sea salt</span>
-<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="s1">'Al'</span><span class="p">,</span> <span class="s1">'Fe'</span><span class="p">,</span> <span class="s1">'Ti'</span><span class="p">,</span>              <span class="c1"># Crustal elements</span>
-<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    <span class="s1">'PM25'</span>                         <span class="c1"># Mass</span>
-<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># Required columns</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    <span class="s1">'SO42-'</span><span class="p">,</span> <span class="s1">'NO3-'</span><span class="p">,</span> <span class="s1">'NH4+'</span><span class="p">,</span>      <span class="c1"># Ions</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    <span class="s1">'OC'</span><span class="p">,</span> <span class="s1">'EC'</span><span class="p">,</span>                    <span class="c1"># Carbon</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>    <span class="s1">'Na+'</span><span class="p">,</span> <span class="s1">'Cl-'</span><span class="p">,</span>                  <span class="c1"># Sea salt</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    <span class="s1">'Al'</span><span class="p">,</span> <span class="s1">'Fe'</span><span class="p">,</span> <span class="s1">'Ti'</span><span class="p">,</span>              <span class="c1"># Crustal elements</span>
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    <span class="s1">'PM25'</span>                         <span class="c1"># Mass</span>
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="p">]</span>
 </code></pre></div>
 <h3 id="voc_1">VOC</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># Columns are species names</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="n">df_voc</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Benzene'</span><span class="p">,</span> <span class="s1">'Toluene'</span><span class="p">,</span> <span class="s1">'Ethylbenzene'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
-<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># Units: ppb or ug/m3</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Columns are species names</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">df_voc</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Benzene'</span><span class="p">,</span> <span class="s1">'Toluene'</span><span class="p">,</span> <span class="s1">'Ethylbenzene'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1"># Units: ppb or ug/m3</span>
 </code></pre></div>
 <hr />
 <h2 id="output-handling">Output Handling</h2>
 <p>The new functions return DataFrames or dicts of DataFrames; they do <strong>not</strong> write files. If you want CSVs, call <code>.to_csv()</code> yourself:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">)</span>
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">result</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'./output/mass.csv'</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">)</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="n">result</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'./output/mass.csv'</span><span class="p">)</span>
 </code></pre></div>
-<p>(Exception: <code>isoropia</code> still keeps <code>path_out</code>, because the underlying calculation shells out to a Windows binary that reads/writes temp files on disk.)</p>
+<p>(<code>isoropia</code> still <em>accepts</em> a <code>path_out</code> argument for backward compatibility but ignores it: ISORROPIA II runs as a native f2py extension on every platform, with no temp files. The argument will be removed in a future release.)</p>
 <hr />
 <h2 id="related-topics">Related Topics</h2>
 <ul>
@@ -4452,7 +4359,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 26, 2026 17:28:27 UTC">July 26, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 11, 2026 06:22:10 UTC">September 11, 2026</span>
   </span>
 
     
@@ -4497,7 +4404,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../reader-internals/" class="md-footer__link md-footer__link--prev" aria-label="Previous: RawDataReader Internals">
+          <a href="../data-levels/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Data Levels (L0-L3)">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4507,7 +4414,7 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                RawDataReader Internals
+                Data Levels (L0-L3)
               </div>
             </div>
           </a>

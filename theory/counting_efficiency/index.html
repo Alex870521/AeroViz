@@ -9,31 +9,31 @@
       
       
       
-        <link rel="canonical" href="https://alex870521.github.io/AeroViz/api/plot/basic/pie/">
+        <link rel="canonical" href="https://alex870521.github.io/AeroViz/theory/counting_efficiency/">
       
       
-        <link rel="prev" href="../violin/">
+        <link rel="prev" href="../lognormal/">
       
       
-        <link rel="next" href="../radar/">
+        <link rel="next" href="../icrp/">
       
       
         
       
       
-      <link rel="icon" href="../../../../assets/icon.svg">
+      <link rel="icon" href="../../assets/icon.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
-        <title>pie - AeroViz</title>
+        <title>Counting Efficiency (CPC & APS) - AeroViz</title>
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
-        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -52,15 +52,15 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-      <link rel="stylesheet" href="../../../../stylesheets/extra.css">
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-      <link rel="stylesheet" href="../../../../stylesheets/claude-code-navigation.css">
+      <link rel="stylesheet" href="../../stylesheets/claude-code-navigation.css">
     
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#AeroViz.plot.pie.pie" class="md-skip">
+        <a href="#counting-efficiency-cpc-aps" class="md-skip">
           Skip to content
         </a>
       
@@ -142,9 +142,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../../../.." title="AeroViz" class="md-header__button md-logo" aria-label="AeroViz" data-md-component="logo">
+    <a href="../.." title="AeroViz" class="md-header__button md-logo" aria-label="AeroViz" data-md-component="logo">
       
-  <img src="../../../../assets/icon.svg" alt="logo">
+  <img src="../../assets/icon.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -161,7 +161,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              pie
+              Counting Efficiency (CPC & APS)
             
           </span>
         </div>
@@ -281,7 +281,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../.." class="md-tabs__link">
+        <a href="../.." class="md-tabs__link">
           
   
   
@@ -303,7 +303,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../../../guide/" class="md-tabs__link">
+        <a href="../../guide/" class="md-tabs__link">
           
   
   
@@ -321,11 +321,13 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../../../theory/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
           
   
   
@@ -343,13 +345,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../../../" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../api/" class="md-tabs__link">
           
   
   
@@ -404,9 +404,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../../../.." title="AeroViz" class="md-nav__button md-logo" aria-label="AeroViz" data-md-component="logo">
+    <a href="../.." title="AeroViz" class="md-nav__button md-logo" aria-label="AeroViz" data-md-component="logo">
       
-  <img src="../../../../assets/icon.svg" alt="logo">
+  <img src="../../assets/icon.svg" alt="logo">
 
     </a>
     AeroViz
@@ -441,6 +441,14 @@
       
         
       
+        
+      
+        
+      
+        
+      
+        
+      
     
     
     
@@ -458,7 +466,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../.." class="md-nav__link ">
+            <a href="../.." class="md-nav__link ">
               
   
   
@@ -502,7 +510,119 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../CHANGELOG/" class="md-nav__link">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../gallery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gallery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../citation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Citation & License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../CHANGELOG/" class="md-nav__link">
         
   
   
@@ -547,6 +667,8 @@
       
         
       
+        
+      
     
     
     
@@ -564,7 +686,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../guide/" class="md-nav__link ">
+            <a href="../../guide/" class="md-nav__link ">
               
   
   
@@ -609,12 +731,6 @@
   
     
     
-      
-        
-      
-        
-      
-        
       
         
       
@@ -676,35 +792,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../guide/rawdatareader/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    RawDataReader
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../guide/data-levels/" class="md-nav__link">
+      <a href="../../guide/data-levels/" class="md-nav__link">
         
   
   
@@ -732,91 +820,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../guide/instrument-qc/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Instrument Formats & QC
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../guide/counting-efficiency/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Counting Efficiency (CPC & APS)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../guide/reader-internals/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    RawDataReader Internals
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../../guide/dataprocess/" class="md-nav__link">
+      <a href="../../guide/dataprocess/" class="md-nav__link">
         
   
   
@@ -844,7 +848,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../guide/visualization/" class="md-nav__link">
+      <a href="../../guide/visualization/" class="md-nav__link">
         
   
   
@@ -852,6 +856,156 @@
     
   
     Visualization
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/publication-figures/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Publication Figures
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/reader-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/contributing-reader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing a Reader
   
 
     
@@ -890,6 +1044,8 @@
       
         
       
+        
+      
     
     
     
@@ -903,10 +1059,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_4" >
         
           
-          <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_2_4" id="__nav_2_4_label" tabindex="0">
             
   
   
@@ -924,8 +1080,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2_3">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -942,7 +1098,35 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../guide/size_distribution/" class="md-nav__link">
+      <a href="../../guide/rawdatareader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/size_distribution/" class="md-nav__link">
         
   
   
@@ -970,7 +1154,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../guide/optical_closure/" class="md-nav__link">
+      <a href="../../guide/optical_closure/" class="md-nav__link">
         
   
   
@@ -998,7 +1182,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../guide/chemical_analysis/" class="md-nav__link">
+      <a href="../../guide/chemical_analysis/" class="md-nav__link">
         
   
   
@@ -1026,7 +1210,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../guide/voc_analysis/" class="md-nav__link">
+      <a href="../../guide/voc_analysis/" class="md-nav__link">
         
   
   
@@ -1066,6 +1250,8 @@
       
   
   
+    
+  
   
   
     
@@ -1089,24 +1275,29 @@
       
         
       
+        
+      
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../../theory/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -1124,13 +1315,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1150,7 +1341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../theory/mie/" class="md-nav__link">
+      <a href="../mie/" class="md-nav__link">
         
   
   
@@ -1178,7 +1369,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../theory/improve/" class="md-nav__link">
+      <a href="../improve/" class="md-nav__link">
         
   
   
@@ -1206,7 +1397,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../theory/lognormal/" class="md-nav__link">
+      <a href="../lognormal/" class="md-nav__link">
         
   
   
@@ -1231,10 +1422,168 @@
                 
   
   
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Counting Efficiency (CPC & APS)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Counting Efficiency (CPC & APS)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-cpc-which-counter-is-attached" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. CPC — which counter is attached
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. CPC — which counter is attached">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-tsi-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current TSI line
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-curve-not-just-the-cut-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The curve, not just the cut-off
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#curve-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Curve shape
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-aps-3321-efficiency-at-both-ends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. APS 3321 — efficiency at both ends
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-what-this-means-when-reading-aeroviz-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. What this means when reading AeroViz output
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
   
   
     <li class="md-nav__item">
-      <a href="../../../../theory/icrp/" class="md-nav__link">
+      <a href="../icrp/" class="md-nav__link">
         
   
   
@@ -1262,7 +1611,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../theory/kappa/" class="md-nav__link">
+      <a href="../kappa/" class="md-nav__link">
         
   
   
@@ -1290,7 +1639,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../theory/mass_reconstruction/" class="md-nav__link">
+      <a href="../mass_reconstruction/" class="md-nav__link">
         
   
   
@@ -1318,7 +1667,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../../theory/ofp/" class="md-nav__link">
+      <a href="../ofp/" class="md-nav__link">
         
   
   
@@ -1350,8 +1699,6 @@
       
   
   
-    
-  
   
   
     
@@ -1367,27 +1714,26 @@
       
         
       
-    
-    
-    
-      
-        
-        
-      
-      
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../" class="md-nav__link ">
+            <a href="../../api/" class="md-nav__link ">
               
   
   
@@ -1405,13 +1751,13 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="">
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1449,13 +1795,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -1463,7 +1806,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../RawDataReader/" class="md-nav__link ">
+            <a href="../../api/RawDataReader/" class="md-nav__link ">
               
   
   
@@ -1481,7 +1824,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="">
+              <label class="md-nav__link " for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -1507,7 +1850,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../AbstractReader/" class="md-nav__link">
+      <a href="../../api/AbstractReader/" class="md-nav__link">
         
   
   
@@ -1535,7 +1878,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../QualityControl/" class="md-nav__link">
+      <a href="../../api/QualityControl/" class="md-nav__link">
         
   
   
@@ -1579,6 +1922,8 @@
       
         
       
+        
+      
     
     
     
@@ -1596,7 +1941,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../instruments/" class="md-nav__link ">
+            <a href="../../api/instruments/" class="md-nav__link ">
               
   
   
@@ -1702,7 +2047,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/aethalometers/AE33/" class="md-nav__link">
+      <a href="../../api/instruments/aethalometers/AE33/" class="md-nav__link">
         
   
   
@@ -1730,7 +2075,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/aethalometers/AE43/" class="md-nav__link">
+      <a href="../../api/instruments/aethalometers/AE43/" class="md-nav__link">
         
   
   
@@ -1758,7 +2103,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/aethalometers/BC1054/" class="md-nav__link">
+      <a href="../../api/instruments/aethalometers/BC1054/" class="md-nav__link">
         
   
   
@@ -1786,7 +2131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/aethalometers/MA350/" class="md-nav__link">
+      <a href="../../api/instruments/aethalometers/MA350/" class="md-nav__link">
         
   
   
@@ -1880,7 +2225,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/nephelometers/Aurora/" class="md-nav__link">
+      <a href="../../api/instruments/nephelometers/Aurora/" class="md-nav__link">
         
   
   
@@ -1908,7 +2253,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/nephelometers/NEPH/" class="md-nav__link">
+      <a href="../../api/instruments/nephelometers/NEPH/" class="md-nav__link">
         
   
   
@@ -2004,7 +2349,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/particle-sizers/SMPS/" class="md-nav__link">
+      <a href="../../api/instruments/particle-sizers/SMPS/" class="md-nav__link">
         
   
   
@@ -2032,7 +2377,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/particle-sizers/APS/" class="md-nav__link">
+      <a href="../../api/instruments/particle-sizers/APS/" class="md-nav__link">
         
   
   
@@ -2060,7 +2405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/particle-sizers/GRIMM/" class="md-nav__link">
+      <a href="../../api/instruments/particle-sizers/GRIMM/" class="md-nav__link">
         
   
   
@@ -2158,7 +2503,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/chemical/IGAC/" class="md-nav__link">
+      <a href="../../api/instruments/chemical/IGAC/" class="md-nav__link">
         
   
   
@@ -2186,7 +2531,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/chemical/OCEC/" class="md-nav__link">
+      <a href="../../api/instruments/chemical/OCEC/" class="md-nav__link">
         
   
   
@@ -2214,7 +2559,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/chemical/Xact/" class="md-nav__link">
+      <a href="../../api/instruments/chemical/Xact/" class="md-nav__link">
         
   
   
@@ -2242,7 +2587,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/chemical/VOC/" class="md-nav__link">
+      <a href="../../api/instruments/chemical/VOC/" class="md-nav__link">
         
   
   
@@ -2336,7 +2681,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/mass/TEOM/" class="md-nav__link">
+      <a href="../../api/instruments/mass/TEOM/" class="md-nav__link">
         
   
   
@@ -2364,7 +2709,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../instruments/mass/BAM1020/" class="md-nav__link">
+      <a href="../../api/instruments/mass/BAM1020/" class="md-nav__link">
         
   
   
@@ -2393,6 +2738,98 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_2_4_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_4_2_4_7" id="__nav_4_2_4_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Other
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_4_2_4_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_2_4_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Other
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/instruments/other/EPA/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    EPA
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2436,13 +2873,10 @@
       
       
         
-          
-          
-        
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
@@ -2450,14 +2884,14 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="../../../DataProcess/" class="md-nav__link ">
+            <a href="../../api/DataProcess/" class="md-nav__link ">
               
   
   
   <span class="md-ellipsis">
     
   
-    DataProcess
+    Post-processing
   
 
     
@@ -2468,7 +2902,7 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+              <label class="md-nav__link " for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
@@ -2479,7 +2913,7 @@
             <span class="md-nav__icon md-icon"></span>
             
   
-    DataProcess
+    Post-processing
   
 
           </label>
@@ -2494,14 +2928,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../DataProcess/SizeDistr/" class="md-nav__link">
+      <a href="../../api/DataProcess/SizeDistr/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    SizeDistr
+    size
   
 
     
@@ -2522,14 +2956,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../DataProcess/Chemistry/" class="md-nav__link">
+      <a href="../../api/DataProcess/Chemistry/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Chemistry
+    chemistry
   
 
     
@@ -2550,884 +2984,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../DataProcess/Optical/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Optical
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../../DataProcess/VOC/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    VOC
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-          
-          
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4" checked>
-        
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../" class="md-nav__link ">
-              
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Plotting
-  
-
-    
-  </span>
-  
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_4_4" id="__nav_4_4_label" tabindex="">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_4_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Plotting
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_2" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_2" id="__nav_4_4_2_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Basic
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_2_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_4_4_2">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Basic
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../scatter/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    scatter
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../regression/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    regression
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../box/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    box
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../bar/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    bar
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../violin/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    violin
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    pie
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    pie
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#AeroViz.plot.pie.pie" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        pie
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#AeroViz.plot.pie.donuts" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        donuts
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../radar/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    radar
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_3" id="__nav_4_4_3_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Time Series
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Time Series
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../timeseries/timeseries/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    timeseries
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_4" id="__nav_4_4_4_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Distribution
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4_4">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Distribution
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../distribution/distribution/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    distribution
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_5" id="__nav_4_4_5_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Meteorology
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Meteorology
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../meteorology/wind_rose/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    wind_rose
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../meteorology/CBPF/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    CBPF
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../meteorology/hysplit/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    hysplit
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    
-    
-      
-        
-      
-    
-    
-    
-      
-      
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_4_6" >
-        
-          
-          <label class="md-nav__link" for="__nav_4_4_6" id="__nav_4_4_6_label" tabindex="0">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Optical
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_4_4_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4_4_6">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Optical
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../optical/optical/" class="md-nav__link">
+      <a href="../../api/DataProcess/Optical/" class="md-nav__link">
         
   
   
@@ -3448,9 +3005,312 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/DataProcess/VOC/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    voc
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/utilities/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utilities
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4_5" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../api/plot/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Plotting
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_4_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Plotting
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plot/basic/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic charts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plot/timeseries/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Time series
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plot/distribution/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Size distribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plot/meteorology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Meteorology
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plot/optical/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Optical
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../api/plot/templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -3515,6 +3375,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -3523,10 +3385,60 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#AeroViz.plot.pie.pie" class="md-nav__link">
+  <a href="#1-cpc-which-counter-is-attached" class="md-nav__link">
     <span class="md-ellipsis">
       
-        pie
+        1. CPC — which counter is attached
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. CPC — which counter is attached">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#current-tsi-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Current TSI line
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-curve-not-just-the-cut-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The curve, not just the cut-off
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#curve-shape" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Curve shape
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-aps-3321-efficiency-at-both-ends" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. APS 3321 — efficiency at both ends
       
     </span>
   </a>
@@ -3534,10 +3446,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#AeroViz.plot.pie.donuts" class="md-nav__link">
+  <a href="#3-what-this-means-when-reading-aeroviz-output" class="md-nav__link">
     <span class="md-ellipsis">
       
-        donuts
+        3. What this means when reading AeroViz output
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
       
     </span>
   </a>
@@ -3564,350 +3487,251 @@
   
 
 
-  <h1>pie</h1>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="AeroViz.plot.pie.pie" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">AeroViz.plot.pie.pie</span>
-
-
-</h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">pie</span><span class="p">(</span><span class="n">data_set</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span> <span class="o">|</span> <span class="n"><span title="dict">dict</span></span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">],</span> <span class="n">unit</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="n"><span title="typing.Literal">Literal</span></span><span class="p">[</span><span class="s1">'pie'</span><span class="p">,</span> <span class="s1">'donut'</span><span class="p">],</span> <span class="n">ax</span><span class="p">:</span> <span class="n"><span title="matplotlib.pyplot.Axes">Axes</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">symbol</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="matplotlib.pyplot.Figure">Figure</span></span><span class="p">,</span> <span class="n"><span title="matplotlib.pyplot.Axes">Axes</span></span><span class="p">]</span>
-</code></pre></div>
-
-    <div class="doc doc-contents first">
-
-        <p>Create a pie or donut chart based on the provided data.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>data_set</code>
-            </td>
-            <td>
-                  <code><span title="pandas.DataFrame">DataFrame</span> | <span title="dict">dict</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>A pandas DataFrame or dictionary mapping category names to a list of species.
-If a DataFrame is provided, the index represents the categories, and each column contains species data.
-If a dictionary is provided, it maps category names to lists of species data.
-It is assumed that all lists or DataFrame columns contain the same number of entries as the <em>labels</em> list.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>labels</code>
-            </td>
-            <td>
-                  <code>list of str</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The labels for each category.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>unit</code>
-            </td>
-            <td>
-                  <code><span title="str">str</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The unit to display in the center of the donut chart.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>style</code>
-            </td>
-            <td>
-                  <code><span title="typing.Literal">Literal</span>[&#39;pie&#39;, &#39;donut&#39;]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The style of the chart, either 'pie' for a standard pie chart or 'donut' for a donut chart.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>ax</code>
-            </td>
-            <td>
-                  <code><span title="matplotlib.pyplot.Axes">Axes</span> or None</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The Axes object to plot the chart onto. If None, a new figure and Axes will be created.</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>symbol</code>
-            </td>
-            <td>
-                  <code><span title="bool">bool</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Whether to display values for each species in the chart.</p>
-              </div>
-            </td>
-            <td>
-                  <code>True</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>**kwargs</code>
-            </td>
-            <td>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Additional keyword arguments to be passed to the plotting function.</p>
-              </div>
-            </td>
-            <td>
-                  <code>{}</code>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="matplotlib.axes.Axes">Axes</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The Axes object containing the violin plot.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-<details class="note" open>
-  <summary>Notes</summary>
-  <ul>
-<li>If <em>data_set</em> is a dictionary, it should contain lists of species that correspond to each category in <em>labels</em>.</li>
-<li>The length of each list in <em>data_set</em> or the number of columns in the DataFrame should match the length of the <em>labels</em> list.</li>
-</ul>
-</details>
-
-<p><span class="doc-section-title">Examples:</span></p>
-    <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">data_set</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'Category 1'</span><span class="p">:</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="s1">'Category 2'</span><span class="p">:</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">35</span><span class="p">]}</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Species 1'</span><span class="p">,</span> <span class="s1">'Species 2'</span><span class="p">,</span> <span class="s1">'Species 3'</span><span class="p">]</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">pie</span><span class="p">(</span><span class="n">data_set</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="s1">'kg'</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s1">'pie'</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</code></pre></div>
-
-
-    </div>
-
+<h1 id="counting-efficiency-cpc-aps">Counting Efficiency (CPC &amp; APS)</h1>
+<div class="admonition warning">
+<p class="admonition-title">Recorded, not applied</p>
+<p><strong>AeroViz does not correct for any of this.</strong> A size distribution from
+<code>RawDataReader</code> is what the instrument reported, uncorrected. This page exists
+so the size-dependent under-counting is <em>known and quantified</em> when you use
+the data — it is a real bias at the ends of both size ranges, not a rounding
+error. Nothing here is wired into QC.</p>
 </div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="AeroViz.plot.pie.donuts" class="doc doc-heading">
-            <span class="doc doc-object-name doc-function-name">AeroViz.plot.pie.donuts</span>
-
-
-</h2>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">donuts</span><span class="p">(</span><span class="n">data_set</span><span class="p">:</span> <span class="n"><span title="pandas.DataFrame">DataFrame</span></span> <span class="o">|</span> <span class="n"><span title="dict">dict</span></span><span class="p">,</span> <span class="n">labels</span><span class="p">:</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="str">str</span></span><span class="p">],</span> <span class="n">unit</span><span class="p">:</span> <span class="n"><span title="str">str</span></span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n"><span title="matplotlib.pyplot.Axes">Axes</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="matplotlib.pyplot.Figure">Figure</span></span><span class="p">,</span> <span class="n"><span title="matplotlib.pyplot.Axes">Axes</span></span><span class="p">]</span>
+<p>A size distribution is a counting measurement, and neither counter counts every
+particle that enters it. The efficiency is size-dependent and falls off sharply
+at one end of each instrument's range:</p>
+<ul>
+<li><strong>SMPS</strong> — the DMA classifies, but a <strong>CPC</strong> does the counting. Below the CPC's
+  cut-off, particles are too small to grow into detectable droplets, so the
+  lowest channels under-report. Which CPC is attached decides where that happens.</li>
+<li><strong>APS</strong> — under-counts at <em>both</em> ends: small particles fall below the optical
+  detector's reliable response, large ones are lost to inlet aspiration and
+  transmission before they reach the detector. Droplets fare far worse than
+  solid particles.</li>
+</ul>
+<hr />
+<h2 id="1-cpc-which-counter-is-attached">1. CPC — which counter is attached</h2>
+<p>The SMPS raw file records this in its metadata block, above the data header:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Detector Model  3750    Detector S/N    3750234302  Nano Enhancer    None
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Detector Sample Flow (L/min)    1.00    Detector Inlet Flow (L/min) 1.00
 </code></pre></div>
-
-    <div class="doc doc-contents first">
-
-        <p>Plot a donut chart based on the data set.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>data_set</code>
-            </td>
-            <td>
-                  <code><span title="pandas.DataFrame">DataFrame</span> | <span title="dict">dict</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>A pandas DataFrame or a dictionary mapping category names to a list of species.
-If a DataFrame is provided, the index represents the categories, and each column contains species data.
-If a dictionary is provided, it maps category names to lists of species data.
-It is assumed that all lists or DataFrame columns contain the same number of entries as the <em>labels</em> list.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>labels</code>
-            </td>
-            <td>
-                  <code>list of str</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The category labels.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>unit</code>
-            </td>
-            <td>
-                  <code><span title="str">str</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The unit to be displayed in the center of the donut chart.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>ax</code>
-            </td>
-            <td>
-                  <code><span title="matplotlib.axes.Axes">Axes</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The axes to plot on. If None, the current axes will be used (default).</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>symbol</code>
-            </td>
-            <td>
-                  <code><span title="bool">bool</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Whether to display values for each species (default is True).</p>
-              </div>
-            </td>
-            <td>
-                  <code>True</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>**kwargs</code>
-            </td>
-            <td>
-                  <code><span title="dict">dict</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Additional keyword arguments to pass to the matplotlib pie chart function.</p>
-              </div>
-            </td>
-            <td>
-                  <code>{}</code>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code><span title="matplotlib.axes.Axes">Axes</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The axes containing the donut chart.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    </div>
-
+<p>AIM 11.x CSV exports carry the same fields (<code>Detector Model</code>, <code>Detector S/N</code>,
+<code>Nano Enhancer</code>) one per line. <strong>Read it from your own files</strong> rather than
+assuming — the CPC is a separate instrument that can be swapped, and the cut-off
+moves with it.</p>
+<h3 id="current-tsi-line">Current TSI line</h3>
+<p>From TSI Application Note <strong>CPC-002</strong>, <em>Choosing the Right CPC for Your
+Application</em> (Table 1, rev. D 2024). D50 is the diameter at which counting
+efficiency reaches 50 %.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align: right;">D50 (nm)</th>
+<th>Working fluid</th>
+<th style="text-align: right;">Sample flow (LPM)</th>
+<th style="text-align: right;">Conc. accuracy</th>
+<th style="text-align: center;">Pairs with SMPS 3082</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>3007</td>
+<td style="text-align: right;">10</td>
+<td>isopropanol</td>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: right;">±20 %</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td><strong>3750</strong></td>
+<td style="text-align: right;"><strong>7</strong></td>
+<td>butanol</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">±5 %</td>
+<td style="text-align: center;"><strong>yes</strong></td>
+</tr>
+<tr>
+<td>375010</td>
+<td style="text-align: right;">10</td>
+<td>butanol</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">±5 %</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>3752</td>
+<td style="text-align: right;">4</td>
+<td>butanol</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">±5 %</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>3756</td>
+<td style="text-align: right;">2.5</td>
+<td>butanol</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">±10 %</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>3757-50</td>
+<td style="text-align: right;">1 <sup id="fnref:1"><a class="footnote-ref" href="#fn:1">1</a></sup></td>
+<td>DEG + butanol</td>
+<td style="text-align: right;">0.15</td>
+<td style="text-align: right;">±10 / ±15 %</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>3783</td>
+<td style="text-align: right;">7</td>
+<td>water</td>
+<td style="text-align: right;">0.12</td>
+<td style="text-align: right;">±20 %</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>3789</td>
+<td style="text-align: right;">2.2, 7, custom <sup id="fnref:2"><a class="footnote-ref" href="#fn:2">2</a></sup></td>
+<td>water</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">±5 %</td>
+<td style="text-align: center;">yes</td>
+</tr>
+<tr>
+<td>3790A</td>
+<td style="text-align: right;">23</td>
+<td>butanol</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">±10 %</td>
+<td style="text-align: center;">no</td>
+</tr>
+<tr>
+<td>3790A-10</td>
+<td style="text-align: right;">10</td>
+<td>butanol</td>
+<td style="text-align: right;">1.0</td>
+<td style="text-align: right;">±10 %</td>
+<td style="text-align: center;">no</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>375010</code> is the same hardware as the 3750 given a <strong>CEN-compliant 10 nm
+calibration</strong> — same instrument, deliberately different cut-off. The <code>Detector
+Model</code> field alone will not always tell you which calibration a unit carries.</p>
+<h3 id="the-curve-not-just-the-cut-off">The curve, not just the cut-off</h3>
+<p>D50 is one point on a curve, and the curve is what matters for the lowest SMPS
+channels. Three findings worth carrying:</p>
+<p><strong>Nominal D50 is not measured D50.</strong> Wiedensohler et al. (2012) calibrated ten
+CPCs against a reference electrometer with silver particles; the TSI 3772 units
+averaged a 50 % detection diameter of <strong>7.52 ± 0.04 nm</strong> against a nominal
+10 nm. Units at the same factory settings still differed from each other by a
+few nm.</p>
+<p><strong>The cut-off moves with the temperature difference.</strong> The saturator–condenser
+ΔT is an operating parameter, not a constant: running at 25 °C instead of the
+factory 17 °C shifts D50 to smaller sizes measurably (Wiedensohler et al. 2012,
+Fig. 3 — the same model appears at both settings with visibly different curves).
+If your ΔT is not the factory default, published curves for that model do not
+describe your instrument.</p>
+<p><strong>Output mode can bias the count.</strong> Hermann et al. (2007) found CPC pulse outputs
+under-reporting by 2–10 % relative to the serial output, requiring a ~10 %
+correction for the 3776.</p>
+<p>Hence the ACTRIS/GAW practice: calibrate the counting-efficiency curve annually
+against a reference, and accept it only within <strong>5 % on the plateau</strong> and <strong>1 nm
+on D50</strong> (Wiedensohler et al. 2012, §4.2 and the QC criteria in §7). The same
+paper lists "correction for CPC counting efficiency" as a required processing
+step for network-quality data — a correction AeroViz leaves to you.</p>
+<h3 id="curve-shape">Curve shape</h3>
+<p>Measured curves are conventionally fitted with a saturating exponential in
+diameter, of the form</p>
+<div class="arithmatex">\[\eta(D_p) = a\left[1 - \exp\!\left(-\frac{D_p - D_0}{D_1}\right)\right]\]</div>
+<p>where <code>a</code> is the plateau efficiency (ideally 1), <code>D₀</code> the onset diameter and <code>D₁</code>
+the width of the rise. Coefficients are <strong>specific to the unit and its ΔT</strong>, so
+this page deliberately does not tabulate them: use the calibration certificate
+for your own counter, or the curves in the reference below for the model class.</p>
+<hr />
+<h2 id="2-aps-3321-efficiency-at-both-ends">2. APS 3321 — efficiency at both ends</h2>
+<p>The APS under-counts differently: not a condensation threshold but a combination
+of <strong>aspiration losses, transmission losses and detector errors</strong>
+(Volckens &amp; Peters, 2005).</p>
+<table>
+<thead>
+<tr>
+<th>Particle type</th>
+<th>Efficiency</th>
+<th>Size dependence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Solid</td>
+<td>85–99 %</td>
+<td>roughly flat across the range</td>
+</tr>
+<tr>
+<td>Liquid droplets</td>
+<td>75 % → 25 %</td>
+<td>falls steadily from 0.8 µm to 10 µm</td>
+</tr>
+</tbody>
+</table>
+<p>The droplet result is the one to remember: at 10 µm the APS counts roughly <strong>one
+droplet in four</strong>. Ambient aerosol in the coarse mode is often at least partly
+deliquesced, so which of these two rows applies to a given dataset is a judgement
+about the aerosol, not a property of the instrument.</p>
+<p>Peters &amp; Leith (2003) characterised concentration measurement and counting
+efficiency for the 3321 specifically; Pfeifer et al. (2016) intercompared 15
+APS 3321 units and quantified the unit-to-unit spread in sizing and number
+concentration — the counterpart to the CPC unit-to-unit variability above.</p>
+<hr />
+<h2 id="3-what-this-means-when-reading-aeroviz-output">3. What this means when reading AeroViz output</h2>
+<ul>
+<li>The <strong>lowest SMPS channels</strong> are under-counted by an amount set by your CPC's
+  cut-off. With a 3750 (D50 7 nm) against an SMPS range starting at 11.8 nm, the
+  first channels sit on the rising part of the curve, not the plateau.</li>
+<li>The <strong>APS coarse end</strong> is under-counted, severely so for droplets.</li>
+<li>An <strong>SMPS–APS merge</strong> therefore joins two differently-biased measurements. The
+  merge in <code>AeroViz.merge_psd</code> fits and blends the overlap region; it does not
+  correct either instrument's counting efficiency, so a merge inherits both.</li>
+<li><code>df.attrs</code> records the instrument and its native resolution, but <strong>not</strong> the
+  CPC model — read it from the raw file header (§1) when it matters.</li>
+</ul>
+<h2 id="references">References</h2>
+<ul>
+<li>TSI Inc., <em>Choosing the Right CPC for Your Application</em>, Application Note
+  CPC-002 rev. D (2024) — <a href="https://tsi.com/getmedia/c2470d2c-7fcc-4a8a-8f6c-a121efab523f/Choosing-the-Right-CPC-App-Note-CPC-002-US?ext=.pdf">PDF</a></li>
+<li>Wiedensohler, A. et al. (2012), <em>Mobility particle size spectrometers:
+  harmonization of technical standards and data structure…</em>, Atmos. Meas. Tech.
+  <strong>5</strong>, 657–685 — <a href="https://amt.copernicus.org/articles/5/657/2012/amt-5-657-2012.pdf">open access</a></li>
+<li>Wiedensohler, A. et al. (2018), <em>Mobility particle size spectrometers:
+  Calibration procedures and measurement uncertainties</em>, Aerosol Sci. Technol.
+  <strong>52</strong>(2) — <a href="https://www.tandfonline.com/doi/abs/10.1080/02786826.2017.1387229">DOI</a></li>
+<li>Hermann, M. et al. (2007), <em>Particle counting efficiencies of new TSI
+  condensation particle counters</em>, J. Aerosol Sci. <strong>38</strong>, 674–682 —
+  <a href="https://www.sciencedirect.com/science/article/abs/pii/S0021850207000705">DOI</a></li>
+<li>Volckens, J. &amp; Peters, T. M. (2005), <em>Counting and particle transmission
+  efficiency of the aerodynamic particle sizer</em>, J. Aerosol Sci. <strong>36</strong>,
+  1400–1408 — <a href="https://www.sciencedirect.com/science/article/abs/pii/S002185020500073X">DOI</a></li>
+<li>Peters, T. M. &amp; Leith, D. (2003), <em>Concentration measurement and counting
+  efficiency of the aerodynamic particle sizer 3321</em>, J. Aerosol Sci. <strong>34</strong> —
+  <a href="https://www.sciencedirect.com/science/article/abs/pii/S0021850203000302">DOI</a></li>
+<li>Pfeifer, S. et al. (2016), <em>Intercomparison of 15 aerodynamic particle size
+  spectrometers (APS 3321)</em>, Atmos. Meas. Tech. <strong>9</strong>, 1545–1551 —
+  <a href="https://amt.copernicus.org/articles/9/1545/2016/">open access</a></li>
+</ul>
+<div class="footnote">
+<hr />
+<ol>
+<li id="fn:1">
+<p>1.4 nm electrical mobility diameter, 1.1 nm geometric; verified with NaCl.
+  The 3757 is a <em>growth activator</em>, not a counter — it must be paired with a
+  true CPC (e.g. the 3750 mounted on top) because its own droplets only reach
+  ~100 nm.&#160;<a class="footnote-backref" href="#fnref:1" title="Jump back to footnote 1 in the text">&#8617;</a></p>
+</li>
+<li id="fn:2">
+<p>D50 user-selectable from the control panel.&#160;<a class="footnote-backref" href="#fnref:2" title="Jump back to footnote 2 in the text">&#8617;</a></p>
+</li>
+</ol>
 </div>
 
 
@@ -3931,7 +3755,7 @@ It is assumed that all lists or DataFrame columns contain the same number of ent
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 16, 2025 17:26:17 UTC">July 16, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 26, 2026 18:51:43 UTC">July 26, 2026</span>
   </span>
 
     
@@ -3941,7 +3765,7 @@ It is assumed that all lists or DataFrame columns contain the same number of ent
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 16, 2025 17:26:17 UTC">July 16, 2025</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 26, 2026 18:51:43 UTC">July 26, 2026</span>
   </span>
 
     
@@ -3976,7 +3800,7 @@ It is assumed that all lists or DataFrame columns contain the same number of ent
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../violin/" class="md-footer__link md-footer__link--prev" aria-label="Previous: violin">
+          <a href="../lognormal/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Log-Normal Distribution">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3986,20 +3810,20 @@ It is assumed that all lists or DataFrame columns contain the same number of ent
                 Previous
               </span>
               <div class="md-ellipsis">
-                violin
+                Log-Normal Distribution
               </div>
             </div>
           </a>
         
         
           
-          <a href="../radar/" class="md-footer__link md-footer__link--next" aria-label="Next: radar">
+          <a href="../icrp/" class="md-footer__link md-footer__link--next" aria-label="Next: ICRP 66 Model">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                radar
+                ICRP 66 Model
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -4065,12 +3889,12 @@ It is assumed that all lists or DataFrame columns contain the same number of ent
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
-        <script src="../../../../javascripts/mathjax.js"></script>
+        <script src="../../javascripts/mathjax.js"></script>
       
         <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
       

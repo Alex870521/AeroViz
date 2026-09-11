@@ -9,13 +9,13 @@
       
       
       
-        <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/data-levels/">
+        <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/reader-reference/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../publication-figures/">
       
       
-        <link rel="next" href="../dataprocess/">
+        <link rel="next" href="../contributing-reader/">
       
       
         
@@ -26,7 +26,7 @@
     
     
       
-        <title>Data Levels (L0-L3) - AeroViz</title>
+        <title>RawDataReader Reference - AeroViz</title>
       
     
     
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#data-levels-l0l3" class="md-skip">
+        <a href="#rawdatareader-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -161,7 +161,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Data Levels (L0-L3)
+              RawDataReader Reference
             
           </span>
         </div>
@@ -732,8 +732,6 @@
                 
   
   
-    
-  
   
   
     
@@ -759,11 +757,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
         
           
           <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="">
@@ -784,7 +782,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -799,37 +797,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Data Levels (L0-L3)
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../data-levels/" class="md-nav__link">
         
   
   
@@ -845,131 +816,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#1-the-four-levels" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        1. The four levels
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-the-rules-invariants" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. The rules (invariants)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-execution-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Execution flow
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Execution flow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#l1-parse-_read_raw_files" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        L1 — parse (_read_raw_files)
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#l2-quality-control-and-derivation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        L2 — quality control and derivation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#l3-presentation-every-call-cache-hit-or-not" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        L3 — presentation (every call, cache hit or not)
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#4-caching-semantics" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        4. Caching semantics
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-placement-rules-where-does-new-code-go" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Placement rules — where does new code go?
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#6-where-each-judgement-is-recorded" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        6. Where each judgement is recorded
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1071,6 +917,8 @@
                 
   
   
+    
+  
   
   
     
@@ -1092,11 +940,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_3" checked>
         
           
           <label class="md-nav__link" for="__nav_2_3" id="__nav_2_3_label" tabindex="">
@@ -1117,7 +965,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1132,10 +980,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../reader-reference/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    RawDataReader Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1151,6 +1026,265 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-pipeline-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Pipeline at a glance
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Pipeline at a glance">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#files-written" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files written
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-a-column-goes-through" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a column goes through
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-qc-machinery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. QC machinery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. QC machinery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rules-and-the-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rules and the builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#severity-not-every-flag-is-fatal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Severity — not every flag is fatal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lifecycle-of-one-flag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lifecycle of one flag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-qc-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The QC summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-a-judgement-is-recorded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where a judgement is recorded
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rates
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-how-a-status-judgement-is-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. How a status judgement is made
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. How a status judgement is made">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#which-condition-not-just-a-condition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which condition, not just a condition
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-qc_flag-vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. QC_Flag vocabulary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-per-instrument-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Per-instrument reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Per-instrument reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#not-readable-through-rawdatareader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not readable through RawDataReader
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Not readable through RawDataReader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#removed-voc-and-minion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed: VOC and Minion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-acsm-reader-not-implemented-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q-ACSM — reader not implemented yet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-known-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Known limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-summary-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Summary matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -3418,44 +3552,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#1-the-four-levels" class="md-nav__link">
+  <a href="#1-pipeline-at-a-glance" class="md-nav__link">
     <span class="md-ellipsis">
       
-        1. The four levels
+        1. Pipeline at a glance
       
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#2-the-rules-invariants" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        2. The rules (invariants)
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#3-execution-flow" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        3. Execution flow
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="3. Execution flow">
+    <nav class="md-nav" aria-label="1. Pipeline at a glance">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#l1-parse-_read_raw_files" class="md-nav__link">
+  <a href="#files-written" class="md-nav__link">
     <span class="md-ellipsis">
       
-        L1 — parse (_read_raw_files)
+        Files written
       
     </span>
   </a>
@@ -3463,21 +3575,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#l2-quality-control-and-derivation" class="md-nav__link">
+  <a href="#what-a-column-goes-through" class="md-nav__link">
     <span class="md-ellipsis">
       
-        L2 — quality control and derivation
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#l3-presentation-every-call-cache-hit-or-not" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        L3 — presentation (every call, cache hit or not)
+        What a column goes through
       
     </span>
   </a>
@@ -3490,10 +3591,121 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-caching-semantics" class="md-nav__link">
+  <a href="#2-qc-machinery" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. Caching semantics
+        2. QC machinery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. QC machinery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rules-and-the-builder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rules and the builder
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#severity-not-every-flag-is-fatal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Severity — not every flag is fatal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lifecycle-of-one-flag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lifecycle of one flag
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-qc-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The QC summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-a-judgement-is-recorded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where a judgement is recorded
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rates
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-how-a-status-judgement-is-made" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. How a status judgement is made
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. How a status judgement is made">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#which-condition-not-just-a-condition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which condition, not just a condition
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-qc_flag-vocabulary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. QC_Flag vocabulary
       
     </span>
   </a>
@@ -3501,10 +3713,66 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#5-placement-rules-where-does-new-code-go" class="md-nav__link">
+  <a href="#5-per-instrument-reference" class="md-nav__link">
     <span class="md-ellipsis">
       
-        5. Placement rules — where does new code go?
+        5. Per-instrument reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Per-instrument reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#not-readable-through-rawdatareader" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Not readable through RawDataReader
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Not readable through RawDataReader">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#removed-voc-and-minion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removed: VOC and Minion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#q-acsm-reader-not-implemented-yet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Q-ACSM — reader not implemented yet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-known-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Known limitations
       
     </span>
   </a>
@@ -3512,10 +3780,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#6-where-each-judgement-is-recorded" class="md-nav__link">
+  <a href="#7-summary-matrix" class="md-nav__link">
     <span class="md-ellipsis">
       
-        6. Where each judgement is recorded
+        7. Summary matrix
       
     </span>
   </a>
@@ -3542,378 +3810,260 @@
   
 
 
-<h1 id="data-levels-l0l3">Data Levels (L0–L3)</h1>
+<h1 id="rawdatareader-reference">RawDataReader Reference</h1>
 <blockquote>
-<p><strong>Start here after your first read.</strong> The frame <code>RawDataReader</code> hands back has
-been through four stages, and this page says what each one did to it: which
-columns were kept, where a value became NaN and why, what was cached and what
-is recomputed on every call, and what <code>df.attrs</code> is telling you. Read it once
-and the rest of the reader's behaviour — a mostly-NaN frame, a cache hit that
-still honours a new date range, a flag that did not delete its row — stops
-being surprising.</p>
-<p>The same four levels are the rules for anyone <em>adding</em> a reader, a QC rule or
-a derived parameter (§5 says where new code goes). Per-instrument file
-formats, status codes and the full flag vocabulary are in the
-<a href="../reader-reference/">RawDataReader Reference</a>.</p>
+<p><strong>What this page is.</strong> The single reference for how <code>RawDataReader</code> works
+under the hood: the pipeline stages and the files they write, the QC
+machinery, how an instrument's status register is judged, the full <code>QC_Flag</code>
+vocabulary, and one table per instrument giving its raw format, status
+semantics and QC rules.</p>
+<p>You do not need it to <em>use</em> the reader — start with
+<a href="../rawdatareader/">RawDataReader Usage</a> — and the level model that frames
+everything here is <a href="../data-levels/">Data Levels (L0–L3)</a>. Come here when a
+file will not parse, when <code>Status Error</code> fires on every row (or never fires),
+when you want to know exactly what a flag means, or when you are adding a
+reader or a rule.</p>
 </blockquote>
-<p><code>RawDataReader</code> is not a single transformation — it is a <strong>four-level pipeline</strong>,
-each level with a different contract about what may be added, what may be
-destroyed, and whether the result may be cached. The levels are deliberately
-analogous to satellite data levels (L1 = calibrated/geolocated, L2 = retrieved
-geophysical quantities + quality, L3 = gridded/aggregated), with one difference:
-here the aggregation axis is <strong>time</strong>, not space.</p>
-<p>The level names below are the vocabulary for this pipeline. In code the same
-split appears under two older names — <strong>canonical</strong> (L1+L2, cacheable) versus
-<strong>presentation</strong> (L3, recomputed on every call).</p>
 <hr />
-<h2 id="1-the-four-levels">1. The four levels</h2>
-<table>
-<thead>
-<tr>
-<th>Level</th>
-<th>What it is</th>
-<th>Produced by</th>
-<th>Time grid</th>
-<th>Persisted as</th>
-<th style="text-align: center;">Cached</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><strong>L0</strong></td>
-<td>Vendor raw files, exactly as the instrument / host software wrote them</td>
-<td>— (input only)</td>
-<td>whatever the file has</td>
-<td>never written by AeroViz</td>
-<td style="text-align: center;">—</td>
-</tr>
-<tr>
-<td><strong>L1</strong></td>
-<td><strong>Parsed measurement.</strong> One frame per instrument, every source column kept, placed on the <em>native</em> grid over the <em>files' own</em> coverage. No quality judgement.</td>
-<td><code>_raw_reader</code> → <code>_partition_compatible_scans</code> → <code>_flag_outlier_dates</code> → <code>_timeIndex_process</code> → numeric coercion</td>
-<td>native (detected per file)</td>
-<td><code>_read_{inst}_raw.pkl</code> / <code>.csv</code></td>
-<td style="text-align: center;">✅</td>
-</tr>
-<tr>
-<td><strong>L2</strong></td>
-<td><strong>Quality-controlled + derived.</strong> Adds <code>QC_Flag</code> (what fired) + <code>QC_Invalid</code> (the verdict) and instrument-derived quantities (abs coefficients, AAE, eBC, sca_550, SAE, Volatile_Fraction). Still native resolution, still the files' own coverage. <strong>Nothing is deleted.</strong></td>
-<td><code>_QC</code> → <code>_process</code></td>
-<td>native</td>
-<td><code>_read_{inst}_qc.pkl</code> / <code>.csv</code></td>
-<td style="text-align: center;">✅</td>
-</tr>
-<tr>
-<td><strong>L3</strong></td>
-<td><strong>Presentation.</strong> Places L2 on the <em>requested</em> range, applies <code>outlier.json</code>, masks every <code>QC_Invalid</code> row to NaN, drops both QC columns, resamples to <code>mean_freq</code>, computes rates, stamps <code>df.attrs</code>.</td>
-<td><code>_timeIndex_process(start, end)</code> → <code>_outlier_process</code> → mask → <code>_generate_report</code> → <code>resample</code> → <code>_stamp</code></td>
-<td>requested (<code>mean_freq</code>)</td>
-<td><code>output_{inst}.csv</code>, <code>report.json</code>, <code>{prefix}_dNdlogDp/dSdlogDp/dVdlogDp/_stats.csv</code>, <code>{inst}.log</code></td>
-<td style="text-align: center;">❌</td>
-</tr>
-</tbody>
-</table>
-<p>L1 and L2 are what <code>_load_or_parse</code> returns; L3 is everything <code>_run</code> and
-<code>__call__</code> do afterwards. That boundary is the reason a cache hit still honours
-the current call's <code>start</code> / <code>end</code> / <code>fill_missing</code> / <code>mean_freq</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>L0  vendor files (*.dat *.txt *.csv *.xlsx)
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>      │  _raw_reader — one parser per instrument, per file
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>      │  (+ scan-group partitioning, stray-date detection, native-grid snap)
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>      ▼
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>L1  parsed measurement  ── canonical, native res, ALL source columns, no verdict
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>      │  _read_{inst}_raw.pkl / .csv          ← cacheable
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>      │
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>      │  _QC     — QCFlagBuilder → QC_Flag ("Valid" | "Rule1, Rule2")
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>      │                          + QC_Invalid (True if an *error*-severity rule fired)
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>      │  _process — derived quantities, may add more flags
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>      ▼
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>L2  QC'd + derived      ── canonical, native res, flags ADDED not applied
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>      │  _read_{inst}_qc.pkl / .csv           ← cacheable
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>      ▼─────────────────── cache boundary ───────────────────
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>      │  _timeIndex_process(start, end, fill_missing)  — place on requested range
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>      │  _outlier_process                              — apply outlier.json
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>      │  QC_Invalid  →  row = NaN ;  drop QC_Flag + QC_Invalid
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>      │  _generate_report                              — acquisition/yield/total
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>      │  resample(mean_freq)                           — only if requested
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>      │  _stamp                                        — df.attrs provenance
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>      ▼
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>L3  presentation        ── output_{inst}.csv, report.json, sidecars, returned df
+<h2 id="1-pipeline-at-a-glance">1. Pipeline at a glance</h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>RawDataReader(inst, path, start=…, end=…, mean_freq=…, qc=True)
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>        │
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        ▼
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a> ┌─ L1  _raw_reader ───────────────────────────────────────────────────┐
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a> │  one parser per instrument, per file · every source column kept     │
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a> │  native frequency detected per file · scan groups partitioned       │
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a> │  stray dates flagged · rows snapped to the native grid              │
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a> └─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>        │  _read_{inst}_raw.pkl / .csv                    ← cache
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        ▼
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a> ┌─ L2  _QC  →  _process ──────────────────────────────────────────────┐
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a> │  QCFlagBuilder evaluates every QCRule → QC_Flag  ("Valid" | names)  │
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a> │                                       → QC_Invalid (verdict)        │
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a> │  _process derives abs / AAE / eBC / sca_550 / SAE /                 │
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a> │  Volatile_Fraction, and may add late rules (Invalid AAE)            │
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a> └─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>        │  _read_{inst}_qc.pkl / .csv                     ← cache
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        ▼  ─────────────────── cache boundary ───────────────────
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a> ┌─ L3  __call__ ──────────────────────────────────────────────────────┐
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a> │  place on the requested range (fill_missing) · apply outlier.json   │
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a> │  QC_Invalid rows → NaN · drop QC_Flag + QC_Invalid                  │
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a> │  _generate_report (rates, timeline) · resample(mean_freq) · _stamp  │
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a> └─────────────────────────────────────────────────────────────────────┘
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>        │  output_{inst}.csv · report.json · SMPS/APS sidecars · {inst}.log
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>        ▼
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>   returned DataFrame (+ df.attrs)
 </code></pre></div>
-<hr />
-<h2 id="2-the-rules-invariants">2. The rules (invariants)</h2>
-<p>These are the judgements the pipeline is built on. A change that breaks one of
-them is a bug, not a preference.</p>
-<p><strong>R1 — L1 keeps everything.</strong>
-<code>_raw_reader</code> returns <em>every</em> column in the source file, including instrument
-metadata (flow, temperature, RH, pressure, status). Column selection is a L2
-decision. Rationale: a column dropped at L1 is unrecoverable without a full
-re-read of the raw archive.</p>
-<p><strong>R2 — L2 judges but never destroys.</strong>
-QC writes its findings into <code>QC_Flag</code> (the record: every rule that fired) and its
-verdict into <code>QC_Invalid</code> (boolean: did an <em>invalidating</em> rule fire). It does not
-NaN, drop, or overwrite values. Masking is L3's job, and only L3's, and it masks
-on the verdict — never on the mere presence of a flag. Rationale: rates
-(<code>acquisition</code> / <code>yield</code> / <code>total</code>) are computed by comparing L1 against the L2
-verdict — if L2 has already destroyed the values, the yield rate is unknowable,
-and the user can never see <em>why</em> a point was rejected.</p>
-<p><strong>R2a — a flag is invalidating only if the measurement is untrustworthy.</strong>
-A rule declares <code>severity='error'</code> (default) or <code>severity='warning'</code>. Advisory
-flags are recorded and reported but keep their data. Rationale: a value below a
-detection limit, or a vendor alarm the instrument itself classes as a <em>warning</em>,
-is a real measurement — and because masking is per row, invalidating it deletes
-every other species measured at that timestamp too. Per-run reclassification:
-<code>RawDataReader(..., flag_severity={'Insufficient': 'error'})</code>.</p>
-<p>The clearest test is to ask what the flag is <em>about</em>. <code>Insufficient</code> says an hour
-is thinly covered — a statement about whether an <strong>average over that hour</strong> would
-be representative, not about whether the readings in it are real. They are real,
-so it is advisory. <code>Invalid BC</code> says the number itself is impossible; that one
-invalidates.</p>
-<p><em>Classifying a new rule.</em> Default to <code>severity='error'</code>. Choose <code>'warning'</code>
-only when the <em>value itself</em> is trustworthy and the flag describes a
-circumstance around it. Two questions:</p>
-<ul>
-<li><em>Would a careful analyst still use this number, given the flag?</em> If yes →
-  advisory.</li>
-<li><em>Does the flag describe this row's value, or its neighbours / its context?</em> A
-  flag about context (hourly completeness, a nearby calibration) is a weak reason
-  to delete a real measurement.</li>
-</ul>
-<p>Advisory today: <code>Insufficient</code> (every reader that has it), OCEC <code>Below MDL</code>,
-Xact <code>Upscale Warning</code> and <code>High Uncertainty</code>. <code>Spike</code> stays invalidating,
-though arguably: it asserts the value is wrong, but the detector is a heuristic
-that can catch real events — demote it per run with <code>flag_severity=</code> if your
-analysis wants those points.</p>
-<p><strong>R3 — native resolution is stored once; anything coarser is derived.</strong>
-L1/L2 are always at the frequency detected from the files
-(<code>_resolved_freq</code>; <code>meta['freq']</code> is only a last-resort fallback). <code>mean_freq</code>
-resampling happens at L3 only. Rationale: re-deriving 1 h from 1 min is cheap;
-recovering 1 min from a stored 1 h average is impossible.</p>
-<p><em>Native means native.</em> The grid must match the instrument's actual period, not a
-tidier number near it: on a grid that drifts against the data, every reading
-edges closer to its neighbour's bin until two collide and one is dropped. A
-115 s APS on a 2-minute grid loses ~3 % of a day this way. Where the grid cannot
-be trusted, the loss is reported rather than absorbed.</p>
-<p><strong>R4 — canonical is range-independent; presentation is range-dependent.</strong>
-The cache stores L1/L2 over the <em>files' own</em> coverage, never padded to a
-requested range. Every range/padding/resampling decision is re-applied on each
-call. Rationale: otherwise a cache written by <code>start='2024-01-01'</code> would silently
-answer a later <code>start='2023-01-01'</code> call.</p>
-<p><strong>R5 — derived quantities live at L2, not L1.</strong>
-Anything computed <em>from</em> measurements (absorption coefficients, Ångström
-exponents, volatile fraction, size-distribution statistics) belongs in <code>_process</code>
-or downstream (<code>AeroViz.size</code> / <code>optical</code> / <code>chemistry</code>), never inside
-<code>_raw_reader</code>. Rationale: algorithms iterate; re-deriving from L1/L2 must not
-require touching the raw archive.</p>
-<p><strong>R6 — provenance is stamped once, at the end.</strong>
-<code>df.attrs</code> is written exactly once, in <code>_stamp</code>, after every transformation.
-Rationale: <code>concat</code> drops conflicting <code>attrs</code>, so threading metadata through the
-pipeline is unreliable — see <code>core/metadata.py</code>.</p>
-<hr />
-<h2 id="3-execution-flow">3. Execution flow</h2>
-<p>What actually happens, in order, for <code>RawDataReader(inst, path, start, end, qc=True, mean_freq='1h')</code>.</p>
-<h3 id="l1-parse-_read_raw_files">L1 — parse (<code>_read_raw_files</code>)</h3>
-<ol>
-<li><strong>Discover files</strong> — glob every pattern in <code>meta[inst]['pattern']</code> (lower /
-   upper / as-written), excluding the reader's own outputs.</li>
-<li><strong>Parse each file</strong> — <code>_raw_reader(file)</code>. A file that raises is logged as an
-   error and skipped; a file that returns <code>None</code> / empty is logged at debug.
-   If <em>every</em> file fails → <code>ValueError</code>.</li>
-<li><strong>Detect the native frequency per file</strong> — <code>detect_freq</code> (<code>inferred_freq</code>,
-   else the median timestamp delta) <em>before</em> the merge. The median resolves to
-   the nearest <strong>second</strong> once there are enough intervals to trust that
-   precision (≥ 30), and to the nearest minute below that — an instrument whose
-   period is not a whole number of minutes (the APS samples every 115 s) needs a
-   grid that matches it.</li>
-<li><strong>Resolve one grid frequency</strong> — <code>resolve_freq</code>: <code>raw_freq=</code> override &gt;
-   unanimous detection &gt; most-common (sets <code>freq_mixed</code>, warns with the
-   breakdown) &gt; <code>meta['freq']</code>.</li>
-<li><strong>Partition incompatible scan groups</strong> — <code>_partition_compatible_scans</code>
-   (no-op by default; SMPS keeps the dominant size-bin grid and names every
-   dropped file in a warning).</li>
-<li><strong>Merge</strong> — <code>concat(...).groupby(level=0).first()</code>.</li>
-<li><strong>Flag stray timestamps</strong> — <code>_flag_outlier_dates</code> (median/MAD, <code>k=10</code>).
-   Warn by default; drop only with <code>drop_outlier_dates=True</code>.</li>
-<li><strong>Snap to the native grid</strong> — <code>_timeIndex_process</code> → <code>to_grid</code> → <code>snap_to_grid</code>:
-   each row is <em>rounded</em> to its nearest bin (a push, so one reading can never be
-   duplicated into two slots the way <code>reindex(method='nearest')</code> does). Rows that
-   land in an already-occupied bin collapse, first wins — intended for genuine
-   duplicates, but steady data loss when the grid does not match the true
-   sampling period, so the count is <strong>warned</strong> with a pointer to <code>raw_freq=</code>.</li>
-<li><strong>Coerce to numeric</strong>, preserving columns that are genuinely textual (a
-   status column that coerces entirely to NaN is kept as text).</li>
-</ol>
-<p>→ <strong>L1 frame.</strong></p>
-<h3 id="l2-quality-control-and-derivation">L2 — quality control and derivation</h3>
-<ol>
-<li><strong><code>_QC(raw.copy())</code></strong> — the reader builds <code>QCRule</code>s into a <code>QCFlagBuilder</code>;
-    <code>apply</code> evaluates every rule as a vectorised mask, writes
-    <code>QC_Flag = "Valid"</code> or a comma-joined list of the rules that fired, and sets
-    <code>QC_Invalid</code> where at least one <em>invalidating</em> rule fired. A rule that raises
-    is caught, warned, and treated as all-False. <code>get_summary</code> is stored on the
-    reader for logging and reports both <code>Valid</code> (passed everything) and <code>Usable</code>
-    (nothing invalidating).</li>
-<li><strong><code>_process(qc)</code></strong> — derived quantities; may add more flags via
-    <code>update_qc_flag</code> (which appends to an existing non-<code>Valid</code> flag). Readers
-    without derived quantities inherit the identity default and log the summary
-    inside <code>_QC</code> instead.</li>
-<li><strong><code>_save_data</code></strong> — write <code>_read_*_raw.{pkl,csv}</code> and <code>_read_*_qc.{pkl,csv}</code>,
-    stamped with <code>cache_format</code> and the parse provenance (<code>n_files</code>, <code>raw_freq</code>,
-    <code>freq_mixed</code>).</li>
-</ol>
-<p>→ <strong>L2 frame.</strong> Everything up to here is skipped entirely on a cache hit.</p>
-<h3 id="l3-presentation-every-call-cache-hit-or-not">L3 — presentation (every call, cache hit or not)</h3>
-<ol>
-<li><strong>Place on the requested range</strong> — <code>_timeIndex_process(start, end)</code>;
-    <code>fill_missing=True</code> pads out to <code>[start, end]</code>, <code>False</code> clamps to the data's
-    coverage.</li>
-<li><strong>Apply <code>outlier.json</code></strong> — <code>_outlier_process</code> NaNs operator-declared
-    intervals found in <code>{path}/outlier.json</code> (<strong>qc path only</strong>).</li>
-<li><strong>Apply the verdict</strong> — rows where <code>QC_Invalid</code> → all columns NaN; both
-    <code>QC_Flag</code> and <code>QC_Invalid</code> dropped from the public frame. A frame with no
-    verdict column (a hand-built one, or a pre-severity cache) falls back to
-    "any flag invalidates".</li>
-<li><strong>Report</strong> — <code>_generate_report</code> computes acquisition / yield / total rates
-    from L1-vs-flag on a 1 h resample, per <code>qc</code> period (<code>'W'</code>, <code>'MS'</code>, …) and
-    overall; <code>process_timeline_report</code> adds up/down periods and matches them
-    against <code>known_issues.yml</code> (path from <code>KNOWN_ISSUES_PATH</code>).</li>
-<li><strong>Resample</strong> — <code>resample(mean_freq).mean().round(4)</code> <em>only</em> if <code>mean_freq</code>
-    was given; otherwise the native grid is returned.</li>
-<li><strong>Write outputs</strong> — <code>output_{inst}.csv</code>, <code>report.json</code>; SMPS/APS additionally
-    write <code>_dNdlogDp</code> / <code>_dSdlogDp</code> / <code>_dVdlogDp</code> / <code>_stats</code> sidecars via
-    <code>finalize_size_dist</code>.</li>
-<li>
-<p><strong>Stamp</strong> — <code>_stamp</code> writes <code>df.attrs</code> (provenance, coverage, requested
-    range, native freq, rates, and <code>qc_rules</code>) and removes the internal
-    <code>cache_format</code> marker.</p>
-<p><code>qc_rules</code> is the QC summary as JSON-ready rows —
-<code>{rule, count, percentage, severity, description}</code> per rule, plus the
-<code>Valid</code> and <code>Usable</code> totals. The rates say <em>how much</em> was lost, these say
-<em>which rule</em> lost it, which is the difference between a consumer being able
-to report an outage and being able to explain one. Captured from whatever
-<code>log_qc_summary</code> was last handed, so readers that add a rule in <code>_process</code>
-(via <code>extend_qc_summary</code>) contribute their rule too. Absent from <code>df.attrs</code> when <code>qc=False</code>.</p>
-<p><code>status_conditions</code> goes one level further for readers with a bitwise
-status register and a transcribed <code>STATUS_BITS</code> table (AE33, AE43, BC1054,
-MA350, APS, TEOM):
-<code>{code, name, count, percentage}</code> per condition that actually fired,
-busiest first. <code>Status Error</code> can only report that <em>a</em> bit was set — the QC
-verdict is a boolean, so the identity of the bit is gone the moment it is
-computed. This is what makes a status of <code>8</code> legible as
-<em>Ambient RH &amp; Temp sensor</em>. Absent from <code>df.attrs</code> where no table exists (an
-incomplete map would read as "that condition never fired") or the status
-column is missing; <code>[]</code> where the register was clean.</p>
-</li>
-</ol>
-<div class="admonition warning">
-<p class="admonition-title"><code>qc=False</code> returns L1, not \"the same data without filtering\"</p>
-<p>With <code>qc=False</code>, <code>__call__</code> returns the <strong>L1</strong> frame placed on the requested
-range and resampled to <code>mean_freq</code> if given — but no masking, no
-<code>outlier.json</code>, no report. On a fresh parse <code>_QC</code> and <code>_process</code> still run
-and the L2 cache is still written; the switch only changes which frame
-comes back. Use it to inspect raw parsed data.</p>
-</div>
-<hr />
-<h2 id="4-caching-semantics">4. Caching semantics</h2>
+<p>Everything above the cache boundary is skipped on a cache hit; everything below
+it runs on every call, which is why a cached read still honours the current
+<code>start</code> / <code>end</code> / <code>fill_missing</code> / <code>mean_freq</code>. The step-by-step version, with
+the invariants each step must respect, is in
+<a href="../data-levels/#3-execution-flow">Data Levels §3</a>.</p>
+<h3 id="files-written">Files written</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>{inst}_outputs/                       # next to the raw files; output_dir= overrides
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>                                      # folder and file stems are lower-case (ae33_outputs/output_ae33.csv);
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>                                      # only the log keeps the reader's case (AE33.log)
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>├── _read_{inst}_raw.pkl / .csv       # L1 — parsed, all columns, native grid
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>├── _read_{inst}_qc.pkl  / .csv       # L2 — + QC_Flag, QC_Invalid (flag and value side by side)
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>├── output_{inst}.csv                 # L3 — what the call returns
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── output_{inst}_dNdlogDp.csv        # SMPS / APS only: the three weightings
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>├── output_{inst}_dSdlogDp.csv
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>├── output_{inst}_dVdlogDp.csv
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>├── output_{inst}_stats.csv           # SMPS / APS only: psd_stats output, QC-aligned
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>├── output_{inst}_element_reliability.csv   # Xact only: per-element quantitative / semi / below-detection
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>├── report.json                       # rates per period + up/down timeline
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>└── {inst}.log                        # parse warnings, dropped files, QC summary
+</code></pre></div>
+<p><code>output_prefix=</code> renames the <code>output_{inst}</code> stem; <code>save_pkl</code>,
+<code>save_intermediate_csv</code>, <code>save_report</code> switch the respective files off.</p>
+<h3 id="what-a-column-goes-through">What a column goes through</h3>
 <table>
 <thead>
 <tr>
-<th></th>
-<th>L1 / L2 (canonical)</th>
-<th>L3 (presentation)</th>
+<th>Stage</th>
+<th>AE33 example</th>
+<th>APS example</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Stored</td>
-<td><code>_read_*_raw.pkl</code>, <code>_read_*_qc.pkl</code></td>
-<td>never</td>
+<td><code>_raw_reader</code> (L1)</td>
+<td>BC1–BC7, ATN, Flow, Status, …</td>
+<td>size bins (0.5–20 µm) + metadata</td>
 </tr>
 <tr>
-<td>Keyed by</td>
-<td>instrument + folder</td>
-<td>—</td>
+<td><code>_QC</code> (L2)</td>
+<td>+ <code>QC_Flag</code>, <code>QC_Invalid</code></td>
+<td>+ <code>QC_Flag</code>, <code>QC_Invalid</code></td>
 </tr>
 <tr>
-<td>Depends on <code>start</code>/<code>end</code>/<code>mean_freq</code>/<code>fill_missing</code></td>
-<td><strong>no</strong></td>
-<td>yes</td>
+<td><code>_process</code> (L2)</td>
+<td>+ abs_370…abs_950, abs_550, AAE, eBC</td>
+<td>keeps the size bins only</td>
 </tr>
 <tr>
-<td>Invalidated by</td>
-<td><code>reset=True</code>, <code>cache_format</code> mismatch</td>
-<td>—</td>
+<td><code>__call__</code> (L3)</td>
+<td>invalid rows → NaN; both QC columns dropped</td>
+<td>same</td>
 </tr>
 <tr>
-<td>Extended by</td>
-<td><code>reset='append'</code> (parses new files, concats, re-saves)</td>
-<td>—</td>
+<td>returned</td>
+<td>BC, abs, AAE, eBC, metadata</td>
+<td>dN/dlogDp matrix (statistics in <code>_stats.csv</code>, or appended with <code>append_stats=True</code>)</td>
 </tr>
 </tbody>
 </table>
-<p><code>CACHE_FORMAT = 4</code> is stamped into <code>df.attrs['cache_format']</code>; a pickle written
-by an older layout is detected as stale and re-parsed automatically. Parse
-provenance (<code>n_files</code>, <code>raw_freq</code>, <code>freq_mixed</code>) round-trips through the pickle
-so a cache hit still reports it in <code>df.attrs</code>.</p>
+<p><code>_raw_reader</code> deliberately keeps <em>all</em> source columns so instrument metadata
+(flow, temperature, RH, pressure, status) survives to L2; the readers that
+narrow the frame do so in <code>_process</code>, never at L1.</p>
 <hr />
-<h2 id="5-placement-rules-where-does-new-code-go">5. Placement rules — where does new code go?</h2>
-<p>The level a change belongs to follows from what it is about — reading the
-vendor's bytes (L1), judging quality (L2), deriving a quantity (L2 <code>_process</code>,
-or outside the reader), shaping the answer (L3), writing a file (L3). The
-decision list, together with the registry entry, hook contract, tests and docs
-a new reader needs, is in <a href="../contributing-reader/">Contributing a Reader</a>.</p>
-<hr />
-<h2 id="6-where-each-judgement-is-recorded">6. Where each judgement is recorded</h2>
+<h2 id="2-qc-machinery">2. QC machinery</h2>
+<h3 id="rules-and-the-builder">Rules and the builder</h3>
+<p>Every reader declares its checks as <code>QCRule</code>s and hands them to a
+<code>QCFlagBuilder</code> (<code>core/qc.py</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>QCRule                          QCFlagBuilder
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>  name         "Invalid BC"       rules[]
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>  condition    df -&gt; bool mask    add_rule() / add_rules()
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>  description  "0–20 000 ng/m³"   apply(df)   -&gt; QC_Flag, QC_Invalid
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>  severity     'error'|'warning'  get_summary()
+</code></pre></div>
+<p><code>apply</code> evaluates every rule as a vectorised mask, writes <code>QC_Flag = "Valid"</code> or
+the comma-joined names of every rule that fired, and sets <code>QC_Invalid = True</code>
+where at least one <strong>error</strong>-severity rule fired. A rule that raises is caught,
+warned about, and treated as all-False. Nothing is NaN'd or dropped here —
+masking is L3's job, on the verdict alone (Data Levels
+<a href="../data-levels/#2-the-rules-invariants">R2</a>).</p>
+<p><code>_process</code> may add further rules after derived columns exist (<code>Invalid AAE</code>
+needs <code>AAE</code>), via <code>update_qc_flag</code>, which appends to an existing non-<code>Valid</code>
+flag and raises the verdict if the new rule is invalidating.</p>
+<p>The generic filters the rules are built from — <code>n_sigma</code>, <code>iqr</code>,
+<code>time_aware_rolling_iqr</code>, <code>time_aware_std_QC</code>, <code>bidirectional_trend_std_QC</code>,
+<code>spike_detection</code>, <code>hourly_completeness_QC</code>, <code>filter_error_status</code> — are
+documented in the <a href="../../api/QualityControl/">QualityControl API</a>.</p>
+<h3 id="severity-not-every-flag-is-fatal">Severity — not every flag is fatal</h3>
+<table>
+<thead>
+<tr>
+<th>Severity</th>
+<th>Effect at L3</th>
+<th>Ships as</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>error</code> (default)</td>
+<td>row masked to NaN</td>
+<td>every rule not listed below</td>
+</tr>
+<tr>
+<td><code>warning</code> (advisory)</td>
+<td>flag recorded, measurement kept</td>
+<td><code>Insufficient</code> (every reader that has it), OCEC <code>Below MDL</code>, Xact <code>Upscale Warning</code>, Xact <code>High Uncertainty</code></td>
+</tr>
+</tbody>
+</table>
+<p>The test is what the flag is <em>about</em>. <code>Insufficient</code> says an hour is thinly
+covered — a statement about whether an <strong>average</strong> over that hour is
+representative, not about whether the readings are real. A value below a
+detection limit, or a vendor notice the instrument itself classes as a warning,
+is a real measurement, and because masking is per row, invalidating it would
+delete every other species at that timestamp too.</p>
+<p>Reclassify per run without editing a reader:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># tighten an advisory flag back into an invalidating one</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'SMPS'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">flag_severity</span><span class="o">=</span><span class="p">{</span><span class="s1">'Insufficient'</span><span class="p">:</span> <span class="s1">'error'</span><span class="p">})</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># demote one — the closest thing to switching a check off</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'AE33'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">flag_severity</span><span class="o">=</span><span class="p">{</span><span class="s1">'Invalid AAE'</span><span class="p">:</span> <span class="s1">'warning'</span><span class="p">})</span>
+</code></pre></div>
+<p>Demoting does not stop the rule running: it still fires and still lands in
+<code>QC_Flag</code>; the row just keeps its values. Nor does <code>qc=False</code>: on a fresh parse
+<code>_QC</code> and <code>_process</code> run regardless and the L2 cache is written either way —
+<code>qc=False</code> only changes what is <em>returned</em>, the parsed L1 frame with no masking,
+no <code>outlier.json</code> and no report (<code>mean_freq</code> is still honoured).
+A key naming no rule of the instrument being read raises <code>ValueError</code> listing
+that instrument's flags, so a typo cannot silently do nothing.</p>
+<h3 id="lifecycle-of-one-flag">Lifecycle of one flag</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>_QC        QCRule.condition(df) → mask → QC_Flag    = "Below MDL, Status Error"
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>                                       → QC_Invalid = True   (Status Error is 'error';
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>                                                              Below MDL alone leaves it False)
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>_process   update_qc_flag(..., severity=...)        → "…, Invalid AAE"
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>log        "  Status Error: 24312 (4.9%)"  /  "  Below MDL: 1201 (2.4%) [advisory]"
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>report     yield counts rows that survived the verdict, so an advisory-only row counts
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>__call__   QC_Invalid → whole row NaN ; QC_Flag + QC_Invalid dropped
+</code></pre></div>
+<h3 id="the-qc-summary">The QC summary</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>AE33 QC Summary:
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  Status Error: 24312 (4.9%)
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  Invalid BC: 29265 (5.9%)
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  Insufficient: 105481 (21.1%) [advisory]
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  Invalid AAE: 25948 (5.2%)
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  Valid: 356025 (71.2%)
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>  Usable: 461506 (92.3%)
+</code></pre></div>
+<p><code>Valid</code> = passed every rule. <code>Usable</code> = no <em>invalidating</em> rule fired, i.e. what
+survives into the output. They differ by exactly the rows carrying only advisory
+flags. Rule counts overlap by design — a row can trip several.</p>
+<p>Readers with a <code>_process</code> that reshapes the frame (AE33, AE43, BC1054, MA350,
+SMPS, APS, Aurora, NEPH) store the summary in <code>_QC</code> and log it from <code>_process</code>
+— the four aethalometers after adding <code>Invalid AAE</code>; TEOM, GRIMM, BAM1020,
+OCEC, IGAC, Xact and EPA log it inside <code>_QC</code>. The same rows are also stamped into
+<code>df.attrs['qc_rules']</code> as <code>{rule, count, percentage, severity, description}</code>,
+so a consumer can explain an outage, not just measure it.</p>
+<h3 id="where-a-judgement-is-recorded">Where a judgement is recorded</h3>
 <table>
 <thead>
 <tr>
 <th>Channel</th>
-<th style="text-align: center;">Level</th>
+<th>Written by</th>
+<th>Granularity</th>
 <th>Content</th>
-<th>Lifetime</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td><code>QC_Flag</code> column</td>
-<td style="text-align: center;">L2</td>
-<td>per-row, comma-joined rule names, <code>"Valid"</code> when clean</td>
-<td>dropped at L3 (present in <code>_read_*_qc.csv</code>)</td>
+<td><code>_QC</code> / <code>_process</code> (L2)</td>
+<td>per row</td>
+<td><code>"Valid"</code>, or every rule that fired, advisory ones included</td>
 </tr>
 <tr>
 <td><code>QC_Invalid</code> column</td>
-<td style="text-align: center;">L2</td>
-<td>per-row boolean verdict — the only thing L3 masks on</td>
-<td>dropped at L3 (present in <code>_read_*_qc.csv</code>)</td>
+<td><code>_QC</code> / <code>_process</code> (L2)</td>
+<td>per row</td>
+<td>boolean verdict — the only thing masking looks at</td>
+</tr>
+<tr>
+<td><code>_read_{inst}_qc.csv</code></td>
+<td><code>_save_data</code> (L2)</td>
+<td>per row</td>
+<td>the flagged frame <em>before</em> masking — flag, verdict and value side by side</td>
 </tr>
 <tr>
 <td><code>{inst}.log</code></td>
-<td style="text-align: center;">L1–L3</td>
-<td>parse warnings, dropped files, mixed-resolution / stray-date warnings, QC summary with counts + percentages, rates</td>
-<td>persistent file</td>
+<td>all levels</td>
+<td>per run</td>
+<td>parse warnings, skipped/dropped files, mixed-resolution and stray-date warnings, QC summary, rates</td>
 </tr>
 <tr>
 <td><code>report.json</code></td>
-<td style="text-align: center;">L3</td>
-<td><code>startDate</code> / <code>endDate</code> / <code>instrument_id</code>, weekly + monthly <code>rates</code>, <code>timeline</code> of up/down periods with reasons</td>
-<td>overwritten per run</td>
+<td><code>_generate_report</code> (L3)</td>
+<td>per week / month + timeline</td>
+<td><code>rates.weekly</code> / <code>rates.monthly</code> (acquisition / yield / total), <code>timeline</code> of operational and down periods with reasons</td>
 </tr>
 <tr>
 <td><code>df.attrs</code></td>
-<td style="text-align: center;">L3</td>
-<td>provenance, <code>coverage_*</code> vs <code>requested_*</code>, <code>raw_freq</code>, <code>freq_mixed</code>, <code>fill_missing</code>, version, <code>acquisition_rate</code> / <code>yield_rate</code> / <code>total_rate</code></td>
-<td>in-memory; survives pickle + resample</td>
-</tr>
-<tr>
-<td><code>_read_*_raw.csv</code> / <code>_read_*_qc.csv</code></td>
-<td style="text-align: center;">L1 / L2</td>
-<td>the levels themselves, auditable side by side</td>
-<td>until <code>reset=True</code></td>
+<td><code>_stamp</code> (L3)</td>
+<td>per call</td>
+<td>provenance, <code>coverage_*</code> vs <code>requested_*</code>, <code>raw_freq</code>, rates, <code>qc_rules</code>, <code>status_conditions</code></td>
 </tr>
 </tbody>
 </table>
-<p>Rate definitions (all from the <code>QC_Invalid</code> verdict, on a 1 h resample — rows
-carrying only advisory flags count as valid; a period counts as
-valid when <strong>&gt; 50 %</strong> of its points are <code>Valid</code>):</p>
+<p>Both QC columns are dropped from the returned frame and from
+<code>output_{inst}.csv</code>. To see the values behind a flag, open
+<code>_read_{inst}_qc.csv</code> or call with <code>qc=False</code>.</p>
+<h3 id="rates">Rates</h3>
+<p>All three are computed from the verdict on a 1 h resample; a period counts as
+valid when more than 50 % of its points pass the verdict (rows carrying only
+advisory flags count as passing).</p>
 <table>
 <thead>
 <tr>
@@ -3936,6 +4086,622 @@ valid when <strong>&gt; 50 %</strong> of its points are <code>Valid</code>):</p>
 </tr>
 </tbody>
 </table>
+<p><code>report.json</code> always carries a weekly (<code>W-MON</code>) and a monthly (<code>MS</code>) breakdown;
+a <code>qc</code> period string (<code>'W'</code>, <code>'2MS'</code>, …) adds a per-period breakdown to the
+<strong>log</strong>; the overall rates land in
+<code>df.attrs['acquisition_rate' / 'yield_rate' / 'total_rate']</code>.
+<code>process_timeline_report</code> adds up/down periods and matches them against a
+<code>known_issues.yml</code> named by the <code>KNOWN_ISSUES_PATH</code> environment variable.</p>
+<hr />
+<h2 id="3-how-a-status-judgement-is-made">3. How a status judgement is made</h2>
+<p>Every status check goes through one function —
+<code>QualityControl.filter_error_status</code> — in one of <strong>four modes</strong>. The mode
+decides how the raw value is interpreted <em>and</em> how the <code>ignored_status_errors</code>
+whitelist is applied.</p>
+<table>
+<thead>
+<tr>
+<th>Mode</th>
+<th>Raw value looks like</th>
+<th>Error when</th>
+<th>Instruments</th>
+<th><code>ignored_status_errors</code> entries are…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>bitwise</code></td>
+<td>integer, OR-summed bits (<code>0</code>, <code>4</code>, <code>536870912</code>)</td>
+<td>any non-whitelisted code in <code>ERROR_STATES</code> matches bitwise, or the value equals a <code>special_codes</code> entry</td>
+<td>AE33, AE43, BC1054, MA350, <strong>TEOM</strong></td>
+<td>integer codes / bits <strong>removed from the error definition</strong></td>
+</tr>
+<tr>
+<td><code>numeric</code></td>
+<td>flat integer code (<code>0</code>, <code>4</code>, <code>16</code>)</td>
+<td><code>status != ok_value</code> and not NaN</td>
+<td>Aurora, NEPH</td>
+<td>numeric codes <strong>treated as OK</strong></td>
+</tr>
+<tr>
+<td><code>text</code></td>
+<td>free text, possibly comma-joined (<code>Normal Scan</code>, <code>Low aerosol flow,Neutralizer not active</code>)</td>
+<td>any token is neither <code>ok_value</code> nor whitelisted</td>
+<td>SMPS (six columns across two AIM dialects)</td>
+<td>string tokens, matched <strong>per token</strong></td>
+</tr>
+<tr>
+<td><code>binary_string</code></td>
+<td>space-grouped bit string (<code>0000 0000 0000 0000</code>)</td>
+<td>any non-whitelisted bit remains set after clearing the whitelist mask</td>
+<td>APS</td>
+<td>integer bit masks <strong>cleared before testing</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Xact is the exception: its <code>ALARM</code> column is matched by <strong>exact code</strong> (errors
+100–110, warnings 200–203), not through <code>filter_error_status</code>.</p>
+<p>Two behaviours to know:</p>
+<ul>
+<li><strong>Empty means OK, always.</strong> In <code>text</code> mode the sentinels <code>''</code>, <code>'nan'</code> and
+  <code>'None'</code> are never errors. (<code>'None'</code> arrives when a column is missing from
+  <em>some</em> files of a multi-file concat: pandas fills with <code>None</code>, which
+  <code>astype(str)</code> renders as <code>'None'</code>.)</li>
+<li><strong>A missing status column reads as OK — but says so.</strong> <code>filter_error_status</code>
+  returns all-<code>False</code> for a column it cannot find, which is deliberate (mixed
+  exports must not crash) but used to make a status rule <em>completely inert with
+  no signal</em>. Every status reader now calls <code>check_status_columns</code> first and
+  logs a warning naming what it looked for and what the file actually contains,
+  so a new export dialect surfaces instead of silently passing every fault.</li>
+</ul>
+<p>Entries that don't fit a reader's mode are skipped, so one whitelist can be
+passed to any reader safely:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'TEOM'</span><span class="p">,</span>   <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">536870912</span><span class="p">])</span>          <span class="c1"># bitwise: ignore "Dryer A"</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'SMPS'</span><span class="p">,</span>   <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="s1">'Low aerosol flow'</span><span class="p">])</span> <span class="c1"># text: per token</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'APS'</span><span class="p">,</span>    <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>               <span class="c1"># binary_string: clear bits 0,1</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'Aurora'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">])</span>              <span class="c1"># numeric: extra OK codes</span>
+</code></pre></div>
+<h3 id="which-condition-not-just-a-condition">Which condition, not just <em>a</em> condition</h3>
+<p><code>Status Error</code> is a boolean verdict — it cannot say which bit tripped it. A
+reader that declares <code>STATUS_BITS</code> (<code>{decimal: condition_name}</code>) gets the
+register decoded into <code>df.attrs['status_conditions']</code> as
+<code>{code, name, count, percentage}</code> per condition that actually fired, busiest
+first, so a TEOM status of <code>8</code> is reported as <em>Ambient RH &amp; Temp sensor</em> rather
+than left as a number.</p>
+<table>
+<thead>
+<tr>
+<th>Reader</th>
+<th>Column</th>
+<th>Encoding</th>
+<th>Named conditions</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AE33 / AE43</td>
+<td><code>Status</code></td>
+<td><code>int</code></td>
+<td>8 (<code>3</code> = <code>1｜2</code> stays unnamed)</td>
+</tr>
+<tr>
+<td>BC1054</td>
+<td><code>Status</code></td>
+<td><code>int</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td>MA350</td>
+<td><code>Status</code></td>
+<td><code>int</code></td>
+<td>14</td>
+</tr>
+<tr>
+<td>APS</td>
+<td><code>Status Flags</code></td>
+<td><code>binary_string</code></td>
+<td>9</td>
+</tr>
+<tr>
+<td>TEOM</td>
+<td><code>status</code></td>
+<td><code>int</code></td>
+<td>29</td>
+</tr>
+<tr>
+<td>Aurora / NEPH</td>
+<td><code>Status</code> / <code>status</code></td>
+<td><code>numeric</code></td>
+<td>— flat codes, only <code>0</code> (OK) is defined</td>
+</tr>
+<tr>
+<td>SMPS</td>
+<td>six text columns</td>
+<td><code>text</code></td>
+<td>— free-text tokens, not codes</td>
+</tr>
+</tbody>
+</table>
+<p>Each of these six readers' API pages carries the full table under
+<code>#### Status Condition Register</code>, and a test parses it back out and compares
+it with <code>STATUS_BITS</code>, so the documented table cannot drift from the code. <code>percentage</code> shares its denominator with <code>qc_rules</code> (the whole frame,
+padding included); <code>count</code> is the absolute and the one to trust for a sparse
+reader. <code>status_conditions</code> is <strong>absent</strong> from <code>df.attrs</code> where no table exists
+(an incomplete map would read as "that condition never fired") or the status
+column is missing, and <code>[]</code> where the register was clean. <code>qc_rules</code> is
+likewise absent, not <code>None</code>, when <code>qc=False</code>.</p>
+<hr />
+<h2 id="4-qc_flag-vocabulary">4. <code>QC_Flag</code> vocabulary</h2>
+<p>Severity is <code>error</code> unless marked <strong>advisory</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Meaning</th>
+<th>Used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Valid</code></td>
+<td>passed every rule</td>
+<td>all</td>
+</tr>
+<tr>
+<td><code>Status Error</code></td>
+<td>instrument status register reports a non-whitelisted condition</td>
+<td>AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM</td>
+</tr>
+<tr>
+<td><code>Insufficient</code></td>
+<td>an hour holds &lt; 50 % of the points it could have held, given how much of that hour the read covers — <strong>advisory</strong></td>
+<td>AE33, AE43, BC1054, MA350, SMPS, APS, Aurora, NEPH, TEOM, GRIMM</td>
+</tr>
+<tr>
+<td><code>Invalid BC</code></td>
+<td>any BC channel ≤ 0 or &gt; 20 000 ng/m³</td>
+<td>AE33, AE43, BC1054, MA350</td>
+</tr>
+<tr>
+<td><code>Invalid AAE</code></td>
+<td>AAE outside 0.7–3.0 (added in <code>_process</code>)</td>
+<td>AE33, AE43, BC1054, MA350</td>
+</tr>
+<tr>
+<td><code>Invalid Number Conc</code></td>
+<td>total number concentration outside range (SMPS 10–1e6, APS 1–700 #/cm³; the SMPS bounds take <code>min_total_conc=</code> / <code>max_total_conc=</code> per run)</td>
+<td>SMPS, APS</td>
+</tr>
+<tr>
+<td><code>CPC Over-range</code></td>
+<td>any bin's dN/dlogDp exceeds what the attached CPC is rated to count, given the recorded sheath ratio — inert (logged) when the file names no known detector model or has no flow columns</td>
+<td>SMPS</td>
+</tr>
+<tr>
+<td><code>DMA Water Ingress</code></td>
+<td>any bin ≥ 400 nm exceeds 4 000 dN/dlogDp</td>
+<td>SMPS</td>
+</tr>
+<tr>
+<td><code>Invalid Scat Value</code></td>
+<td>any scattering channel ≤ 0 or &gt; 2 000 Mm⁻¹</td>
+<td>Aurora, NEPH</td>
+</tr>
+<tr>
+<td><code>Invalid Scat Rel</code></td>
+<td>B &lt; G &lt; R — inverted wavelength dependence</td>
+<td>Aurora, NEPH</td>
+</tr>
+<tr>
+<td><code>No Data</code></td>
+<td>every measurement channel NaN</td>
+<td>Aurora, NEPH, GRIMM</td>
+</tr>
+<tr>
+<td><code>High Noise</code></td>
+<td>TEOM <code>noise</code> ≥ 0.01</td>
+<td>TEOM</td>
+</tr>
+<tr>
+<td><code>Non-positive</code></td>
+<td><code>PM_NV</code> ≤ 0 or <code>PM_Total</code> ≤ 0</td>
+<td>TEOM</td>
+</tr>
+<tr>
+<td><code>NV &gt; Total</code></td>
+<td><code>PM_NV</code> &gt; <code>PM_Total</code> (physically impossible)</td>
+<td>TEOM</td>
+</tr>
+<tr>
+<td><code>Spike</code></td>
+<td>change &gt; 3 × median absolute change, or a large up-down reversal</td>
+<td>TEOM, BAM1020, OCEC</td>
+</tr>
+<tr>
+<td><code>Negative Conc</code></td>
+<td>any size channel is negative</td>
+<td>GRIMM</td>
+</tr>
+<tr>
+<td><code>Invalid Conc</code></td>
+<td>PM ≤ 0 or &gt; 500 µg/m³</td>
+<td>BAM1020</td>
+</tr>
+<tr>
+<td><code>Invalid Carbon</code></td>
+<td>any carbon fraction ≤ −5 or &gt; 100 µgC/m³</td>
+<td>OCEC</td>
+</tr>
+<tr>
+<td><code>Below MDL</code></td>
+<td>value at or below the method detection limit — <strong>advisory</strong></td>
+<td>OCEC</td>
+</tr>
+<tr>
+<td><code>Missing OC</code></td>
+<td><code>Thermal_OC</code> or <code>Optical_OC</code> missing</td>
+<td>OCEC</td>
+</tr>
+<tr>
+<td><code>Above MR</code></td>
+<td>concentration above the instrument's stated measurement range</td>
+<td>IGAC</td>
+</tr>
+<tr>
+<td><code>Mass Closure</code></td>
+<td>Σ aerosol ions &gt; PM2.5</td>
+<td>IGAC</td>
+</tr>
+<tr>
+<td><code>Missing Main</code></td>
+<td>any of NH₄⁺ / SO₄²⁻ / NO₃⁻ missing</td>
+<td>IGAC</td>
+</tr>
+<tr>
+<td><code>Ion Balance</code></td>
+<td>cation/anion ratio outside 1.5 × IQR</td>
+<td>IGAC</td>
+</tr>
+<tr>
+<td><code>Calibration Mode</code></td>
+<td><code>SAMPLE_TYPE != 1</code></td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Instrument Error</code></td>
+<td><code>ALARM</code> in 100–110</td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Upscale Warning</code></td>
+<td><code>ALARM</code> in 200–203 — <strong>advisory</strong> (the instrument's own warning class)</td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Invalid Value</code></td>
+<td>element concentration outside 0–100 000 ng/m³</td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Internal Std Drift</code></td>
+<td>Nb outside ±20 % of its median</td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>High Uncertainty</code></td>
+<td>a normally-quantitative element reported above its detection limit with &lt; 3σ confidence — <strong>advisory</strong></td>
+<td>Xact</td>
+</tr>
+<tr>
+<td><code>Negative</code></td>
+<td>any numeric column &lt; 0</td>
+<td>EPA</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-per-instrument-reference">5. Per-instrument reference</h2>
+<p>Each instrument has one page that is the single home for its raw format and
+parse recipe, status column and error codes (with the decoded register table
+where one exists), QC rules with severities, and output columns:</p>
+<table>
+<thead>
+<tr>
+<th>Family</th>
+<th>Pages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aethalometers / BC</td>
+<td><a href="../../api/instruments/aethalometers/AE33/">AE33</a> · <a href="../../api/instruments/aethalometers/AE43/">AE43</a> · <a href="../../api/instruments/aethalometers/BC1054/">BC1054</a> · <a href="../../api/instruments/aethalometers/MA350/">MA350</a></td>
+</tr>
+<tr>
+<td>Particle sizers</td>
+<td><a href="../../api/instruments/particle-sizers/SMPS/">SMPS</a> · <a href="../../api/instruments/particle-sizers/APS/">APS</a> · <a href="../../api/instruments/particle-sizers/GRIMM/">GRIMM</a></td>
+</tr>
+<tr>
+<td>Nephelometers</td>
+<td><a href="../../api/instruments/nephelometers/Aurora/">Aurora</a> · <a href="../../api/instruments/nephelometers/NEPH/">NEPH</a></td>
+</tr>
+<tr>
+<td>Mass</td>
+<td><a href="../../api/instruments/mass/TEOM/">TEOM</a> · <a href="../../api/instruments/mass/BAM1020/">BAM1020</a></td>
+</tr>
+<tr>
+<td>Chemistry</td>
+<td><a href="../../api/instruments/chemical/OCEC/">OCEC</a> · <a href="../../api/instruments/chemical/IGAC/">IGAC</a> · <a href="../../api/instruments/chemical/Xact/">Xact</a></td>
+</tr>
+<tr>
+<td>External</td>
+<td><a href="../../api/instruments/other/EPA/">EPA</a></td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="../../api/instruments/">Supported Instruments</a> page carries the
+catalogue and a rule-name table; §7 below is the one-line-per-instrument
+matrix.</p>
+<h3 id="not-readable-through-rawdatareader">Not readable through <code>RawDataReader</code></h3>
+<h4 id="removed-voc-and-minion">Removed: VOC and Minion</h4>
+<p>Both were <strong>pre-aggregated, second-hand data</strong> — somebody else's processed
+output, not an instrument's raw log — so there was no raw format for a reader to
+parse and the readers only ran generic checks. They were withdrawn from
+<code>RawDataReader</code> in v0.4.0; <code>RawDataReader('VOC', …)</code> / <code>('Minion', …)</code> raise a
+<code>KeyError</code> carrying migration advice.</p>
+<p>Read them yourself and go straight to the analysis functions:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'voc.csv'</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>                 <span class="n">na_values</span><span class="o">=</span><span class="p">(</span><span class="s1">'-'</span><span class="p">,</span> <span class="s1">'N.D.'</span><span class="p">))</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">out</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>      <span class="c1"># validates species against support_voc.json</span>
+</code></pre></div>
+<p>Minion arrives as a monthly report spreadsheet (<code>read_excel</code>), with a units row
+at the top and site-specific invalid markers (<code>維護校正</code>, <code>Nodata</code>, <code>0L</code>); the
+handling depends on who produced that particular report, which is exactly why it
+does not belong behind a general-purpose reader.</p>
+<h4 id="q-acsm-reader-not-implemented-yet">Q-ACSM — reader not implemented yet</h4>
+<p>A <strong>real instrument</strong>, but no reader exists: no sample export has been available
+to write and test a parser against. It stays in <code>meta</code> (the 30-min native
+frequency is known) and is registered in <code>supported_instruments.pending</code>, so
+<code>RawDataReader('Q-ACSM', …)</code> raises a plain</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>NotImplementedError: Q-ACSM is a real instrument, but its reader is not
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>implemented yet — no sample export has been available to write and test a parser
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>against. Contribute one by adding AeroViz/rawDataReader/script/Q-ACSM.py with
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>_raw_reader and _QC ...
+</code></pre></div>
+<p>rather than an abstract-class <code>TypeError</code>. Removing the <code>pending</code> entry is all
+that is needed once a reader lands.</p>
+<hr />
+<h2 id="6-known-limitations">6. Known limitations</h2>
+<p>Where the status/QC machinery is still doing less than it appears to:</p>
+<table>
+<thead>
+<tr>
+<th>Instrument</th>
+<th>Symptom</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MA350</strong></td>
+<td><code>Status</code> column presence never verified against a real export</td>
+<td><strong>open</strong> — no fixture. <code>check_status_columns</code> will say so at runtime instead of passing everything</td>
+</tr>
+<tr>
+<td><strong>GRIMM</strong></td>
+<td>no concentration range check</td>
+<td><strong>open by choice</strong>: no sample corpus to calibrate one against, and a guessed threshold silently deletes good data</td>
+</tr>
+<tr>
+<td><strong>SMPS <code>CPC Over-range</code></strong></td>
+<td>inert on files whose detector model is not in <code>CPC_MAX_CONC</code>, or that carry no flow columns</td>
+<td><strong>open by design</strong> — logged, and <code>cpc_max_conc=</code> enables it per run</td>
+</tr>
+<tr>
+<td><strong>SMPS / APS counting efficiency</strong></td>
+<td>the lowest SMPS channels and both APS ends under-count</td>
+<td><strong>not corrected</strong> — recorded in <a href="../../theory/counting_efficiency/">Counting Efficiency</a> so the bias is known</td>
+</tr>
+<tr>
+<td><strong>Aurora <code>S2</code></strong></td>
+<td>evidently a status bitfield, moves with the zero/span check</td>
+<td><strong>not decoded</strong> — no manual; kept as data</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-summary-matrix">7. Summary matrix</h2>
+<table>
+<thead>
+<tr>
+<th>Instrument</th>
+<th>Pattern</th>
+<th>Native</th>
+<th>Status column</th>
+<th>Mode</th>
+<th style="text-align: center;">Rules</th>
+<th style="text-align: center;"><code>_process</code></th>
+<th>Main outputs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../api/instruments/aethalometers/AE33/">AE33</a></td>
+<td><code>…_AE33*.dat</code></td>
+<td>1 min</td>
+<td><code>Status</code></td>
+<td>bitwise</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">✅</td>
+<td>BC1–7, abs, AAE, eBC, Delta-C</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/aethalometers/AE43/">AE43</a></td>
+<td><code>…_AE43*.dat</code></td>
+<td>1 min</td>
+<td><code>Status</code></td>
+<td>bitwise</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">✅</td>
+<td>BC1–7, abs, AAE, eBC + metadata</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/aethalometers/BC1054/">BC1054</a></td>
+<td><code>*.csv</code></td>
+<td>1 min</td>
+<td><code>Status</code></td>
+<td>bitwise</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">✅</td>
+<td>BC1–10, abs, AAE, eBC + metadata</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/aethalometers/MA350/">MA350</a></td>
+<td><code>*.csv</code></td>
+<td>1 min</td>
+<td><code>Status</code> (unverified)</td>
+<td>bitwise</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">✅</td>
+<td>BC1–5, abs, AAE, eBC + metadata</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/nephelometers/Aurora/">Aurora</a></td>
+<td><code>*.csv</code></td>
+<td>1 min</td>
+<td><code>S1</code> (renamed to <code>Status</code>)</td>
+<td>numeric</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">✅</td>
+<td>sca_550, SAE + B/G/R, BB/BG/BR</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/nephelometers/NEPH/">NEPH</a></td>
+<td><code>*.dat</code></td>
+<td>5 min</td>
+<td><code>status</code> (<code>Y</code> row f9)</td>
+<td>numeric</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">✅</td>
+<td>sca_550, SAE + B/G/R, BB/BG/BR</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/particle-sizers/SMPS/">SMPS</a></td>
+<td><code>*.txt</code>, <code>*.csv</code></td>
+<td>6 min</td>
+<td>6 text columns (AIM 10.3 / 11.x)</td>
+<td>text</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">✅</td>
+<td>dN/dlogDp matrix (nm)</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/particle-sizers/APS/">APS</a></td>
+<td><code>*.txt</code></td>
+<td>6 min</td>
+<td><code>Status Flags</code></td>
+<td>binary_string</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">✅</td>
+<td>dN/dlogDp matrix (µm)</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/particle-sizers/GRIMM/">GRIMM</a></td>
+<td><code>*.dat</code></td>
+<td>6 min</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">❌</td>
+<td>size-channel concentrations</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/mass/TEOM/">TEOM</a></td>
+<td><code>*.csv</code></td>
+<td>6 min</td>
+<td><code>status</code></td>
+<td>bitwise (32-bit)</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">✅</td>
+<td>PM_Total, PM_NV, Volatile_Fraction</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/mass/BAM1020/">BAM1020</a></td>
+<td><code>*.csv</code></td>
+<td>1 h</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">❌</td>
+<td>Conc (µg/m³)</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/chemical/OCEC/">OCEC</a></td>
+<td><code>*LCRes.csv</code></td>
+<td>1 h</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">❌</td>
+<td>thermal / optical OC &amp; EC, OC1–4, PC</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/chemical/IGAC/">IGAC</a></td>
+<td><code>*.csv</code></td>
+<td>1 h</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">❌</td>
+<td>up to 14 ion / gas species</td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/chemical/Xact/">Xact</a></td>
+<td><code>*.csv</code></td>
+<td>1 h</td>
+<td><code>ALARM</code></td>
+<td>exact code</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">❌</td>
+<td>element concentrations + <code>_uncert</code></td>
+</tr>
+<tr>
+<td><a href="../../api/instruments/other/EPA/">EPA</a></td>
+<td><code>*.csv</code></td>
+<td>1 h</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">❌</td>
+<td>air-quality reference data</td>
+</tr>
+<tr>
+<td>Q-ACSM</td>
+<td><code>*.csv</code></td>
+<td>30 min</td>
+<td>—</td>
+<td>—</td>
+<td style="text-align: center;"><em>reader pending</em></td>
+<td style="text-align: center;">—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><code>Rules</code> counts every <code>QCRule</code>, advisory ones and late ones (<code>Invalid AAE</code>)
+included.</p>
+<p><strong>Three registry categories</strong> (<code>config/supported_instruments.py</code>):</p>
+<ul>
+<li><strong>supported</strong> — every row above except Q-ACSM: a module in <code>script/</code> plus a
+  <code>meta</code> entry.</li>
+<li><strong>pending</strong> — <code>Q-ACSM</code>: a real instrument, reader not written yet →
+  <code>NotImplementedError</code>.</li>
+<li><strong>removed</strong> — <code>VOC</code>, <code>Minion</code>: pre-aggregated second-hand data, no raw log to
+  parse → <code>KeyError</code> with migration advice, see
+  <a href="#removed-voc-and-minion">above</a>.</li>
+</ul>
 
 
 
@@ -3968,7 +4734,7 @@ valid when <strong>&gt; 50 %</strong> of its points are <code>Valid</code>):</p>
     <span class="md-icon" title="Created">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.47 15.08 11 13V7h1.5v5.25l3.08 1.83c-.41.28-.79.62-1.11 1m-1.39 4.84c-.36.05-.71.08-1.08.08-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8c0 .37-.03.72-.08 1.08.69.1 1.33.32 1.92.64.1-.56.16-1.13.16-1.72 0-5.5-4.5-10-10-10S2 6.5 2 12s4.47 10 10 10c.59 0 1.16-.06 1.72-.16-.32-.59-.54-1.23-.64-1.92M18 15v3h-3v2h3v3h2v-3h3v-2h-3v-3z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="July 26, 2026 10:02:12 UTC">July 26, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 11, 2026 06:22:10 UTC">September 11, 2026</span>
   </span>
 
     
@@ -4003,7 +4769,7 @@ valid when <strong>&gt; 50 %</strong> of its points are <code>Valid</code>):</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting Started">
+          <a href="../publication-figures/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Publication Figures">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4013,20 +4779,20 @@ valid when <strong>&gt; 50 %</strong> of its points are <code>Valid</code>):</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Getting Started
+                Publication Figures
               </div>
             </div>
           </a>
         
         
           
-          <a href="../dataprocess/" class="md-footer__link md-footer__link--next" aria-label="Next: DataProcess">
+          <a href="../contributing-reader/" class="md-footer__link md-footer__link--next" aria-label="Next: Contributing a Reader">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                DataProcess
+                Contributing a Reader
               </div>
             </div>
             <div class="md-footer__button md-icon">

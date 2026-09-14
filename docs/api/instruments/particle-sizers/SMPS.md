@@ -183,6 +183,7 @@ below).
 | **Invalid Number Conc** | total < 10 or > 1e6 #/cm³; a NaN total is also flagged. Override per run with `min_total_conc=` / `max_total_conc=` | error |
 | **CPC Over-range** | any bin's dN/dlogDp exceeds the per-bin ceiling derived from the CPC's rated maximum and the recorded sheath ratio; inert (logged) when the detector model is unknown or the flow columns are absent. Override with `cpc_max_conc=` (or `cpc_model=`) | error |
 | **DMA Water Ingress** | any bin ≥ 400 nm (`LARGE_BIN_THRESHOLD`) exceeds 4 000 dN/dlogDp (`MAX_LARGE_BIN_CONC`) — water contamination in the DMA column | error |
+| **Truncated Scan** | the scan has counts, but every bin at or above 2 × the smallest bin (`TRUNCATED_SCAN_FACTOR`, 23.6 nm on the standard grid) is exactly zero — the DMA voltage ramp never completed, not a nucleation burst (a real burst still has particles above 20 nm). Seen at FS from 2026-08 at ~5 % of scans; passes every other rule, so it needs its own | error |
 
 Thresholds live on the reader class: `MIN_TOTAL_CONC = 10`,
 `MAX_TOTAL_CONC = 1e6`, `MAX_LARGE_BIN_CONC = 4000`, `LARGE_BIN_THRESHOLD = 400`.

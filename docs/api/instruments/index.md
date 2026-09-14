@@ -92,7 +92,7 @@ Not instruments, but read through the same factory:
 | **MA350** | 1 min | .csv | Status Error, Invalid BC, Invalid AAE, Insufficient |
 | **NEPH** | 5 min | .dat | Status Error, No Data, Invalid Scat Value, Invalid Scat Rel, Insufficient |
 | **Aurora** | 1 min | .csv | Status Error, No Data, Invalid Scat Value, Invalid Scat Rel, Insufficient |
-| **SMPS** | 6 min | .txt, .csv | Status Error, Invalid Number Conc, CPC Over-range, DMA Water Ingress, Insufficient |
+| **SMPS** | 6 min | .txt, .csv | Status Error, Invalid Number Conc, CPC Over-range, DMA Water Ingress, Truncated Scan, Insufficient |
 | **APS** | 6 min | .txt | Status Error, Invalid Number Conc, Insufficient |
 | **GRIMM** | 6 min | .dat | No Data, Negative Conc, Insufficient |
 | **TEOM** | 6 min | .csv | Status Error, High Noise, Non-positive, NV > Total, Spike, Insufficient |

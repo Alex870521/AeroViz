@@ -46,6 +46,10 @@ class Reader(AbstractReader):
     MAX_TOTAL_CONC = 1e6
     MAX_LARGE_BIN_CONC = 4000      # Maximum concentration for >400nm bins (DMA water ingress indicator)
     LARGE_BIN_THRESHOLD = 400      # Size threshold for large bin filter (nm)
+    # A scan whose counts all sit below (smallest bin x this factor) while every
+    # bin above is exactly zero never came from a full DMA voltage ramp. 2x the
+    # smallest bin is 23.6 nm on the standard 11.8-593.5 nm grid.
+    TRUNCATED_SCAN_FACTOR = 2.0
 
     # =========================================================================
     # Status columns across AIM versions
@@ -423,6 +427,30 @@ class Reader(AbstractReader):
         width = np.expand_dims(beta, -1) / (slope * np.log(10))   # dlog10(Dp) per band
         return cpc_max / width
 
+    @staticmethod
+    def _truncated_scan_mask(df_numeric, factor):
+        """True where a scan has counts but nothing above ``smallest bin x factor``.
+
+        First seen at FS from mid-2026-08: 11.8-14 nm bins carrying 1.6e4-1.2e5
+        dN/dlogDp while every bin from 20 nm up reads exactly 0, total about 60 %
+        of the neighbouring scans. That is a DMA ramp that never ran (or a scan
+        cut short), not a nucleation burst -- a real burst still has particles
+        above 20 nm. It passed every other rule: the total is inside the
+        plausible range and no single bin exceeds the CPC ceiling, so on a
+        heat map it is a red bar pinned to the floor and the GMD trace drops
+        from ~66 nm to ~13 nm for one scan. NULL bins above count as zero:
+        the instrument writes nothing there when the ramp is missing.
+        """
+        if df_numeric.shape[1] == 0:
+            return Series(False, index=df_numeric.index)
+        dp = df_numeric.columns.to_numpy(float)
+        upper = df_numeric.columns[dp >= dp.min() * factor]
+        if len(upper) == 0:
+            return Series(False, index=df_numeric.index)
+        total = df_numeric.sum(axis=1, min_count=1)
+        upper_sum = df_numeric[upper].abs().sum(axis=1, min_count=1).fillna(0)
+        return ((total > 0) & (upper_sum == 0)).fillna(False)
+
     def _QC(self, _df):
         """
         Perform quality control on SMPS particle size distribution data.
@@ -435,6 +463,8 @@ class Reader(AbstractReader):
                                  total = sum(dN/dlogDp x dlogDp) with per-bin widths
         4. CPC Over-range      : A bin exceeds what the counter can count (per-instrument, from the file header)
         5. DMA Water Ingress   : Bins >400nm with concentration > 4000 dN/dlogDp (indicates water in DMA)
+        6. Truncated Scan      : Counts only in the smallest bins, every bin above exactly zero
+                                 (the voltage ramp never completed; not a nucleation event)
         """
         _df = _df.copy()
         _index = _df.index.copy()
@@ -464,6 +494,9 @@ class Reader(AbstractReader):
 
         # Get large bins (>400nm)
         large_bins = df_numeric.columns[df_numeric.columns.astype(float) >= self.LARGE_BIN_THRESHOLD]
+
+        truncated = self._truncated_scan_mask(df_numeric, self.TRUNCATED_SCAN_FACTOR)
+        truncated_above_nm = float(df_numeric.columns.min()) * self.TRUNCATED_SCAN_FACTOR if df_numeric.shape[1] else float('nan')
 
         min_total = self.kwargs.get('min_total_conc', self.MIN_TOTAL_CONC)
         max_total = self.kwargs.get('max_total_conc', self.MAX_TOTAL_CONC)
@@ -578,6 +611,14 @@ class Reader(AbstractReader):
                     (tc < lo) | (tc > hi), index=df.index
                 ).fillna(True),
                 description=f'Total number concentration outside plausible range ({min_total:g}-{max_total:.0e} #/cm³)'
+            ),
+            QCRule(
+                name='Truncated Scan',
+                condition=lambda df, m=truncated: m.reindex(df.index).fillna(False),
+                description=(
+                    f'Counts only below {truncated_above_nm:.1f} nm with every bin above exactly zero '
+                    '(DMA voltage ramp never completed; not a nucleation event)'
+                )
             ),
             QCRule(
                 name='CPC Over-range',

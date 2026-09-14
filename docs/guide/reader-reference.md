@@ -307,6 +307,7 @@ Severity is `error` unless marked **advisory**.
 | `Invalid Number Conc` | total number concentration outside range (SMPS 10–1e6, APS 1–700 #/cm³; the SMPS bounds take `min_total_conc=` / `max_total_conc=` per run) | SMPS, APS |
 | `CPC Over-range` | any bin's dN/dlogDp exceeds what the attached CPC is rated to count, given the recorded sheath ratio — inert (logged) when the file names no known detector model or has no flow columns | SMPS |
 | `DMA Water Ingress` | any bin ≥ 400 nm exceeds 4 000 dN/dlogDp | SMPS |
+| `Truncated Scan` | counts only below 2 × the smallest bin, every bin above exactly zero (DMA ramp never completed) | SMPS |
 | `Invalid Scat Value` | any scattering channel ≤ 0 or > 2 000 Mm⁻¹ | Aurora, NEPH |
 | `Invalid Scat Rel` | B < G < R — inverted wavelength dependence | Aurora, NEPH |
 | `No Data` | every measurement channel NaN | Aurora, NEPH, GRIMM |

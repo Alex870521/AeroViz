@@ -2367,6 +2367,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader.TRUNCATED_SCAN_FACTOR" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TRUNCATED_SCAN_FACTOR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.SMPS.Reader.STATUS_SPECS" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2542,6 +2553,17 @@
     <span class="md-ellipsis">
       
         _cpc_bin_ceiling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._truncated_scan_mask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _truncated_scan_mask
       
     </span>
   </a>
@@ -3839,6 +3861,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader.TRUNCATED_SCAN_FACTOR" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TRUNCATED_SCAN_FACTOR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.SMPS.Reader.STATUS_SPECS" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4014,6 +4047,17 @@
     <span class="md-ellipsis">
       
         _cpc_bin_ceiling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.SMPS.Reader._truncated_scan_mask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        _truncated_scan_mask
       
     </span>
   </a>
@@ -4376,6 +4420,29 @@ file layout, status codes and QC rules.</p>
 
 </h4>
 <div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">LARGE_BIN_THRESHOLD</span> <span class="o">=</span> <span class="mi">400</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="AeroViz.rawDataReader.script.SMPS.Reader.TRUNCATED_SCAN_FACTOR" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">TRUNCATED_SCAN_FACTOR</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">TRUNCATED_SCAN_FACTOR</span> <span class="o">=</span> <span class="mf">2.0</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4866,6 +4933,39 @@ it only ever sees a thinner slice of it.</p>
 <div class="doc doc-object doc-function">
 
 
+<h4 id="AeroViz.rawDataReader.script.SMPS.Reader._truncated_scan_mask" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">_truncated_scan_mask</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">_truncated_scan_mask</span><span class="p">(</span><span class="n">df_numeric</span><span class="p">,</span> <span class="n">factor</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>True where a scan has counts but nothing above <code>smallest bin x factor</code>.</p>
+<p>First seen at FS from mid-2026-08: 11.8-14 nm bins carrying 1.6e4-1.2e5
+dN/dlogDp while every bin from 20 nm up reads exactly 0, total about 60 %
+of the neighbouring scans. That is a DMA ramp that never ran (or a scan
+cut short), not a nucleation burst -- a real burst still has particles
+above 20 nm. It passed every other rule: the total is inside the
+plausible range and no single bin exceeds the CPC ceiling, so on a
+heat map it is a red bar pinned to the floor and the GMD trace drops
+from ~66 nm to ~13 nm for one scan. NULL bins above count as zero:
+the instrument writes nothing there when the ramp is missing.</p>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h4 id="AeroViz.rawDataReader.script.SMPS.Reader._QC" class="doc doc-heading">
             <span class="doc doc-object-name doc-function-name">_QC</span>
 
@@ -4888,6 +4988,8 @@ it only ever sees a thinner slice of it.</p>
                          total = sum(dN/dlogDp x dlogDp) with per-bin widths</li>
 <li>CPC Over-range      : A bin exceeds what the counter can count (per-instrument, from the file header)</li>
 <li>DMA Water Ingress   : Bins &gt;400nm with concentration &gt; 4000 dN/dlogDp (indicates water in DMA)</li>
+<li>Truncated Scan      : Counts only in the smallest bins, every bin above exactly zero
+                         (the voltage ramp never completed; not a nucleation event)</li>
 </ol>
 </details>
 
@@ -5180,6 +5282,11 @@ below).</p>
 <td>any bin ≥ 400 nm (<code>LARGE_BIN_THRESHOLD</code>) exceeds 4 000 dN/dlogDp (<code>MAX_LARGE_BIN_CONC</code>) — water contamination in the DMA column</td>
 <td>error</td>
 </tr>
+<tr>
+<td><strong>Truncated Scan</strong></td>
+<td>the scan has counts, but every bin at or above 2 × the smallest bin (<code>TRUNCATED_SCAN_FACTOR</code>, 23.6 nm on the standard grid) is exactly zero — the DMA voltage ramp never completed, not a nucleation burst (a real burst still has particles above 20 nm). Seen at FS from 2026-08 at ~5 % of scans; passes every other rule, so it needs its own</td>
+<td>error</td>
+</tr>
 </tbody>
 </table>
 <p>Thresholds live on the reader class: <code>MIN_TOTAL_CONC = 10</code>,
@@ -5316,7 +5423,7 @@ additionally carries the <code>cpc_*</code> metadata described above.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 11, 2026 06:22:10 UTC">September 11, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 14, 2026 09:00:14 UTC">September 14, 2026</span>
   </span>
 
     

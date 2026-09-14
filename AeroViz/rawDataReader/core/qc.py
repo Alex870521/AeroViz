@@ -171,10 +171,14 @@ class QCFlagBuilder:
                 message = (f"QC rule '{rule.name}' failed and was skipped "
                            f"({type(e).__name__}: {e}). Data that this rule would "
                            f"have flagged is passing QC unchecked.")
+                # ERROR, not WARNING: pipelines run readers at log_level='ERROR',
+                # and a QC rule that silently stops firing is exactly the kind
+                # of failure that must not be filtered out (see the pandas 3
+                # NaN-status case in `filter_error_status`).
                 if self.logger is not None:
-                    self.logger.warning(message)
+                    self.logger.error(message)
                 else:
-                    print(f"Warning: {message}")
+                    print(f"Error: {message}")
                 masks[rule.name] = pd.Series(False, index=df.index)
         return masks
 
@@ -942,7 +946,16 @@ class QualityControl:
             # multi-file concat (pd.concat fills the gap with Python None,
             # which `astype(str)` turns into the string 'None').
             EMPTY_SENTINELS = ('', 'nan', 'None')
-            status_values = _df[status_column].astype(str).str.strip()
+            # `fillna('')` BEFORE `astype(str)`: under pandas 3 a string column
+            # keeps its missing values as real NaN through `astype(str)` instead
+            # of the old 'nan' text, so `_is_error` below hit a float and raised,
+            # `_evaluate` then disabled the whole rule for the run -- every
+            # 'Incomplete scan' at FS passed QC for months, silently, while a
+            # single-file read (no blanks) still worked. And on the no-whitelist
+            # path a NaN is `!= ok_value` and not in EMPTY_SENTINELS, so blank
+            # statuses were flagged as errors instead. Blank means "nothing
+            # reported", never an error, in both paths.
+            status_values = _df[status_column].fillna('').astype(str).str.strip()
             if ok_value is not None:
                 if ignored_values:
                     # Token-level whitelist: split each row's status by ','
@@ -952,7 +965,7 @@ class QualityControl:
                     allowed = ignored_set | {ok_value}
 
                     def _is_error(s):
-                        if s in EMPTY_SENTINELS:
+                        if not isinstance(s, str) or s in EMPTY_SENTINELS:
                             return False
                         return not all(t.strip() in allowed for t in s.split(','))
 

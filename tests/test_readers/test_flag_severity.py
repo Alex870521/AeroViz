@@ -446,6 +446,9 @@ class TestRuleFailureIsVisible:
             def __init__(self):
                 self.messages = []
 
+            def error(self, msg):  # 跳過的規則記 ERROR(pipeline 只留這一級)
+                self.messages.append(msg)
+
             def warning(self, msg):
                 self.messages.append(msg)
 

@@ -1,3 +1,14 @@
+## v0.4.8 (2026-09-14)
+
+### Feat
+
+- **smps**: `Truncated Scan` QC rule -- counts only in the smallest bins, nothing above
+
+### Fix
+
+- **optical**: Mie kernels use scipy trapezoid -- numpy 2.4 removed np.trapz
+- **qc**: text-mode status check no longer dies on blank statuses under pandas 3
+
 ## v0.4.7 (2026-09-11)
 
 ### Fix

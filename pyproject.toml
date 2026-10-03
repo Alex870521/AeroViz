@@ -136,6 +136,11 @@ Changelog = "https://github.com/Alex870521/AeroViz/blob/main/docs/CHANGELOG.md"
 # (where the compiled Fortran extension lives) with the bare source
 # tree. After `pip install [-e] .`, the editable loader or installed
 # wheel handles import resolution.
+#
+# Collect from tests/ only. A bare `pytest` from the repo root otherwise walks
+# every directory, and a scratch `temp/test_plot.py` (gitignored) collides with
+# `tests/test_plot.py` ("import file mismatch"), aborting the whole run.
+testpaths = ["tests"]
 markers = [
     "requires_data: marks tests that require actual data files",
     "reader: rawDataReader pipeline tests (slow, I/O heavy)",

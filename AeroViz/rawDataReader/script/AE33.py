@@ -16,6 +16,10 @@ class Reader(AbstractReader):
     """
     nam = 'AE33'
 
+    #: First line of a station-side backfill dump (pipe-delimited FETCH
+    #: records). Not a daily log; `_raw_reader` skips these files.
+    BACKFILL_MARKER = '# AE33 backfill'
+
     # =========================================================================
     # Column Definitions
     # =========================================================================
@@ -93,6 +97,17 @@ class Reader(AbstractReader):
         Returns all columns from the raw file. Column selection is deferred
         to _QC() and _process() stages.
         """
+        # Station-side backfill dumps (`AE33_<serial>_backfill_<ids>_<stamp>.dat`)
+        # are not daily logs: a `#` comment preamble and pipe-delimited FETCH
+        # records. They land in the same folder, match the same glob, and the
+        # daily-log parser cannot read them. Skip quietly rather than report a
+        # header mismatch every run.
+        with open(file, 'r', encoding='utf-8', errors='ignore') as fh:
+            first_line = fh.readline()
+        if first_line.startswith(self.BACKFILL_MARKER):
+            self.logger.debug(f'{file.name}: AE33 backfill dump (pipe-delimited), not a daily log; skipped')
+            return None
+
         if file.stat().st_size / 1024 < 550:
             self.logger.warning(f'{file.name} may not be a whole daily data.')
 

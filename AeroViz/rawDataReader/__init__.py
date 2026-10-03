@@ -19,6 +19,7 @@ def RawDataReader(instrument: str,
                   mean_freq: str | None = None,
                   size_range: tuple[float, float] | None = None,
                   append_stats: bool = False,
+                  size_dist_outputs: tuple[str, ...] | list[str] | None = None,
                   fill_missing: bool = True,
                   ignored_status_errors: list[str] | None = None,
                   flag_severity: dict[str, str] | None = None,
@@ -94,6 +95,15 @@ def RawDataReader(instrument: str,
         ``SizeDist``; the statistics are always also written to
         ``{prefix}_stats.csv`` alongside the ``_dNdlogDp`` / ``_dSdlogDp`` /
         ``_dVdlogDp`` distribution files.
+
+    size_dist_outputs : tuple of str, optional
+        SMPS/APS only. Which sidecar files to write next to the main output,
+        from ``('number', 'surface', 'volume', 'stats')``; default all four.
+        Surface and volume are derived from number (``π·d²·dN``, ``π/6·d³·dN``)
+        and are 70–80 MB each for a year of 6-minute scans, so a pipeline that
+        stores only ``dN/dlogDp`` passes ``('number', 'stats')``. The returned
+        frame is unaffected; ``append_stats`` still works with ``'stats'`` left
+        out (the statistics are computed but not written).
 
     fill_missing : bool, default=True
         Time-grid coverage of the output:
@@ -352,8 +362,13 @@ def RawDataReader(instrument: str,
             raise ValueError(
                 f"flag_severity values must be 'error' or 'warning'; got {invalid}")
 
+    if size_dist_outputs is not None:
+        from AeroViz.rawDataReader.script._size_dist_output import wanted_outputs
+        wanted_outputs({'size_dist_outputs': size_dist_outputs})   # raises on unknown names
+
     kwargs.update({
         'append_stats': append_stats,
+        'size_dist_outputs': size_dist_outputs,
         'fill_missing': fill_missing,
         'ignored_status_errors': ignored_status_errors,
         'flag_severity': flag_severity,

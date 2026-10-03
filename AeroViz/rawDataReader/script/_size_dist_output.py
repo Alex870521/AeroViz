@@ -14,9 +14,31 @@ produces that (QC-applied, resampled) frame, :func:`finalize_size_dist`:
   ``SizeDist`` can consume directly).
 
 Both ``dS/dlogDp`` and ``dV/dlogDp`` are derived from ``dN/dlogDp``:
-``dS = π·d²·dN`` and ``dV = (π/6)·d³·dN``.
+``dS = π·d²·dN`` and ``dV = (π/6)·d³·dN``. Which of the four files are written
+is chosen with ``size_dist_outputs=`` (default: all). For a year of 6-minute
+scans the surface and volume files are ~70–80 MB each and carry no information
+the number file does not, so a pipeline that only stores ``dN/dlogDp`` can ask
+for ``('number', 'stats')`` and skip two writes.
 """
 import numpy as np
+
+#: Names accepted by ``size_dist_outputs``.
+SIZE_DIST_OUTPUTS = ('number', 'surface', 'volume', 'stats')
+
+
+def wanted_outputs(kwargs) -> set:
+    """Resolve ``size_dist_outputs`` from reader kwargs (None = everything)."""
+    chosen = kwargs.get('size_dist_outputs')
+    if chosen is None:
+        return set(SIZE_DIST_OUTPUTS)
+    if isinstance(chosen, str):
+        chosen = (chosen,)
+    chosen = set(chosen)
+    unknown = chosen - set(SIZE_DIST_OUTPUTS)
+    if unknown:
+        raise ValueError(
+            f"size_dist_outputs: unknown {sorted(unknown)}; choose from {SIZE_DIST_OUTPUTS}")
+    return chosen
 
 
 def _diameter_columns(df):
@@ -53,13 +75,25 @@ def finalize_size_dist(reader, dist, *, unit):
     prefix = reader._output_prefix
     folder = reader._output_folder
     dp = np.asarray(bins.columns, dtype=float)
+    wanted = wanted_outputs(reader.kwargs)
+    append_stats = reader.kwargs.get('append_stats', False)
 
-    # Number / surface / volume distributions (dX/dlogDp)
-    bins.round(4).to_csv(folder / f'{prefix}_dNdlogDp.csv')
-    (bins * np.pi * dp ** 2).round(4).to_csv(folder / f'{prefix}_dSdlogDp.csv')
-    (bins * np.pi * dp ** 3 / 6).round(4).to_csv(folder / f'{prefix}_dVdlogDp.csv')
-    reader.logger.info(
-        f"Saved: {prefix}_dNdlogDp.csv, {prefix}_dSdlogDp.csv, {prefix}_dVdlogDp.csv")
+    # Number / surface / volume distributions (dX/dlogDp) — only the ones asked for
+    written = []
+    if 'number' in wanted:
+        bins.round(4).to_csv(folder / f'{prefix}_dNdlogDp.csv')
+        written.append(f'{prefix}_dNdlogDp.csv')
+    if 'surface' in wanted:
+        (bins * np.pi * dp ** 2).round(4).to_csv(folder / f'{prefix}_dSdlogDp.csv')
+        written.append(f'{prefix}_dSdlogDp.csv')
+    if 'volume' in wanted:
+        (bins * np.pi * dp ** 3 / 6).round(4).to_csv(folder / f'{prefix}_dVdlogDp.csv')
+        written.append(f'{prefix}_dVdlogDp.csv')
+    if written:
+        reader.logger.info(f"Saved: {', '.join(written)}")
+
+    if 'stats' not in wanted and not append_stats:
+        return dist
 
     # QC-aligned summary statistics (the frame is already QC-masked + resampled)
     try:
@@ -69,10 +103,11 @@ def finalize_size_dist(reader, dist, *, unit):
         reader.logger.warning(f"Could not compute statistics sidecar: {e}")
         return dist
 
-    stats.round(4).to_csv(folder / f'{prefix}_stats.csv')
-    reader.logger.info(f"Saved: {prefix}_stats.csv")
+    if 'stats' in wanted:
+        stats.round(4).to_csv(folder / f'{prefix}_stats.csv')
+        reader.logger.info(f"Saved: {prefix}_stats.csv")
 
-    if reader.kwargs.get('append_stats', False):
+    if append_stats:
         from pandas import concat
         out = concat([bins, stats], axis=1)
         out.attrs = dict(dist.attrs)

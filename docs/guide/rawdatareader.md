@@ -65,6 +65,7 @@ Parameters in signature order:
 | `save_pkl` | bool | Write the `_read_*` pickle caches (existing ones are still read) | `True` |
 | `save_intermediate_csv` | bool | Write `_read_*_raw.csv` / `_read_*_qc.csv` | `True` |
 | `save_report` | bool | Write `report.json` | `True` |
+| `size_dist_outputs` | tuple | SMPS/APS: which sidecars to write — any of `number`, `surface`, `volume`, `stats` (default all). Surface/volume derive from number and are ~70–80 MB each per year of 6-min scans | all |
 | `save_csv` | bool | Write `{prefix}.csv` (the returned frame). Off when only the DataFrame — or the SMPS/APS `_dNdlogDp` / `_stats` sidecars — is used | `True` |
 | `quiet` | bool | Suppress console output (the log file is still written) | `False` |
 | `log_level` | str | `'DEBUG'` / `'INFO'` / `'WARNING'` / `'ERROR'` for the log file | `'INFO'` |
@@ -290,7 +291,7 @@ data (lower-case instrument name, e.g. `ae33_outputs/`; override with
 | `_read_{inst}_raw.pkl` / `.csv` | L1 | Parsed measurement, every source column, native grid — the cache |
 | `_read_{inst}_qc.pkl` / `.csv` | L2 | Same frame plus `QC_Flag` / `QC_Invalid` — the only place flag and value sit side by side |
 | `output_{inst}.csv` | L3 | What the call returns: requested range, invalid rows NaN, resampled to `mean_freq` |
-| `output_{inst}_dNdlogDp.csv` / `_dSdlogDp.csv` / `_dVdlogDp.csv` / `_stats.csv` | L3 | SMPS / APS only: the three weightings and the `psd_stats` statistics |
+| `output_{inst}_dNdlogDp.csv` / `_dSdlogDp.csv` / `_dVdlogDp.csv` / `_stats.csv` (pick with `size_dist_outputs=`) | L3 | SMPS / APS only: the three weightings and the `psd_stats` statistics |
 | `report.json` | L3 | Acquisition / yield / total rates per period plus an up/down timeline |
 | `{inst}.log` | — | Processing log: parse warnings, dropped files, QC summary |
 

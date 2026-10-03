@@ -254,7 +254,7 @@ in `_process`. Statistics are *not* in the frame.
 At L3 the size-distribution sidecars are written next to the main output:
 
 - `{prefix}_dNdlogDp.csv` — number distribution
-- `{prefix}_dSdlogDp.csv` — surface distribution, `π·d²·dN`
+- `{prefix}_dSdlogDp.csv` — surface distribution, `π·d²·dN` (optional, see `size_dist_outputs=`)
 - `{prefix}_dVdlogDp.csv` — volume distribution, `π·d³/6·dN`
 - `{prefix}_stats.csv` — QC-aligned summary statistics from `psd_stats`
   (total / GMD / GSD / mode, mode fractions); a failure here is logged and

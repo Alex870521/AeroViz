@@ -7,7 +7,9 @@ from pandas import Grouper, Timedelta
 from AeroViz.rawDataReader.config.supported_instruments import meta, pending, removed
 from AeroViz.rawDataReader.script import *
 
-__all__ = ['RawDataReader']
+from AeroViz.rawDataReader.inventory import inventory
+
+__all__ = ['RawDataReader', 'inventory']
 
 
 def RawDataReader(instrument: str,

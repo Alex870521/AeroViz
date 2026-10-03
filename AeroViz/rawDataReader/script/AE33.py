@@ -91,6 +91,12 @@ class Reader(AbstractReader):
         4096: 'Optical test',
     }
 
+    @classmethod
+    def _inventory_sniff(cls, file):
+        with open(file, 'r', encoding='utf-8', errors='ignore') as fh:
+            first = fh.readline()
+        return {'kind': 'backfill dump' if first.startswith(cls.BACKFILL_MARKER) else 'daily log'}
+
     def _raw_reader(self, file):
         """Read and parse raw AE33 Aethalometer data files.
 

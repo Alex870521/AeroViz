@@ -71,6 +71,14 @@ df = RawDataReader(
 | `drop_outlier_dates` | bool | Stray timestamps far outside the data bulk (e.g. a year-2000 row in 2023 data) are always detected and warned about. False (default)=keep them (warning tells you how to fix the source); True=drop them automatically before gridding |
 | `ignored_status_errors` | list | Whitelist of benign statuses NOT counted as Status Error in QC (any instrument with a status check). Interpreted in that instrument's mode: string tokens for SMPS (comma-split, row passes when every token is OK/whitelisted, e.g. `['Low aerosol flow']`); numeric codes for Aurora/NEPH; integer error bits for AE33/AE43/BC1054/MA350/TEOM (TEOM status is a 32-bit bitfield); integer bit masks for APS. Entries that don't fit a mode are skipped (safe across readers) |
 
+## Inventory
+
+`inventory(instrument, path)` lists a folder's files without parsing them
+(size, mtime, matched-by-glob, date in name, and per-reader sniffs: SMPS AIM
+version / layout / bin grid, AE33 backfill dumps, OCEC header-only results).
+`df.attrs['summary']` has totals and variant counts. Run it before reading an
+archive you did not collect.
+
 ## Data Processing
 
 Post-processing is a flat set of **top-level functions**, grouped into four

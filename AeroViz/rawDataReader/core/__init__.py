@@ -617,6 +617,13 @@ class AbstractReader(ABC):
             self.logger.debug(f"{stem}: unchanged, nothing written")
         return written
 
+    # ---- inventory() hook ----------------------------------------------------
+    @classmethod
+    def _inventory_sniff(cls, file: Path) -> dict:
+        """Cheap per-file facts for ``inventory()`` from the first lines — format
+        variant, layout, grid … Default: nothing. Must never read the whole file."""
+        return {}
+
     # ---- per-file parse cache hooks (see core/parse_cache.py) ----------------
     def _parse_cache_salt(self) -> str:
         """Parse-affecting kwargs, folded into the cache key so a changed option

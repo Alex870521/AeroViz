@@ -82,6 +82,13 @@ class Reader(AbstractReader):
         '%m/%d/%Y %H:%M:%S',      # 24-hour fallback
     ]
 
+    @classmethod
+    def _inventory_sniff(cls, file):
+        """Sample count: a results file with only the four header lines has none."""
+        with open(file, 'r', encoding='utf-8', errors='ignore') as fh:
+            n = sum(1 for i, line in enumerate(fh) if i >= 4 and line.strip())
+        return {'samples': n, 'kind': 'results' if n else 'header only'}
+
     def _raw_reader(self, file):
         """
         Read and parse raw OC/EC data files.

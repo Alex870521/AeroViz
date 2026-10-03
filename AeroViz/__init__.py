@@ -9,7 +9,7 @@
 # Use whichever style suits your code; they all resolve to the same
 # underlying implementations.
 
-from AeroViz.rawDataReader import RawDataReader
+from AeroViz.rawDataReader import RawDataReader, inventory
 from AeroViz.tools import DataBase, DataClassifier
 
 # Sub-namespaces for the post-processing functions.
@@ -85,6 +85,7 @@ def __getattr__(name):
 __all__ = [
     # I/O
     'RawDataReader',
+    'inventory',
     # Tools
     'DataBase',
     'DataClassifier',

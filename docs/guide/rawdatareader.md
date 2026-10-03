@@ -250,6 +250,24 @@ The per-period block goes to the log only; `report.json` always carries a
 weekly and a monthly breakdown regardless of `qc`, and the overall rates land
 in `df.attrs`.
 
+### Inventory a folder before reading
+
+`inventory(instrument, path)` lists what is in a folder without parsing it —
+size, mtime, whether the reader's glob would pick each file up, the date in
+the file name, and what the first lines reveal (SMPS: AIM version, row- or
+column-oriented layout, bin grid; AE33: backfill dumps; OCEC: results files
+with no samples). `df.attrs['summary']` has the totals and the variant counts.
+Use it on an archive you did not collect yourself: a column-oriented SMPS
+export, a second bin grid, or a stray backfill file are visible here and
+silent in a read.
+
+```python
+from AeroViz import inventory
+inv = inventory('SMPS', '/data/NZ_SMPS')
+inv.attrs['summary']['variants']        # {'format': {...}, 'layout': {...}, 'grid': {...}}
+inv[inv['layout'] == 'columns']         # exports the parser cannot read
+```
+
 ### Force Re-read
 
 ```python

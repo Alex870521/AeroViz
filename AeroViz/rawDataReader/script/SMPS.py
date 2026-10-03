@@ -158,6 +158,50 @@ class Reader(AbstractReader):
         #: `{field: value}` scraped from the file metadata; see DETECTOR_FIELDS.
         self._detector = {}
 
+    @classmethod
+    def _inventory_sniff(cls, file):
+        """AIM version, export layout and bin grid from the header block only.
+
+        Row-oriented exports (one scan per line) are what the parser reads; a
+        column-oriented export (AIM 10.x "transposed", one scan per column) is
+        skipped by it, so flagging the layout here is what makes a folder of
+        unreadable scans visible before a read.
+        """
+        delimiter = '\t' if file.suffix.lower() == '.txt' else ','
+        out = {'format': 'AIM 11.x CSV' if delimiter == ',' else 'AIM 10.x TXT'}
+        with open(file, 'r', encoding='utf-8', errors='ignore') as fh:
+            lines = [fh.readline() for _ in range(400)]
+        header = next((i for i, l in enumerate(lines)
+                       if l.split(delimiter)[0].strip() in ('Sample #', 'Scan Number')), None)
+        if header is None:
+            out['layout'] = 'no header'
+            return out
+        cells = [c.strip() for c in lines[header].rstrip('\r\n').split(delimiter)]
+        if any(c in ('Date', 'DateTime Sample Start') for c in cells):
+            out['layout'] = 'rows'
+            bins = [float(c) for c in cells if c.replace('.', '', 1).isdigit()]
+        else:
+            # Column-oriented: one diameter per line. Take the longest run of
+            # consecutive numeric first cells — a file can also carry a one-scan
+            # row-oriented block whose data line starts with the scan number.
+            out['layout'] = 'columns'
+            bins, run = [], []
+            for l in lines[header + 1:]:
+                first = l.split(delimiter)[0].strip()
+                if first.replace('.', '', 1).isdigit():
+                    run.append(float(first))
+                else:
+                    bins, run = (run if len(run) > len(bins) else bins), []
+            bins = run if len(run) > len(bins) else bins
+        if bins:
+            out['bins'] = len(bins)
+            out['grid'] = f'{min(bins):g}-{max(bins):g}'
+        for l in lines[:header]:
+            key, _, value = l.partition(delimiter)
+            if key.strip() in cls.DETECTOR_FIELDS and value.strip():
+                out.setdefault('detector', value.split(delimiter)[0].strip())
+        return out
+
     # The CPC fields are scraped from each file's preamble while parsing. On a
     # parse-cache hit `_raw_reader` never runs, so they travel with the cached
     # frame instead (see core/parse_cache.py).

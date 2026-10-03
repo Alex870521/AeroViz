@@ -165,7 +165,7 @@ Each read also writes, alongside `{prefix}.csv` (= dN/dlogDp): the
 QC-aligned `{prefix}_stats.csv` (same columns as `psd_stats(df)['other']`).
 Pass `append_stats=True` to `RawDataReader` to append the stat columns to the
 returned frame (default False keeps it a clean PSD matrix for the functions
-above).
+above). `save_csv=False` skips `{prefix}.csv` when the sidecars are enough.
 
 ### TEOM
 - `PM_NV`: Non-volatile PM (μg/m³)

@@ -194,6 +194,10 @@ class AbstractReader(ABC):
         self.save_pkl = kwargs.get('save_pkl', True)
         self.save_intermediate_csv = kwargs.get('save_intermediate_csv', True)
         self.save_report = kwargs.get('save_report', True)
+        # `{prefix}.csv` — the frame the call returns. Callers that only want the
+        # returned DataFrame (or, for SMPS/APS, the dN/dS/dV + stats sidecars
+        # written by `finalize_size_dist`, which duplicate it) can switch it off.
+        self.save_csv = kwargs.get('save_csv', True)
 
         # Output prefix (customisable)
         self._output_prefix = kwargs.get('output_prefix') or f'output_{self.nam.lower()}'
@@ -291,7 +295,8 @@ class AbstractReader(ABC):
         # data at its native resolution (e.g. already-aggregated sources).
         _f_qc = self._resample(_f_qc, mean_freq)
 
-        _f_qc.to_csv(self.csv_out)
+        if self.save_csv:
+            _f_qc.to_csv(self.csv_out)
 
         # Generate timeline data (hourly values)
         report_dict = process_timeline_report(self.report_dict, _f_qc, show_visual=not self.quiet)

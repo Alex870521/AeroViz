@@ -27,6 +27,7 @@ def RawDataReader(instrument: str,
                   save_pkl: bool = True,
                   save_intermediate_csv: bool = True,
                   save_report: bool = True,
+                  save_csv: bool = True,
                   quiet: bool = False,
                   log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'] = 'INFO',
                   **kwargs):
@@ -154,6 +155,13 @@ def RawDataReader(instrument: str,
 
     save_report : bool, default=True
         Whether to save ``report.json``.
+
+    save_csv : bool, default=True
+        Whether to save ``{prefix}.csv`` — the frame the call returns. Switch
+        off when only the returned DataFrame is used, or when the SMPS/APS
+        ``_dNdlogDp`` / ``_stats`` sidecars already hold what you need (the
+        main CSV duplicates ``_dNdlogDp`` and is tens of MB for a year of
+        6-minute scans).
 
     quiet : bool, default=False
         Suppress all console output (progress bar, timeline, log messages).
@@ -338,6 +346,7 @@ def RawDataReader(instrument: str,
         'save_pkl': save_pkl,
         'save_intermediate_csv': save_intermediate_csv,
         'save_report': save_report,
+        'save_csv': save_csv,
         'quiet': quiet,
         'log_level': log_level,
     })

@@ -64,6 +64,7 @@ Parameters in signature order:
 | `save_pkl` | bool | Write the `_read_*` pickle caches (existing ones are still read) | `True` |
 | `save_intermediate_csv` | bool | Write `_read_*_raw.csv` / `_read_*_qc.csv` | `True` |
 | `save_report` | bool | Write `report.json` | `True` |
+| `save_csv` | bool | Write `{prefix}.csv` (the returned frame). Off when only the DataFrame — or the SMPS/APS `_dNdlogDp` / `_stats` sidecars — is used | `True` |
 | `quiet` | bool | Suppress console output (the log file is still written) | `False` |
 | `log_level` | str | `'DEBUG'` / `'INFO'` / `'WARNING'` / `'ERROR'` for the log file | `'INFO'` |
 | `**kwargs` | — | Reader-specific: e.g. SMPS `cpc_max_conc=`, `min_total_conc=`; any reader `raw_freq=` (force the native grid), `drop_outlier_dates=True` | — |
@@ -272,7 +273,7 @@ data (lower-case instrument name, e.g. `ae33_outputs/`; override with
 | `{inst}.log` | — | Processing log: parse warnings, dropped files, QC summary |
 
 `output_prefix=` renames the `output_{inst}` stem (and the sidecars with it);
-`save_pkl=False`, `save_intermediate_csv=False`, `save_report=False` switch the
+`save_pkl=False`, `save_intermediate_csv=False`, `save_report=False`, `save_csv=False` switch the
 respective files off. See [Data Levels (L0–L3)](data-levels.md) for what each
 level may contain.
 

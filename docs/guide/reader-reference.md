@@ -71,7 +71,7 @@ the invariants each step must respect, is in
 ```
 
 `output_prefix=` renames the `output_{inst}` stem; `save_pkl`,
-`save_intermediate_csv`, `save_report` switch the respective files off.
+`save_intermediate_csv`, `save_report`, `save_csv` switch the respective files off.
 
 ### What a column goes through
 

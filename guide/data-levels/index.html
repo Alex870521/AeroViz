@@ -3760,7 +3760,10 @@ pipeline is unreliable — see <code>core/metadata.py</code>.</p>
     stamped with <code>cache_format</code> and the parse provenance (<code>n_files</code>, <code>raw_freq</code>,
     <code>freq_mixed</code>).</li>
 </ol>
-<p>→ <strong>L2 frame.</strong> Everything up to here is skipped entirely on a cache hit.</p>
+<p>→ <strong>L2 frame.</strong> Everything up to here is skipped entirely on a whole-frame
+cache hit. With <code>cache_dir=</code> and <code>reset='incremental'</code> there is a finer cache
+one level down: step 1 loads each <em>unchanged</em> file's parsed frame instead of
+parsing it, and steps 2–12 run as usual (see §4).</p>
 <h3 id="l3-presentation-every-call-cache-hit-or-not">L3 — presentation (every call, cache hit or not)</h3>
 <ol>
 <li><strong>Place on the requested range</strong> — <code>_timeIndex_process(start, end)</code>;
@@ -3845,7 +3848,7 @@ comes back. Use it to inspect raw parsed data.</p>
 </tr>
 <tr>
 <td>Extended by</td>
-<td><code>reset='append'</code> (parses new files, concats, re-saves)</td>
+<td><code>reset='append'</code> (parses new files, concats, re-saves); <code>reset='incremental'</code> + <code>cache_dir</code> (per-file cache, see below)</td>
 <td>—</td>
 </tr>
 </tbody>
@@ -3854,6 +3857,16 @@ comes back. Use it to inspect raw parsed data.</p>
 by an older layout is detected as stale and re-parsed automatically. Parse
 provenance (<code>n_files</code>, <code>raw_freq</code>, <code>freq_mixed</code>) round-trips through the pickle
 so a cache hit still reports it in <code>df.attrs</code>.</p>
+<p><strong>Per-file parse cache</strong> (<code>core/parse_cache.py</code>, opt-in with <code>cache_dir=</code>).
+Below the whole-frame pkl sits a cache of each raw file's L1 parse — one pickle
+per file under <code>{cache_dir}/{INSTRUMENT}/{source-folder hash}/</code>, keyed by file
+name, size, mtime, reader, AeroViz version and a reader salt
+(<code>_parse_cache_salt</code>). <code>reset='incremental'</code> bypasses the whole-frame pkl,
+reuses every unchanged file and parses the rest; stale entries are pruned;
+<code>reset=True</code> rebuilds it. Readers whose <code>_raw_reader</code> keeps side state (SMPS:
+the CPC detector fields) carry it in the cached frame's <code>attrs['parse_meta']</code>
+via <code>_collect_parse_meta</code> / <code>_apply_parse_meta</code>. The entries are pickles —
+keep <code>cache_dir</code> on a local disk nobody else writes to.</p>
 <hr />
 <h2 id="5-placement-rules-where-does-new-code-go">5. Placement rules — where does new code go?</h2>
 <p>The level a change belongs to follows from what it is about — reading the
@@ -3958,7 +3971,7 @@ valid when <strong>&gt; 50 %</strong> of its points are <code>Valid</code>):</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 11, 2026 06:22:10 UTC">September 11, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 15:06:18 UTC">October 3, 2026</span>
   </span>
 
     

@@ -1351,6 +1351,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#incremental-re-read-per-file-parse-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incremental Re-read (per-file parse cache)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3828,6 +3839,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#incremental-re-read-per-file-parse-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Incremental Re-read (per-file parse cache)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4073,8 +4095,14 @@ filter. Always write <code>start=..., end=...</code>.</p>
 <tr>
 <td><code>reset</code></td>
 <td>bool / str</td>
-<td><code>False</code> use cache; <code>True</code> re-read every raw file; <code>'append'</code> parse only new files and extend the cache</td>
+<td><code>False</code> use the whole-frame pkl cache; <code>True</code> re-read every raw file; <code>'incremental'</code> re-read the folder but parse only new/changed files, reusing the rest from <code>cache_dir</code> (same result as <code>True</code>); <code>'append'</code> extend the pkl cache</td>
 <td><code>False</code></td>
+</tr>
+<tr>
+<td><code>cache_dir</code></td>
+<td>Path / str</td>
+<td>Root of the per-file parse cache used by <code>reset='incremental'</code>. Local scratch path only — entries are pickles</td>
+<td><code>None</code></td>
 </tr>
 <tr>
 <td><code>qc</code></td>
@@ -4158,6 +4186,18 @@ filter. Always write <code>start=..., end=...</code>.</p>
 <td><code>save_report</code></td>
 <td>bool</td>
 <td>Write <code>report.json</code></td>
+<td><code>True</code></td>
+</tr>
+<tr>
+<td><code>size_dist_outputs</code></td>
+<td>tuple</td>
+<td>SMPS/APS: which sidecars to write — any of <code>number</code>, <code>surface</code>, <code>volume</code>, <code>stats</code> (default all). Surface/volume derive from number and are ~70–80 MB each per year of 6-min scans</td>
+<td>all</td>
+</tr>
+<tr>
+<td><code>save_csv</code></td>
+<td>bool</td>
+<td>Write <code>{prefix}.csv</code> (the returned frame). Off when only the DataFrame — or the SMPS/APS <code>_dNdlogDp</code> / <code>_stats</code> sidecars — is used</td>
 <td><code>True</code></td>
 </tr>
 <tr>
@@ -4371,6 +4411,22 @@ in <code>df.attrs</code>.</p>
 <a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">reset</span><span class="o">=</span><span class="kc">True</span>
 <a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a><span class="p">)</span>
 </code></pre></div>
+<h3 id="incremental-re-read-per-file-parse-cache">Incremental Re-read (per-file parse cache)</h3>
+<p>A folder that only grows — a station uploading one file a day — does not need
+its whole history parsed again to pick up the new file. With <code>cache_dir</code> set,
+<code>reset='incremental'</code> parses only files that are new or changed and loads the
+rest from the cache; QC, gridding and resampling still run on the full series,
+so the frame is identical to a <code>reset=True</code> read.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'SMPS'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">cache_dir</span><span class="o">=</span><span class="s1">'~/.aeroviz/parse-cache'</span><span class="p">,</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>                     <span class="n">reset</span><span class="o">=</span><span class="s1">'incremental'</span><span class="p">,</span> <span class="n">mean_freq</span><span class="o">=</span><span class="s1">'6min'</span><span class="p">)</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'parse_cache_hits'</span><span class="p">],</span> <span class="n">data</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s1">'parse_cache_parsed'</span><span class="p">]</span>   <span class="c1"># e.g. (168, 1)</span>
+</code></pre></div>
+<p>The cache lives under <code>{cache_dir}/{INSTRUMENT}/{source-folder hash}/</code>, one
+pickle per raw file, keyed by file name, size, mtime, reader and AeroViz
+version. A re-uploaded file is parsed again; a deleted file's entry is pruned;
+upgrading AeroViz invalidates everything once. <code>reset=True</code> rebuilds the cache
+for that folder. Keep <code>cache_dir</code> on a local disk you own (not a synced or
+shared folder) — the entries are pickles.</p>
 <h2 id="output-files">Output Files</h2>
 <p>After processing, files are generated in <code>{inst}_outputs/</code> next to the raw
 data (lower-case instrument name, e.g. <code>ae33_outputs/</code>; override with
@@ -4400,7 +4456,7 @@ data (lower-case instrument name, e.g. <code>ae33_outputs/</code>; override with
 <td>What the call returns: requested range, invalid rows NaN, resampled to <code>mean_freq</code></td>
 </tr>
 <tr>
-<td><code>output_{inst}_dNdlogDp.csv</code> / <code>_dSdlogDp.csv</code> / <code>_dVdlogDp.csv</code> / <code>_stats.csv</code></td>
+<td><code>output_{inst}_dNdlogDp.csv</code> / <code>_dSdlogDp.csv</code> / <code>_dVdlogDp.csv</code> / <code>_stats.csv</code> (pick with <code>size_dist_outputs=</code>)</td>
 <td style="text-align: center;">L3</td>
 <td>SMPS / APS only: the three weightings and the <code>psd_stats</code> statistics</td>
 </tr>
@@ -4417,7 +4473,7 @@ data (lower-case instrument name, e.g. <code>ae33_outputs/</code>; override with
 </tbody>
 </table>
 <p><code>output_prefix=</code> renames the <code>output_{inst}</code> stem (and the sidecars with it);
-<code>save_pkl=False</code>, <code>save_intermediate_csv=False</code>, <code>save_report=False</code> switch the
+<code>save_pkl=False</code>, <code>save_intermediate_csv=False</code>, <code>save_report=False</code>, <code>save_csv=False</code> switch the
 respective files off. See <a href="../data-levels/">Data Levels (L0–L3)</a> for what each
 level may contain.</p>
 <h2 id="advanced-usage">Advanced Usage</h2>
@@ -4425,44 +4481,44 @@ level may contain.</p>
 <p><code>size_range</code> is an <em>exact-match</em> guard, not a filter: a file whose first and
 last bins are not precisely these values is skipped (and named in the log).
 Use it to keep a folder that mixes instrument configurations on one grid.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>    <span class="n">instrument</span><span class="o">=</span><span class="s1">'SMPS'</span><span class="p">,</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
-<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
-<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
-<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="n">size_range</span><span class="o">=</span><span class="p">(</span><span class="mf">11.8</span><span class="p">,</span> <span class="mf">593.5</span><span class="p">)</span>  <span class="c1"># nm — the grid's real endpoints</span>
-<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>    <span class="n">instrument</span><span class="o">=</span><span class="s1">'SMPS'</span><span class="p">,</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="n">path</span><span class="o">=</span><span class="n">path</span><span class="p">,</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="n">size_range</span><span class="o">=</span><span class="p">(</span><span class="mf">11.8</span><span class="p">,</span> <span class="mf">593.5</span><span class="p">)</span>  <span class="c1"># nm — the grid's real endpoints</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="p">)</span>
 </code></pre></div>
 <p>Without it, a mismatching grid only warns, and <code>_partition_compatible_scans</code>
 keeps the dominant grid automatically.</p>
 <h3 id="multi-instrument-integration">Multi-instrument Integration</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="c1"># Read multiple instruments</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="n">ae33</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'AE33'</span><span class="p">,</span> <span class="n">path_ae33</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="n">neph</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'NEPH'</span><span class="p">,</span> <span class="n">path_neph</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'SMPS'</span><span class="p">,</span> <span class="n">path_smps</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="c1"># Merge using pandas</span>
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="n">combined</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ae33</span><span class="p">,</span> <span class="n">neph</span><span class="p">,</span> <span class="n">smps</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Read multiple instruments</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">ae33</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'AE33'</span><span class="p">,</span> <span class="n">path_ae33</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">neph</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'NEPH'</span><span class="p">,</span> <span class="n">path_neph</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'SMPS'</span><span class="p">,</span> <span class="n">path_smps</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="c1"># Merge using pandas</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="n">combined</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">ae33</span><span class="p">,</span> <span class="n">neph</span><span class="p">,</span> <span class="n">smps</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </code></pre></div>
 <h2 id="common-issues">Common Issues</h2>
 <h3 id="data-path-format">Data Path Format</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># Correct</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'/Users/name/data/AE33'</span><span class="p">)</span>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="c1"># Also works</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'./data/AE33'</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># Correct</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'/Users/name/data/AE33'</span><span class="p">)</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="c1"># Also works</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'./data/AE33'</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="time-format">Time Format</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1"># Correct</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>
-<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1"># Can also specify hours, minutes, seconds</span>
-<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">59</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="c1"># Correct</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1"># Can also specify hours, minutes, seconds</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a><span class="n">end</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">59</span><span class="p">,</span> <span class="mi">59</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="keyerror-instrument-name-is-not-valid"><code>KeyError: Instrument name '...' is not valid</code></h3>
 <p>The instrument key is not recognised. Check the exact spelling against the
@@ -4489,15 +4545,15 @@ the files actually contained, or pass <code>fill_missing=False</code> to clamp t
 real coverage — see <a href="#fill_missing-pad-vs-clamp-the-time-grid"><code>fill_missing</code></a>.</p>
 <h3 id="insufficient-memory">Insufficient Memory</h3>
 <p>For large datasets, read in segments:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Read by month. A midnight `end` is promoted to 23:59:59 of that day, so</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="c1"># step back one second from the next month's first day to avoid overlap.</span>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a><span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="n">nxt</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">month</span> <span class="o">==</span> <span class="mi">12</span> <span class="k">else</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="n">month</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'AE33'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">nxt</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>    <span class="c1"># Process...</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># Read by month. A midnight `end` is promoted to 23:59:59 of that day, so</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="c1"># step back one second from the next month's first day to avoid overlap.</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a><span class="k">for</span> <span class="n">month</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">13</span><span class="p">):</span>
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>    <span class="n">start</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>    <span class="n">nxt</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2025</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">month</span> <span class="o">==</span> <span class="mi">12</span> <span class="k">else</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="n">month</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    <span class="n">data</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'AE33'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">nxt</span> <span class="o">-</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    <span class="c1"># Process...</span>
 </code></pre></div>
 <h2 id="related-topics">Related Topics</h2>
 <ul>
@@ -4526,7 +4582,7 @@ real coverage — see <a href="#fill_missing-pad-vs-clamp-the-time-grid"><code>f
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 11, 2026 06:22:10 UTC">September 11, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 14:43:11 UTC">October 3, 2026</span>
   </span>
 
     

@@ -2021,6 +2021,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.AE33.Reader.BACKFILL_MARKER" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BACKFILL_MARKER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.AE33.Reader.BC_COLUMNS" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3701,6 +3712,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#AeroViz.rawDataReader.script.AE33.Reader.BACKFILL_MARKER" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        BACKFILL_MARKER
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#AeroViz.rawDataReader.script.AE33.Reader.BC_COLUMNS" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -4096,6 +4118,29 @@ file layout, status codes and QC rules.</p>
 
 </h4>
 <div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">nam</span> <span class="o">=</span> <span class="s1">'AE33'</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h4 id="AeroViz.rawDataReader.script.AE33.Reader.BACKFILL_MARKER" class="doc doc-heading">
+            <span class="doc doc-object-name doc-attribute-name">BACKFILL_MARKER</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">BACKFILL_MARKER</span> <span class="o">=</span> <span class="s1">'# AE33 backfill'</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4573,6 +4618,9 @@ to _QC() and _process() stages.</p>
 <ul>
 <li>Files smaller than 550 KB log "may not be a whole daily data" — a warning,
   not a rejection.</li>
+<li><code>AE33_&lt;serial&gt;_backfill_&lt;ids&gt;_&lt;stamp&gt;.dat</code> files — station-side dumps whose
+  first line is <code># AE33 backfill (raw FETCH pipe-delimited)</code> — are not daily
+  logs; they match the glob but are skipped with a debug line.</li>
 <li>The pattern's <code>[!ST|!CT|!FV]</code> is a <em>single-character</em> negated class (it
   excludes <code>S T C F V | !</code> as the first character), <strong>not</strong> an alternation of
   <code>ST</code>/<code>CT</code>/<code>FV</code> prefixes. It happens to filter the ST/CT/FV log files, but not
@@ -4854,7 +4902,7 @@ AeroViz does not rescale them. The absorption coefficients are derived as
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 11, 2026 06:22:10 UTC">September 11, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 15:06:18 UTC">October 3, 2026</span>
   </span>
 
     

@@ -3855,7 +3855,10 @@ reader or a rule.</p>
 </code></pre></div>
 <p>Everything above the cache boundary is skipped on a cache hit; everything below
 it runs on every call, which is why a cached read still honours the current
-<code>start</code> / <code>end</code> / <code>fill_missing</code> / <code>mean_freq</code>. The step-by-step version, with
+<code>start</code> / <code>end</code> / <code>fill_missing</code> / <code>mean_freq</code>. A second, per-file cache
+(<code>cache_dir=</code> + <code>reset='incremental'</code>) sits inside the first box: unchanged raw
+files are loaded instead of parsed, everything after the merge runs as usual
+(see <a href="../data-levels/#4-caching-semantics">Data Levels §4</a>). The step-by-step version, with
 the invariants each step must respect, is in
 <a href="../data-levels/#3-execution-flow">Data Levels §3</a>.</p>
 <h3 id="files-written">Files written</h3>
@@ -3865,16 +3868,16 @@ the invariants each step must respect, is in
 <a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>├── _read_{inst}_raw.pkl / .csv       # L1 — parsed, all columns, native grid
 <a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>├── _read_{inst}_qc.pkl  / .csv       # L2 — + QC_Flag, QC_Invalid (flag and value side by side)
 <a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>├── output_{inst}.csv                 # L3 — what the call returns
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── output_{inst}_dNdlogDp.csv        # SMPS / APS only: the three weightings
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>├── output_{inst}_dSdlogDp.csv
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>├── output_{inst}_dVdlogDp.csv
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>├── output_{inst}_stats.csv           # SMPS / APS only: psd_stats output, QC-aligned
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>├── output_{inst}_dNdlogDp.csv        # SMPS / APS only: the three weightings …
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>├── output_{inst}_dSdlogDp.csv        #   … each selectable with size_dist_outputs=
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>├── output_{inst}_dVdlogDp.csv        #   (default all; S/V derive from N)
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>├── output_{inst}_stats.csv           # SMPS / APS only: psd_stats output, QC-aligned (also selectable)
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>├── output_{inst}_element_reliability.csv   # Xact only: per-element quantitative / semi / below-detection
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>├── report.json                       # rates per period + up/down timeline
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>└── {inst}.log                        # parse warnings, dropped files, QC summary
 </code></pre></div>
 <p><code>output_prefix=</code> renames the <code>output_{inst}</code> stem; <code>save_pkl</code>,
-<code>save_intermediate_csv</code>, <code>save_report</code> switch the respective files off.</p>
+<code>save_intermediate_csv</code>, <code>save_report</code>, <code>save_csv</code> switch the respective files off.</p>
 <h3 id="what-a-column-goes-through">What a column goes through</h3>
 <table>
 <thead>
@@ -4729,7 +4732,7 @@ included.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 14, 2026 09:00:14 UTC">September 14, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 15:06:18 UTC">October 3, 2026</span>
   </span>
 
     

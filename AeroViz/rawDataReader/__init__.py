@@ -8,8 +8,9 @@ from AeroViz.rawDataReader.config.supported_instruments import meta, pending, re
 from AeroViz.rawDataReader.script import *
 
 from AeroViz.rawDataReader.inventory import inventory
+from AeroViz.rawDataReader.qc_report import write_qc_report
 
-__all__ = ['RawDataReader', 'inventory']
+__all__ = ['RawDataReader', 'inventory', 'write_qc_report']
 
 
 def RawDataReader(instrument: str,
@@ -25,6 +26,7 @@ def RawDataReader(instrument: str,
                   fill_missing: bool = True,
                   ignored_status_errors: list[str] | None = None,
                   flag_severity: dict[str, str] | None = None,
+                  qc_config: dict | Path | str | None = None,
                   output_dir: Path | str | None = None,
                   output_prefix: str | None = None,
                   save_pkl: bool = True,
@@ -158,6 +160,16 @@ def RawDataReader(instrument: str,
         instrument being read raises ``ValueError`` rather than being ignored,
         so a typo (or a rule borrowed from another instrument) cannot look
         applied while QC carries on unchanged.
+
+    qc_config : dict or Path or str, optional
+        QC settings from one document (dict, or a ``.yaml`` / ``.json`` path):
+        reader thresholds (upper-case class constants such as ``MAX_BC``),
+        ``ignored_status_errors``, ``flag_severity`` and ``outliers`` windows,
+        under ``defaults``, the instrument name, and ``stations: {NZ: …}`` for
+        per-station overrides (station = first two letters of the folder name).
+        Explicit keyword arguments win over the file. What was applied is
+        recorded in ``df.attrs['qc_config']``. Schema and precedence:
+        ``AeroViz.rawDataReader.core.qc_config``.
 
     output_dir : Path or str, optional
         Directory for all output files (pkl, csv, log, report).
@@ -376,17 +388,26 @@ def RawDataReader(instrument: str,
 
         kwargs.update({'size_range': size_range})
 
-    if flag_severity is not None:
-        invalid = {k: v for k, v in flag_severity.items() if v not in ('error', 'warning')}
-        if invalid:
-            raise ValueError(
-                f"flag_severity values must be 'error' or 'warning'; got {invalid}")
-
     if output_split not in ('none', 'month', 'year'):
         raise ValueError(f"output_split must be 'none', 'month' or 'year'; got {output_split!r}")
     if size_dist_outputs is not None:
         from AeroViz.rawDataReader.script._size_dist_output import wanted_outputs
         wanted_outputs({'size_dist_outputs': size_dist_outputs})   # raises on unknown names
+
+    # qc_config: whitelist / severities must be in kwargs before construction
+    # (the reader reads them in __init__); thresholds / outliers go on the
+    # instance afterwards. Explicit arguments always win over the document.
+    from AeroViz.rawDataReader.core.qc_config import load_qc_config, resolve_qc_config, apply_qc_config
+    qc_resolved = resolve_qc_config(load_qc_config(qc_config), instrument, Path(path).name[:2])
+    if ignored_status_errors is None and qc_resolved.get('ignored_status_errors'):
+        ignored_status_errors = list(qc_resolved['ignored_status_errors'])
+    if qc_resolved.get('flag_severity'):
+        flag_severity = {**qc_resolved['flag_severity'], **(flag_severity or {})}
+    if flag_severity is not None:
+        invalid = {k: v for k, v in flag_severity.items() if v not in ('error', 'warning')}
+        if invalid:
+            raise ValueError(
+                f"flag_severity values must be 'error' or 'warning'; got {invalid}")
 
     kwargs.update({
         'append_stats': append_stats,
@@ -414,6 +435,8 @@ def RawDataReader(instrument: str,
         qc=qc,
         **kwargs
     )
+    if qc_resolved:
+        apply_qc_config(reader_module, qc_resolved, source=qc_config)
     return reader_module(
         start=start,
         end=end,

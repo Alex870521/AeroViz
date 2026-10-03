@@ -96,6 +96,10 @@ Conventions the pipeline relies on:
   `Insufficient`, a below-MDL value, a vendor "warning"-class alarm.
 - **Completeness measures against the detected frequency** —
   `self._resolved_freq or self.meta['freq']`, never the config value alone.
+- **Thresholds are class constants read through `self`** — `self.MAX_BC`,
+  never `Reader.MAX_BC` or a module-level value. `qc_config=` overrides them
+  by setting instance attributes (`core/qc_config.py`), and a rule that reads
+  the class directly would silently ignore the file.
 - **Status checks go through `filter_error_status`** in one of the four modes
   (bitwise / numeric / text / binary_string), so `ignored_status_errors` works
   the same way everywhere. Call `self.check_status_columns(df, candidates)`

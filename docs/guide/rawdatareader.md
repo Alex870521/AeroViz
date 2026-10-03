@@ -60,6 +60,7 @@ Parameters in signature order:
 | `fill_missing` | bool | `True` pads output to the requested range; `False` clamps to data coverage | `True` |
 | `ignored_status_errors` | list | Status codes / tokens / bits that should **not** count as `Status Error` — see [RawDataReader Reference §3](reader-reference.md#3-how-a-status-judgement-is-made) | `None` |
 | `flag_severity` | dict | Reclassify QC rules for this run, `{'Insufficient': 'error'}` / `{'Invalid AAE': 'warning'}` — see [RawDataReader Reference §2](reader-reference.md#severity-not-every-flag-is-fatal) | `None` |
+| `qc_config` | dict / Path / str | One document for QC decisions — reader thresholds, `ignored_status_errors`, `flag_severity`, `outliers` windows — per instrument and per station; see [QC from a configuration file](#qc-from-a-configuration-file) | `None` |
 | `output_dir` | Path / str | Where every output file goes | `path/{inst}_outputs/` |
 | `output_prefix` | str | File-name prefix for the final CSV and its sidecars | `output_{inst}` |
 | `save_pkl` | bool | Write the `_read_*` pickle caches (existing ones are still read) | `True` |
@@ -249,6 +250,65 @@ Period: 2024-01-01 ~ 2024-01-31
 The per-period block goes to the log only; `report.json` always carries a
 weekly and a monthly breakdown regardless of `qc`, and the overall rates land
 in `df.attrs`.
+
+### QC from a configuration file
+
+The thresholds a reader applies (`MAX_BC`, `MIN_TOTAL_CONC`, …) are class
+constants; the whitelist, the severities and the operator-declared outlier
+windows are per-call arguments or an `outlier.json` next to the raw files.
+`qc_config=` gathers all of them into one YAML (or JSON, or dict) that can be
+versioned and reused by a pipeline:
+
+```yaml
+# qc.yaml
+defaults:                                  # every instrument
+  flag_severity: {Insufficient: warning}
+AE33:
+  thresholds: {MAX_BC: 15000}              # upper-case reader constants only
+  ignored_status_errors: [16]              # merged with the station list below
+  outliers:                                # masked like outlier.json
+    - ["2026-01-26 00:00", "2026-02-02 23:59"]
+  stations:
+    NZ: {thresholds: {MAX_BC: 9000}, ignored_status_errors: [32]}
+SMPS:
+  stations:
+    TP: {ignored_status_errors: [Low aerosol flow, Neutralizer not active]}
+```
+
+```python
+df = RawDataReader('AE33', '/data/NZ_AE33', start, end, qc_config='qc.yaml')
+df.attrs['qc_config']      # {'source': 'qc.yaml', 'thresholds': {'MAX_BC': 9000}, ...}
+```
+
+Precedence is `defaults` < instrument < `stations[<station>]` < explicit
+keyword arguments, where the station is the first two letters of the folder
+name (`NZ_AE33` → `NZ`), the same rule as `df.attrs['station']`. Whitelists
+accumulate across levels; thresholds, severities and outlier windows are
+overridden key by key. A threshold that is not an existing upper-case constant
+of that reader raises `ValueError` — a typo can never look applied. Thresholds
+are set on the reader *instance*, so one process can read two stations with
+different limits.
+
+!!! note "Cached results do not re-run QC"
+    `thresholds`, `ignored_status_errors` and `flag_severity` act while `_QC`
+    runs. With `reset=False` the quality-controlled frame comes back from the
+    pkl cache untouched, so after changing them read with `reset=True` or
+    `reset='incremental'`. `outliers` apply on every call, like `outlier.json`.
+
+### Write a QC report
+
+`write_qc_report(df, path)` renders what a read did from `df.attrs` into a
+Markdown file: provenance and coverage, the overall rates, every QC rule with
+its count and severity, the instrument status conditions that fired, a
+month-by-month availability table computed from the frame, and the QC
+configuration that was applied.
+
+```python
+from AeroViz import RawDataReader, write_qc_report
+
+df = RawDataReader('SMPS', '/data/TP_SMPS', start, end, qc_config='qc.yaml')
+write_qc_report(df, 'reports/TP_SMPS_2026.md')
+```
 
 ### Inventory a folder before reading
 

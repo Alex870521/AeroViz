@@ -215,7 +215,8 @@ so neither option changes the frame.
     `fill_missing=True` pads out to `[start, end]`, `False` clamps to the data's
     coverage.
 14. **Apply `outlier.json`** — `_outlier_process` NaNs operator-declared
-    intervals found in `{path}/outlier.json` (**qc path only**).
+    intervals found in `{path}/outlier.json` plus any `outliers` windows from
+    `qc_config=` (**qc path only**).
 15. **Apply the verdict** — rows where `QC_Invalid` → all columns NaN; both
     `QC_Flag` and `QC_Invalid` dropped from the public frame. A frame with no
     verdict column (a hand-built one, or a pre-severity cache) falls back to

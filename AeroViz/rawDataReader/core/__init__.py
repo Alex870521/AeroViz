@@ -222,6 +222,11 @@ class AbstractReader(ABC):
         if self._output_split not in OUTPUT_SPLITS:
             raise ValueError(f"output_split must be one of {OUTPUT_SPLITS}, got {self._output_split!r}")
 
+        # Set by apply_qc_config (core/qc_config.py): extra outlier windows and the
+        # record of what the config changed, for df.attrs['qc_config'].
+        self._config_outliers: list = []
+        self._qc_config_applied: dict | None = None
+
         # Selective output control
         self.save_pkl = kwargs.get('save_pkl', True)
         self.save_intermediate_csv = kwargs.get('save_intermediate_csv', True)
@@ -408,6 +413,7 @@ class AbstractReader(ABC):
             )
             meta['qc_rules'] = self._qc_summary_rows()
             meta['status_conditions'] = self._status_conditions
+            meta['qc_config'] = self._qc_config_applied
         # Drop the internal cache marker carried over from the canonical frame.
         df.attrs.pop('cache_format', None)
         return stamp_attrs(df, **meta)
@@ -766,13 +772,14 @@ class AbstractReader(ABC):
         """
         outlier_file = self.path / 'outlier.json'
 
-        if not outlier_file.exists():
-            return _df
+        windows = []
+        if outlier_file.exists():
+            with outlier_file.open('r', encoding='utf-8', errors='ignore') as f:
+                windows += list(json.load(f).values())
+        # Windows from qc_config= (see core/qc_config.py) apply on top of the file's.
+        windows += list(self._config_outliers)
 
-        with outlier_file.open('r', encoding='utf-8', errors='ignore') as f:
-            outliers = json.load(f)
-
-        for _st, _ed in outliers.values():
+        for _st, _ed in windows:
             _df.loc[_st:_ed] = np.nan
 
         return _df

@@ -70,6 +70,7 @@ df = RawDataReader(
 | `raw_freq` | str | Override auto-detected resolution (e.g. '6min'); skips detection |
 | `drop_outlier_dates` | bool | Stray timestamps far outside the data bulk (e.g. a year-2000 row in 2023 data) are always detected and warned about. False (default)=keep them (warning tells you how to fix the source); True=drop them automatically before gridding |
 | `ignored_status_errors` | list | Whitelist of benign statuses NOT counted as Status Error in QC (any instrument with a status check). Interpreted in that instrument's mode: string tokens for SMPS (comma-split, row passes when every token is OK/whitelisted, e.g. `['Low aerosol flow']`); numeric codes for Aurora/NEPH; integer error bits for AE33/AE43/BC1054/MA350/TEOM (TEOM status is a 32-bit bitfield); integer bit masks for APS. Entries that don't fit a mode are skipped (safe across readers) |
+| `qc_config` | dict/Path/str | One YAML/JSON/dict for QC decisions: reader thresholds (upper-case constants, e.g. `MAX_BC`), `ignored_status_errors`, `flag_severity`, `outliers` windows; under `defaults`, `<Instrument>`, and `<Instrument>.stations.<ST>` (station = folder-name prefix). Explicit kwargs win. Recorded in `df.attrs['qc_config']`. Thresholds/whitelist/severity need `reset=True` or `'incremental'` to take effect over a pkl cache |
 
 ## Inventory
 
@@ -250,6 +251,15 @@ tokens with `ignored_status_errors=['Low aerosol flow', ...]`.
 `ignored_status_errors` is **not SMPS-only** — every instrument with a
 status check honors it, interpreted in that instrument's mode (string
 tokens / numeric codes / error bits / bit masks); see the parameter table.
+
+### QC configuration file and report
+
+`qc_config='qc.yaml'` loads thresholds, whitelist, severities and outlier
+windows per instrument and per station (`AE33: {thresholds: {MAX_BC: 15000},
+stations: {NZ: {thresholds: {MAX_BC: 9000}}}}`); precedence `defaults` <
+instrument < station < explicit kwargs. `write_qc_report(df, 'report.md')`
+renders provenance, rates, the `qc_rules` table, status conditions, monthly
+availability and the applied config from `df.attrs` as Markdown.
 
 ## Reader Metadata (`df.attrs`)
 

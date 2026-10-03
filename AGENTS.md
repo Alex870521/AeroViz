@@ -61,7 +61,8 @@ df = RawDataReader(
 | `end` | str/datetime | End date (ISO format) |
 | `mean_freq` | str | Averaging frequency ('1h', '30min', '1D'); omit for native resolution (no resampling) |
 | `qc` | bool/str | True=apply QC, 'MS'=monthly stats |
-| `reset` | bool/str | True=reprocess, 'append'=add new data |
+| `reset` | bool/str | True=reprocess; 'incremental'=parse only new/changed files, reuse the rest from `cache_dir` (same result as True); 'append'=extend the pkl cache |
+| `cache_dir` | str/Path | Per-file parse cache root for `reset='incremental'` (local scratch path; entries are pickles) |
 | `size_range` | tuple | SMPS only (accepted but ignored by APS/GRIMM): exact `(first_bin, last_bin)` nm of the grid to keep, e.g. `(11.8, 593.5)`; a non-matching file is rejected |
 | `fill_missing` | bool | True (default)=pad to requested range; False=clamp to data coverage |
 | `raw_freq` | str | Override auto-detected resolution (e.g. '6min'); skips detection |
@@ -277,6 +278,12 @@ its native grid over the files' own coverage, **not** padded to any range — so
 a cache hit still applies the current call's `start`/`end` and `fill_missing`
 and re-stamps `df.attrs`. Pre-existing pkls from older versions are detected as
 stale and re-parsed automatically.
+
+**Incremental reads:** pass `cache_dir=` and `reset='incremental'` to parse only
+files that are new or changed since the last run (one pickle per raw file under
+`cache_dir`, keyed by name/size/mtime/version); the merged frame, QC and
+resampling still run in full, so the result equals `reset=True`.
+`df.attrs['parse_cache_hits']` / `['parse_cache_parsed']` say how much was reused.
 
 **Frequency detection:** each file's resolution is auto-detected (regular
 `inferred_freq`, else median timestamp delta); `meta['freq']` in the instrument

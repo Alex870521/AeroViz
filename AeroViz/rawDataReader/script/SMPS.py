@@ -158,6 +158,16 @@ class Reader(AbstractReader):
         #: `{field: value}` scraped from the file metadata; see DETECTOR_FIELDS.
         self._detector = {}
 
+    # The CPC fields are scraped from each file's preamble while parsing. On a
+    # parse-cache hit `_raw_reader` never runs, so they travel with the cached
+    # frame instead (see core/parse_cache.py).
+    def _collect_parse_meta(self) -> dict:
+        return {'detector': dict(self._detector)} if self._detector else {}
+
+    def _apply_parse_meta(self, meta: dict) -> None:
+        for key, value in (meta.get('detector') or {}).items():
+            self._detector.setdefault(key, value)
+
     def __call__(self, start=None, end=None, mean_freq=None):
         """Return the dN/dlogDp distribution; write S/V + a stats sidecar.
 

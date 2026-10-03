@@ -167,8 +167,12 @@ class AbstractReader(ABC):
             kwargs.get('log_level', 'INFO').upper(),
             quiet=self.quiet)
 
-        self.reset = reset is True
+        # True / 'incremental' bypass the whole-frame pkl under {inst}_outputs/
+        # and go through _read_raw_files; 'incremental' then reuses the per-file
+        # parse cache (needs cache_dir) and only parses new or changed files.
+        self.reset = reset is True or reset == 'incremental'
         self.append = reset == 'append'
+        self._rebuild_parse_cache = reset is True
         self.qc = qc  # if qc, then calculate rate
         self.qc_freq = qc if isinstance(qc, str) else None
         self.raw_freq = kwargs.get('raw_freq', None)
@@ -189,6 +193,17 @@ class AbstractReader(ABC):
         # so a reader whose `_QC` produces no `QC_Flag` degrades to a
         # rate-less report instead of raising AttributeError in `__call__`.
         self.report_dict = {}
+
+        # Per-file parse cache (see core/parse_cache.py). Created per source
+        # folder; the salt lets a reader fold parse-affecting kwargs into the key.
+        cache_dir = kwargs.get('cache_dir')
+        self._parse_cache = None
+        if cache_dir is not None:
+            from AeroViz.rawDataReader.core.parse_cache import ParseCache
+            self._parse_cache = ParseCache(cache_dir, self.nam, self.path, salt=self._parse_cache_salt())
+        elif reset == 'incremental':
+            self.logger.warning(
+                "reset='incremental' without cache_dir: nothing to reuse, every raw file is re-read.")
 
         # Selective output control
         self.save_pkl = kwargs.get('save_pkl', True)
@@ -352,6 +367,9 @@ class AbstractReader(ABC):
             station=self.path.name[:2],
             source_path=str(self.path),
             n_files=self._n_files,
+            # Only when a parse cache is in use: how much of this read was reused.
+            parse_cache_hits=self._parse_cache.hits if self._parse_cache else None,
+            parse_cache_parsed=self._parse_cache.parsed if self._parse_cache else None,
             coverage_start=cov_start,
             coverage_end=cov_end,
             requested_start=pd.Timestamp(start) if start is not None else None,
@@ -531,6 +549,21 @@ class AbstractReader(ABC):
                 weekly_raw_groups, monthly_raw_groups,
                 weekly_flag_groups, monthly_flag_groups
             )
+
+    # ---- per-file parse cache hooks (see core/parse_cache.py) ----------------
+    def _parse_cache_salt(self) -> str:
+        """Parse-affecting kwargs, folded into the cache key so a changed option
+        invalidates cached per-file frames. Default: none of them matter."""
+        return ''
+
+    def _collect_parse_meta(self) -> dict:
+        """Side information ``_raw_reader`` gathered while parsing (stored with
+        the cached frame). Default: nothing. SMPS records its CPC detector fields."""
+        return {}
+
+    def _apply_parse_meta(self, meta: dict) -> None:
+        """Restore what ``_collect_parse_meta`` saved, on a cache hit."""
+        return None
 
     def _partition_compatible_scans(self, df_list: list, files: list) -> list:
         """Drop frames whose scan schema differs from the dominant group.
@@ -775,13 +808,25 @@ class AbstractReader(ABC):
         parsed_files = []  # kept aligned with df_list for _partition_compatible_scans
         per_file_freq = {}
 
+        cache = self._parse_cache
+        use_cache = cache is not None and not self._rebuild_parse_cache
+
         # Context manager for progress bar display
         with self.progress_reading(files) as (progress, task):
             for file in files:
                 if progress is not None:
                     progress.update(task, advance=1, filename=file.name)
                 try:
-                    if (df := self._raw_reader(file)) is not None and not df.empty:
+                    # Cache hit = this file's parsed frame from an earlier run with
+                    # the same name/size/mtime/version. Miss = parse, then store.
+                    df = cache.load(file) if use_cache else None
+                    if df is not None:
+                        self._apply_parse_meta(df.attrs.get('parse_meta') or {})
+                    else:
+                        df = self._raw_reader(file)
+                        if cache is not None and df is not None and not df.empty:
+                            cache.store(file, df, meta=self._collect_parse_meta() or None)
+                    if df is not None and not df.empty:
                         df_list.append(df)
                         parsed_files.append(file)
                         # Detect each file's native resolution before they are merged,
@@ -792,6 +837,14 @@ class AbstractReader(ABC):
 
                 except Exception as e:
                     self.logger.error(f"Error reading {file.name}: {e}")
+
+        if cache is not None:
+            # Entries whose raw file vanished or changed are dead weight.
+            removed = cache.prune()
+            self.logger.info(
+                f"Parse cache: {cache.hits} reused, {cache.parsed} parsed"
+                + (f", {removed} stale entries removed" if removed else "")
+                + f" ({cache.dir})")
 
         if not df_list:
             raise ValueError(f"\033[41m\033[97mAll files were either empty or failed to read.\033[0m")

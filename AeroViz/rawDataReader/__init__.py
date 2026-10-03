@@ -28,6 +28,7 @@ def RawDataReader(instrument: str,
                   save_intermediate_csv: bool = True,
                   save_report: bool = True,
                   save_csv: bool = True,
+                  cache_dir: Path | str | None = None,
                   quiet: bool = False,
                   log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'] = 'INFO',
                   **kwargs):
@@ -46,8 +47,14 @@ def RawDataReader(instrument: str,
     reset : bool or str
         Data processing control mode:
         False (default) - Use existing processed data if available
-        True - Force reprocess all data from raw files
-        'append' - Add new data to existing processed data
+        True - Force reprocess all data from raw files (and rebuild the
+            per-file parse cache when ``cache_dir`` is given)
+        'incremental' - Re-read the folder, but parse only files that are new
+            or changed since the last run and reuse the rest from ``cache_dir``.
+            QC / gridding / resampling still run on the whole series, so the
+            result equals a ``reset=True`` read. Without ``cache_dir`` this is
+            the same as ``True``.
+        'append' - Add new data to existing processed data (whole-frame pkl)
 
     qc : bool or str
         Quality control and rate calculation mode:
@@ -155,6 +162,15 @@ def RawDataReader(instrument: str,
 
     save_report : bool, default=True
         Whether to save ``report.json``.
+
+    cache_dir : Path or str, optional
+        Root of the per-file parse cache (one sub-folder per instrument and
+        source folder). Keyed by file name, size, mtime, reader and AeroViz
+        version, so a changed or re-uploaded file is parsed again and a deleted
+        one is pruned. Point it at a local scratch path you own — entries are
+        pickles — never at a shared or synced location. With ``cache_dir`` set,
+        ``reset='incremental'`` is the hourly-pipeline mode and ``reset=True``
+        the full rebuild.
 
     save_csv : bool, default=True
         Whether to save ``{prefix}.csv`` — the frame the call returns. Switch
@@ -347,6 +363,7 @@ def RawDataReader(instrument: str,
         'save_intermediate_csv': save_intermediate_csv,
         'save_report': save_report,
         'save_csv': save_csv,
+        'cache_dir': cache_dir,
         'quiet': quiet,
         'log_level': log_level,
     })

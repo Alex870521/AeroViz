@@ -49,7 +49,8 @@ Parameters in signature order:
 |-----------|------|-------------|---------|
 | `instrument` | str | Instrument name (see [Supported Instruments](#supported-instruments)) | Required |
 | `path` | Path / str | Data folder path | Required |
-| `reset` | bool / str | `False` use cache; `True` re-read every raw file; `'append'` parse only new files and extend the cache | `False` |
+| `reset` | bool / str | `False` use the whole-frame pkl cache; `True` re-read every raw file; `'incremental'` re-read the folder but parse only new/changed files, reusing the rest from `cache_dir` (same result as `True`); `'append'` extend the pkl cache | `False` |
+| `cache_dir` | Path / str | Root of the per-file parse cache used by `reset='incremental'`. Local scratch path only — entries are pickles | `None` |
 | `qc` | bool / str | `True` apply QC; `False` return the parsed (L1) frame — no masking, no `outlier.json`, no report (`mean_freq` is still honoured); a pandas offset (`'W'`, `'MS'`, `'2MS'`) also logs rates per period | `True` |
 | `start` | datetime / str | Start time; omit to begin at the files' first record | `None` |
 | `end` | datetime / str | End time; omit to end at the files' last record | `None` |
@@ -256,6 +257,27 @@ data = RawDataReader(
     reset=True
 )
 ```
+
+### Incremental Re-read (per-file parse cache)
+
+A folder that only grows — a station uploading one file a day — does not need
+its whole history parsed again to pick up the new file. With `cache_dir` set,
+`reset='incremental'` parses only files that are new or changed and loads the
+rest from the cache; QC, gridding and resampling still run on the full series,
+so the frame is identical to a `reset=True` read.
+
+```python
+data = RawDataReader('SMPS', path, cache_dir='~/.aeroviz/parse-cache',
+                     reset='incremental', mean_freq='6min')
+data.attrs['parse_cache_hits'], data.attrs['parse_cache_parsed']   # e.g. (168, 1)
+```
+
+The cache lives under `{cache_dir}/{INSTRUMENT}/{source-folder hash}/`, one
+pickle per raw file, keyed by file name, size, mtime, reader and AeroViz
+version. A re-uploaded file is parsed again; a deleted file's entry is pruned;
+upgrading AeroViz invalidates everything once. `reset=True` rebuilds the cache
+for that folder. Keep `cache_dir` on a local disk you own (not a synced or
+shared folder) — the entries are pickles.
 
 ## Output Files
 

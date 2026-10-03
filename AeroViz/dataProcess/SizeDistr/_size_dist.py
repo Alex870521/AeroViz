@@ -9,7 +9,7 @@ particle diameters, logarithmic bin widths, and distribution state information.
 from typing import Literal
 
 import numpy as np
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 __all__ = ['SizeDist', 'bin_widths', 'get_required_format']
 
@@ -260,10 +260,11 @@ class SizeDist:
         >>> psd = SizeDist(df)
         >>> surface = psd.to_surface()
         """
-        return self._data.dropna().apply(
-            lambda col: np.pi * self._dp ** 2 * np.array(col),
-            axis=1, result_type='broadcast'
-        ).reindex(self._index)
+        # One broadcast multiply, not a per-row apply: same arithmetic per cell
+        # (π·dp²·x), so the values are identical, but a year of 6-minute scans
+        # drops from seconds to milliseconds. Rows with any NaN are left out and
+        # re-inserted as NaN, as before.
+        return (self._data.dropna() * (np.pi * self._dp ** 2)).reindex(self._index)
 
     def to_volume(self) -> DataFrame:
         """
@@ -281,10 +282,7 @@ class SizeDist:
         >>> psd = SizeDist(df)
         >>> volume = psd.to_volume()
         """
-        return self._data.dropna().apply(
-            lambda col: np.pi / 6 * self._dp ** 3 * np.array(col),
-            axis=1, result_type='broadcast'
-        ).reindex(self._index)
+        return (self._data.dropna() * (np.pi / 6 * self._dp ** 3)).reindex(self._index)
 
     def properties(self) -> DataFrame:
         """
@@ -446,8 +444,9 @@ class SizeDist:
             'volume_norm': volume_norm,
         }
 
-        # Calculate statistics for each mode
-        df_stats = DataFrame(index=self._index)
+        # Calculate statistics for each mode (collected first, built once —
+        # assigning 60 columns one by one re-allocates the frame each time)
+        stats_columns = {}
 
         bounds = [('all', (self._dp.min(), self._dp.max() + 1))]
         for mode_name, (lb, ub) in mode_bounds.items():
@@ -472,16 +471,17 @@ class SizeDist:
                 # Calculate GMD, GSD, total
                 total, gmd, gsd = _geometric_statistics(mode_dp, mode_dist)
 
-                df_stats[f'total_{type_name}_{mode_name}'] = total
-                df_stats[f'GMD_{type_name}_{mode_name}'] = gmd
-                df_stats[f'GSD_{type_name}_{mode_name}'] = gsd
+                stats_columns[f'total_{type_name}_{mode_name}'] = total
+                stats_columns[f'GMD_{type_name}_{mode_name}'] = gmd
+                stats_columns[f'GSD_{type_name}_{mode_name}'] = gsd
 
-                # Calculate mode (peak diameter)
+                # Calculate mode (peak diameter); all-NaN rows stay NaN
                 mask = mode_dist.notna().any(axis=1)
-                df_stats.loc[mask, f'mode_{type_name}_{mode_name}'] = mode_dist.loc[mask].idxmax(axis=1)
-                df_stats.loc[~mask, f'mode_{type_name}_{mode_name}'] = np.nan
+                peak = Series(np.nan, index=self._index, dtype=object)
+                peak[mask] = mode_dist.loc[mask].idxmax(axis=1)
+                stats_columns[f'mode_{type_name}_{mode_name}'] = peak.infer_objects()
 
-        out['statistics'] = df_stats
+        out['statistics'] = DataFrame(stats_columns, index=self._index)
 
         return out
 
@@ -824,7 +824,7 @@ def _geometric_statistics(dp: np.ndarray, dist: DataFrame) -> tuple:
     dp_mesh, gmd_mesh = np.meshgrid(log_dp, gmd)
     gsd = ((((dp_mesh - gmd_mesh) ** 2) * dist).sum(axis=1) / total) ** 0.5
 
-    return total, gmd.apply(np.exp), gsd.apply(np.exp)
+    return total, np.exp(gmd), np.exp(gsd)
 
 
 def get_required_format():

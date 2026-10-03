@@ -202,7 +202,10 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
     stamped with `cache_format` and the parse provenance (`n_files`, `raw_freq`,
     `freq_mixed`).
 
-→ **L2 frame.** Everything up to here is skipped entirely on a cache hit.
+→ **L2 frame.** Everything up to here is skipped entirely on a whole-frame
+cache hit. With `cache_dir=` and `reset='incremental'` there is a finer cache
+one level down: step 1 loads each *unchanged* file's parsed frame instead of
+parsing it, and steps 2–12 run as usual (see §4).
 
 ### L3 — presentation (every call, cache hit or not)
 
@@ -264,12 +267,23 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
 | Keyed by | instrument + folder | — |
 | Depends on `start`/`end`/`mean_freq`/`fill_missing` | **no** | yes |
 | Invalidated by | `reset=True`, `cache_format` mismatch | — |
-| Extended by | `reset='append'` (parses new files, concats, re-saves) | — |
+| Extended by | `reset='append'` (parses new files, concats, re-saves); `reset='incremental'` + `cache_dir` (per-file cache, see below) | — |
 
 `CACHE_FORMAT = 4` is stamped into `df.attrs['cache_format']`; a pickle written
 by an older layout is detected as stale and re-parsed automatically. Parse
 provenance (`n_files`, `raw_freq`, `freq_mixed`) round-trips through the pickle
 so a cache hit still reports it in `df.attrs`.
+
+**Per-file parse cache** (`core/parse_cache.py`, opt-in with `cache_dir=`).
+Below the whole-frame pkl sits a cache of each raw file's L1 parse — one pickle
+per file under `{cache_dir}/{INSTRUMENT}/{source-folder hash}/`, keyed by file
+name, size, mtime, reader, AeroViz version and a reader salt
+(`_parse_cache_salt`). `reset='incremental'` bypasses the whole-frame pkl,
+reuses every unchanged file and parses the rest; stale entries are pruned;
+`reset=True` rebuilds it. Readers whose `_raw_reader` keeps side state (SMPS:
+the CPC detector fields) carry it in the cached frame's `attrs['parse_meta']`
+via `_collect_parse_meta` / `_apply_parse_meta`. The entries are pickles —
+keep `cache_dir` on a local disk nobody else writes to.
 
 ---
 

@@ -75,6 +75,15 @@ class Reader(AbstractReader):
 
     # optional — derived, instrument-intrinsic quantities (abs coefficients, AAE …)
     # def _process(self, df): ...
+
+    # optional — only if _raw_reader keeps side state or depends on a kwarg.
+    # The per-file parse cache (cache_dir=) stores each file's frame; on a hit
+    # _raw_reader never runs, so anything it would have set on self must travel
+    # with the frame (SMPS: the CPC detector fields), and any kwarg that changes
+    # what _raw_reader returns must be part of the key.
+    # def _collect_parse_meta(self) -> dict: ...    # stored as attrs['parse_meta']
+    # def _apply_parse_meta(self, meta): ...         # restore on a hit
+    # def _parse_cache_salt(self) -> str: ...        # parse-affecting kwargs
 ```
 
 Conventions the pipeline relies on:

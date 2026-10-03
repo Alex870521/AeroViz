@@ -126,8 +126,9 @@ columns are dropped in `_process`. Statistics are *not* in the frame.
 |--------|------|-------------|
 | Size bins (0.542–19.81 µm) | dN/dlogDp | Number concentration for each size |
 
-At L3 the same sidecars as SMPS are written next to the main output:
-`{prefix}_dNdlogDp.csv`, `{prefix}_dSdlogDp.csv` (`π·d²·dN`, optional via `size_dist_outputs=`),
+At L3 the same sidecars as SMPS are written next to the main output (all four
+by default; choose a subset with `size_dist_outputs=`):
+`{prefix}_dNdlogDp.csv`, `{prefix}_dSdlogDp.csv` (`π·d²·dN`),
 `{prefix}_dVdlogDp.csv` (`π·d³/6·dN`) and `{prefix}_stats.csv` (from
 `psd_stats`, QC-aligned; a failure there is logged and never fails the read).
 Pass `append_stats=True` to also append the statistics columns to the

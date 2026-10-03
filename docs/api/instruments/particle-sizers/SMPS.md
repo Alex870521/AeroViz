@@ -251,10 +251,12 @@ in `_process`. Statistics are *not* in the frame.
 |--------|------|-------------|
 | Size bins (float diameters, nm) | dN/dlogDp | Number concentration for each particle size |
 
-At L3 the size-distribution sidecars are written next to the main output:
+At L3 the size-distribution sidecars are written next to the main output
+(all four by default; choose a subset with `size_dist_outputs=`, e.g.
+`('number', 'stats')` — surface and volume derive from number):
 
 - `{prefix}_dNdlogDp.csv` — number distribution
-- `{prefix}_dSdlogDp.csv` — surface distribution, `π·d²·dN` (optional, see `size_dist_outputs=`)
+- `{prefix}_dSdlogDp.csv` — surface distribution, `π·d²·dN`
 - `{prefix}_dVdlogDp.csv` — volume distribution, `π·d³/6·dN`
 - `{prefix}_stats.csv` — QC-aligned summary statistics from `psd_stats`
   (total / GMD / GSD / mode, mode fractions); a failure here is logged and

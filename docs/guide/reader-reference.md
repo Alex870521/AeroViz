@@ -48,7 +48,10 @@ RawDataReader(inst, path, start=…, end=…, mean_freq=…, qc=True)
 
 Everything above the cache boundary is skipped on a cache hit; everything below
 it runs on every call, which is why a cached read still honours the current
-`start` / `end` / `fill_missing` / `mean_freq`. The step-by-step version, with
+`start` / `end` / `fill_missing` / `mean_freq`. A second, per-file cache
+(`cache_dir=` + `reset='incremental'`) sits inside the first box: unchanged raw
+files are loaded instead of parsed, everything after the merge runs as usual
+(see [Data Levels §4](data-levels.md#4-caching-semantics)). The step-by-step version, with
 the invariants each step must respect, is in
 [Data Levels §3](data-levels.md#3-execution-flow).
 
@@ -61,10 +64,10 @@ the invariants each step must respect, is in
 ├── _read_{inst}_raw.pkl / .csv       # L1 — parsed, all columns, native grid
 ├── _read_{inst}_qc.pkl  / .csv       # L2 — + QC_Flag, QC_Invalid (flag and value side by side)
 ├── output_{inst}.csv                 # L3 — what the call returns
-├── output_{inst}_dNdlogDp.csv        # SMPS / APS only: the three weightings
-├── output_{inst}_dSdlogDp.csv
-├── output_{inst}_dVdlogDp.csv
-├── output_{inst}_stats.csv           # SMPS / APS only: psd_stats output, QC-aligned
+├── output_{inst}_dNdlogDp.csv        # SMPS / APS only: the three weightings …
+├── output_{inst}_dSdlogDp.csv        #   … each selectable with size_dist_outputs=
+├── output_{inst}_dVdlogDp.csv        #   (default all; S/V derive from N)
+├── output_{inst}_stats.csv           # SMPS / APS only: psd_stats output, QC-aligned (also selectable)
 ├── output_{inst}_element_reliability.csv   # Xact only: per-element quantitative / semi / below-detection
 ├── report.json                       # rates per period + up/down timeline
 └── {inst}.log                        # parse warnings, dropped files, QC summary

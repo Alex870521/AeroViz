@@ -24,8 +24,11 @@ The OC/EC analyzer measures carbonaceous aerosol components using thermal and op
    RTCalc705 default) then `%m/%d/%Y %H:%M:%S` (24-hour). The format used is
    logged; if neither matches, a warning names the file and the sample value and
    the file yields an empty frame.
-2. Duplicate and NaT indices are removed, then the index is **rounded to `1h`**.
-3. Three alias maps are applied unconditionally (only keys present in the file
+2. A results file with the header lines but **no sample rows** (RTCalc writes
+   one for a run that produced nothing) is skipped with a debug line — it is
+   not a read error.
+3. Duplicate and NaT indices are removed, then the index is **rounded to `1h`**.
+4. Three alias maps are applied unconditionally (only keys present in the file
    rename; the rest are inert):
 
     | Firmware | Raw column | Canonical |

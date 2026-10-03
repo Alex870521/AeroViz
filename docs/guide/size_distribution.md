@@ -41,7 +41,9 @@ aps = RawDataReader(
 > **Files written.** Each read also saves, next to the main `{prefix}.csv`
 > (= dN/dlogDp): the `{prefix}_dNdlogDp.csv` / `_dSdlogDp.csv` / `_dVdlogDp.csv`
 > distributions and a QC-aligned `{prefix}_stats.csv` statistics file — so the
-> statistics are available without any extra call.
+> statistics are available without any extra call. Pick a subset with
+> `size_dist_outputs=` (e.g. `('number', 'stats')`; surface and volume derive
+> from number) and skip the main CSV with `save_csv=False`.
 >
 > **`append_stats=True`.** Pass this to `RawDataReader` to also append the
 > statistics columns to the returned frame. The default is `False`, which keeps

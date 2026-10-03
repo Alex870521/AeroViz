@@ -362,11 +362,15 @@ def mie(df_psd, ri, wavelength=550, mixing=None, distribution=False):
 # =============================================================================
 
 def mie_lognormal(refractive_index, wavelength=550, *, geo_mean=200,
-                  geo_std=2.0, total_number=1e6, n_bins=167,
-                  dp_range=(1, 2500)):
+                  geo_std=2.0, total_number=None, n_bins=167,
+                  dp_range=(1, 2500), total_volume=None, total_mass=None,
+                  density=None, mode='number'):
     """One-shot Mie optics from a single lognormal PSD.
 
-    Convenience wrapper that builds the PSD internally then calls
+    The mode's amount is one of ``total_number`` (#/cm³, default 1e6),
+    ``total_volume`` (µm³/cm³) or ``total_mass`` (µg/m³, with ``density``
+    in g/cm³); ``mode='volume'`` reads ``geo_mean`` as the volume-mode
+    median. Convenience wrapper that builds the PSD internally then calls
     :func:`Mie_SD`. See :mod:`AeroViz.dataProcess.Optical.mie` for
     parameter details.
 
@@ -380,15 +384,19 @@ def mie_lognormal(refractive_index, wavelength=550, *, geo_mean=200,
         refractive_index, wavelength,
         geo_mean=geo_mean, geo_std=geo_std,
         total_number=total_number, n_bins=n_bins, dp_range=dp_range,
+        total_volume=total_volume, total_mass=total_mass, density=density,
+        mode=mode,
     )
 
 
 def mie_multimodal(refractive_index, wavelength=550, *, modes,
-                   n_bins=167, dp_range=(1, 2500)):
+                   n_bins=167, dp_range=(1, 2500), amount='number',
+                   density=None, mode='number'):
     """Mie optics for a multi-modal lognormal PSD.
 
-    ``modes`` is a sequence of ``(geo_mean, geo_std, total_number)``
-    tuples; their lognormal distributions are summed onto a shared
+    ``modes`` is a sequence of ``(geo_mean, geo_std, amount)`` tuples, the
+    amount in #/cm³, µm³/cm³ or µg/m³ according to ``amount=`` (mass needs
+    ``density``); their lognormal distributions are summed onto a shared
     diameter grid before the Mie integration.
 
     Returns
@@ -400,6 +408,7 @@ def mie_multimodal(refractive_index, wavelength=550, *, modes,
     return _impl(
         refractive_index, wavelength,
         modes=modes, n_bins=n_bins, dp_range=dp_range,
+        amount=amount, density=density, mode=mode,
     )
 
 

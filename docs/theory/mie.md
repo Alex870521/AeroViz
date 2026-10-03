@@ -58,6 +58,22 @@ $$b_{ext} = \sum_i b_{ext,i}$$
 
 EC as the core with other components as the shell. Suitable for aged aerosols.
 
+## Lognormal Modes by Mass
+
+A synthetic mode is usually known by its mass loading, not its number
+concentration. For a lognormal number mode with count median diameter $CMD$
+and geometric standard deviation $\sigma_g$, the Hatch–Choate relations give
+the volume-mode median and the total volume:
+
+$$VMD = CMD \cdot e^{3\ln^2\sigma_g}, \qquad
+V = N \cdot \frac{\pi}{6}\,CMD^3\, e^{4.5\ln^2\sigma_g}$$
+
+so a mass concentration $M$ with density $\rho$ fixes $N = M/(\rho V_1)$, where
+$V_1$ is the volume of a unit-number mode. `mie_lognormal(..., total_mass=,
+density=)` and `mie_multimodal(..., amount='mass', density=)` do this
+conversion; `hatch_choate()` converts medians between weightings. The grid is
+built as $dN/d\log_{10}D_p$, which is what the integration assumes.
+
 ## In AeroViz
 
 Usage lives in the guide: [`mie`](../guide/dataprocess.md#mie-calculation) for the call and its `mixing` / `distribution` options, and [Optical Closure](../guide/optical_closure.md#mie-closure) for a worked comparison against measured extinction.

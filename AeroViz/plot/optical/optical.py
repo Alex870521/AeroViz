@@ -6,7 +6,8 @@ import numpy as np
 from matplotlib.pyplot import Figure, Axes
 
 from AeroViz.dataProcess.Optical.mie_kernels import ScatteringFunction
-from AeroViz.dataProcess.Optical.mie import Mie_Q, Mie_MEE, Mie_PESD
+from AeroViz.dataProcess.Optical.mie import (Mie_Q, Mie_MEE, Mie_PESD, generate_lognormal_psd,
+                                             calculate_extinction_distribution, _integrate_psd)
 from AeroViz.plot.utils import *
 
 __all__ = ['Q_plot',
@@ -14,6 +15,7 @@ __all__ = ['Q_plot',
            'RRI_2D',
            'scattering_phase',
            'response_surface',
+           'mie_contribution',
            ]
 
 mapping_dic = {'AS': {'m': 1.53 + 0j, 'density': 1.73, 'label': fr'$NH_{4}NO_{3}$', 'color': '#A65E58'},
@@ -382,3 +384,86 @@ if __name__ == '__main__':
 
     RI_couple()
     response_surface()
+
+
+@set_figure(figsize=(6, 6))
+def mie_contribution(m: complex = 1.8 + 0.1j,
+                     wavelengths: float | list[float] = 550,
+                     *,
+                     geo_mean: float = 140,
+                     geo_std: float = 1.95,
+                     total_number: float | None = None,
+                     total_volume: float | None = None,
+                     total_mass: float | None = None,
+                     density: float | None = None,
+                     mode: str = 'number',
+                     dp_range: tuple = (5, 10000),
+                     n_bins: int = 500,
+                     **kwargs) -> tuple[Figure, tuple[Axes, Axes]]:
+    """Which particle sizes of a lognormal mode produce its scattering and absorption.
+
+    Top panel: the mode as dN/dlogDp (left axis) and dV/dlogDp (right axis).
+    Bottom panel: per-size contributions dσ_sca/dlogDp and dσ_abs/dlogDp
+    (Mm⁻¹) for each wavelength, the integrated σ_sca / σ_abs in the legend.
+    The area under each lower curve is the bulk coefficient
+    :func:`AeroViz.optical.mie_lognormal` returns for the same inputs.
+
+    Parameters
+    ----------
+    m : complex
+        Refractive index ``n + ik``.
+    wavelengths : float or list of float
+        Wavelength(s) in nm; several wavelengths share colours and differ in
+        line style.
+    geo_mean, geo_std, total_number, total_volume, total_mass, density, mode
+        The lognormal mode, exactly as :func:`generate_lognormal_psd` takes it
+        (amount by number, volume or mass + density; ``mode='volume'`` reads
+        ``geo_mean`` as the volume-mode median).
+    dp_range, n_bins
+        Diameter grid (nm).
+
+    Returns
+    -------
+    fig, (ax_psd, ax_sigma)
+    """
+    dp, ndp = generate_lognormal_psd(geo_mean, geo_std, total_number, dp_range, n_bins,
+                                     total_volume=total_volume, total_mass=total_mass,
+                                     density=density, mode=mode)
+    dvdlogdp = ndp * np.pi / 6 * (dp / 1000) ** 3          # µm³/cm³ per logDp
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
+
+    ax1.plot(dp, ndp, color='k', lw=1.5, label=r'$dN/d\log D_p$')
+    ax1.set(ylabel=r'$dN/d\log D_p\ (\#/cm^3)$', ylim=(0, None))
+    ax1b = ax1.twinx()
+    ax1b.plot(dp, dvdlogdp, color='tab:gray', lw=1.2, ls='--', label=r'$dV/d\log D_p$')
+    ax1b.set(ylabel=r'$dV/d\log D_p\ (\mu m^3/cm^3)$', ylim=(0, None))
+    h1, l1 = ax1.get_legend_handles_labels()
+    h2, l2 = ax1b.get_legend_handles_labels()
+    ax1.legend(h1 + h2, l1 + l2, loc='upper left', frameon=False)
+
+    wl_list = [wavelengths] if np.isscalar(wavelengths) else list(wavelengths)
+    styles = ['-', '--', ':', '-.']
+    for i, wl in enumerate(wl_list):
+        dist = calculate_extinction_distribution(m, wl, dp, ndp)
+        sca, ab = np.atleast_2d(dist['sca'])[0], np.atleast_2d(dist['abs'])[0]
+        s_tot = float(_integrate_psd(sca[None, :], dp)[0])
+        a_tot = float(_integrate_psd(ab[None, :], dp)[0])
+        ls = styles[i % len(styles)]
+        tag = f' @ {wl:g} nm' if len(wl_list) > 1 else ''
+        ax2.plot(dp, sca, color='b', ls=ls, lw=1.5,
+                 label=fr'$d\sigma_{{sca}}/d\log D_p${tag}: $\sigma_{{sca}}$ = {s_tot:.1f} Mm$^{{-1}}$')
+        ax2.plot(dp, ab, color='r', ls=ls, lw=1.5,
+                 label=fr'$d\sigma_{{abs}}/d\log D_p${tag}: $\sigma_{{abs}}$ = {a_tot:.1f} Mm$^{{-1}}$')
+
+    ax2.set(xscale='log', xlim=(dp.min(), dp.max()), ylim=(0, None),
+            xlabel='Particle Diameter (nm)', ylabel=r'$d\sigma/d\log D_p\ (Mm^{-1})$')
+    ax2.legend(loc='upper left', frameon=False)
+    for ax in (ax1, ax2):
+        ax.grid(color='k', axis='x', which='major', linestyle='dashdot', linewidth=0.4, alpha=0.4)
+
+    title = kwargs.get('title', fr'm = {m.real:g} + {m.imag:g}i, $\sigma_g$ = {geo_std:g}')
+    ax1.set_title(title)
+
+    plt.show()
+    return fig, (ax1, ax2)

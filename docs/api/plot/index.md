@@ -10,7 +10,7 @@ existing axis; `timeseries_interactive` returns a Plotly figure.
 | [Time series](timeseries.md) | `timeseries`, `timeseries_stacked`, `timeseries_template`, `timeseries_interactive` |
 | [Size distribution](distribution.md) | `plot_dist`, `heatmap`, `heatmap_tms`, `three_dimension`, `curve_fitting` |
 | [Meteorology](meteorology.md) | `meteorology.wind_rose`, `meteorology.CBPF`, `meteorology.hysplit` |
-| [Optical](optical.md) | `optical.Q_plot`, `optical.RI_couple`, `optical.RRI_2D`, `optical.scattering_phase`, `optical.response_surface` |
+| [Optical](optical.md) | `optical.Q_plot`, `optical.RI_couple`, `optical.RRI_2D`, `optical.scattering_phase`, `optical.response_surface`, `optical.mie_contribution` |
 | [Templates](templates.md) | `diurnal_pattern`, `corr_matrix`, `cross_corr_matrix`, `contour`, `koschmieder`, `ammonium_rich`, `metal_heatmaps` |
 
 Worked usage — which input shape each function wants, the two `box` modes,

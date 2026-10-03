@@ -947,28 +947,83 @@ def external_mixing(
     return result
 
 
+def _resolve_lognormal_amount(
+    geometric_mean: float,
+    geometric_std: float,
+    total_number: float | None,
+    total_volume: float | None,
+    total_mass: float | None,
+    density: float | None,
+    mode: str,
+) -> tuple[float, float]:
+    """Return ``(count_median_diameter_nm, total_number)`` for a lognormal mode
+    specified by any one of number / volume / mass, with ``geometric_mean``
+    read as the number- or volume-mode median (Hatch–Choate)."""
+    from AeroViz.dataProcess.SizeDistr._lognormal import hatch_choate, lognormal_number_from_volume
+
+    if mode not in ('number', 'volume'):
+        raise ValueError(f"mode must be 'number' or 'volume'; got {mode!r}")
+    cmd = geometric_mean if mode == 'number' else hatch_choate(
+        geometric_mean, geometric_std, from_='volume', to='number')
+
+    given = {k: v for k, v in dict(total_number=total_number, total_volume=total_volume,
+                                   total_mass=total_mass).items() if v is not None}
+    if len(given) > 1:
+        raise ValueError(f"give only one of total_number / total_volume / total_mass; got {sorted(given)}")
+    if not given:
+        return cmd, 1e6
+    if total_mass is not None:
+        if density is None:
+            raise ValueError("total_mass needs density (g/cm³)")
+        total_volume = total_mass / density            # µg/m³ ÷ g/cm³ = µm³/cm³
+    if total_volume is not None:
+        return cmd, lognormal_number_from_volume(total_volume, cmd, geometric_std)
+    return cmd, float(total_number)
+
+
 def generate_lognormal_psd(
     geometric_mean: float = 200,
     geometric_std: float = 2.0,
-    total_number: float = 1e6,
+    total_number: float | None = None,
     dp_range: tuple = (1, 2500),
     n_bins: int = 167,
+    *,
+    total_volume: float | None = None,
+    total_mass: float | None = None,
+    density: float | None = None,
+    mode: str = 'number',
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Generate a lognormal particle size distribution.
 
+    The mode's amount may be given as a number concentration, a volume
+    concentration, or a mass concentration with a density — whichever is
+    known. Volume and mass are converted through the lognormal third moment
+    (Hatch–Choate): ``V = N (π/6) CMD³ exp(4.5 ln²σg)``.
+
     Parameters
     ----------
     geometric_mean : float, default=200
-        Geometric mean diameter in nm.
+        Median diameter in nm — of the number mode (``mode='number'``) or of
+        the volume/mass mode (``mode='volume'``, e.g. a VMD read off a
+        volume distribution). The number-mode median is then
+        ``VMD · exp(−3 ln²σg)``.
     geometric_std : float, default=2.0
-        Geometric standard deviation.
-    total_number : float, default=1e6
-        Total number concentration (#/cm³).
+        Geometric standard deviation (the same for every weighting).
+    total_number : float, optional
+        Total number concentration (#/cm³). Default 1e6 when no amount is given.
     dp_range : tuple, default=(1, 2500)
         Diameter range (min, max) in nm.
     n_bins : int, default=167
         Number of size bins.
+    total_volume : float, optional
+        Total volume concentration (µm³/cm³) instead of ``total_number``.
+    total_mass : float, optional
+        Mass concentration (µg/m³) instead of ``total_number``; needs ``density``.
+    density : float, optional
+        Particle density (g/cm³), used with ``total_mass``.
+    mode : {'number', 'volume'}, default 'number'
+        Which weighting ``geometric_mean`` refers to.
 
     Returns
     -------
@@ -981,15 +1036,23 @@ def generate_lognormal_psd(
     --------
     >>> dp, ndp = generate_lognormal_psd(geometric_mean=100, geometric_std=1.8)
     >>> print(f"Peak at {dp[np.argmax(ndp)]:.1f} nm")
+    >>> # 30 µg/m³ of black carbon (ρ = 1.85) in a 150 nm / 1.6 number mode
+    >>> dp, ndp = generate_lognormal_psd(150, 1.6, total_mass=30, density=1.85)
     """
+    geometric_mean, total_number = _resolve_lognormal_amount(
+        geometric_mean, geometric_std, total_number, total_volume, total_mass, density, mode)
     diameter = np.logspace(np.log10(dp_range[0]), np.log10(dp_range[1]), n_bins)
 
-    # Lognormal distribution: dN/dlogDp
+    # Lognormal distribution as dN/dlog10Dp — the convention every consumer
+    # here integrates against (`_integrate_psd` uses log10 spacing). The
+    # natural-log density is dN/dlnDp; the ln(10) converts it. Without it the
+    # mode held N/ln10 ≈ 0.43 N particles, so `mie_lognormal` and
+    # `mie_multimodal` under-reported every coefficient by that factor.
     log_sigma = np.log(geometric_std)
     log_dp = np.log(diameter)
     log_mean = np.log(geometric_mean)
 
-    ndp = total_number * (
+    ndp = total_number * np.log(10) * (
         1 / (log_sigma * np.sqrt(2 * np.pi)) *
         np.exp(-(log_dp - log_mean)**2 / (2 * log_sigma**2))
     )
@@ -1007,9 +1070,13 @@ def mie_lognormal(
     *,
     geo_mean: float = 200,
     geo_std: float = 2.0,
-    total_number: float = 1e6,
+    total_number: float | None = None,
     n_bins: int = 167,
     dp_range: tuple = (1, 2500),
+    total_volume: float | None = None,
+    total_mass: float | None = None,
+    density: float | None = None,
+    mode: str = 'number',
 ) -> dict:
     """
     Compute Mie optics for a single lognormal PSD without building it manually.
@@ -1028,17 +1095,28 @@ def mie_lognormal(
         Geometric mean diameter in nm.
     geo_std : float, default 2.0
         Geometric standard deviation (dimensionless).
-    total_number : float, default 1e6
-        Total number concentration (#/cm³).
+    total_number : float, optional
+        Total number concentration (#/cm³); default 1e6 when no amount is given.
     n_bins : int, default 167
         Number of log-spaced bins.
     dp_range : tuple, default (1, 2500)
         Diameter range in nm.
+    total_volume, total_mass, density, mode
+        Specify the mode by volume (µm³/cm³) or by mass (µg/m³, with
+        ``density`` in g/cm³) instead of number, and read ``geo_mean`` as the
+        volume-mode median with ``mode='volume'`` — see
+        :func:`generate_lognormal_psd`.
 
     Returns
     -------
     dict
         Keys ``ext``, ``sca``, ``abs`` (Mm⁻¹) — bulk optical coefficients.
+
+    Examples
+    --------
+    >>> # σ_abs of 10 µg/m³ BC (m = 1.95+0.79i, ρ = 1.8) at 880 nm
+    >>> mie_lognormal(1.95 + 0.79j, 880, geo_mean=150, geo_std=1.6,
+    ...               total_mass=10, density=1.8)['abs']  # doctest: +SKIP
     """
     dp, ndp = generate_lognormal_psd(
         geometric_mean=geo_mean,
@@ -1046,6 +1124,10 @@ def mie_lognormal(
         total_number=total_number,
         dp_range=dp_range,
         n_bins=n_bins,
+        total_volume=total_volume,
+        total_mass=total_mass,
+        density=density,
+        mode=mode,
     )
     psd = pd.DataFrame([ndp], columns=dp)
     ri = np.atleast_1d(np.asarray(refractive_index, dtype=complex))
@@ -1060,6 +1142,9 @@ def mie_multimodal(
     modes,
     n_bins: int = 167,
     dp_range: tuple = (1, 2500),
+    amount: str = 'number',
+    density: float | None = None,
+    mode: str = 'number',
 ) -> dict:
     """
     Compute Mie optics for a multi-modal lognormal PSD.
@@ -1073,14 +1158,22 @@ def mie_multimodal(
         Particle complex refractive index ``m = n + ik``.
     wavelength : float, default 550
         Wavelength in nm.
-    modes : sequence of (geo_mean, geo_std, total_number)
-        Each entry defines one lognormal mode (nm, dimensionless, #/cm³).
+    modes : sequence of (geo_mean, geo_std, amount)
+        Each entry defines one lognormal mode: median diameter (nm), geometric
+        standard deviation, and its amount in the unit named by ``amount``.
         Example: ``[(50, 1.5, 1e4), (200, 2.0, 5e3)]`` for an Aitken +
-        accumulation mode.
+        accumulation mode by number.
     n_bins : int, default 167
         Number of log-spaced bins for the merged grid.
     dp_range : tuple, default (1, 2500)
         Diameter range in nm covering all modes.
+    amount : {'number', 'volume', 'mass'}, default 'number'
+        Unit of the third tuple element: #/cm³, µm³/cm³, or µg/m³ (``mass``
+        needs ``density``). See :func:`generate_lognormal_psd`.
+    density : float, optional
+        Particle density (g/cm³) for ``amount='mass'``.
+    mode : {'number', 'volume'}, default 'number'
+        Whether each ``geo_mean`` is the number- or volume-mode median.
 
     Returns
     -------
@@ -1089,17 +1182,16 @@ def mie_multimodal(
     """
     if not modes:
         raise ValueError("mie_multimodal() needs at least one mode in `modes`.")
+    if amount not in ('number', 'volume', 'mass'):
+        raise ValueError(f"amount must be 'number', 'volume' or 'mass'; got {amount!r}")
 
     diameter = np.logspace(np.log10(dp_range[0]), np.log10(dp_range[1]), n_bins)
-    log_dp = np.log(diameter)
     total_ndp = np.zeros(n_bins)
 
-    for gm, gs, nt in modes:
-        log_sigma = np.log(gs)
-        log_mean = np.log(gm)
-        ndp = nt * (
-            1 / (log_sigma * np.sqrt(2 * np.pi))
-            * np.exp(-(log_dp - log_mean) ** 2 / (2 * log_sigma ** 2))
+    for gm, gs, amt in modes:
+        _, ndp = generate_lognormal_psd(
+            gm, gs, dp_range=dp_range, n_bins=n_bins, mode=mode,
+            **{f'total_{amount}': amt}, density=density,
         )
         total_ndp += ndp
 

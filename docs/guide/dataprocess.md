@@ -222,10 +222,30 @@ from AeroViz import mie_lognormal, mie_multimodal, mie_core_shell, mie_core_shel
 
 # One-shot optics from a synthetic lognormal (or multi-mode) PSD
 mie_lognormal(refractive_index, wavelength=550, *, geo_mean=200, geo_std=2.0,
-              total_number=1e6, n_bins=167, dp_range=(1, 2500))   -> {'ext', 'sca', 'abs'}
+              total_number=None, n_bins=167, dp_range=(1, 2500),
+              total_volume=None, total_mass=None, density=None,
+              mode='number')                                       -> {'ext', 'sca', 'abs'}
 mie_multimodal(refractive_index, wavelength=550, *, modes,
-               n_bins=167, dp_range=(1, 2500))                    -> {'ext', 'sca', 'abs'}
-# modes = [(geo_mean, geo_std, total_number), ...]
+               n_bins=167, dp_range=(1, 2500),
+               amount='number', density=None, mode='number')       -> {'ext', 'sca', 'abs'}
+# modes = [(geo_mean, geo_std, amount), ...]  — amount in #/cm³, µm³/cm³ or µg/m³
+
+# The mode's amount is whichever you know: a number concentration (default
+# 1e6 #/cm³), a volume concentration, or a mass loading with a density —
+# e.g. "10 µg/m³ of BC, ρ = 1.8" at 880 nm:
+mie_lognormal(1.95 + 0.79j, 880, geo_mean=150, geo_std=1.6, total_mass=10, density=1.8)
+# geo_mean is the number-mode median; pass mode='volume' when you have the
+# volume-mode median instead (VMD = CMD·exp(3 ln²σg), Hatch–Choate — see
+# `hatch_choate` under `size`). Total volume is N·(π/6)·CMD³·exp(4.5 ln²σg).
+```
+
+To see *which sizes* of such a mode do the scattering and absorbing,
+`AeroViz.plot.optical.mie_contribution(m, wavelengths, geo_mean=…, geo_std=…,
+total_mass=…, density=…)` draws the mode (dN and dV) over the per-size
+dσ_sca/dlogDp and dσ_abs/dlogDp, with the integrated σ in the legend.
+
+```python
+from AeroViz import mie_core_shell, mie_core_shell_sd
 
 # Core-shell (Aden-Kerker)
 mie_core_shell(m_core, m_shell, d_core, d_total, wavelength)

@@ -88,10 +88,12 @@ pass a DataFrame (or a few), get a DataFrame or dict back. No processor object,
 no `path_out` — call `.to_csv()` yourself if you want a file.
 
 ```python
-from AeroViz import reconstruct_mass, mie, improve, merge_psd, psd_stats, voc_potentials
+from AeroViz import reconstruct_mass, mie, mie_lognormal, improve, merge_psd, psd_stats, voc_potentials
 
 mass = reconstruct_mass(df_chem)              # chemistry
 ext  = mie(df_pnsd, df_RI, wavelength=550)    # optical
+bc   = mie_lognormal(1.95 + 0.79j, 880, geo_mean=150, geo_std=1.6,
+                     total_mass=10, density=1.8)   # synthetic mode by mass (or total_number / total_volume)
 imp  = improve(df_mass, df_RH, method='revised')
 ofp  = voc_potentials(df_voc)                 # voc
 ```

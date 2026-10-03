@@ -69,9 +69,10 @@ class TestIterativeInversionSD:
         # Build a lognormal PSD explicitly
         dp = np.logspace(np.log10(20), np.log10(2000), 80)
         n_true, k_true = 1.55, 0.02
-        # dN/dlogDp lognormal
+        # dN/dlog10Dp lognormal (the ln(10) turns the dN/dlnDp density into
+        # the log10 convention Mie_SD integrates against)
         ln_sigma = np.log(2.0)
-        ndp = (1e4 / (np.sqrt(2 * np.pi) * ln_sigma) *
+        ndp = (1e4 * np.log(10) / (np.sqrt(2 * np.pi) * ln_sigma) *
                np.exp(-0.5 * (np.log(dp / 200) / ln_sigma) ** 2))
         # Forward via lognormal shortcut (analytic on identical params)
         ref = mie_lognormal(complex(n_true, k_true), wavelength=WAVELENGTH,

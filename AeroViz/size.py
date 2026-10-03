@@ -3,7 +3,7 @@
 from AeroViz.dataProcess.SizeDistr._size_dist import SizeDist
 from AeroViz.dataProcess.SizeDistr.merge import merge_v1, merge_v2, merge_v3, merge_v4, merge_v5
 
-__all__ = ['psd_stats', 'psd_distributions', 'merge_psd']
+__all__ = ['psd_stats', 'psd_distributions', 'merge_psd', 'hatch_choate']
 
 
 def psd_stats(df, hybrid_bin_start_loc=None, unit='nm', bin_range=(11.8, 19810), input_type='dlogdp'):
@@ -233,3 +233,19 @@ def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None, df_pm1=None,
                         smps_overlap_lowbound, aps_fit_highbound)
 
     raise ValueError(f"version must be one of {{1, 2, 3, 4, 5}}, got {version}.")
+
+
+def hatch_choate(geo_mean, geo_std, *, from_='number', to='volume'):
+    """Convert a lognormal mode's median diameter between weightings.
+
+    Same ``geo_std`` throughout; ``d_to = d_from · exp((p_to − p_from) ln²σg)``
+    with moment order ``p`` = 0 / 2 / 3 for ``'number'`` / ``'surface'`` /
+    ``'volume'`` (``'mass'`` ≡ volume). Hatch & Choate (1929); Hinds (1999).
+
+    >>> hatch_choate(100, 2.0)                     # CMD 100 nm → VMD
+    421.0...
+    >>> hatch_choate(421, 2.0, from_='volume', to='number')
+    99.9...
+    """
+    from AeroViz.dataProcess.SizeDistr._lognormal import hatch_choate as _impl
+    return _impl(geo_mean, geo_std, from_=from_, to=to)

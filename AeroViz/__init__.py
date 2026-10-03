@@ -49,6 +49,7 @@ from AeroViz.size import (
     psd_stats,
     psd_distributions,
     merge_psd,
+    hatch_choate,
 )
 from AeroViz.voc import voc_potentials
 
@@ -127,6 +128,7 @@ __all__ = [
     'psd_stats',
     'psd_distributions',
     'merge_psd',
+    'hatch_choate',
     # voc top-level functions
     'voc_potentials',
     # Legacy

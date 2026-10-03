@@ -73,6 +73,8 @@ the invariants each step must respect, is in
 └── {inst}.log                        # parse warnings, dropped files, QC summary
 ```
 
+`output_split='month'|'year'` writes each CSV product per period
+(`output_{inst}_2026-10.csv`) and leaves unchanged files untouched.
 `output_prefix=` renames the `output_{inst}` stem; `save_pkl`,
 `save_intermediate_csv`, `save_report`, `save_csv` switch the respective files off.
 

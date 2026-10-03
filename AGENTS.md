@@ -62,6 +62,7 @@ df = RawDataReader(
 | `mean_freq` | str | Averaging frequency ('1h', '30min', '1D'); omit for native resolution (no resampling) |
 | `qc` | bool/str | True=apply QC, 'MS'=monthly stats |
 | `reset` | bool/str | True=reprocess; 'incremental'=parse only new/changed files, reuse the rest from `cache_dir` (same result as True); 'append'=extend the pkl cache |
+| `output_split` | str | CSV layout: `none` (default) / `month` / `year` → `{stem}_YYYY-MM.csv`; unchanged files are not rewritten |
 | `parse_workers` | int | Threads for raw-file parsing (default 1; 4 for network/synced folders; same result) |
 | `cache_dir` | str/Path | Per-file parse cache root for `reset='incremental'` (local scratch path; entries are pickles) |
 | `size_range` | tuple | SMPS only (accepted but ignored by APS/GRIMM): exact `(first_bin, last_bin)` nm of the grid to keep, e.g. `(11.8, 593.5)`; a non-matching file is rejected |

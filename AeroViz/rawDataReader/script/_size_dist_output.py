@@ -73,24 +73,19 @@ def finalize_size_dist(reader, dist, *, unit):
         return dist
 
     prefix = reader._output_prefix
-    folder = reader._output_folder
     dp = np.asarray(bins.columns, dtype=float)
     wanted = wanted_outputs(reader.kwargs)
     append_stats = reader.kwargs.get('append_stats', False)
 
     # Number / surface / volume distributions (dX/dlogDp) — only the ones asked for
-    written = []
+    # Each product goes through the reader's writer: output_split layout and
+    # "unchanged → don't rewrite" apply to the sidecars exactly as to the main CSV.
     if 'number' in wanted:
-        bins.round(4).to_csv(folder / f'{prefix}_dNdlogDp.csv')
-        written.append(f'{prefix}_dNdlogDp.csv')
+        reader._write_product(f'{prefix}_dNdlogDp', bins.round(4))
     if 'surface' in wanted:
-        (bins * np.pi * dp ** 2).round(4).to_csv(folder / f'{prefix}_dSdlogDp.csv')
-        written.append(f'{prefix}_dSdlogDp.csv')
+        reader._write_product(f'{prefix}_dSdlogDp', (bins * np.pi * dp ** 2).round(4))
     if 'volume' in wanted:
-        (bins * np.pi * dp ** 3 / 6).round(4).to_csv(folder / f'{prefix}_dVdlogDp.csv')
-        written.append(f'{prefix}_dVdlogDp.csv')
-    if written:
-        reader.logger.info(f"Saved: {', '.join(written)}")
+        reader._write_product(f'{prefix}_dVdlogDp', (bins * np.pi * dp ** 3 / 6).round(4))
 
     if 'stats' not in wanted and not append_stats:
         return dist
@@ -104,8 +99,7 @@ def finalize_size_dist(reader, dist, *, unit):
         return dist
 
     if 'stats' in wanted:
-        stats.round(4).to_csv(folder / f'{prefix}_stats.csv')
-        reader.logger.info(f"Saved: {prefix}_stats.csv")
+        reader._write_product(f'{prefix}_stats', stats.round(4))
 
     if append_stats:
         from pandas import concat

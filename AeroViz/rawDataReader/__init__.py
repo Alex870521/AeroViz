@@ -31,6 +31,7 @@ def RawDataReader(instrument: str,
                   save_csv: bool = True,
                   cache_dir: Path | str | None = None,
                   parse_workers: int = 1,
+                  output_split: Literal['none', 'month', 'year'] = 'none',
                   quiet: bool = False,
                   log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'] = 'INFO',
                   **kwargs):
@@ -189,6 +190,15 @@ def RawDataReader(instrument: str,
         network share or a synced drive (a year of hourly TEOM logs is a few
         thousand small files). Files are merged in name order whichever thread
         finished first, so the result is the same at any setting.
+
+    output_split : {'none', 'month', 'year'}, default='none'
+        Layout of the CSV products (``{prefix}.csv`` and the SMPS/APS sidecars;
+        ``report.json`` stays one file). ``'none'`` writes one file per
+        product; ``'month'`` / ``'year'`` write ``{stem}_YYYY-MM.csv`` /
+        ``{stem}_YYYY.csv`` per period present in the output. Files whose
+        content did not change are not rewritten (their mtime is untouched),
+        so on a synced drive a growing dataset uploads only the current
+        period. Switching layout removes the other layout's files.
 
     save_csv : bool, default=True
         Whether to save ``{prefix}.csv`` — the frame the call returns. Switch
@@ -370,6 +380,8 @@ def RawDataReader(instrument: str,
             raise ValueError(
                 f"flag_severity values must be 'error' or 'warning'; got {invalid}")
 
+    if output_split not in ('none', 'month', 'year'):
+        raise ValueError(f"output_split must be 'none', 'month' or 'year'; got {output_split!r}")
     if size_dist_outputs is not None:
         from AeroViz.rawDataReader.script._size_dist_output import wanted_outputs
         wanted_outputs({'size_dist_outputs': size_dist_outputs})   # raises on unknown names
@@ -388,6 +400,7 @@ def RawDataReader(instrument: str,
         'save_csv': save_csv,
         'cache_dir': cache_dir,
         'parse_workers': parse_workers,
+        'output_split': output_split,
         'quiet': quiet,
         'log_level': log_level,
     })

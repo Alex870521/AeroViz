@@ -67,6 +67,7 @@ Parameters in signature order:
 | `save_report` | bool | Write `report.json` | `True` |
 | `size_dist_outputs` | tuple | SMPS/APS: which sidecars to write — any of `number`, `surface`, `volume`, `stats` (default all). Surface/volume derive from number and are ~70–80 MB each per year of 6-min scans | all |
 | `parse_workers` | int | Threads for parsing raw files; `1` = sequential (default). `4` suits network / synced folders. Output identical at any setting | `1` |
+| `output_split` | str | Layout of the CSV products: `none` (one file, default), `month` → `{stem}_YYYY-MM.csv`, `year` → `{stem}_YYYY.csv`. Unchanged files are not rewritten | `none` |
 | `save_csv` | bool | Write `{prefix}.csv` (the returned frame). Off when only the DataFrame — or the SMPS/APS `_dNdlogDp` / `_stats` sidecars — is used | `True` |
 | `quiet` | bool | Suppress console output (the log file is still written) | `False` |
 | `log_level` | str | `'DEBUG'` / `'INFO'` / `'WARNING'` / `'ERROR'` for the log file | `'INFO'` |
@@ -295,6 +296,12 @@ data (lower-case instrument name, e.g. `ae33_outputs/`; override with
 | `output_{inst}_dNdlogDp.csv` / `_dSdlogDp.csv` / `_dVdlogDp.csv` / `_stats.csv` (pick with `size_dist_outputs=`) | L3 | SMPS / APS only: the three weightings and the `psd_stats` statistics |
 | `report.json` | L3 | Acquisition / yield / total rates per period plus an up/down timeline |
 | `{inst}.log` | — | Processing log: parse warnings, dropped files, QC summary |
+
+**Split products.** `output_split='month'` (or `'year'`) writes
+`output_{inst}_2026-10.csv`, `output_{inst}_dNdlogDp_2026-10.csv`, … — one
+file per period present in the output, with `report.json` kept whole. Every
+CSV product is written only when its content changed, whichever layout you
+use, so a synced folder re-uploads the current period and nothing else.
 
 `output_prefix=` renames the `output_{inst}` stem (and the sidecars with it);
 `save_pkl=False`, `save_intermediate_csv=False`, `save_report=False`, `save_csv=False` switch the

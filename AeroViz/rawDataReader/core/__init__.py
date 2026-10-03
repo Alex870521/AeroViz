@@ -1,4 +1,7 @@
+import hashlib
 import json
+import os
+import re
 from abc import ABC, abstractmethod
 from contextlib import contextmanager
 from datetime import datetime
@@ -37,6 +40,9 @@ INVALID_COLUMN = QCFlagBuilder.INVALID_COLUMN
 # exponent, and MAX_AAE was relaxed 2.0 -> 3.0. A version-3 pickle holds both the
 # wrong values and the old QC verdict, so it is re-parsed rather than served.
 CACHE_FORMAT = 4
+
+#: Accepted values of ``output_split``.
+OUTPUT_SPLITS = ('none', 'month', 'year')
 
 
 class AbstractReader(ABC):
@@ -210,6 +216,12 @@ class AbstractReader(ABC):
         # file order either way, so the frame is identical.
         self._parse_workers = max(1, int(kwargs.get('parse_workers') or 1))
 
+        # How the L3 CSV products are laid out on disk: one file, or one per
+        # month / year (see _write_product). Validated in the factory too.
+        self._output_split = kwargs.get('output_split') or 'none'
+        if self._output_split not in OUTPUT_SPLITS:
+            raise ValueError(f"output_split must be one of {OUTPUT_SPLITS}, got {self._output_split!r}")
+
         # Selective output control
         self.save_pkl = kwargs.get('save_pkl', True)
         self.save_intermediate_csv = kwargs.get('save_intermediate_csv', True)
@@ -316,7 +328,7 @@ class AbstractReader(ABC):
         _f_qc = self._resample(_f_qc, mean_freq)
 
         if self.save_csv:
-            _f_qc.to_csv(self.csv_out)
+            self._write_product(self.csv_out.stem, _f_qc)
 
         # Generate timeline data (hourly values)
         report_dict = process_timeline_report(self.report_dict, _f_qc, show_visual=not self.quiet)
@@ -554,6 +566,56 @@ class AbstractReader(ABC):
                 weekly_raw_groups, monthly_raw_groups,
                 weekly_flag_groups, monthly_flag_groups
             )
+
+    # ---- L3 product files ------------------------------------------------------
+    def _product_periods(self, df: pd.DataFrame) -> list:
+        """Split ``df`` per ``output_split``: ``[(label, frame)]``, label None = one file."""
+        if self._output_split == 'none' or df.empty or not isinstance(df.index, pd.DatetimeIndex):
+            return [(None, df)]
+        fmt = '%Y-%m' if self._output_split == 'month' else '%Y'
+        keys = df.index.strftime(fmt)
+        return [(label, df.loc[keys == label]) for label in pd.unique(keys)]
+
+    def _write_product(self, stem: str, df: pd.DataFrame) -> list:
+        """Write a CSV product as one file or one per period, only when it changed.
+
+        * ``output_split='none'``  → ``{stem}.csv``
+        * ``'month'`` / ``'year'`` → ``{stem}_YYYY-MM.csv`` / ``{stem}_YYYY.csv``
+
+        A file whose content is byte-identical to what would be written is left
+        alone (not even its mtime moves): on a synced drive every write is an
+        upload, and with monthly files only the current month ever changes.
+        Switching layout removes the other layout's files for this stem, so the
+        folder never carries the same product twice. Returns the paths written.
+        """
+        folder = self._output_folder
+        parts = self._product_periods(df)
+        period_re = re.compile(rf'^{re.escape(stem)}_\d{{4}}(-\d{{2}})?\.csv$')
+
+        single = folder / f'{stem}.csv'
+        if parts[0][0] is None:
+            stale = [p for p in folder.glob(f'{stem}_*.csv') if period_re.match(p.name)]
+        else:
+            stale = [single] if single.exists() else []
+        for p in stale:
+            p.unlink()
+            self.logger.debug(f"Removed {p.name} (output_split={self._output_split!r})")
+
+        written = []
+        for label, part in parts:
+            path = single if label is None else folder / f'{stem}_{label}.csv'
+            payload = part.to_csv().encode('utf-8')
+            if path.exists() and hashlib.md5(path.read_bytes()).digest() == hashlib.md5(payload).digest():
+                continue
+            tmp = path.with_name(f'{path.stem}.{os.getpid()}.tmp')
+            tmp.write_bytes(payload)
+            os.replace(tmp, path)
+            written.append(path)
+        if written:
+            self.logger.info(f"Saved: {', '.join(p.name for p in written)}")
+        else:
+            self.logger.debug(f"{stem}: unchanged, nothing written")
+        return written
 
     # ---- per-file parse cache hooks (see core/parse_cache.py) ----------------
     def _parse_cache_salt(self) -> str:

@@ -99,6 +99,15 @@ class Reader(AbstractReader):
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             _df = read_csv(f, skiprows=3, on_bad_lines='skip')
 
+            # RTCalc sometimes writes a results file with the header and no
+            # samples (a run that produced nothing). There is nothing to parse;
+            # falling through used to reach the date-format warning, whose
+            # `.iloc[0]` sample raised IndexError and was logged as a read error
+            # on every run. Treat it as an empty file instead.
+            if _df.empty:
+                self.logger.debug(f"{file.name}: header only, no samples; skipped")
+                return None
+
             _df['Start Date/Time'] = _df['Start Date/Time'].str.strip()
 
             # Try each known date format in turn. The first one whose result

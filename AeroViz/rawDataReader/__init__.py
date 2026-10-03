@@ -9,8 +9,9 @@ from AeroViz.rawDataReader.script import *
 
 from AeroViz.rawDataReader.inventory import inventory
 from AeroViz.rawDataReader.qc_report import write_qc_report
+from AeroViz.rawDataReader.netcdf import to_netcdf, read_netcdf
 
-__all__ = ['RawDataReader', 'inventory', 'write_qc_report']
+__all__ = ['RawDataReader', 'inventory', 'write_qc_report', 'to_netcdf', 'read_netcdf']
 
 
 def RawDataReader(instrument: str,

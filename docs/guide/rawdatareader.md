@@ -310,6 +310,30 @@ df = RawDataReader('SMPS', '/data/TP_SMPS', start, end, qc_config='qc.yaml')
 write_qc_report(df, 'reports/TP_SMPS_2026.md')
 ```
 
+### Export to NetCDF
+
+`to_netcdf(df, path)` writes a reader result as a CF-style NetCDF file
+(`pip install AeroViz[netcdf]` for xarray + netCDF4). Everything in
+`df.attrs` — provenance, coverage, native frequency, QC rates, the applied QC
+configuration — becomes a global attribute, so the file explains itself
+without the session that made it. Float-named columns (a size distribution)
+become a `(time, diameter)` variable `dN_dlogDp`; other columns become
+`(time,)` variables with units where known and the original name in
+`long_name` (`BB(%)` is stored as `BB`). `read_netcdf(path)` brings it back
+with the attrs restored.
+
+```python
+from AeroViz import RawDataReader, to_netcdf, read_netcdf
+
+df = RawDataReader('SMPS', '/data/NZ_SMPS', start, end, mean_freq='1h')
+to_netcdf(df, 'NZ_SMPS_2026-01.nc', title='NZ SMPS January 2026')
+same = read_netcdf('NZ_SMPS_2026-01.nc')
+```
+
+Timezone-aware indexes are written in UTC with a note on the time variable;
+the readers return naive local time, which is written as is. The same file is
+one `aeroviz read … --out x.nc` away from the [command line](cli.md).
+
 ### Inventory a folder before reading
 
 `inventory(instrument, path)` lists what is in a folder without parsing it —

@@ -254,6 +254,15 @@ tokens with `ignored_status_errors=['Low aerosol flow', ...]`.
 status check honors it, interpreted in that instrument's mode (string
 tokens / numeric codes / error bits / bit masks); see the parameter table.
 
+### NetCDF export and the command line
+
+`to_netcdf(df, 'x.nc')` writes a reader result CF-style — `df.attrs` as global
+attributes, size distributions as a `(time, diameter)` variable — and
+`read_netcdf` reverses it (`pip install AeroViz[netcdf]`). The `aeroviz`
+command wraps the API: `aeroviz read SMPS /data/NZ_SMPS --start … --freq 1h
+--out x.nc --report x.md`, `aeroviz inventory SMPS /data/NZ_SMPS`,
+`aeroviz instruments`.
+
 ### QC configuration file and report
 
 `qc_config='qc.yaml'` loads thresholds, whitelist, severities and outlier

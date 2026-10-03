@@ -77,7 +77,15 @@ dependencies = [
     "pyyaml>=6.0",        # qc_config YAML; report known-issues file
 ]
 
+[project.scripts]
+aeroviz = "AeroViz.cli:main"
+
 [project.optional-dependencies]
+# `to_netcdf` / `aeroviz read --out x.nc`: xarray plus a NetCDF backend.
+netcdf = [
+    "xarray>=2024.1",
+    "netCDF4>=1.6",
+]
 # Everything under AeroViz/plot/ — matplotlib and friends account for the bulk
 # of the install (plotly ~88MB, scikit-learn ~34MB, cartopy pulls pyproj/shapely).
 # Consumers that only read data or run the optical/size maths (e.g. a web
@@ -96,6 +104,8 @@ test = [
     # tests/test_plot.py 與 test_plot_interactive.py 會實際畫圖,
     # 所以測試環境必須帶上 plot extra。
     "AeroViz[plot]",
+    "AeroViz[netcdf]",
+    "pyarrow",            # CLI --out x.parquet
     "pytest>=7.0.0",
     "pytest-cov>=4.1.0",
     "pytest-mock>=3.10.0",

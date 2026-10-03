@@ -61,6 +61,7 @@ nav:
           - Contributing a Reader: guide/contributing-reader.md
       - Examples:
           - RawDataReader Usage: guide/rawdatareader.md
+          - Command Line (aeroviz): guide/cli.md
           - Size Distribution: guide/size_distribution.md
           - Optical Closure: guide/optical_closure.md
           - Chemical Analysis: guide/chemical_analysis.md

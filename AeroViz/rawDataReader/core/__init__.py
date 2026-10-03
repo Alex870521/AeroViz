@@ -205,6 +205,11 @@ class AbstractReader(ABC):
             self.logger.warning(
                 "reset='incremental' without cache_dir: nothing to reuse, every raw file is re-read.")
 
+        # Threads used to parse raw files (I/O-bound on network / synced folders).
+        # 1 = sequential, exactly the historical behaviour; results are merged in
+        # file order either way, so the frame is identical.
+        self._parse_workers = max(1, int(kwargs.get('parse_workers') or 1))
+
         # Selective output control
         self.save_pkl = kwargs.get('save_pkl', True)
         self.save_intermediate_csv = kwargs.get('save_intermediate_csv', True)
@@ -811,32 +816,54 @@ class AbstractReader(ABC):
         cache = self._parse_cache
         use_cache = cache is not None and not self._rebuild_parse_cache
 
-        # Context manager for progress bar display
-        with self.progress_reading(files) as (progress, task):
-            for file in files:
-                if progress is not None:
-                    progress.update(task, advance=1, filename=file.name)
-                try:
-                    # Cache hit = this file's parsed frame from an earlier run with
-                    # the same name/size/mtime/version. Miss = parse, then store.
-                    df = cache.load(file) if use_cache else None
-                    if df is not None:
-                        self._apply_parse_meta(df.attrs.get('parse_meta') or {})
-                    else:
-                        df = self._raw_reader(file)
-                        if cache is not None and df is not None and not df.empty:
-                            cache.store(file, df, meta=self._collect_parse_meta() or None)
-                    if df is not None and not df.empty:
-                        df_list.append(df)
-                        parsed_files.append(file)
-                        # Detect each file's native resolution before they are merged,
-                        # so a mixed-resolution batch can be flagged.
-                        per_file_freq[file.name] = detect_freq(df.index)
-                    else:
-                        self.logger.debug(f"File {file.name} produced an empty DataFrame or None.")
+        def parse_one(file):
+            """One file → (df | None, error | None). Runs on a worker thread when
+            parse_workers > 1, so it only touches the cache (locked) and the
+            reader's per-file hooks."""
+            try:
+                # Cache hit = this file's parsed frame from an earlier run with
+                # the same name/size/mtime/version. Miss = parse, then store.
+                df = cache.load(file) if use_cache else None
+                if df is not None:
+                    self._apply_parse_meta(df.attrs.get('parse_meta') or {})
+                else:
+                    df = self._raw_reader(file)
+                    if cache is not None and df is not None and not df.empty:
+                        cache.store(file, df, meta=self._collect_parse_meta() or None)
+                return df, None
+            except Exception as e:
+                return None, e
 
-                except Exception as e:
-                    self.logger.error(f"Error reading {file.name}: {e}")
+        # Parse (optionally in parallel), then merge strictly in file order so the
+        # result does not depend on which thread finished first.
+        with self.progress_reading(files) as (progress, task):
+            if self._parse_workers > 1 and len(files) > 1:
+                from concurrent.futures import ThreadPoolExecutor
+                with ThreadPoolExecutor(max_workers=self._parse_workers) as pool:
+                    futures = [pool.submit(parse_one, f) for f in files]
+                    results = []
+                    for file, fut in zip(files, futures):
+                        results.append(fut.result())
+                        if progress is not None:
+                            progress.update(task, advance=1, filename=file.name)
+            else:
+                results = []
+                for file in files:
+                    if progress is not None:
+                        progress.update(task, advance=1, filename=file.name)
+                    results.append(parse_one(file))
+
+        for file, (df, err) in zip(files, results):
+            if err is not None:
+                self.logger.error(f"Error reading {file.name}: {err}")
+            elif df is not None and not df.empty:
+                df_list.append(df)
+                parsed_files.append(file)
+                # Detect each file's native resolution before they are merged,
+                # so a mixed-resolution batch can be flagged.
+                per_file_freq[file.name] = detect_freq(df.index)
+            else:
+                self.logger.debug(f"File {file.name} produced an empty DataFrame or None.")
 
         if cache is not None:
             # Entries whose raw file vanished or changed are dead weight.

@@ -30,6 +30,7 @@ def RawDataReader(instrument: str,
                   save_report: bool = True,
                   save_csv: bool = True,
                   cache_dir: Path | str | None = None,
+                  parse_workers: int = 1,
                   quiet: bool = False,
                   log_level: Literal['DEBUG', 'INFO', 'WARNING', 'ERROR'] = 'INFO',
                   **kwargs):
@@ -181,6 +182,13 @@ def RawDataReader(instrument: str,
         pickles — never at a shared or synced location. With ``cache_dir`` set,
         ``reset='incremental'`` is the hourly-pipeline mode and ``reset=True``
         the full rebuild.
+
+    parse_workers : int, default=1
+        Threads used to parse the raw files. 1 keeps the historical sequential
+        read. Parsing is mostly I/O, so 4 is a good value for folders on a
+        network share or a synced drive (a year of hourly TEOM logs is a few
+        thousand small files). Files are merged in name order whichever thread
+        finished first, so the result is the same at any setting.
 
     save_csv : bool, default=True
         Whether to save ``{prefix}.csv`` — the frame the call returns. Switch
@@ -379,6 +387,7 @@ def RawDataReader(instrument: str,
         'save_report': save_report,
         'save_csv': save_csv,
         'cache_dir': cache_dir,
+        'parse_workers': parse_workers,
         'quiet': quiet,
         'log_level': log_level,
     })

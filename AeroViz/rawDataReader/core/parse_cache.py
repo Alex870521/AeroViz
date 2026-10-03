@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import threading
 from pathlib import Path
 from typing import Optional
 
@@ -57,6 +58,7 @@ class ParseCache:
         self.hits = 0
         self.parsed = 0
         self._used: set[Path] = set()
+        self._lock = threading.Lock()   # load/store may run on parse worker threads
 
     # ---- keys -------------------------------------------------------------
     def key(self, file: Path) -> Optional[str]:
@@ -85,8 +87,9 @@ class ParseCache:
         except Exception:
             # A damaged entry is just a miss; the re-parse overwrites it.
             return None
-        self._used.add(p)
-        self.hits += 1
+        with self._lock:
+            self._used.add(p)
+            self.hits += 1
         return df
 
     def store(self, file: Path, df: pd.DataFrame, meta: Optional[dict] = None) -> None:
@@ -96,11 +99,12 @@ class ParseCache:
         self.dir.mkdir(parents=True, exist_ok=True)
         if meta:
             df.attrs['parse_meta'] = meta
-        tmp = p.with_suffix('.pkl.tmp')
+        tmp = p.with_name(f'{p.stem}.{threading.get_ident()}.tmp')
         df.to_pickle(tmp)
         os.replace(tmp, p)
-        self._used.add(p)
-        self.parsed += 1
+        with self._lock:
+            self._used.add(p)
+            self.parsed += 1
 
     def prune(self) -> int:
         """Delete entries this run did not touch (raw file gone or changed)."""

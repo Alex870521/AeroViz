@@ -66,6 +66,7 @@ Parameters in signature order:
 | `save_intermediate_csv` | bool | Write `_read_*_raw.csv` / `_read_*_qc.csv` | `True` |
 | `save_report` | bool | Write `report.json` | `True` |
 | `size_dist_outputs` | tuple | SMPS/APS: which sidecars to write — any of `number`, `surface`, `volume`, `stats` (default all). Surface/volume derive from number and are ~70–80 MB each per year of 6-min scans | all |
+| `parse_workers` | int | Threads for parsing raw files; `1` = sequential (default). `4` suits network / synced folders. Output identical at any setting | `1` |
 | `save_csv` | bool | Write `{prefix}.csv` (the returned frame). Off when only the DataFrame — or the SMPS/APS `_dNdlogDp` / `_stats` sidecars — is used | `True` |
 | `quiet` | bool | Suppress console output (the log file is still written) | `False` |
 | `log_level` | str | `'DEBUG'` / `'INFO'` / `'WARNING'` / `'ERROR'` for the log file | `'INFO'` |

@@ -205,7 +205,9 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
 → **L2 frame.** Everything up to here is skipped entirely on a whole-frame
 cache hit. With `cache_dir=` and `reset='incremental'` there is a finer cache
 one level down: step 1 loads each *unchanged* file's parsed frame instead of
-parsing it, and steps 2–12 run as usual (see §4).
+parsing it, and steps 2–12 run as usual (see §4). Step 1 can also run on
+several threads (`parse_workers=`); files are merged in name order regardless,
+so neither option changes the frame.
 
 ### L3 — presentation (every call, cache hit or not)
 

@@ -1,3 +1,20 @@
+## v0.5.0 (2026-10-03)
+
+### Feat
+
+- **reader**: size_dist_outputs — choose which SMPS/APS sidecars are written
+- **reader**: per-file parse cache — reset='incremental' parses only new or changed files
+- **reader**: save_csv switch for the {prefix}.csv output
+
+### Fix
+
+- **ae33**: skip station-side backfill dumps
+- **ocec**: skip header-only LCRes results files
+
+### Perf
+
+- **smps**: read each export once
+
 ## v0.4.8 (2026-09-14)
 
 ### Feat

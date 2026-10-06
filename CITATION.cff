@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use AeroViz in your research, please cite it as below."
+type: software
+title: "AeroViz: Aerosol Data Processing and Visualization Toolkit"
+abstract: >-
+  Aerosol data processing and visualization toolkit. Read, QC, and analyze
+  data from SMPS, APS, AE33, TEOM, Nephelometer, XRF, and 15+ atmospheric
+  instruments.
+authors:
+  - family-names: Chan
+    given-names: Chih-Yu
+    alias: Alex870521
+    email: alex870521@gmail.com
+version: 0.5.0
+date-released: 2026-10-03
+license: MIT
+repository-code: "https://github.com/Alex870521/AeroViz"
+url: "https://alex870521.github.io/AeroViz/"
+keywords:
+  - aerosol
+  - atmospheric-science
+  - air-quality
+  - particle-size-distribution
+  - black-carbon
+  - optical-properties

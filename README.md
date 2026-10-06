@@ -118,10 +118,11 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Citation
 
-If you use AeroViz in your research, please cite:
+If you use AeroViz in your research, please cite it. The metadata is in
+[CITATION.cff](CITATION.cff); GitHub's "Cite this repository" button gives APA and BibTeX.
 
 ```
-AeroViz: Aerosol Data Processing and Visualization Toolkit
+Chan, C.-Y. AeroViz: Aerosol Data Processing and Visualization Toolkit (Version 0.5.0) [Computer software].
 https://github.com/Alex870521/AeroViz
 ```
 

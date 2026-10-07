@@ -169,6 +169,8 @@ version_provider = "pep621"
 update_changelog_on_bump = true
 major_version_zero = true
 annotated_tag = true
+# CITATION.cff version + date-released follow the bump (included in the bump commit)
+pre_bump_hooks = ["python scripts/sync_citation.py"]
 
 [tool.meson-python.args]
 setup = []

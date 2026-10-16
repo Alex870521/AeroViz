@@ -16,6 +16,7 @@ from rich.progress import Progress, TextColumn, BarColumn, SpinnerColumn, TaskPr
 from AeroViz.rawDataReader.config.supported_instruments import meta
 from AeroViz.rawDataReader.core.logger import ReaderLogger
 from AeroViz.rawDataReader.core.metadata import aeroviz_version, data_coverage, stamp_attrs
+from AeroViz.dataProcess.SizeDistr.units import DN_DLOGDP, FILE_UNIT_ATTR
 from AeroViz.rawDataReader.core.qc import (QualityControl, QCRule, QCFlagBuilder,
                                           ERROR, WARNING, SEVERITIES)
 from AeroViz.rawDataReader.core.time_grid import detect_freq, resolve_freq, detect_isolated_dates, to_grid
@@ -39,7 +40,9 @@ INVALID_COLUMN = QCFlagBuilder.INVALID_COLUMN
 # positive, `abs_550` / extrapolated `sca_*` were being computed with an inverted
 # exponent, and MAX_AAE was relaxed 2.0 -> 3.0. A version-3 pickle holds both the
 # wrong values and the old QC verdict, so it is re-parsed rather than served.
-CACHE_FORMAT = 4
+# Bumped to 5 when SMPS/APS started converting non-dN/dlogDp exports (and
+# recording `source_units`): a version-4 pickle holds them unconverted.
+CACHE_FORMAT = 5
 
 #: Accepted values of ``output_split``.
 OUTPUT_SPLITS = ('none', 'month', 'year')
@@ -193,6 +196,7 @@ class AbstractReader(ABC):
         self._n_files = None          # number of raw files read this run
         self._resolved_freq = None    # native frequency resolved from the files
         self._freq_mixed = False      # True if files had differing resolutions
+        self._source_units = {}       # file name -> unit it was exported in
         self.overall_rates = None     # overall acquisition/yield/total rates dict
 
         # Rate/timeline report accumulated by `_generate_report`. Defaulted here
@@ -399,6 +403,9 @@ class AbstractReader(ABC):
             raw_freq=self._resolved_freq or self.meta.get('freq'),
             freq_mixed=self._freq_mixed,
             fill_missing=self.fill_missing,
+            # {export unit: [files]} that had to be converted; absent when every
+            # file was already in the reader's native unit.
+            source_units=self._converted_units(),
             # Recorded on both branches: the raw path resamples too, so the
             # attrs must say what grid the frame is actually on.
             mean_freq=mean_freq,
@@ -416,6 +423,8 @@ class AbstractReader(ABC):
             meta['qc_config'] = self._qc_config_applied
         # Drop the internal cache marker carried over from the canonical frame.
         df.attrs.pop('cache_format', None)
+        df.attrs.pop('source_units_by_file', None)
+        df.attrs.pop(FILE_UNIT_ATTR, None)       # per-file tag that survived concat
         return stamp_attrs(df, **meta)
 
     @abstractmethod
@@ -938,6 +947,10 @@ class AbstractReader(ABC):
                 # Detect each file's native resolution before they are merged,
                 # so a mixed-resolution batch can be flagged.
                 per_file_freq[file.name] = detect_freq(df.index)
+                # Size-distribution readers record on each per-file frame the
+                # unit that file was exported in (and converted from).
+                if df.attrs.get(FILE_UNIT_ATTR):
+                    self._source_units[file.name] = df.attrs[FILE_UNIT_ATTR]
             else:
                 self.logger.debug(f"File {file.name} produced an empty DataFrame or None.")
 
@@ -1118,12 +1131,23 @@ class AbstractReader(ABC):
         df.attrs['n_files'] = self._n_files
         df.attrs['raw_freq'] = self._resolved_freq
         df.attrs['freq_mixed'] = self._freq_mixed
+        df.attrs['source_units_by_file'] = dict(self._source_units)
 
     def _restore_parse_meta(self, df: pd.DataFrame) -> None:
         """Pull parse provenance off a cached frame back onto self (cache hit)."""
         self._n_files = df.attrs.get('n_files')
         self._resolved_freq = df.attrs.get('raw_freq')
         self._freq_mixed = df.attrs.get('freq_mixed', False)
+        self._source_units = dict(df.attrs.get('source_units_by_file') or {})
+
+    def _converted_units(self) -> dict | None:
+        """``{export unit: [files]}`` for files that were not in dN/dlogDp, or
+        ``None`` when nothing had to be converted (or the reader has no unit)."""
+        converted = {}
+        for name, unit in sorted(self._source_units.items()):
+            if unit != DN_DLOGDP:
+                converted.setdefault(unit, []).append(name)
+        return converted or None
 
     @staticmethod
     def reorder_dataframe_columns(df, order_lists: list[list], keep_others: bool = False):

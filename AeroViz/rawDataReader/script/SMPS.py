@@ -9,6 +9,8 @@ from pandas import Series, read_csv, to_datetime, to_numeric
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
 from AeroViz.rawDataReader.script._size_dist_output import finalize_size_dist
+from AeroViz.dataProcess.SizeDistr.units import (
+    DN_DLOGDP, FILE_UNIT_ATTR, parse_export_unit, to_dndlogdp)
 
 
 class Reader(AbstractReader):
@@ -308,7 +310,7 @@ class Reader(AbstractReader):
                 for key, value in zip(row[::2], row[1::2]):
                     if key.strip() in self.DETECTOR_FIELDS and value.strip():
                         self._detector.setdefault(key.strip(), value.strip())
-                    if key.strip() in ('Units', 'Weight') and value.strip():
+                    if key.strip() in ('Units', 'Weight', 'Channels/Decade') and value.strip():
                         export.setdefault(key.strip(), value.strip())
             raise ValueError("Header row not found")
 
@@ -336,17 +338,22 @@ class Reader(AbstractReader):
         skip = find_header_row(iter(lines), delimiter)
 
         # Everything downstream treats the bins as dN/dlogDp. AIM can also
-        # export dN ("Concentration (dW)"), % concentration, or surface/volume
-        # weighting; reading those as dN/dlogDp is off by the channel width or
-        # by a different moment entirely, so skip them loudly. A preamble
-        # without these fields is left alone.
+        # export per channel ("Concentration (dW)"), surface / volume / mass
+        # weighting, or % concentration. The first ones convert exactly and are
+        # converted below; % cannot be undone without the total, so it is
+        # skipped loudly. A preamble without these fields is taken as dN/dlogDp.
         units, weight = export.get('Units'), export.get('Weight')
-        if ((units is not None and units.lower() != self.EXPECTED_UNITS.lower())
-                or (weight is not None and weight.lower() != self.EXPECTED_WEIGHT.lower())):
+        export_unit = parse_export_unit(units, weight if weight is not None else
+                                        (None if units is None else 'Number'))
+        # Mass weighting: no SMPS mass export exists to verify AIM's mass unit
+        # against, so it is not converted on an assumed one (see `to_dndlogdp`).
+        if export_unit is not None and export_unit.moment == 'M':
+            export_unit = None
+        if export_unit is None:
             self.logger.warning(
-                f"{file.name}: exported as Units={units}, Weight={weight}, not "
-                f"{self.EXPECTED_UNITS} / {self.EXPECTED_WEIGHT} (dN/dlogDp); skipped. "
-                f"Re-export it from AIM as dN/dlogDp, number weighting.")
+                f"{file.name}: exported as Units={units}, Weight={weight}, which "
+                f"cannot be converted to {DN_DLOGDP}; skipped. Re-export it from "
+                f"AIM as {self.EXPECTED_UNITS}, {self.EXPECTED_WEIGHT} weighting.")
             return None
 
         with StringIO(''.join(lines[skip:])) as f:
@@ -426,7 +433,21 @@ class Reader(AbstractReader):
                 if rename:
                     _df = _df.rename(columns=rename)
 
-            return _df.loc[~_df.index.duplicated() & _df.index.notna()]
+            _df = _df.loc[~_df.index.duplicated() & _df.index.notna()]
+
+            # Bring a per-channel / surface / volume / mass export to dN/dlogDp,
+            # and record what it was so the output can say so (the per-file
+            # attrs ride along through the parse cache).
+            if export_unit.label != DN_DLOGDP:
+                channels = to_numeric(export.get('Channels/Decade'), errors='coerce')
+                density = (to_numeric(_df['Density (g/cm)'], errors='coerce').to_numpy()
+                           if 'Density (g/cm)' in _df.columns else None)
+                _df[bin_cols] = to_dndlogdp(
+                    _df[bin_cols], export_unit, dp_unit='nm', density=density,
+                    dlogdp=1.0 / channels if channels and channels > 0 else None)
+                self.logger.info(f"{file.name}: converted {export_unit.label} to {DN_DLOGDP}")
+            _df.attrs[FILE_UNIT_ATTR] = export_unit.label
+            return _df
 
     @staticmethod
     def _bin_signature(df):

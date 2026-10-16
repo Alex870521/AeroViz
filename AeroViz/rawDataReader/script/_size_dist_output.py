@@ -67,6 +67,12 @@ def finalize_size_dist(reader, dist, *, unit):
         caller requested ``append_stats=True``.
     """
     from AeroViz.size import psd_stats
+    from AeroViz.dataProcess.SizeDistr.units import DN_DLOGDP, UNIT_ATTR
+
+    # The readers convert every supported export to dN/dlogDp while parsing,
+    # so this is what the returned frame is in; `source_units` (stamped by the
+    # reader core) says what any converted files were originally.
+    dist.attrs[UNIT_ATTR] = DN_DLOGDP
 
     bins = dist[_diameter_columns(dist)]
     if bins.empty or bins.dropna(how='all').empty:

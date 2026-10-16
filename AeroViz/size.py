@@ -42,6 +42,10 @@ def psd_stats(df, hybrid_bin_start_loc=None, unit='nm', bin_range=(11.8, 19810),
         ``'number'``, ``'surface'``, ``'volume'``, ``'other'``).
     """
     import numpy as np
+    from AeroViz.dataProcess.SizeDistr.units import DN_DLOGDP, UNIT_ATTR, check_unit
+
+    # What the input says it is must match what `input_type` declares.
+    check_unit(df, DN_DLOGDP if input_type in ('dlogdp', 'norm') else 'dN', 'psd_stats')
 
     # Prepare data
     data = df.copy()
@@ -72,6 +76,7 @@ def psd_stats(df, hybrid_bin_start_loc=None, unit='nm', bin_range=(11.8, 19810),
         data_norm = data
     else:
         data_norm = data / dlog_dp
+        data_norm.attrs[UNIT_ATTR] = DN_DLOGDP       # now normalised
 
     # Create SizeDist and calculate
     psd = SizeDist(data_norm, state='dlogdp', weighting='n')
@@ -201,8 +206,13 @@ def merge_psd(df_smps, df_aps, *, version: int = 4, df_pm25=None, df_pm1=None,
     ------
     ValueError
         If ``version`` is not in ``{1, 2, 3, 4, 5}``, ``version=4`` without
-        ``df_pm25``, or ``version=5`` without ``df_pm1``.
+        ``df_pm25``, or ``version=5`` without ``df_pm1``; or if either
+        distribution records a unit other than dN/dlogDp in its attrs.
     """
+    from AeroViz.dataProcess.SizeDistr.units import DN_DLOGDP, check_unit
+    check_unit(df_smps, DN_DLOGDP, 'merge_psd (df_smps)')
+    check_unit(df_aps, DN_DLOGDP, 'merge_psd (df_aps)')
+
     if version == 1:
         return merge_v1(df_smps, df_aps, aps_unit, shift_mode,
                         smps_overlap_lowbound, aps_fit_highbound, density_range)

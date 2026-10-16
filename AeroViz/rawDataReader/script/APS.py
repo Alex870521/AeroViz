@@ -1,10 +1,12 @@
 import numpy as np
 
 from AeroViz.dataProcess.SizeDistr._size_dist import bin_widths
-from pandas import to_datetime, read_table, Series
+from pandas import to_datetime, to_numeric, read_table, Series
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
 from AeroViz.rawDataReader.script._size_dist_output import finalize_size_dist
+from AeroViz.dataProcess.SizeDistr.units import (
+    DN_DLOGDP, FILE_UNIT_ATTR, parse_export_unit, to_dndlogdp)
 
 
 class Reader(AbstractReader):
@@ -68,7 +70,6 @@ class Reader(AbstractReader):
     EXPECTED_BIN_GRID = (0.542, 19.81, 51)  # (min nm, max nm, count)
     # AIM writes the export unit into this column on every row.
     UNIT_COLUMN = 'Aerodynamic Diameter'
-    EXPECTED_UNIT = 'dN/dlogDp'
 
     def __call__(self, start=None, end=None, mean_freq=None):
         """Return the dN/dlogDp distribution; write S/V + a stats sidecar.
@@ -94,11 +95,15 @@ class Reader(AbstractReader):
         """
         import csv
 
+        preamble = {}  # e.g. Density, needed to convert a mass-weighted export
+
         def find_header_row(file_obj, delimiter):
             csv_reader = csv.reader(file_obj, delimiter=delimiter)
             for skip, row in enumerate(csv_reader):
                 if row and row[0] == 'Sample #':
                     return skip
+                if len(row) >= 2 and row[0].strip() and row[1].strip():
+                    preamble.setdefault(row[0].strip(), row[1].strip())
             raise ValueError("Header row not found")
 
         def parse_date(df, date_format):
@@ -154,25 +159,29 @@ class Reader(AbstractReader):
             _df = _df.loc[_df.index.dropna().copy()]
 
             # The `Aerodynamic Diameter` column carries each row's export unit.
-            # Every downstream step treats the bins as dN/dlogDp, so a Raw Counts
-            # / dN / %dN / dM row would be read off by the channel width or as a
-            # different moment entirely. Keep only dN/dlogDp rows and say what
-            # was dropped; a file with none left is skipped. Checked on dated
-            # rows only: a merged export repeats its header mid-file.
+            # Every downstream step treats the bins as dN/dlogDp. dN, dS, dV and
+            # dM (per dlogDp or per channel) convert exactly and are converted
+            # below; Raw Counts, %dN or a corrupted cell cannot, so those rows
+            # are dropped with a warning and a file with none left is skipped.
+            # Checked on dated rows only: a merged export repeats its header
+            # mid-file.
+            row_unit = None
             if self.UNIT_COLUMN in _df.columns:
-                unit = _df[self.UNIT_COLUMN].astype(str).str.strip()
-                bad = unit != self.EXPECTED_UNIT
+                row_unit = _df[self.UNIT_COLUMN].astype(str).str.strip()
+                parsed = {u: parse_export_unit(u) for u in row_unit.unique()}
+                bad = row_unit.map(lambda u: parsed[u] is None)
                 if bad.any():
-                    found = ', '.join(f'{u} ×{n}' for u, n in unit[bad].value_counts().items())
+                    found = ', '.join(f'{u} ×{n}' for u, n in row_unit[bad].value_counts().items())
                     if bad.all():
                         self.logger.warning(
-                            f"{file.name}: exported as {found}, not {self.EXPECTED_UNIT}; "
-                            f"skipped. Re-export it from AIM as {self.EXPECTED_UNIT}.")
+                            f"{file.name}: exported as {found}, which cannot be converted "
+                            f"to {DN_DLOGDP}; skipped. Re-export it from AIM as {DN_DLOGDP}.")
                         return None
                     self.logger.warning(
-                        f"{file.name}: dropped {int(bad.sum())} of {len(unit)} rows "
-                        f"not in {self.EXPECTED_UNIT} ({found}).")
-                    _df = _df.loc[~bad.to_numpy()]
+                        f"{file.name}: dropped {int(bad.sum())} of {len(row_unit)} rows "
+                        f"that cannot be converted to {DN_DLOGDP} ({found}).")
+                    keep = ~bad.to_numpy()
+                    _df, row_unit = _df.loc[keep], row_unit[keep]
 
             # Identify size bin columns (numeric, in APS range 0.5-20 μm)
             numeric_cols = []
@@ -212,7 +221,33 @@ class Reader(AbstractReader):
             index_cols = ['Date', 'Start Time', 'Sample #', 'Aerodynamic Diameter']
             _df = _df.drop(columns=[c for c in index_cols if c in _df.columns], errors='ignore')
 
-            return _df.loc[~_df.index.duplicated() & _df.index.notna()]
+            keep = ~_df.index.duplicated() & _df.index.notna()
+            _df = _df.loc[keep]
+
+            # Convert the rows that are not already dN/dlogDp, unit by unit, and
+            # record what the file held (per-file attrs ride along through the
+            # parse cache).
+            labels = [DN_DLOGDP]
+            if row_unit is not None:
+                row_unit = row_unit[keep]
+                bins = list(bin_rename.values())
+                labels = sorted(row_unit.unique())
+                density = to_numeric(preamble.get('Density'), errors='coerce')
+                if any(label != DN_DLOGDP for label in labels):
+                    # A transposed export parses its bins as strings; numbers
+                    # are needed before converted values can be written back.
+                    _df[bins] = _df[bins].apply(to_numeric, errors='coerce')
+                for label in labels:
+                    if label == DN_DLOGDP:
+                        continue
+                    rows = (row_unit == label).to_numpy()
+                    _df.loc[rows, bins] = to_dndlogdp(
+                        _df.loc[rows, bins], parse_export_unit(label), dp_unit='um',
+                        density=density if density == density else None)
+                    self.logger.info(
+                        f"{file.name}: converted {int(rows.sum())} rows from {label} to {DN_DLOGDP}")
+            _df.attrs[FILE_UNIT_ATTR] = ', '.join(labels)
+            return _df
 
     def _QC(self, _df):
         """

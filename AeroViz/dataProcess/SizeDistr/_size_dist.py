@@ -11,7 +11,20 @@ from typing import Literal
 import numpy as np
 from pandas import DataFrame, Series
 
+from AeroViz.dataProcess.SizeDistr.units import UNIT_ATTR, check_unit, unit_label
+
 __all__ = ['SizeDist', 'bin_widths', 'get_required_format']
+
+_MOMENT_OF_WEIGHTING = {'n': 'N', 's': 'S', 'v': 'V'}
+
+
+def _state_unit(state: str, weighting: str) -> str:
+    """Unit a SizeDist of this ``state`` / ``weighting`` holds:
+    ``('dlogdp', 'n')`` → ``'dN/dlogDp'``, ``('dN', 's')`` → ``'dS'``."""
+    moment = _MOMENT_OF_WEIGHTING[weighting]
+    if state == 'ddp':
+        return f'd{moment}/dDp'
+    return unit_label(moment, per_dlogdp=state == 'dlogdp')
 
 
 def bin_widths(dp) -> np.ndarray:
@@ -174,6 +187,12 @@ class SizeDist:
                 f"  有效選項: ['n', 's', 'v', 'ext_in', 'ext_ex']"
             )
 
+        # A frame that records its unit (readers stamp `size_dist_unit`) must be
+        # in the unit this SizeDist is being built for — refuse rather than
+        # compute surface / volume / statistics on the wrong quantity.
+        if weighting in _MOMENT_OF_WEIGHTING:
+            check_unit(data, _state_unit(state, weighting), 'SizeDist')
+
         self._data = data
         self._dp = np.array(self._data.columns, dtype=float)
         # Infer dlogdp (log10 bin width) per bin from the actual diameter
@@ -264,7 +283,15 @@ class SizeDist:
         # (π·dp²·x), so the values are identical, but a year of 6-minute scans
         # drops from seconds to milliseconds. Rows with any NaN are left out and
         # re-inserted as NaN, as before.
-        return (self._data.dropna() * (np.pi * self._dp ** 2)).reindex(self._index)
+        return self._tag((self._data.dropna() * (np.pi * self._dp ** 2)).reindex(self._index), 'S')
+
+    def _tag(self, out: DataFrame, moment: str) -> DataFrame:
+        """Record the unit of a derived distribution, so it is checked when
+        it is fed to the next calculation. Only a number distribution has a
+        known surface / volume counterpart."""
+        if self._weighting == 'n':
+            out.attrs[UNIT_ATTR] = _state_unit(self._state, moment.lower())
+        return out
 
     def to_volume(self) -> DataFrame:
         """
@@ -282,7 +309,7 @@ class SizeDist:
         >>> psd = SizeDist(df)
         >>> volume = psd.to_volume()
         """
-        return (self._data.dropna() * (np.pi / 6 * self._dp ** 3)).reindex(self._index)
+        return self._tag((self._data.dropna() * (np.pi / 6 * self._dp ** 3)).reindex(self._index), 'V')
 
     def properties(self) -> DataFrame:
         """

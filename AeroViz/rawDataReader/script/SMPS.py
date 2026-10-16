@@ -1,4 +1,5 @@
 import csv
+import re
 from io import StringIO
 
 import numpy as np
@@ -110,6 +111,7 @@ class Reader(AbstractReader):
     #: Models absent here leave the rule inert (logged, not silently skipped).
     #: Override or extend with `cpc_max_conc={'3022': 1e7}`.
     CPC_MAX_CONC = {
+        '3750': 1.0e5,    # single-count with live coincidence correction
         '3772': 1e4,      # single-count only, no photometric mode
         '3787': 2.5e5,
         '3788': 4.0e5,
@@ -137,13 +139,34 @@ class Reader(AbstractReader):
     # 1. Mixed-bin-grid in one folder — handled by `_partition_compatible_scans`
     #    (keep the dominant-row group, drop the minority with a warning).
     # 2. AIM-version metadata column drift — `METADATA_ALIASES` rewrites the
-    #    AIM 11.x form to the AIM 10.3 form on every parsed file, so a folder
-    #    of either version (or a partitioned-down folder) produces a
-    #    consistent schema downstream. Only the unambiguous 1:1 physical
-    #    quantities are renamed; AIM 11.x cuts that have NO 10.3 equivalent
-    #    (4-way error split, granular DMA timings, etc.) are kept under their
-    #    AIM 11.x names because collapsing them would lose information.
+    #    older AIM (≤ 10.2, `Sheath Flow(lpm)` style) and AIM 11.x forms to the
+    #    AIM 10.3 form on every parsed file, so a folder of any version (or a
+    #    partitioned-down folder) produces a consistent schema downstream.
+    #    Only the unambiguous 1:1 physical quantities are renamed; cuts that
+    #    have NO 10.3 equivalent (AIM 11.x 4-way error split, granular DMA
+    #    timings, ...) keep their own names because collapsing them would lose
+    #    information. Left alone on purpose: old `td(s)` (10.3 writes both
+    #    `td (s)` and `td + 0.5 (s)`, so which one it is isn't certain) and old
+    #    `Scan Up Time(s)` vs 10.3 `Scan Time (s)`.
     METADATA_ALIASES = {
+        # AIM ≤ 10.2 name -> AIM 10.3 canonical (mostly unit/spacing changes)
+        'Sheath Flow(lpm)': 'Sheath Flow (L/min)',
+        'Aerosol Flow(lpm)': 'Aerosol Flow (L/min)',
+        'Bypass Flow(lpm)': 'Bypass Flow (L/min)',
+        'CPC Inlet Flow(lpm)': 'Detector Inlet Flow (L/min)',   # CPC -> Detector, as AIM 11.x
+        'CPC Sample Flow(lpm)': 'Detector Sample Flow (L/min)', # AIM 10.3 header field name
+        'Retrace Time(s)': 'Retrace Time (s)',
+        'Low Voltage': 'Low Voltage (V)',
+        'High Voltage': 'High Voltage (V)',
+        'Lower Size(nm)': 'Lower Size (nm)',
+        'Upper Size(nm)': 'Upper Size (nm)',
+        'Density(g/cc)': 'Density (g/cm)',
+        'tf(s)': 'tf (s)',
+        'D50(nm)': 'D50 (nm)',
+        'Median(nm)': 'Median (nm)',
+        'Mean(nm)': 'Mean (nm)',
+        'Geo. Mean(nm)': 'Geo. Mean (nm)',
+        'Mode(nm)': 'Mode (nm)',
         # AIM 11.x name -> AIM 10.3 canonical
         'Total Concentration (#/cm³)': 'Total Conc. (#/cm)',
         'Aerosol Temperature (C)': 'Sample Temp (C)',
@@ -155,6 +178,23 @@ class Reader(AbstractReader):
         'DMA Column transit time Tf (s)': 'tf (s)',
         'DMA Exit to Optical Detector Td (s)': 'td + 0.5 (s)',   # AIM 10.3 also adds the +0.5 offset; treated as same quantity
     }
+
+    #: The `³` in `(#/cm³)` / `(g/cm³)` does not survive every export's
+    #: encoding: depending on the AIM version and code page it is dropped,
+    #: written as `?` or a space, and sometimes takes the closing parenthesis
+    #: with it. Each pattern catches every spelling seen in the field
+    #: (`Total Conc.(#/cm)`, `Total Conc.(#/cm?)`, `Total Conc. (#/cm?`,
+    #: `Total Concentration(#/cm)`, `Density (g/cm?` ...).
+    METADATA_PATTERNS = (
+        (re.compile(r'^Total Conc(?:\.|entration)\s*\(#/cm.?\)?$'), 'Total Conc. (#/cm)'),
+        (re.compile(r'^Density\s*\(g/c[mc].?\)?$'), 'Density (g/cm)'),
+    )
+
+    #: Aerosol (polydisperse) flow into the DMA, by AIM version. AIM 11.x has
+    #: no `Aerosol Flow` column; on the 3082 classifier that flow is the one
+    #: measured at the impactor.
+    AEROSOL_FLOW_COLUMNS = ('Aerosol Flow (L/min)', 'Impactor Flow (L/min)')
+    SHEATH_FLOW_COLUMN = 'Sheath Flow (L/min)'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -363,15 +403,21 @@ class Reader(AbstractReader):
                           'Sample #', 'Scan Number', 'Diameter Midpoint', 'Diameter Midpoint (nm)']
             _df = _df.drop(columns=[c for c in index_cols if c in _df.columns], errors='ignore')
 
-            # AIM 11.x → AIM 10.3 metadata canonicalization so consumers see the
-            # same column names regardless of which host software exported the
-            # file. Only the unambiguous 1:1 physical quantities are renamed —
-            # see `METADATA_ALIASES` docstring above. A pre-existing AIM 10.3
-            # column with the same canonical name is rare in practice (the file
-            # is one AIM version or the other), but if it happens we keep the
-            # 10.3 form and drop the AIM 11.x duplicate.
+            # AIM ≤ 10.2 / 11.x → AIM 10.3 metadata canonicalization so consumers
+            # see the same column names regardless of which host software
+            # exported the file. Only the unambiguous 1:1 physical quantities are
+            # renamed — see `METADATA_ALIASES` docstring above. A pre-existing
+            # AIM 10.3 column with the same canonical name is rare in practice
+            # (the file is one AIM version or the other), but if it happens we
+            # keep the 10.3 form and drop the other duplicate.
             rename = {old: new for old, new in self.METADATA_ALIASES.items()
                       if old in _df.columns}
+            for col in _df.columns:
+                if isinstance(col, str) and col not in rename:
+                    new = next((name for pat, name in self.METADATA_PATTERNS
+                                if pat.match(col.strip())), None)
+                    if new is not None and new != col:
+                        rename[col] = new
             if rename:
                 drop_dup = [old for old, new in rename.items() if new in _df.columns]
                 if drop_dup:
@@ -440,6 +486,24 @@ class Reader(AbstractReader):
             )
 
         return kept
+
+    def _flow_ratio(self, _df):
+        """Per-scan aerosol/sheath flow ratio β, or ``None`` if the flows are absent.
+
+        Flows are read under their canonical (AIM 10.3) names — `_raw_reader`
+        renames the older and newer AIM spellings. This used to look up
+        `Aerosol Flow(lpm)` only, which left the CPC over-range rule inert on
+        every AIM 10.3 / 11.x export.
+        """
+        qa_col = next((c for c in self.AEROSOL_FLOW_COLUMNS if c in _df.columns), None)
+        if qa_col is None or self.SHEATH_FLOW_COLUMN not in _df.columns:
+            return None
+        qa = to_numeric(_df[qa_col], errors='coerce')
+        qsh = to_numeric(_df[self.SHEATH_FLOW_COLUMN], errors='coerce')
+        ratio = (qa / qsh).replace([np.inf, -np.inf], np.nan)
+        if not ratio.notna().any():
+            return None
+        return ratio.fillna(ratio.median()).to_numpy()
 
     @classmethod
     def _rated_max_conc(cls, model: str):
@@ -594,13 +658,7 @@ class Reader(AbstractReader):
         if cpc_max is None:
             cpc_max = self._rated_max_conc(cpc_model)
 
-        beta = None
-        if {'Aerosol Flow(lpm)', 'Sheath Flow(lpm)'} <= set(_df.columns):
-            qa = to_numeric(_df['Aerosol Flow(lpm)'], errors='coerce')
-            qsh = to_numeric(_df['Sheath Flow(lpm)'], errors='coerce')
-            ratio = (qa / qsh).replace([np.inf, -np.inf], np.nan)
-            if ratio.notna().any():
-                beta = ratio.fillna(ratio.median()).to_numpy()
+        beta = self._flow_ratio(_df)
 
         lam_nm = None
         if 'Mean Free Path (m)' in _df.columns:

@@ -24,6 +24,7 @@ class TestRatedMaxLookup:
         ('3788 Low Flow', 4.0e5),
         ('3787 Low Flow', 2.5e5),
         ('3022 Low Flow', 1.0e7),
+        ('3750', 1.0e5),
     ])
     def test_matches_substring(self, model, expected):
         assert SMPSReader._rated_max_conc(model) == expected
@@ -33,7 +34,7 @@ class TestRatedMaxLookup:
         assert '3022' in SMPSReader.CPC_MAX_CONC and '3022A' in SMPSReader.CPC_MAX_CONC
         assert SMPSReader._rated_max_conc('3022A') == SMPSReader.CPC_MAX_CONC['3022A']
 
-    @pytest.mark.parametrize('model', ['', None, '3750', 'unknown counter'])
+    @pytest.mark.parametrize('model', ['', None, '3010', 'unknown counter'])
     def test_unknown_model_returns_none(self, model):
         """Unknown counters leave the rule inert rather than guessing."""
         assert SMPSReader._rated_max_conc(model) is None

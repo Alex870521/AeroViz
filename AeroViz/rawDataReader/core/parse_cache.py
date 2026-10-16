@@ -42,7 +42,8 @@ from AeroViz.rawDataReader.core.metadata import aeroviz_version
 
 #: Bump when the cached per-file frame's layout or meaning changes.
 #: 2: SMPS/APS now reject non-dN/dlogDp exports; older entries may hold them.
-PARSE_CACHE_FORMAT = 2
+#: 3: SMPS renames AIM ≤ 10.2 metadata columns to the AIM 10.3 names.
+PARSE_CACHE_FORMAT = 3
 
 
 class ParseCache:

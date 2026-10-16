@@ -955,7 +955,21 @@ class QualityControl:
             # path a NaN is `!= ok_value` and not in EMPTY_SENTINELS, so blank
             # statuses were flagged as errors instead. Blank means "nothing
             # reported", never an error, in both paths.
-            status_values = _df[status_column].fillna('').astype(str).str.strip()
+            #
+            # A numeric-looking status (AIM 11.x `Communication Status`, OK '0')
+            # does not reach here as text: the reader's to_numeric pass turns it
+            # into a number, and the NaN rows the time grid pads in force that to
+            # float64, whose `str` is '0.0' -- never equal to '0'. Every real scan
+            # at TP 2024 was flagged `Status Error` for exactly that, while the
+            # padded rows (status blank) came through as `Valid` with no data,
+            # so QC kept zero hours. Write integral numbers back the way the
+            # instrument did.
+            def _as_text(v):
+                if isinstance(v, (float, np.floating)) and np.isfinite(v) and float(v).is_integer():
+                    return str(int(v))
+                return v
+
+            status_values = _df[status_column].map(_as_text).fillna('').astype(str).str.strip()
             if ok_value is not None:
                 if ignored_values:
                     # Token-level whitelist: split each row's status by ','

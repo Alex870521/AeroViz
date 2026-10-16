@@ -1,4 +1,4 @@
-from pandas import read_csv, to_datetime, to_numeric, Series
+from pandas import DataFrame, DatetimeIndex, NaT, read_csv, to_datetime, to_numeric, Series
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
 
@@ -245,12 +245,89 @@ class Reader(AbstractReader):
                 .sort_values(['verdict', 'quantifiable'], key=lambda c: c.map(order).fillna(c))
                 .set_index('element'))
 
+    #: Footer fields of a per-sample ``*_output.txt`` (older Xact export) →
+    #: the names the CSV path ends up with (see ``rename_map`` below).
+    OUTPUT_TXT_FIELDS = {
+        'Ambient Temp (avg)': 'AT',
+        'Sample Temp (avg)': 'SAMPLE_T',
+        'BP (avg)': 'BP',
+        'Tape Pressure (avg)': 'TAPE',
+        'Flow 25 (L/m Act)': 'FLOW_25',
+        'Flow Act (L/m Act)': 'FLOW_ACT',
+        'Flow Std (L/m Act)': 'FLOW_STD',
+        'Volume': 'VOLUME',
+        'Tube Temp (avg)': 'TUBE_T',
+        'Enclosure Temp (avg)': 'ENCLOSURE_T',
+        'Filament Monitor (avg)': 'FILAMENT_V',
+        'SDD Temp (avg)': 'SDD_T',
+        'DPP Temp (avg)': 'DPP_T',
+        'Relative Humidity (avg)': 'RH',
+        'Wind Speed (avg)': 'WIND',
+        'Wind Direction (avg)': 'WIND_DIR',
+        'Sample Time (min)': 'SAMPLE_TIME',
+        'Alarm': 'ALARM',
+        'Sample Type': 'SAMPLE_TYPE',
+    }
+
+    def _read_output_txt(self, file):
+        """One sample from an older Xact ``*_output.txt`` export, in the same
+        columns the ``Sample_*.csv`` path produces.
+
+        The file is one hourly sample laid out long: an element table
+        (``At Sym, At No, Mass, Mass Unc, Concentration, Concentration Unc``)
+        followed by ``, <field> = ,<value>`` footer lines. ``Concentration`` is
+        ng/m³ — it is ``Mass`` divided by the sampled ``Volume`` — the same
+        quantity as the CSV's ``<El> <Z> (ng/m3)`` columns.
+        """
+        import csv
+
+        row = {}
+        fields = {}
+        in_table = False
+        with open(file, 'r', encoding='utf-8', errors='ignore') as f:
+            for cells in csv.reader(f):
+                cells = [c.strip() for c in cells]
+                if not cells:
+                    continue
+                if cells[0] == 'At Sym':
+                    in_table = True
+                    continue
+                if in_table:
+                    if cells[0] in self.ELEMENTS and len(cells) >= 6:
+                        row[cells[0]] = to_numeric(cells[4], errors='coerce')
+                        row[f'{cells[0]}_uncert'] = to_numeric(cells[5], errors='coerce')
+                        continue
+                    in_table = False
+                if len(cells) >= 3 and not cells[0] and cells[1].endswith('='):
+                    fields.setdefault(cells[1].rstrip('=').strip(), cells[2])
+
+        start = to_datetime(fields.get('Sample Start Time'), format='%m/%d/%Y %H:%M:%S', errors='coerce')
+        if not row or start is None or start is NaT:
+            self.logger.debug(f"{file.name}: no element table or sample start time; skipped")
+            return None
+        for name, column in self.OUTPUT_TXT_FIELDS.items():
+            if name in fields:
+                row[column] = to_numeric(fields[name], errors='coerce')
+
+        _df = DataFrame([row], index=DatetimeIndex([start], name='time'))
+        # Same rules as the CSV path: drop calibration samples, hour-align.
+        if 'SAMPLE_TYPE' in _df.columns:
+            _df = _df[_df['SAMPLE_TYPE'] == 1]
+        _df.index = _df.index.round('1h')
+        if 'SAMPLE_TIME' in _df.columns and _df['SAMPLE_TIME'].notna().any():
+            self._sample_time = float(_df['SAMPLE_TIME'].dropna().iloc[0])
+        return _df
+
     def _raw_reader(self, file):
         """Read and parse raw Xact 625i XRF data files.
 
         Returns all columns from the raw file. Column selection is deferred
-        to _QC() and _process() stages.
+        to _QC() and _process() stages. Older per-sample ``*_output.txt``
+        exports go through `_read_output_txt` and come out in the same columns.
         """
+        if file.name.lower().endswith('_output.txt'):
+            return self._read_output_txt(file)
+
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             f.readline()  # skip row 0 (element names)
             headers = f.readline().strip().split(',')

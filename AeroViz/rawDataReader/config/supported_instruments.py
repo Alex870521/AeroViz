@@ -81,7 +81,8 @@ meta = {
     },
 
     "Xact": {
-        "pattern": ["*.csv"],
+        # Sample_*.csv (Xact 625i) and the older per-sample *_output.txt export
+        "pattern": ["*.csv", "*_output.txt"],
         "freq": "1h",
 
         # Xact 625i detection limits for XRF in ng/m3 at a 60-minute sample time.

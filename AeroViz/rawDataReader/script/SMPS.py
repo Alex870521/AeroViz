@@ -94,6 +94,9 @@ class Reader(AbstractReader):
     #: whole 10.3 dialect reported no detector at all, which also left the
     #: `CPC Over-range` rule below permanently inert on those files.
     DETECTOR_FIELDS = ('Detector Model', 'CPC Model', 'Detector S/N', 'Nano Enhancer')
+    # Preamble values of a dN/dlogDp export (AIM writes dw/dlogDp or dW/dlogDp).
+    EXPECTED_UNITS = 'dW/dlogDp'
+    EXPECTED_WEIGHT = 'Number'
 
     #: Rated maximum concentration per CPC model (#/cm³) — the top of the range
     #: over which the counter's accuracy is specified. Above it the coincidence
@@ -243,6 +246,8 @@ class Reader(AbstractReader):
         - CSV (AIM 11.x): comma-separated, header at 'Scan Number'
         """
 
+        export = {}  # Units / Weight from the preamble
+
         def find_header_row(file_obj, delimiter):
             """Locate the data header, capturing the detector metadata above it.
 
@@ -263,6 +268,8 @@ class Reader(AbstractReader):
                 for key, value in zip(row[::2], row[1::2]):
                     if key.strip() in self.DETECTOR_FIELDS and value.strip():
                         self._detector.setdefault(key.strip(), value.strip())
+                    if key.strip() in ('Units', 'Weight') and value.strip():
+                        export.setdefault(key.strip(), value.strip())
             raise ValueError("Header row not found")
 
         def parse_date(df, date_format):
@@ -287,6 +294,20 @@ class Reader(AbstractReader):
         with open(file, 'r', encoding='utf-8', errors='ignore') as f:
             lines = f.read().splitlines(keepends=True)
         skip = find_header_row(iter(lines), delimiter)
+
+        # Everything downstream treats the bins as dN/dlogDp. AIM can also
+        # export dN ("Concentration (dW)"), % concentration, or surface/volume
+        # weighting; reading those as dN/dlogDp is off by the channel width or
+        # by a different moment entirely, so skip them loudly. A preamble
+        # without these fields is left alone.
+        units, weight = export.get('Units'), export.get('Weight')
+        if ((units is not None and units.lower() != self.EXPECTED_UNITS.lower())
+                or (weight is not None and weight.lower() != self.EXPECTED_WEIGHT.lower())):
+            self.logger.warning(
+                f"{file.name}: exported as Units={units}, Weight={weight}, not "
+                f"{self.EXPECTED_UNITS} / {self.EXPECTED_WEIGHT} (dN/dlogDp); skipped. "
+                f"Re-export it from AIM as dN/dlogDp, number weighting.")
+            return None
 
         with StringIO(''.join(lines[skip:])) as f:
             _df = read_csv(f, sep=delimiter, low_memory=False)

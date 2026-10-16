@@ -41,7 +41,8 @@ import pandas as pd
 from AeroViz.rawDataReader.core.metadata import aeroviz_version
 
 #: Bump when the cached per-file frame's layout or meaning changes.
-PARSE_CACHE_FORMAT = 1
+#: 2: SMPS/APS now reject non-dN/dlogDp exports; older entries may hold them.
+PARSE_CACHE_FORMAT = 2
 
 
 class ParseCache:

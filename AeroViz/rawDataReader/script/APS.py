@@ -66,6 +66,9 @@ class Reader(AbstractReader):
     # drift, but a future firmware change WOULD trigger the same NaN-poison
     # concat bug we fixed in SMPS. Loud warning, no rejection.
     EXPECTED_BIN_GRID = (0.542, 19.81, 51)  # (min nm, max nm, count)
+    # AIM writes the export unit into this column on every row.
+    UNIT_COLUMN = 'Aerodynamic Diameter'
+    EXPECTED_UNIT = 'dN/dlogDp'
 
     def __call__(self, start=None, end=None, mean_freq=None):
         """Return the dN/dlogDp distribution; write S/V + a stats sidecar.
@@ -149,6 +152,27 @@ class Reader(AbstractReader):
             _df.index = _time_index
             _df.index.name = 'time'
             _df = _df.loc[_df.index.dropna().copy()]
+
+            # The `Aerodynamic Diameter` column carries each row's export unit.
+            # Every downstream step treats the bins as dN/dlogDp, so a Raw Counts
+            # / dN / %dN / dM row would be read off by the channel width or as a
+            # different moment entirely. Keep only dN/dlogDp rows and say what
+            # was dropped; a file with none left is skipped. Checked on dated
+            # rows only: a merged export repeats its header mid-file.
+            if self.UNIT_COLUMN in _df.columns:
+                unit = _df[self.UNIT_COLUMN].astype(str).str.strip()
+                bad = unit != self.EXPECTED_UNIT
+                if bad.any():
+                    found = ', '.join(f'{u} ×{n}' for u, n in unit[bad].value_counts().items())
+                    if bad.all():
+                        self.logger.warning(
+                            f"{file.name}: exported as {found}, not {self.EXPECTED_UNIT}; "
+                            f"skipped. Re-export it from AIM as {self.EXPECTED_UNIT}.")
+                        return None
+                    self.logger.warning(
+                        f"{file.name}: dropped {int(bad.sum())} of {len(unit)} rows "
+                        f"not in {self.EXPECTED_UNIT} ({found}).")
+                    _df = _df.loc[~bad.to_numpy()]
 
             # Identify size bin columns (numeric, in APS range 0.5-20 μm)
             numeric_cols = []

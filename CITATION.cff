@@ -11,8 +11,8 @@ authors:
     given-names: Chih-Yu
     alias: Alex870521
     email: alex870521@gmail.com
-version: 0.5.0
-date-released: 2026-10-03
+version: 0.5.1
+date-released: 2026-10-17
 license: MIT
 repository-code: "https://github.com/Alex870521/AeroViz"
 url: "https://alex870521.github.io/AeroViz/"

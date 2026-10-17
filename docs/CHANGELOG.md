@@ -1,3 +1,27 @@
+## v0.5.1 (2026-10-18)
+
+### Feat
+
+- **reader**: one grouped terminal summary per read, with clickable output paths
+- **reader**: read the older Xact per-sample *_output.txt export
+- **reader**: convert dN / dS / dV / dM exports to dN/dlogDp; record and check the unit in attrs
+- to_netcdf / read_netcdf (CF-style export) and the `aeroviz` command line
+- **optical**: lognormal modes by mass/volume, hatch_choate, mie_contribution plot; fix ln(10) in lognormal builder
+- **reader**: qc_config document + write_qc_report
+- **reader**: inventory() — describe a raw folder without parsing it
+- **reader**: output_split — CSV products per month/year, written only when changed
+- **reader**: parse_workers — thread the raw-file parse, merge in file order
+
+### Fix
+
+- **qc**: numeric status columns compared as text no longer flag every scan
+- **reader**: one SMPS metadata schema across AIM versions; CPC over-range on AIM 10.3/11.x
+- **reader**: skip SMPS/APS exports that are not dN/dlogDp
+
+### Perf
+
+- **size**: vectorise to_surface / to_volume and build the statistics frame once
+
 ## v0.5.0 (2026-10-03)
 
 ### Feat

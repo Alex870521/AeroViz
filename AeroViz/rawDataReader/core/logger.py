@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import codecs
 import logging
 import os
@@ -13,6 +15,10 @@ class ReaderLogger:
         self.log_path = log_path
         self._log_level = getattr(logging, log_level)
         self.quiet = quiet
+        #: Console-bound records, held back during a read and rendered as one
+        #: grouped summary at the end (``core.console_summary``). The log file
+        #: still gets every record as it happens.
+        self.records: list[logging.LogRecord] = []
 
         # 檢查是否支持顏色輸出
         self.color_support = self._check_color_support()
@@ -125,10 +131,12 @@ class ReaderLogger:
             print(f"Warning: Could not set up file logging: {e}")
 
         # 設置控制台處理器（quiet 模式下不加）
+        # 控制台:不即時印出,先收集起來,讀完後由 console_summary 統一排版
+        # (quiet 模式下不收集)。`file_info` records go to the log file only.
         if not self.quiet:
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setFormatter(logging.Formatter('%(message)s'))
-            logger.addHandler(console_handler)
+            collector = _CollectingHandler(self.records)
+            collector.addFilter(lambda record: not getattr(record, 'file_only', False))
+            logger.addHandler(collector)
 
         return logger
 
@@ -141,14 +149,23 @@ class ReaderLogger:
     def debug(self, msg: str):
         self.logger.debug(self._safe_print(msg))
 
-    def info(self, msg: str):
-        self.logger.info(self._safe_print(msg))
+    # `notice` keywords (group=, item=, detail=) let the end-of-read summary
+    # fold many per-file messages into one line per kind; the log file still
+    # gets the full message. See `core.console_summary` for the groups.
+    def info(self, msg: str, **notice):
+        self.logger.info(self._safe_print(msg), extra=_extra(notice))
 
-    def warning(self, msg: str):
-        self.logger.warning(self._safe_print(msg))
+    def file_info(self, msg: str):
+        """INFO to the log file only — for detail the console already shows
+        another way (e.g. ``Saved: ...``, which the end-of-read output list
+        covers)."""
+        self.logger.info(self._safe_print(msg), extra={'file_only': True})
 
-    def error(self, msg: str):
-        self.logger.error(self._safe_print(msg))
+    def warning(self, msg: str, **notice):
+        self.logger.warning(self._safe_print(msg), extra=_extra(notice))
+
+    def error(self, msg: str, **notice):
+        self.logger.error(self._safe_print(msg), extra=_extra(notice))
 
     def info_box(self, text: str, color_part: str = None, width: int = 80):
         """創建帶框的消息，可選擇性地為部分文本著色"""
@@ -171,3 +188,18 @@ class ReaderLogger:
         self.info(f"{self.BOX_TOP_LEFT}{self.BOX_HORIZONTAL * width}{self.BOX_TOP_RIGHT}")
         self.info(f"{self.BOX_VERTICAL}{__content__}{self.BOX_VERTICAL}")
         self.info(f"{self.BOX_BOTTOM_LEFT}{self.BOX_HORIZONTAL * width}{self.BOX_BOTTOM_RIGHT}")
+
+
+def _extra(notice: dict) -> dict | None:
+    return {'notice': notice} if notice else None
+
+
+class _CollectingHandler(logging.Handler):
+    """Holds console-bound records instead of printing them as they come."""
+
+    def __init__(self, sink: list):
+        super().__init__()
+        self.sink = sink
+
+    def emit(self, record: logging.LogRecord) -> None:
+        self.sink.append(record)

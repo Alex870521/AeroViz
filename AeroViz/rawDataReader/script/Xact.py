@@ -312,7 +312,12 @@ class Reader(AbstractReader):
         _df = DataFrame([row], index=DatetimeIndex([start], name='time'))
         # Same rules as the CSV path: drop calibration samples, hour-align.
         if 'SAMPLE_TYPE' in _df.columns:
+            sample_type = _df['SAMPLE_TYPE'].iloc[0]
             _df = _df[_df['SAMPLE_TYPE'] == 1]
+            if _df.empty:
+                self.logger.info(f"{file.name}: calibration sample (Sample Type {sample_type:g}); excluded",
+                                  group='excluded', item=file.name,
+                                  detail=f'calibration sample (Sample Type {sample_type:g})')
         _df.index = _df.index.round('1h')
         if 'SAMPLE_TIME' in _df.columns and _df['SAMPLE_TIME'].notna().any():
             self._sample_time = float(_df['SAMPLE_TIME'].dropna().iloc[0])
@@ -575,7 +580,7 @@ class Reader(AbstractReader):
         path = self._output_folder / f'{self._output_prefix}_element_reliability.csv'
         try:
             reliability.to_csv(path)
-            self.logger.info(f"Saved: {path.name}")
+            self.logger.file_info(f"Saved: {path.name}")
         except OSError as e:
             self.logger.warning(f"Could not write {path.name}: {e}")
 

@@ -197,6 +197,8 @@ class AbstractReader(ABC):
         self._resolved_freq = None    # native frequency resolved from the files
         self._freq_mixed = False      # True if files had differing resolutions
         self._source_units = {}       # file name -> unit it was exported in
+        self._empty_files = []        # files that parsed to nothing (header only, backfill dump)
+        self._timeline = None         # status changes for the end-of-read summary
         self.overall_rates = None     # overall acquisition/yield/total rates dict
 
         # Rate/timeline report accumulated by `_generate_report`. Defaulted here
@@ -340,7 +342,9 @@ class AbstractReader(ABC):
             self._write_product(self.csv_out.stem, _f_qc)
 
         # Generate timeline data (hourly values)
-        report_dict = process_timeline_report(self.report_dict, _f_qc, show_visual=not self.quiet)
+        # Drawn by the end-of-read summary (core.console_summary), not here.
+        report_dict = process_timeline_report(self.report_dict, _f_qc, show_visual=False)
+        self._timeline = report_dict.get('timeline')
 
         # Write report
         if self.save_report:
@@ -627,7 +631,7 @@ class AbstractReader(ABC):
             os.replace(tmp, path)
             written.append(path)
         if written:
-            self.logger.info(f"Saved: {', '.join(p.name for p in written)}")
+            self.logger.file_info(f"Saved: {', '.join(p.name for p in written)}")
         else:
             self.logger.debug(f"{stem}: unchanged, nothing written")
         return written
@@ -847,8 +851,9 @@ class AbstractReader(ABC):
         logs = {level: [] for level in ['info', 'warning', 'error']}
         original = {level: getattr(self.logger, level) for level in logs}
 
+        # Keep the notice keywords (group=, item=, ...) with each held message.
         for level, msgs in logs.items():
-            setattr(self.logger, level, msgs.append)
+            setattr(self.logger, level, lambda msg, _msgs=msgs, **notice: _msgs.append((msg, notice)))
 
         try:
             with Progress(
@@ -866,8 +871,8 @@ class AbstractReader(ABC):
             # Restore logger method and output message
             for level, msgs in logs.items():
                 setattr(self.logger, level, original[level])
-                for msg in msgs:
-                    original[level](msg)
+                for msg, notice in msgs:
+                    original[level](msg, **notice)
 
     def _read_raw_files(self) -> tuple[pd.DataFrame | None, pd.DataFrame | None]:
         """
@@ -940,7 +945,8 @@ class AbstractReader(ABC):
 
         for file, (df, err) in zip(files, results):
             if err is not None:
-                self.logger.error(f"Error reading {file.name}: {err}")
+                self.logger.error(f"Error reading {file.name}: {err}", group='read_error',
+                                  item=file.name, detail=f'{type(err).__name__}: {str(err)[:120]}')
             elif df is not None and not df.empty:
                 df_list.append(df)
                 parsed_files.append(file)
@@ -952,6 +958,7 @@ class AbstractReader(ABC):
                 if df.attrs.get(FILE_UNIT_ATTR):
                     self._source_units[file.name] = df.attrs[FILE_UNIT_ATTR]
             else:
+                self._empty_files.append(file.name)
                 self.logger.debug(f"File {file.name} produced an empty DataFrame or None.")
 
         if cache is not None:

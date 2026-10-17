@@ -175,11 +175,14 @@ class Reader(AbstractReader):
                     if bad.all():
                         self.logger.warning(
                             f"{file.name}: exported as {found}, which cannot be converted "
-                            f"to {DN_DLOGDP}; skipped. Re-export it from AIM as {DN_DLOGDP}.")
+                            f"to {DN_DLOGDP}; skipped. Re-export it from AIM as {DN_DLOGDP}.",
+                            group='unit_skipped', item=file.name, detail=found)
                         return None
                     self.logger.warning(
                         f"{file.name}: dropped {int(bad.sum())} of {len(row_unit)} rows "
-                        f"that cannot be converted to {DN_DLOGDP} ({found}).")
+                        f"that cannot be converted to {DN_DLOGDP} ({found}).",
+                        group='rows_dropped', item=file.name,
+                        detail=f'{int(bad.sum())}/{len(row_unit)} rows ({found})')
                     keep = ~bad.to_numpy()
                     _df, row_unit = _df.loc[keep], row_unit[keep]
 
@@ -245,7 +248,8 @@ class Reader(AbstractReader):
                         _df.loc[rows, bins], parse_export_unit(label), dp_unit='um',
                         density=density if density == density else None)
                     self.logger.info(
-                        f"{file.name}: converted {int(rows.sum())} rows from {label} to {DN_DLOGDP}")
+                        f"{file.name}: converted {int(rows.sum())} rows from {label} to {DN_DLOGDP}",
+                        group='converted', item=file.name, detail=label)
             _df.attrs[FILE_UNIT_ATTR] = ', '.join(labels)
             return _df
 

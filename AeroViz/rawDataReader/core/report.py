@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from datetime import datetime, timedelta
 
@@ -8,33 +10,17 @@ from rich.text import Text
 from rich.panel import Panel
 
 
-def print_timeline_visual(timeline_data: list, start_date: str = None, end_date: str = None,
-                          width: int = 80, show_details: bool = True) -> None:
-    """
-    Print a visual representation of the timeline to the console.
+def timeline_summary(timeline_data: list, start_date: str = None, end_date: str = None,
+                     width: int = 80) -> dict | None:
+    """The bar and up/down totals `print_timeline_visual` draws, as data.
 
-    Parameters
-    ----------
-    timeline_data : list
-        List of timeline entries with 'start', 'end', 'status', 'reason', 'duration' keys.
-    start_date : str, optional
-        Overall start date (format: 'YYYY/MM/DD HH:MM').
-    end_date : str, optional
-        Overall end date (format: 'YYYY/MM/DD HH:MM').
-    width : int, default 80
-        Width of the timeline bar in characters.
-    show_details : bool, default True
-        Whether to show detailed downtime information.
-
-    Notes
-    -----
-    Creates a visual bar showing operational (green) and down (red) periods,
-    followed by a summary table of downtime events.
+    Returns ``None`` for an empty timeline, else ``{bar, start, end,
+    operational_hours, down_hours, uptime_pct, down_events}`` where ``bar``
+    is a coloured ``rich.text.Text`` of ``width`` characters.
     """
     if not timeline_data:
-        return
+        return None
 
-    console = Console(force_terminal=True)
 
     # Parse dates
     def parse_date(date_str):
@@ -57,7 +43,7 @@ def print_timeline_visual(timeline_data: list, start_date: str = None, end_date:
 
     total_duration = (total_end - total_start).total_seconds()
     if total_duration <= 0:
-        return
+        return None
 
     # Build visual bar
     bar_chars = [' '] * width
@@ -114,6 +100,42 @@ def print_timeline_visual(timeline_data: list, start_date: str = None, end_date:
 
     total_hours = operational_hours + down_hours
     uptime_pct = (operational_hours / total_hours * 100) if total_hours > 0 else 0
+
+    return dict(bar=bar_text, start=total_start, end=total_end,
+                operational_hours=operational_hours, down_hours=down_hours,
+                uptime_pct=uptime_pct, down_events=down_events)
+
+
+def print_timeline_visual(timeline_data: list, start_date: str = None, end_date: str = None,
+                          width: int = 80, show_details: bool = True) -> None:
+    """
+    Print a visual representation of the timeline to the console.
+
+    Parameters
+    ----------
+    timeline_data : list
+        List of timeline entries with 'start', 'end', 'status', 'reason', 'duration' keys.
+    start_date : str, optional
+        Overall start date (format: 'YYYY/MM/DD HH:MM').
+    end_date : str, optional
+        Overall end date (format: 'YYYY/MM/DD HH:MM').
+    width : int, default 80
+        Width of the timeline bar in characters.
+    show_details : bool, default True
+        Whether to show detailed downtime information.
+
+    Notes
+    -----
+    Creates a visual bar showing operational (green) and down (red) periods,
+    followed by a summary table of downtime events.
+    """
+    summary = timeline_summary(timeline_data, start_date, end_date, width)
+    if summary is None:
+        return
+    console = Console(force_terminal=True)
+    bar_text, total_start, total_end = summary['bar'], summary['start'], summary['end']
+    operational_hours, down_hours = summary['operational_hours'], summary['down_hours']
+    uptime_pct, down_events = summary['uptime_pct'], summary['down_events']
 
     # Print header
     console.print()

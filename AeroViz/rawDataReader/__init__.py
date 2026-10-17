@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import Literal
@@ -5,6 +6,7 @@ from typing import Literal
 from pandas import Grouper, Timedelta
 
 from AeroViz.rawDataReader.config.supported_instruments import meta, pending, removed
+from AeroViz.rawDataReader.core.console_summary import print_header, print_summary
 from AeroViz.rawDataReader.script import *
 
 from AeroViz.rawDataReader.inventory import inventory
@@ -430,6 +432,7 @@ def RawDataReader(instrument: str,
     })
 
     # Instantiate the class and return the instance
+    started = time.time()
     reader_module = instrument_class_map[instrument].Reader(
         path=path,
         reset=reset,
@@ -438,8 +441,23 @@ def RawDataReader(instrument: str,
     )
     if qc_resolved:
         apply_qc_config(reader_module, qc_resolved, source=qc_config)
-    return reader_module(
-        start=start,
-        end=end,
-        mean_freq=mean_freq,
-    )
+    # Console: a header now, then only the progress bar; everything the read
+    # logs is held back and rendered as one grouped summary afterwards — here,
+    # after the reader returns, because SMPS/APS/Xact write their sidecars
+    # (dN/dS/dV, stats, element reliability) after the core output. The log
+    # file gets every message as it happens either way.
+    if not quiet:
+        print_header(instrument, path, start, end)
+    try:
+        result = reader_module(
+            start=start,
+            end=end,
+            mean_freq=mean_freq,
+        )
+    except Exception:
+        if not quiet:      # what was collected before the failure still matters
+            print_summary(reader_module, started=started, mean_freq=mean_freq, failed=True)
+        raise
+    if not quiet:
+        print_summary(reader_module, started=started, mean_freq=mean_freq)
+    return result

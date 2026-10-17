@@ -172,7 +172,7 @@ class TestSMPSReader(BaseReaderTest):
         assert df is not None
         assert not df.empty
 
-    def test_partition_compatible_scans(self):
+    def test_partition_compatible_scans(self, tmp_path):
         """`_partition_compatible_scans` keeps the dominant grid and drops
         files on a different size-bin grid, so the concat downstream sees one
         consistent schema.
@@ -206,8 +206,8 @@ class TestSMPSReader(BaseReaderTest):
         # Instance method but uses only `self.logger` and the static
         # `_bin_signature` — no real `__init__` needed.
         reader = Reader.__new__(Reader)
-        import logging
-        reader.logger = logging.getLogger('test')
+        from AeroViz.rawDataReader.core.logger import ReaderLogger
+        reader.logger = ReaderLogger('test', tmp_path, quiet=True)   # what readers always carry
 
         kept = reader._partition_compatible_scans(df_list, files)
 

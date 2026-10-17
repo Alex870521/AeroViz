@@ -353,7 +353,8 @@ class Reader(AbstractReader):
             self.logger.warning(
                 f"{file.name}: exported as Units={units}, Weight={weight}, which "
                 f"cannot be converted to {DN_DLOGDP}; skipped. Re-export it from "
-                f"AIM as {self.EXPECTED_UNITS}, {self.EXPECTED_WEIGHT} weighting.")
+                f"AIM as {self.EXPECTED_UNITS}, {self.EXPECTED_WEIGHT} weighting.",
+                group='unit_skipped', item=file.name, detail=f'Units={units}, Weight={weight}')
             return None
 
         with StringIO(''.join(lines[skip:])) as f:
@@ -401,7 +402,10 @@ class Reader(AbstractReader):
             size_range = explicit_range or (11.8, 593.5)
             if bin_cols[0] != size_range[0] or bin_cols[-1] != size_range[1]:
                 self.logger.warning(f'SMPS file: {file.name} size range mismatch. '
-                                    f'Expected {size_range}, got ({bin_cols[0]}, {bin_cols[-1]})')
+                                    f'Expected {size_range}, got ({bin_cols[0]}, {bin_cols[-1]})',
+                                    group='grid', item=file.name,
+                                    detail=f'{bin_cols[0]:g}–{bin_cols[-1]:g} nm',
+                                    expected=f'{size_range[0]:g}–{size_range[1]:g} nm')
                 if explicit_range is not None:
                     return None
 
@@ -445,7 +449,8 @@ class Reader(AbstractReader):
                 _df[bin_cols] = to_dndlogdp(
                     _df[bin_cols], export_unit, dp_unit='nm', density=density,
                     dlogdp=1.0 / channels if channels and channels > 0 else None)
-                self.logger.info(f"{file.name}: converted {export_unit.label} to {DN_DLOGDP}")
+                self.logger.info(f"{file.name}: converted {export_unit.label} to {DN_DLOGDP}",
+                                 group='converted', item=file.name, detail=export_unit.label)
             _df.attrs[FILE_UNIT_ATTR] = export_unit.label
             return _df
 
@@ -503,7 +508,9 @@ class Reader(AbstractReader):
                 f"group ({kept_min}–{kept_max} nm, {len(dominant_sig)} bins). "
                 f"Files: {shown}. "
                 f"Move them to a separate folder (or pass `size_range=`) to "
-                f"process them in their own run."
+                f"process them in their own run.",
+                group='grid_skipped', items=dropped_names,
+                detail=f'{d_min:g}–{d_max:g} nm' if sig else 'no bins',
             )
 
         return kept

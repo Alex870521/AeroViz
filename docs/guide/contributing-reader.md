@@ -111,6 +111,37 @@ Conventions the pipeline relies on:
   merge) do not belong in the reader — put them in `AeroViz.size` / `optical`
   / `chemistry` / `voc`.
 
+### Logging
+
+`self.logger` (a `ReaderLogger`) writes every message to `{inst}.log` as it
+happens. The terminal copy is held back and shown once, after the read, as a
+grouped summary ([Terminal output](reader-reference.md#terminal-output)), so a
+per-file message should say which group it belongs to — otherwise a folder of
+500 files prints 500 lines under *Notes*:
+
+```python
+self.logger.warning(
+    f"{file.name}: exported as {unit}, which cannot be converted; skipped.",   # full text → log
+    group='unit_skipped', item=file.name, detail=unit)                       # how to fold it
+```
+
+| `group` | Shown as | Use for |
+|---|---|---|
+| `read_error` | ✗ *N files could not be read* | set by the core when `_raw_reader` raises — raise rather than log |
+| `unit_skipped` | ⚠ *skipped N files whose unit cannot be converted* | a whole file in a unit the reader cannot use |
+| `grid_skipped` | ⚠ *skipped N files on a different size-bin grid* | files dropped before concat (`items=[...]` for several at once) |
+| `rows_dropped` | ⚠ *dropped rows … in N files* | part of a file discarded; `detail` says how much |
+| `converted` | ℹ *converted N files to dN/dlogDp* | data rewritten into the canonical unit; `detail` = the source unit |
+| `grid` | ℹ *N files on a grid other than … (kept)* | an unusual but accepted layout; `expected=` names the default |
+| `excluded` | · *excluded N files by design* | files left out on purpose (e.g. calibration samples) — not a problem |
+
+`detail` groups the files inside a line (one sub-line per distinct detail).
+A file whose `_raw_reader` returns `None` or an empty frame without a group is
+listed as *held no data*. Messages that only repeat what the summary already
+shows (`Saved: …`) go to `self.logger.file_info(...)`, the log alone. Any
+other `warning` / `error` without a group appears under *Notes*,
+de-duplicated.
+
 ## 3. Tests
 
 `tests/test_readers/` has one file per reader built on `base.py`; copy the

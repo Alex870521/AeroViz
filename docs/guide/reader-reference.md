@@ -171,6 +171,9 @@ __call__   QC_Invalid → whole row NaN ; QC_Flag + QC_Invalid dropped
 
 ### The QC summary
 
+As written to `{inst}.log` (the terminal shows the same numbers, sorted and
+with zero-hit rules hidden — see [Terminal output](#terminal-output)):
+
 ```
 AE33 QC Summary:
   Status Error: 24312 (4.9%)
@@ -201,7 +204,8 @@ so a consumer can explain an outage, not just measure it.
 | `_read_{inst}_qc.csv` | `_save_data` (L2) | per row | the flagged frame *before* masking — flag, verdict and value side by side |
 | `{inst}.log` | all levels | per run | parse warnings, skipped/dropped files, mixed-resolution and stray-date warnings, QC summary, rates |
 | `report.json` | `_generate_report` (L3) | per week / month + timeline | `rates.weekly` / `rates.monthly` (acquisition / yield / total), `timeline` of operational and down periods with reasons |
-| `df.attrs` | `_stamp` (L3) | per call | provenance, `coverage_*` vs `requested_*`, `raw_freq`, rates, `qc_rules`, `status_conditions` |
+| `df.attrs` | `_stamp` (L3) | per call | provenance, `coverage_*` vs `requested_*`, `raw_freq`, rates, `qc_rules`, `status_conditions`; SMPS / APS also `size_dist_unit` (`'dN/dlogDp'`) and `source_units` (`{export unit: [files]}` for converted files) |
+| terminal | `console_summary` (after the call) | per call | grouped summary of the above — see [Terminal output](#terminal-output) |
 
 Both QC columns are dropped from the returned frame and from
 `output_{inst}.csv`. To see the values behind a flag, open
@@ -225,6 +229,75 @@ a `qc` period string (`'W'`, `'2MS'`, …) adds a per-period breakdown to the
 `df.attrs['acquisition_rate' / 'yield_rate' / 'total_rate']`.
 `process_timeline_report` adds up/down periods and matches them against a
 `known_issues.yml` named by the `KNOWN_ISSUES_PATH` environment variable.
+
+### Terminal output
+
+With `quiet=False` (the default) the terminal shows a header and the progress
+bar while the read runs, then **one summary** in fixed sections. Every message
+still goes to `{inst}.log` as it happens; only the terminal copy is held back
+and grouped. `quiet=True` prints nothing.
+
+```text
+╭─ SMPS · TP_SMPS ──────────────────────╮
+│  2026-03-01 00:00 → 2026-03-31 23:59  │
+╰───────────────────────────────────────╯
+✓ ━━━━━━━━━━━━━━━━━━━━━━━━━ 100% Reading SMPS files: 260331.TXT
+
+Files       166 files · 162 used · 4 skipped
+  ⚠ skipped 4 files on a different size-bin grid (read them alone with size_range=)
+      11.34–615.27 nm  SMPS_3082001426002_20260205_174800.csv, …165400.csv, …20260206_174800.csv
+      13.6–478.3 nm    260213.TXT
+Notes
+  ⚠ Mixed time resolution across files (163× 6min, 2× 362s); using most common '6min'.
+
+QC          all scans read (69,710)
+  Valid                       984    1.4%  █
+  Status Error             63,018   90.4%  ██████████████████
+  Insufficient              5,920    8.5%  ██  advisory, data kept
+  Invalid Number Conc         107    0.2%  █
+  Usable                    6,665    9.6%  ██  valid + advisory only
+  1 rule with no hits not shown
+
+Coverage    2026/03/01 00:00 → 2026/03/31 23:54, hourly
+  Acquisition 94.6%   Yield 0.6%   Total 0.5%
+  03/01 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  03/31
+  █ up 0 h · ░ down 743 h in 1 event
+  longest gap:
+    2026/03/01 00:00 → 2026/03/31 23:00  30 days 23 hours  Data Gap
+
+Output      ⌘+click to open
+  /Users/…/out
+  output_smps.csv  95.0 KB
+  report.json  2.6 KB
+  SMPS.log  2.7 KB
+  intermediate: _read_smps_qc.csv  _read_smps_qc.pkl  _read_smps_raw.csv  _read_smps_raw.pkl
+```
+
+| Section | Counts | Shows |
+|---|---|---|
+| **Files** | the files the pattern matched | used / excluded / skipped / converted, then one line per *kind* of problem with the first 3 files it concerns (`+N more (see log)`). Kinds: different size-bin grid, unit that cannot be converted, read errors, rows dropped, converted units, files on a non-default grid that were kept, files excluded by design (Xact calibration samples), files that held no data |
+| **Notes** | — | any other warning or error, de-duplicated (first 5) |
+| **QC** | all scans read, whatever the requested range | `Valid`, then only the rules that hit, sorted, with a bar; advisory rules marked *data kept*; `Usable` when it differs from `Valid` |
+| **Coverage** | the requested period, hourly | the three [rates](#rates), the timeline bar, total up / down hours and the longest gaps (first 3; all of them are in `report.json`) |
+| **Output** | the files this run wrote | each as a clickable link; unchanged `output_split` files are not listed |
+
+The two scopes differ on purpose — QC describes the files, Coverage the period
+asked for — so `Valid 1.4 %` and `up 0 h` above are not a contradiction: the
+valid scans fall outside March.
+
+Links are OSC 8 hyperlinks to `file://` URIs (spaces and CJK characters
+percent-encoded), clickable in PyCharm, VS Code, iTerm2, WezTerm and Ghostty.
+macOS Terminal.app clicks neither those nor a bare `file://` URI, so there the
+section ends with a command to paste instead:
+`open the folder: open '/Users/…/out'`. Other terminals show the paths as
+plain text.
+
+If the read raises, the Files and Notes gathered up to that point are still
+printed before the exception, so a failure such as *All files were either
+empty or failed to read* comes with the reason each file was skipped.
+
+For reader authors: give a per-file message a group so the summary can fold
+it — see [Contributing a Reader](contributing-reader.md#logging).
 
 ---
 

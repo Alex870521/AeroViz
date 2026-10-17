@@ -42,6 +42,35 @@ The SMPS is an instrument used for measuring particle size distributions in the 
   `Sample #`, `Scan Number`, `Diameter Midpoint`) are dropped; every other
   source column is kept through L1.
 
+### Export units
+
+Everything after parsing treats the size bins as **dN/dlogDp**. AIM can export
+the same scans in other forms, named in the metadata block by `Units` and
+`Weight`. Each file is checked and, where the conversion is exact, converted
+to dN/dlogDp while it is parsed:
+
+| `Units` | `Weight` | Read as | Handling |
+|---|---|---|---|
+| `dw/dlogDp` / `dW/dlogDp` | `Number` | dN/dlogDp | as is |
+| `Concentration (dW)` | `Number` | dN per channel | ÷ dlogDp (`1 / Channels/Decade` from the header) |
+| `dW/dlogDp` | `Surface` | dS/dlogDp | ÷ π·Dp² |
+| `dW/dlogDp` | `Volume` | dV/dlogDp | ÷ (π/6)·Dp³ |
+| `Concentration (dW)` | `Surface` / `Volume` | dS, dV per channel | both steps |
+| `% Concentration` | any | share of the total | **skipped** — cannot be undone |
+| any | `Mass` | dM | **skipped** — no SMPS mass export was available to verify AIM's mass unit |
+
+A preamble without `Units` / `Weight` is taken as dN/dlogDp. Skipped files
+are named in the log and in the [terminal summary](../../../guide/reader-reference.md#terminal-output).
+The conversions were checked on TCLab data: surface / volume exports against
+the number export of the same scans agree to 0.9998–0.9999 (bin by bin,
+median), and per-channel dN exports integrate to the instrument's own
+`Total Conc.` within 0.1 %. A file whose surface/volume export was processed
+with different corrections (e.g. Multiple Charge Correction off) will not
+match its number export — that is the export, not the conversion.
+
+Each file's export unit is recorded; the returned frame says what any
+converted files were in (see [Output](#output)).
+
 ### Mixed AIM versions
 
 The same physical SMPS exports at different size-bin grids and re-labels many
@@ -65,11 +94,36 @@ files outside that exact range:
 df = RawDataReader('SMPS', path=mixed_folder, size_range=(11.34, 615.27))
 ```
 
-**2. Metadata column aliases:** AIM 11.x renames many metadata columns that
-carry the same physical quantity as AIM 10.3. `METADATA_ALIASES` rewrites the
-AIM 11.x form to the AIM 10.3 canonical form on every parsed file, so a folder
-of either version (or a partitioned-down folder) produces a consistent schema
-downstream. The 9 renamed pairs:
+**2. Metadata column aliases:** older AIM (≤ 10.2, e.g. `Sheath Flow(lpm)`)
+and AIM 11.x both name many metadata columns differently from AIM 10.3 for the
+same physical quantity. `METADATA_ALIASES` rewrites both to the AIM 10.3
+canonical form on every parsed file, so a folder of any version (or a
+partitioned-down folder) produces one schema downstream — and code that reads
+a metadata column (such as the CPC over-range rule's flows) works on every
+version.
+
+| AIM ≤ 10.2 | → | AIM 10.3 canonical |
+|---|---|---|
+| `Sheath Flow(lpm)` / `Aerosol Flow(lpm)` / `Bypass Flow(lpm)` | → | `Sheath Flow (L/min)` / `Aerosol Flow (L/min)` / `Bypass Flow (L/min)` |
+| `CPC Inlet Flow(lpm)` / `CPC Sample Flow(lpm)` | → | `Detector Inlet Flow (L/min)` / `Detector Sample Flow (L/min)` |
+| `Retrace Time(s)` | → | `Retrace Time (s)` |
+| `Low Voltage` / `High Voltage` | → | `Low Voltage (V)` / `High Voltage (V)` |
+| `Lower Size(nm)` / `Upper Size(nm)` | → | `Lower Size (nm)` / `Upper Size (nm)` |
+| `Density(g/cc)` | → | `Density (g/cm)` |
+| `tf(s)` / `D50(nm)` | → | `tf (s)` / `D50 (nm)` |
+| `Median(nm)` / `Mean(nm)` / `Geo. Mean(nm)` / `Mode(nm)` | → | `Median (nm)` / `Mean (nm)` / `Geo. Mean (nm)` / `Mode (nm)` |
+
+Left under their own names on purpose: old `td(s)` (AIM 10.3 writes both
+`td (s)` and `td + 0.5 (s)`, so which one it matches is not certain), old
+`Scan Up Time(s)` vs 10.3 `Scan Time (s)`, `Impactor Type(cm)` and the old
+`Status Flag` (the status rules read it directly).
+
+The `³` in `(#/cm³)` / `(g/cm³)` does not survive every export's encoding —
+it is dropped, written as `?` or a space, and sometimes takes the closing
+parenthesis with it. `METADATA_PATTERNS` maps every spelling seen in the field
+(`Total Conc.(#/cm)`, `Total Conc.(#/cm?)`, `Total Conc. (#/cm?`,
+`Total Concentration(#/cm)`, `Density (g/cm?` …) to `Total Conc. (#/cm)` /
+`Density (g/cm)`.
 
 | AIM 11.x | → | AIM 10.3 canonical |
 |---|---|---|
@@ -127,7 +181,11 @@ host-software version:
   is an error)
 - `Instrument Errors` (AIM 10.3) ↔ `Classifier Errors` (AIM 11.x) — error
   tokens, OK when empty (e.g. `Low aerosol flow`, `Neutralizer not active`)
-- `Communication Status` (AIM 11.x only) — OK when `0`
+- `Communication Status` (AIM 11.x only) — OK when `0`. The column parses as
+  a number and, once the time grid pads in NaN rows, as float, so it is
+  compared as text the way the instrument wrote it (`0`, not `0.0`). Before
+  that, every real AIM 11.x scan read as `Status Error` (TCLab TP 2024-01/02:
+  0 h kept → 630 h).
 - `Neutralizer Status` (AIM 11.x only) — OK when `ON`
 
 There are no numeric codes: the values are free-text tokens, so no status
@@ -220,13 +278,20 @@ limit on the total (comparing it against the total would be a category
 error). The reader takes the detector model from the file header
 (`Detector Model` / `CPC Model`; `cpc_model=` overrides), looks up its rated
 maximum in `CPC_MAX_CONC`, and converts it to a dN/dlogDp ceiling per bin
-using the sheath ratio β = `Aerosol Flow(lpm)` / `Sheath Flow(lpm)` from the
-data rows (NaN ratios filled with the median) and the file's own
+using the sheath ratio β = aerosol flow / `Sheath Flow (L/min)` from the data
+rows (NaN ratios filled with the median) and the file's own
 `Mean Free Path (m)` when present (otherwise 67.3 nm, the reference state
 296.15 K / 101.3 kPa). A scan with any bin above its ceiling is flagged.
 
+The aerosol flow is `Aerosol Flow (L/min)` (AIM ≤ 10.2 and 10.3, after the
+aliases above); AIM 11.x has no such column, and on the 3082 classifier the
+same flow is the one measured at the impactor, `Impactor Flow (L/min)`.
+Before the aliases covered the older spellings the rule looked the flows up
+as `Aerosol Flow(lpm)` only, so it never ran on AIM 10.3 / 11.x exports.
+
 | CPC model | Rated maximum (#/cm³) |
 |---|---|
+| `3750` | 1e5 (single-count with live coincidence correction) |
 | `3772` | 1e4 (single-count only, no photometric mode) |
 | `3787` | 2.5e5 |
 | `3788` | 4e5 |
@@ -265,7 +330,14 @@ At L3 the size-distribution sidecars are written next to the main output
 Pass `append_stats=True` to also append the statistics columns to the
 returned frame; the default keeps it a clean PSD matrix that `psd_stats` /
 `merge_psd` / `SizeDist` consume directly. The returned frame's `df.attrs`
-additionally carries the `cpc_*` metadata described above.
+additionally carries the `cpc_*` metadata described above, and:
+
+- `size_dist_unit` — always `'dN/dlogDp'`; `SizeDist`, `psd_stats` and
+  `merge_psd` check it before computing (see
+  [Size Distribution](../../../guide/size_distribution.md#units-in-attrs));
+- `source_units` — `{export unit: [files]}` for the files that had to be
+  converted (e.g. `{'dN': ['2024-01-12_100755_SMPS.csv', …]}`); absent when
+  every file was already dN/dlogDp.
 
 Files written per read are listed in
 [RawDataReader Reference §1](../../../guide/reader-reference.md#files-written).

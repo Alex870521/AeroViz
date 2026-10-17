@@ -40,6 +40,30 @@ The APS is an instrument used for measuring aerodynamic particle size distributi
   `Aerodynamic Diameter`) are dropped; rows with an unparseable or duplicated
   timestamp are dropped; every other source column is kept through L1.
 
+### Export units
+
+AIM writes the export unit on every row, in the `Aerodynamic Diameter` column
+(e.g. `dN/dlogDp`, `dN`, `dM`, `Raw Counts`). Everything after parsing treats
+the bins as **dN/dlogDp**, so each row is checked — on dated rows only, since a
+merged export repeats its header mid-file — and converted where the
+conversion is exact:
+
+| Row unit | Handling |
+|---|---|
+| `dN/dlogDp` | as is |
+| `dN` | ÷ dlogDp of the bin (`bin_widths` of the grid) |
+| `dS/dlogDp`, `dS` | ÷ π·Dp² (µm²/cm³), and ÷ dlogDp for `dS` |
+| `dV/dlogDp`, `dV` | ÷ (π/6)·Dp³ (µm³/cm³), and ÷ dlogDp for `dV` |
+| `dM/dlogDp`, `dM` | × 10³ ÷ (ρ·(π/6)·Dp³) — AIM mass is mg/m³, ρ is the header's `Density` (g/cm³) |
+| `Raw Counts`, `%dN`, anything else (incl. corrupted cells such as `dN/dlggDp`) | **row dropped** — Raw Counts needs AIM's flow, dead-time and Stokes corrections, a percentage needs the total |
+
+A file mixing units is converted row by row; one with no convertible row left
+is skipped. Transposed (`*M.txt`-style) mass exports parse their bins as
+strings and are made numeric before conversion. The mass factor was checked on
+11 days of paired TCLab exports (mass vs number of the same scans): ratio
+1.000. Skipped files and dropped rows are named in the log and in the
+[terminal summary](../../../guide/reader-reference.md#terminal-output).
+
 ## Measurement parameters
 
 The APS provides aerodynamic particle size distribution measurements:
@@ -134,6 +158,12 @@ by default; choose a subset with `size_dist_outputs=`):
 Pass `append_stats=True` to also append the statistics columns to the
 returned frame; the default keeps it a clean PSD matrix for `psd_stats` /
 `merge_psd` / `SizeDist`.
+
+`df.attrs['size_dist_unit']` is always `'dN/dlogDp'`, checked by `SizeDist`,
+`psd_stats` and `merge_psd` before they compute (see
+[Size Distribution](../../../guide/size_distribution.md#units-in-attrs));
+`df.attrs['source_units']` is `{export unit: [files]}` for the files that held
+other units, and absent when none did.
 
 Files written per read are listed in
 [RawDataReader Reference §1](../../../guide/reader-reference.md#files-written).

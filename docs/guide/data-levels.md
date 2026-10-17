@@ -272,16 +272,19 @@ so neither option changes the frame.
 | Invalidated by | `reset=True`, `cache_format` mismatch | — |
 | Extended by | `reset='append'` (parses new files, concats, re-saves); `reset='incremental'` + `cache_dir` (per-file cache, see below) | — |
 
-`CACHE_FORMAT = 4` is stamped into `df.attrs['cache_format']`; a pickle written
-by an older layout is detected as stale and re-parsed automatically. Parse
-provenance (`n_files`, `raw_freq`, `freq_mixed`) round-trips through the pickle
-so a cache hit still reports it in `df.attrs`.
+`CACHE_FORMAT = 5` is stamped into `df.attrs['cache_format']`; a pickle written
+by an older layout is detected as stale and re-parsed automatically (5: SMPS /
+APS convert non-dN/dlogDp exports, so a version-4 pickle may hold them
+unconverted). Parse provenance (`n_files`, `raw_freq`, `freq_mixed`, and each
+file's export unit for `df.attrs['source_units']`) round-trips through the
+pickle so a cache hit still reports it in `df.attrs`.
 
 **Per-file parse cache** (`core/parse_cache.py`, opt-in with `cache_dir=`).
 Below the whole-frame pkl sits a cache of each raw file's L1 parse — one pickle
 per file under `{cache_dir}/{INSTRUMENT}/{source-folder hash}/`, keyed by file
-name, size, mtime, reader, AeroViz version and a reader salt
-(`_parse_cache_salt`). `reset='incremental'` bypasses the whole-frame pkl,
+name, size, mtime, reader, AeroViz version, `PARSE_CACHE_FORMAT` (now 4: SMPS
+metadata renamed to the AIM 10.3 names, unit conversion, per-file
+`export_unit` tag) and a reader salt (`_parse_cache_salt`). `reset='incremental'` bypasses the whole-frame pkl,
 reuses every unchanged file and parses the rest; stale entries are pruned;
 `reset=True` rebuilds it. Readers whose `_raw_reader` keeps side state (SMPS:
 the CPC detector fields) carry it in the cached frame's `attrs['parse_meta']`

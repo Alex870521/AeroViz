@@ -70,7 +70,7 @@ Parameters in signature order:
 | `parse_workers` | int | Threads for parsing raw files; `1` = sequential (default). `4` suits network / synced folders. Output identical at any setting | `1` |
 | `output_split` | str | Layout of the CSV products: `none` (one file, default), `month` → `{stem}_YYYY-MM.csv`, `year` → `{stem}_YYYY.csv`. Unchanged files are not rewritten | `none` |
 | `save_csv` | bool | Write `{prefix}.csv` (the returned frame). Off when only the DataFrame — or the SMPS/APS `_dNdlogDp` / `_stats` sidecars — is used | `True` |
-| `quiet` | bool | Suppress console output (the log file is still written) | `False` |
+| `quiet` | bool | Suppress console output (the log file is still written). When off, the terminal shows a header and progress bar during the read and one grouped summary — Files, Notes, QC, Coverage, clickable Output paths — after it; see [Terminal output](reader-reference.md#terminal-output) | `False` |
 | `log_level` | str | `'DEBUG'` / `'INFO'` / `'WARNING'` / `'ERROR'` for the log file | `'INFO'` |
 | `**kwargs` | — | Reader-specific: e.g. SMPS `cpc_max_conc=`, `min_total_conc=`; any reader `raw_freq=` (force the native grid), `drop_outlier_dates=True` | — |
 
@@ -136,6 +136,8 @@ df.attrs['total_rate']       # overall % valid (only present when qc is on)
 | `mean_freq` | always | output frequency (`None` = native) |
 | `qc_applied`, `qc_freq` | qc on | QC mode |
 | `acquisition_rate`, `yield_rate`, `total_rate` | qc on | overall rates (%) |
+| `size_dist_unit` | SMPS / APS | always `'dN/dlogDp'`; checked by `SizeDist` / `psd_stats` / `merge_psd` ([Size Distribution](size_distribution.md#units-in-attrs)) |
+| `source_units` | SMPS / APS, when any file was converted | `{export unit: [files]}`, e.g. `{'dN': ['…_SMPS.csv']}` |
 
 `attrs` survive `to_pickle`/`read_pickle` and `resample` (pandas >= 2) but are
 dropped by a `concat` of frames with conflicting attrs — re-stamp if you merge.

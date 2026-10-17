@@ -50,6 +50,41 @@ aps = RawDataReader(
 > the return value a clean diameter-only matrix (an appended frame mixes string
 > stat columns in and can no longer be fed back into `psd_stats`/`merge_psd`).
 
+### Units in attrs
+
+Every calculation here assumes number concentration per log10 bin width. A
+frame can say what it holds in `df.attrs['size_dist_unit']`, and the
+calculations check it **before** computing:
+
+| Entry point | Requires |
+|---|---|
+| `SizeDist(df, state='dlogdp', weighting='n')` | `dN/dlogDp` (in general `d{N,S,V}/dlogDp`, `d{N,S,V}` or `d{N,S,V}/dDp` per `state` / `weighting`) |
+| `psd_stats(df)` | `dN/dlogDp`; with `input_type='raw'`, `dN` |
+| `merge_psd(df_smps, df_aps, ...)` | `dN/dlogDp` for both |
+
+A frame recorded in another unit is refused with a message naming both units;
+a frame with **no** `size_dist_unit` is taken at the caller's word, so
+hand-built DataFrames keep working.
+
+- `RawDataReader('SMPS' | 'APS', ...)` stamps `'dN/dlogDp'` — exports in dN,
+  dS, dV (and APS dM) are converted while reading, and
+  `df.attrs['source_units']` lists the files that were (see
+  [SMPS](../api/instruments/particle-sizers/SMPS.md#export-units) /
+  [APS](../api/instruments/particle-sizers/APS.md#export-units)).
+- `SizeDist.to_surface()` / `to_volume()` tag their result `'dS/dlogDp'` /
+  `'dV/dlogDp'`, so feeding one back into `psd_stats` fails loudly instead of
+  returning statistics of the wrong moment; `SizeDist(surface, weighting='s')`
+  accepts it.
+- To bring your own data to dN/dlogDp:
+
+```python
+from AeroViz.dataProcess.SizeDistr.units import ExportUnit, to_dndlogdp, UNIT_ATTR
+
+dn = to_dndlogdp(df_dN_per_channel, ExportUnit('N', per_dlogdp=False), dp_unit='nm',
+                 dlogdp=1 / 64)                    # 64 channels per decade
+dn.attrs[UNIT_ATTR] = 'dN/dlogDp'
+```
+
 ---
 
 ## SMPS-APS Merging

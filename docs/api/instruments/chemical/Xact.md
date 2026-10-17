@@ -19,7 +19,8 @@ The Xact 625i is a continuous X-ray fluorescence (XRF) analyzer for real-time el
 
 ## Raw format
 
-- **File pattern**: `*.csv`
+- **File pattern**: `*.csv` (`Sample_*.csv`, Xact 625i) and `*_output.txt`
+  (the older per-sample export, see [below](#older-per-sample-_outputtxt-export))
 - **Native frequency**: `1h`
 - **Encoding**: read as UTF-8 with undecodable bytes ignored
 - **Time format**: `TIME` column, `MM/DD/YYYY HH:MM:SS` (`%m/%d/%Y %H:%M:%S`)
@@ -63,6 +64,48 @@ The raw data file contains:
 7. The modal `SAMPLE_TIME` of the file is remembered (`reader._sample_time`);
    it selects which column of the manual's detection-limit table applies.
 8. Every remaining column is kept (~75 per file).
+
+### Older per-sample `*_output.txt` export
+
+Older Xact software writes one file per sample, named
+`MM_DD_YYYY__HH_MM_SS_output.txt` (the time the file was written, about two
+hours after the sample started). It is laid out long rather than wide:
+
+```text
+, Sample Start Time = ,12/31/2023 22:00:00,
+At Sym, At No, Mass, Mass Unc, Concentration, Concentration Unc
+Al,13,0.0000,0.0000,0.0000,0.0000,,
+S ,16,2124.3490,32.4827,2160.5041,75.8889,,
+...
+,*****,
+, Ambient Temp (avg) = ,17.94,
+, Flow Act (L/m Act) = ,16.71,
+, Volume = ,983.27,
+, Sample Time (min) = ,60,
+, Sample Type = ,1
+```
+
+`_read_output_txt` turns it into **the same columns** the CSV path produces:
+
+- each element row → `<El>` = `Concentration`, `<El>_uncert` =
+  `Concentration Unc`. `Concentration` is ng/m³ — it is `Mass` divided by the
+  sampled `Volume` (2124.349 / 0.98327 m³ = 2160.50), the same quantity as the
+  CSV's `<El> <Z> (ng/m3)` columns;
+- the `, <field> = ,<value>` footer → the environment columns
+  (`Ambient Temp (avg)` → `AT`, `Sample Temp (avg)` → `SAMPLE_T`,
+  `Tape Pressure (avg)` → `TAPE`, `Flow 25/Act/Std (L/m Act)` →
+  `FLOW_25/ACT/STD`, `Volume` → `VOLUME`, `Filament Monitor (avg)` →
+  `FILAMENT_V`, `Relative Humidity (avg)` → `RH`, `Wind Speed/Direction (avg)`
+  → `WIND`/`WIND_DIR`, `Sample Time (min)` → `SAMPLE_TIME`, `Alarm` →
+  `ALARM`, `Sample Type` → `SAMPLE_TYPE`, … — `OUTPUT_TXT_FIELDS`);
+- indexed by `Sample Start Time`, rounded to `1h`; calibration samples
+  (`Sample Type` 2, the 00:30 files) are excluded exactly as on the CSV path,
+  and the terminal summary lists them as *excluded by design*, not as problems.
+
+The export carries fewer elements than the 625i CSV (45: Al … Bi, no Mg, Ar or
+rare earths); the columns it has are a subset of the CSV schema, so the two
+can be concatenated. TCLab's TP 2023-12 / 2024-01 IOP exists only in this
+form: 327 + 459 files → 314 + 438 hours, the rest being calibration checks.
 
 ## Supported Elements
 

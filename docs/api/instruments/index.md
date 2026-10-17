@@ -99,7 +99,7 @@ Not instruments, but read through the same factory:
 | **BAM1020** | 1 h | .csv | Invalid Conc, Spike |
 | **OCEC** | 1 h | *LCRes.csv | Invalid Carbon, Below MDL, Spike, Missing OC |
 | **IGAC** | 1 h | .csv | Mass Closure, Missing Main, Above MR, Ion Balance |
-| **Xact** | 1 h | .csv | Calibration Mode, Instrument Error, Upscale Warning, Invalid Value, High Uncertainty, Internal Std Drift |
+| **Xact** | 1 h | .csv, _output.txt | Calibration Mode, Instrument Error, Upscale Warning, Invalid Value, High Uncertainty, Internal Std Drift |
 | **EPA** | 1 h | .csv | Negative |
 
 Every reader declares its rules as `QCRule`s; what a flag means, which are

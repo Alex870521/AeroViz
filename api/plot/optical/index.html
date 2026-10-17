@@ -1046,6 +1046,8 @@
       
         
       
+        
+      
     
     
     
@@ -1106,6 +1108,34 @@
     
   
     RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line (aeroviz)
   
 
     
@@ -3286,6 +3316,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.plot.optical.mie_contribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mie_contribution
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3404,6 +3445,17 @@
     <span class="md-ellipsis">
       
         response_surface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.plot.optical.optical.mie_contribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mie_contribution
       
     </span>
   </a>
@@ -3614,6 +3666,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.plot.optical.mie_contribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mie_contribution
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3732,6 +3795,17 @@
     <span class="md-ellipsis">
       
         response_surface
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#AeroViz.plot.optical.optical.mie_contribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mie_contribution
       
     </span>
   </a>
@@ -4375,6 +4449,260 @@ Default is 'ext'.</p>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">response_surface</span><span class="p">(</span><span class="n">real_range</span><span class="o">=</span><span class="p">(</span><span class="mf">1.4</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">),</span> <span class="n">gmd_range</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="n">num</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">'Real Part (n)'</span><span class="p">,</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">... </span>                 <span class="n">ylabel</span><span class="o">=</span><span class="s1">'GMD (nm)'</span><span class="p">,</span> <span class="n">zlabel</span><span class="o">=</span><span class="s1">'Extinction (1/Mm)'</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">'Sensitivity Tests of Extinction'</span><span class="p">)</span>
 </code></pre></div>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="AeroViz.plot.optical.mie_contribution" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">mie_contribution</span>
+
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">mie_contribution</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n"><span title="complex">complex</span></span> <span class="o">=</span> <span class="mf">1.8</span> <span class="o">+</span> <span class="mf">0.1</span><span class="n">j</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="float">float</span></span><span class="p">]</span> <span class="o">=</span> <span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">geo_mean</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">140</span><span class="p">,</span> <span class="n">geo_std</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">1.95</span><span class="p">,</span> <span class="n">total_number</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_volume</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">'number'</span><span class="p">,</span> <span class="n">dp_range</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10000</span><span class="p">),</span> <span class="n">n_bins</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="matplotlib.pyplot.Figure">Figure</span></span><span class="p">,</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="matplotlib.pyplot.Axes">Axes</span></span><span class="p">,</span> <span class="n"><span title="matplotlib.pyplot.Axes">Axes</span></span><span class="p">]]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Which particle sizes of a lognormal mode produce its scattering and absorption.</p>
+<p>Top panel: the mode as dN/dlogDp (left axis) and dV/dlogDp (right axis).
+Bottom panel: per-size contributions dσ_sca/dlogDp and dσ_abs/dlogDp
+(Mm⁻¹) for each wavelength, the integrated σ_sca / σ_abs in the legend.
+The area under each lower curve is the bulk coefficient
+:func:<code>AeroViz.optical.mie_lognormal</code> returns for the same inputs.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>m</code>
+            </td>
+            <td>
+                  <code><span title="complex">complex</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Refractive index <code>n + ik</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>1.8 + 0.1j</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>wavelengths</code>
+            </td>
+            <td>
+                  <code>float or list of float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Wavelength(s) in nm; several wavelengths share colours and differ in
+line style.</p>
+              </div>
+            </td>
+            <td>
+                  <code>550</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>geo_mean</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>geo_std</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>total_number</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>total_volume</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>total_mass</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>density</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mode</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dp_range</code>
+            </td>
+            <td>
+                  <code><span title="tuple">tuple</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Diameter grid (nm).</p>
+              </div>
+            </td>
+            <td>
+                  <code>(5, 10000)</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_bins</code>
+            </td>
+            <td>
+                  <code><span title="tuple">tuple</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Diameter grid (nm).</p>
+              </div>
+            </td>
+            <td>
+                  <code>(5, 10000)</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>(<span title="fig">fig</span>, (<span title="ax_psd">ax_psd</span>, <span title="ax_sigma">ax_sigma</span>))</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
     </div>
@@ -5090,6 +5418,260 @@ Default is 'ext'.</p>
     <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">&gt;&gt;&gt; </span><span class="n">response_surface</span><span class="p">(</span><span class="n">real_range</span><span class="o">=</span><span class="p">(</span><span class="mf">1.4</span><span class="p">,</span> <span class="mf">1.6</span><span class="p">),</span> <span class="n">gmd_range</span><span class="o">=</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="n">num</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s1">'Real Part (n)'</span><span class="p">,</span>
 <a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">... </span>                 <span class="n">ylabel</span><span class="o">=</span><span class="s1">'GMD (nm)'</span><span class="p">,</span> <span class="n">zlabel</span><span class="o">=</span><span class="s1">'Extinction (1/Mm)'</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">'Sensitivity Tests of Extinction'</span><span class="p">)</span>
 </code></pre></div>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h6 id="AeroViz.plot.optical.optical.mie_contribution" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">mie_contribution</span>
+
+
+</h6>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">mie_contribution</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="n"><span title="complex">complex</span></span> <span class="o">=</span> <span class="mf">1.8</span> <span class="o">+</span> <span class="mf">0.1</span><span class="n">j</span><span class="p">,</span> <span class="n">wavelengths</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="n"><span title="list">list</span></span><span class="p">[</span><span class="n"><span title="float">float</span></span><span class="p">]</span> <span class="o">=</span> <span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">geo_mean</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mi">140</span><span class="p">,</span> <span class="n">geo_std</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">=</span> <span class="mf">1.95</span><span class="p">,</span> <span class="n">total_number</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_volume</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="p">:</span> <span class="n"><span title="float">float</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">=</span> <span class="s1">'number'</span><span class="p">,</span> <span class="n">dp_range</span><span class="p">:</span> <span class="n"><span title="tuple">tuple</span></span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10000</span><span class="p">),</span> <span class="n">n_bins</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="matplotlib.pyplot.Figure">Figure</span></span><span class="p">,</span> <span class="n"><span title="tuple">tuple</span></span><span class="p">[</span><span class="n"><span title="matplotlib.pyplot.Axes">Axes</span></span><span class="p">,</span> <span class="n"><span title="matplotlib.pyplot.Axes">Axes</span></span><span class="p">]]</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Which particle sizes of a lognormal mode produce its scattering and absorption.</p>
+<p>Top panel: the mode as dN/dlogDp (left axis) and dV/dlogDp (right axis).
+Bottom panel: per-size contributions dσ_sca/dlogDp and dσ_abs/dlogDp
+(Mm⁻¹) for each wavelength, the integrated σ_sca / σ_abs in the legend.
+The area under each lower curve is the bulk coefficient
+:func:<code>AeroViz.optical.mie_lognormal</code> returns for the same inputs.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>m</code>
+            </td>
+            <td>
+                  <code><span title="complex">complex</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Refractive index <code>n + ik</code>.</p>
+              </div>
+            </td>
+            <td>
+                  <code>1.8 + 0.1j</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>wavelengths</code>
+            </td>
+            <td>
+                  <code>float or list of float</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Wavelength(s) in nm; several wavelengths share colours and differ in
+line style.</p>
+              </div>
+            </td>
+            <td>
+                  <code>550</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>geo_mean</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>geo_std</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>total_number</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>total_volume</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>total_mass</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>density</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>mode</code>
+            </td>
+            <td>
+                  <code><span title="float">float</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>The lognormal mode, exactly as :func:<code>generate_lognormal_psd</code> takes it
+(amount by number, volume or mass + density; <code>mode='volume'</code> reads
+<code>geo_mean</code> as the volume-mode median).</p>
+              </div>
+            </td>
+            <td>
+                  <code>140</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>dp_range</code>
+            </td>
+            <td>
+                  <code><span title="tuple">tuple</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Diameter grid (nm).</p>
+              </div>
+            </td>
+            <td>
+                  <code>(5, 10000)</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>n_bins</code>
+            </td>
+            <td>
+                  <code><span title="tuple">tuple</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Diameter grid (nm).</p>
+              </div>
+            </td>
+            <td>
+                  <code>(5, 10000)</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>(<span title="fig">fig</span>, (<span title="ax_psd">ax_psd</span>, <span title="ax_sigma">ax_sigma</span>))</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
 
 
     </div>

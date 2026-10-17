@@ -1046,6 +1046,8 @@
       
         
       
+        
+      
     
     
     
@@ -1106,6 +1108,34 @@
     
   
     RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line (aeroviz)
   
 
     
@@ -4850,13 +4880,16 @@ True  → return per-bin dExt/dSca/dAbs (Mm⁻¹) distributions.</p>
 
 
 </h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">mie_lognormal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">geo_mean</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">geo_std</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">total_number</span><span class="o">=</span><span class="mf">1000000.0</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">mie_lognormal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">geo_mean</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">geo_std</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">total_number</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">),</span> <span class="n">total_volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'number'</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>One-shot Mie optics from a single lognormal PSD.</p>
-<p>Convenience wrapper that builds the PSD internally then calls
+<p>The mode's amount is one of <code>total_number</code> (#/cm³, default 1e6),
+<code>total_volume</code> (µm³/cm³) or <code>total_mass</code> (µg/m³, with <code>density</code>
+in g/cm³); <code>mode='volume'</code> reads <code>geo_mean</code> as the volume-mode
+median. Convenience wrapper that builds the PSD internally then calls
 :func:<code>Mie_SD</code>. See :mod:<code>AeroViz.dataProcess.Optical.mie</code> for
 parameter details.</p>
 
@@ -4896,14 +4929,15 @@ parameter details.</p>
 
 
 </h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">mie_multimodal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">modes</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">mie_multimodal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">modes</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">),</span> <span class="n">amount</span><span class="o">=</span><span class="s1">'number'</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'number'</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Mie optics for a multi-modal lognormal PSD.</p>
-<p><code>modes</code> is a sequence of <code>(geo_mean, geo_std, total_number)</code>
-tuples; their lognormal distributions are summed onto a shared
+<p><code>modes</code> is a sequence of <code>(geo_mean, geo_std, amount)</code> tuples, the
+amount in #/cm³, µm³/cm³ or µg/m³ according to <code>amount=</code> (mass needs
+<code>density</code>); their lognormal distributions are summed onto a shared
 diameter grid before the Mie integration.</p>
 
 

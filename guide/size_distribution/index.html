@@ -12,7 +12,7 @@
         <link rel="canonical" href="https://alex870521.github.io/AeroViz/guide/size_distribution/">
       
       
-        <link rel="prev" href="../rawdatareader/">
+        <link rel="prev" href="../cli/">
       
       
         <link rel="next" href="../optical_closure/">
@@ -1059,6 +1059,8 @@
       
         
       
+        
+      
     
     
     
@@ -1122,6 +1124,34 @@
     
   
     RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line (aeroviz)
   
 
     
@@ -1218,6 +1248,17 @@
     <span class="md-ellipsis">
       
         Reading SMPS and APS Data
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#units-in-attrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Units in attrs
       
     </span>
   </a>
@@ -3569,6 +3610,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#units-in-attrs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Units in attrs
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3845,27 +3897,74 @@ statistics columns to the returned frame. The default is <code>False</code>, whi
 the return value a clean diameter-only matrix (an appended frame mixes string
 stat columns in and can no longer be fed back into <code>psd_stats</code>/<code>merge_psd</code>).</p>
 </blockquote>
+<h3 id="units-in-attrs">Units in attrs</h3>
+<p>Every calculation here assumes number concentration per log10 bin width. A
+frame can say what it holds in <code>df.attrs['size_dist_unit']</code>, and the
+calculations check it <strong>before</strong> computing:</p>
+<table>
+<thead>
+<tr>
+<th>Entry point</th>
+<th>Requires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SizeDist(df, state='dlogdp', weighting='n')</code></td>
+<td><code>dN/dlogDp</code> (in general <code>d{N,S,V}/dlogDp</code>, <code>d{N,S,V}</code> or <code>d{N,S,V}/dDp</code> per <code>state</code> / <code>weighting</code>)</td>
+</tr>
+<tr>
+<td><code>psd_stats(df)</code></td>
+<td><code>dN/dlogDp</code>; with <code>input_type='raw'</code>, <code>dN</code></td>
+</tr>
+<tr>
+<td><code>merge_psd(df_smps, df_aps, ...)</code></td>
+<td><code>dN/dlogDp</code> for both</td>
+</tr>
+</tbody>
+</table>
+<p>A frame recorded in another unit is refused with a message naming both units;
+a frame with <strong>no</strong> <code>size_dist_unit</code> is taken at the caller's word, so
+hand-built DataFrames keep working.</p>
+<ul>
+<li><code>RawDataReader('SMPS' | 'APS', ...)</code> stamps <code>'dN/dlogDp'</code> — exports in dN,
+  dS, dV (and APS dM) are converted while reading, and
+  <code>df.attrs['source_units']</code> lists the files that were (see
+  <a href="../../api/instruments/particle-sizers/SMPS/#export-units">SMPS</a> /
+  <a href="../../api/instruments/particle-sizers/APS/#export-units">APS</a>).</li>
+<li><code>SizeDist.to_surface()</code> / <code>to_volume()</code> tag their result <code>'dS/dlogDp'</code> /
+  <code>'dV/dlogDp'</code>, so feeding one back into <code>psd_stats</code> fails loudly instead of
+  returning statistics of the wrong moment; <code>SizeDist(surface, weighting='s')</code>
+  accepts it.</li>
+<li>To bring your own data to dN/dlogDp:</li>
+</ul>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess.SizeDistr.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">ExportUnit</span><span class="p">,</span> <span class="n">to_dndlogdp</span><span class="p">,</span> <span class="n">UNIT_ATTR</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">dn</span> <span class="o">=</span> <span class="n">to_dndlogdp</span><span class="p">(</span><span class="n">df_dN_per_channel</span><span class="p">,</span> <span class="n">ExportUnit</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="n">per_dlogdp</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">dp_unit</span><span class="o">=</span><span class="s1">'nm'</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>                 <span class="n">dlogdp</span><span class="o">=</span><span class="mi">1</span> <span class="o">/</span> <span class="mi">64</span><span class="p">)</span>                    <span class="c1"># 64 channels per decade</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">dn</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="n">UNIT_ATTR</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'dN/dlogDp'</span>
+</code></pre></div>
 <hr />
 <h2 id="smps-aps-merging">SMPS-APS Merging</h2>
 <h3 id="basic-merging">Basic Merging</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_psd</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># v4 merging (recommended, with PM2.5 fitness function)</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">result</span> <span class="o">=</span> <span class="n">merge_psd</span><span class="p">(</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">smps</span><span class="p">,</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">aps</span><span class="p">,</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">df_pm25</span><span class="o">=</span><span class="n">pm25_data</span><span class="p">,</span>        <span class="c1"># required for version=4</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">version</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="n">density_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">2.6</span><span class="p">),</span>  <span class="c1"># QC: plausible effective-density range (g/cm³)</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="p">)</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="c1"># Output — every version guarantees 'data' + 'density'</span>
-<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="n">merged_pnsd</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'data'</span><span class="p">]</span>      <span class="c1"># recommended merged dN/dlogDp (v3/v4 = cor_dndsdv)</span>
-<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="n">density</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'density'</span><span class="p">]</span>       <span class="c1"># estimated effective density (g/cm³)</span>
-<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>
-<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a><span class="c1"># v3/v4 also expose the other algorithm variants:</span>
-<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a><span class="c1">#   result['data_dn'], result['data_dndsdv'], result['data_cor_dn']</span>
-<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a><span class="c1"># v2 exposes result['data_aero']; v4 also result['times'].</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_psd</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># v4 merging (recommended, with PM2.5 fitness function)</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">result</span> <span class="o">=</span> <span class="n">merge_psd</span><span class="p">(</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">smps</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="n">aps</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="n">df_pm25</span><span class="o">=</span><span class="n">pm25_data</span><span class="p">,</span>        <span class="c1"># required for version=4</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="n">version</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">density_range</span><span class="o">=</span><span class="p">(</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">2.6</span><span class="p">),</span>  <span class="c1"># QC: plausible effective-density range (g/cm³)</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">)</span>
+<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>
+<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1"># Output — every version guarantees 'data' + 'density'</span>
+<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">merged_pnsd</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'data'</span><span class="p">]</span>      <span class="c1"># recommended merged dN/dlogDp (v3/v4 = cor_dndsdv)</span>
+<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="n">density</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'density'</span><span class="p">]</span>       <span class="c1"># estimated effective density (g/cm³)</span>
+<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>
+<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="c1"># v3/v4 also expose the other algorithm variants:</span>
+<a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="c1">#   result['data_dn'], result['data_dndsdv'], result['data_cor_dn']</span>
+<a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="c1"># v2 exposes result['data_aero']; v4 also result['times'].</span>
 </code></pre></div>
 <blockquote>
 <p><strong>Unified output.</strong> All versions return a dict with <code>'data'</code> (the recommended
@@ -3930,44 +4029,44 @@ version (replaces the old v1 <code>data_all</code> / <code>data_qc</code> split)
 <hr />
 <h2 id="distribution-conversion-and-statistics">Distribution Conversion and Statistics</h2>
 <h3 id="using-sizedist-class">Using SizeDist Class</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess.SizeDistr</span><span class="w"> </span><span class="kn">import</span> <span class="n">SizeDist</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># Create PSD object</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">psd</span> <span class="o">=</span> <span class="n">SizeDist</span><span class="p">(</span><span class="n">merged_pnsd</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">'dlogdp'</span><span class="p">,</span> <span class="n">weighting</span><span class="o">=</span><span class="s1">'n'</span><span class="p">)</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1"># Distribution conversion</span>
-<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">surface</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_surface</span><span class="p">()</span>  <span class="c1"># Surface area distribution (nm2/cm3)</span>
-<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">volume</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_volume</span><span class="p">()</span>    <span class="c1"># Volume distribution (nm3/cm3)</span>
-<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>
-<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1"># Basic statistics. props is a *time-indexed* DataFrame (one row per timestamp)</span>
-<a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="c1"># with columns total_n, GMD_n, GSD_n, mode_n, ultra_n, accum_n, coarse_n —</span>
-<a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1"># so each column is a Series; aggregate (e.g. .mean()) before formatting.</span>
-<a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="n">props</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span>
-<a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total N: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'total_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
-<a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"GMD: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'GMD_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm"</span><span class="p">)</span>
-<a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"GSD: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'GSD_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess.SizeDistr</span><span class="w"> </span><span class="kn">import</span> <span class="n">SizeDist</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c1"># Create PSD object</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="n">psd</span> <span class="o">=</span> <span class="n">SizeDist</span><span class="p">(</span><span class="n">merged_pnsd</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">'dlogdp'</span><span class="p">,</span> <span class="n">weighting</span><span class="o">=</span><span class="s1">'n'</span><span class="p">)</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># Distribution conversion</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">surface</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_surface</span><span class="p">()</span>  <span class="c1"># Surface area distribution (nm2/cm3)</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">volume</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_volume</span><span class="p">()</span>    <span class="c1"># Volume distribution (nm3/cm3)</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1"># Basic statistics. props is a *time-indexed* DataFrame (one row per timestamp)</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a><span class="c1"># with columns total_n, GMD_n, GSD_n, mode_n, ultra_n, accum_n, coarse_n —</span>
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># so each column is a Series; aggregate (e.g. .mean()) before formatting.</span>
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="n">props</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span>
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Total N: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'total_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"GMD: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'GMD_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm"</span><span class="p">)</span>
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"GSD: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'GSD_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="mode-statistics">Mode Statistics</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Calculate mode statistics</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">stats</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">mode_statistics</span><span class="p">()</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># stats['number'] / ['surface'] / ['volume'] are dN / dS / dV per bin (already</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="c1"># multiplied by dlogDp); the per-dlogDp forms are stats['number_norm'] /</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="c1"># ['surface_norm'] / ['volume_norm']. Columns = diameters. The per-mode summary lives in stats['statistics'] as</span>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># wide columns named {total|GMD|GSD|mode}_{num|surf|vol}_{mode}, where mode is</span>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="c1"># one of: all, Nucleation (10-25 nm), Aitken (25-100 nm),</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="c1"># Accumulation (100-1000 nm), Coarse (1000-2500 nm; absent if out of range).</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="n">summary</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s1">'statistics'</span><span class="p">]</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="c1"># Per-mode number concentration (time-averaged)</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'Nucleation'</span><span class="p">,</span> <span class="s1">'Aitken'</span><span class="p">,</span> <span class="s1">'Accumulation'</span><span class="p">,</span> <span class="s1">'Coarse'</span><span class="p">]:</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="n">col</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'total_num_</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1">'</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="c1"># Whole-distribution number-weighted stats:</span>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="c1">#   total_num_all, GMD_num_all, GSD_num_all, mode_num_all</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">[[</span><span class="s1">'total_num_all'</span><span class="p">,</span> <span class="s1">'GMD_num_all'</span><span class="p">,</span> <span class="s1">'GSD_num_all'</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Calculate mode statistics</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">stats</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">mode_statistics</span><span class="p">()</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># stats['number'] / ['surface'] / ['volume'] are dN / dS / dV per bin (already</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1"># multiplied by dlogDp); the per-dlogDp forms are stats['number_norm'] /</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1"># ['surface_norm'] / ['volume_norm']. Columns = diameters. The per-mode summary lives in stats['statistics'] as</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># wide columns named {total|GMD|GSD|mode}_{num|surf|vol}_{mode}, where mode is</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="c1"># one of: all, Nucleation (10-25 nm), Aitken (25-100 nm),</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="c1"># Accumulation (100-1000 nm), Coarse (1000-2500 nm; absent if out of range).</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="n">summary</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s1">'statistics'</span><span class="p">]</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="c1"># Per-mode number concentration (time-averaged)</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'Nucleation'</span><span class="p">,</span> <span class="s1">'Aitken'</span><span class="p">,</span> <span class="s1">'Accumulation'</span><span class="p">,</span> <span class="s1">'Coarse'</span><span class="p">]:</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="n">col</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'total_num_</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s1">'</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a>    <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">summary</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="c1"># Whole-distribution number-weighted stats:</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="c1">#   total_num_all, GMD_num_all, GSD_num_all, mode_num_all</span>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="p">[[</span><span class="s1">'total_num_all'</span><span class="p">,</span> <span class="s1">'GMD_num_all'</span><span class="p">,</span> <span class="s1">'GSD_num_all'</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
 </code></pre></div>
 <blockquote>
 <p><strong>Tip.</strong> The top-level <code>psd_stats(df)</code> is a one-call shortcut: it returns the
@@ -3977,108 +4076,108 @@ distributions — no need to build a <code>SizeDist</code> yourself.</p>
 <hr />
 <h2 id="extinction-distribution-calculation">Extinction Distribution Calculation</h2>
 <h3 id="requires-refractive-index-data">Requires Refractive Index Data</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">reconstruct_mass</span><span class="p">,</span> <span class="n">volume_ri</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1"># Calculate refractive index from chemical composition</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="n">mass_result</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">)</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">df_RI</span> <span class="o">=</span> <span class="n">volume_ri</span><span class="p">(</span><span class="n">mass_result</span><span class="p">[</span><span class="s1">'volume'</span><span class="p">])</span>   <span class="c1"># n_dry, k_dry, n_amb, k_amb, gRH</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Calculate extinction distribution</span>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">ext_dist</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_extinction</span><span class="p">(</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="n">RI</span><span class="o">=</span><span class="n">df_RI</span><span class="p">,</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="n">method</span><span class="o">=</span><span class="s1">'internal'</span><span class="p">,</span>      <span class="c1"># Mixing mode</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>    <span class="n">result_type</span><span class="o">=</span><span class="s1">'extinction'</span>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">reconstruct_mass</span><span class="p">,</span> <span class="n">volume_ri</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Calculate refractive index from chemical composition</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">mass_result</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">)</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">df_RI</span> <span class="o">=</span> <span class="n">volume_ri</span><span class="p">(</span><span class="n">mass_result</span><span class="p">[</span><span class="s1">'volume'</span><span class="p">])</span>   <span class="c1"># n_dry, k_dry, n_amb, k_amb, gRH</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Calculate extinction distribution</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="n">ext_dist</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_extinction</span><span class="p">(</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="n">RI</span><span class="o">=</span><span class="n">df_RI</span><span class="p">,</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="n">method</span><span class="o">=</span><span class="s1">'internal'</span><span class="p">,</span>      <span class="c1"># Mixing mode</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>    <span class="n">result_type</span><span class="o">=</span><span class="s1">'extinction'</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="p">)</span>
 </code></pre></div>
 <hr />
 <h2 id="dry-psd-calculation">Dry PSD Calculation</h2>
 <h3 id="hygroscopic-correction">Hygroscopic Correction</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">growth_factor</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># Calculate growth factor (needs total_dry + ALWC)</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="n">df_gRH</span> <span class="o">=</span> <span class="n">growth_factor</span><span class="p">(</span><span class="n">mass_result</span><span class="p">[</span><span class="s1">'volume'</span><span class="p">],</span> <span class="n">df_alwc</span><span class="p">)</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="c1"># Convert to dry PSD</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="n">dry_psd</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_dry</span><span class="p">(</span><span class="n">df_gRH</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">growth_factor</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># Calculate growth factor (needs total_dry + ALWC)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">df_gRH</span> <span class="o">=</span> <span class="n">growth_factor</span><span class="p">(</span><span class="n">mass_result</span><span class="p">[</span><span class="s1">'volume'</span><span class="p">],</span> <span class="n">df_alwc</span><span class="p">)</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="c1"># Convert to dry PSD</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="n">dry_psd</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_dry</span><span class="p">(</span><span class="n">df_gRH</span><span class="p">,</span> <span class="n">uniform</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </code></pre></div>
 <hr />
 <h2 id="lung-deposition-calculation">Lung Deposition Calculation</h2>
 <h3 id="icrp-66-model">ICRP 66 Model</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Calculate lung deposition</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">lung</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">lung_deposition</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="s1">'light'</span><span class="p">)</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Deposition fractions, one row per diameter (nm)</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">df_fraction</span> <span class="o">=</span> <span class="n">lung</span><span class="p">[</span><span class="s1">'DF'</span><span class="p">]</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">df_fraction</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="c1">#           HA       TB       AL    Total</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="c1"># 11.8   0.012    0.045    0.285    0.342</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="c1"># 20.5   0.008    0.032    0.198    0.238</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="c1"># 50.0   0.005    0.018    0.112    0.135</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="c1"># 100    0.004    0.012    0.085    0.101</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="c1"># 200    0.006    0.015    0.095    0.116</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="c1"># 500    0.025    0.035    0.125    0.185</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="nb">print</span><span class="p">(</span><span class="n">df_fraction</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="c1">#    HA     TB     AL    Total</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="c1"># 0.025  0.082  0.245    0.352</span>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>
-<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="c1"># Regional dose</span>
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="n">dose</span> <span class="o">=</span> <span class="n">lung</span><span class="p">[</span><span class="s1">'dose'</span><span class="p">]</span>
-<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Alveolar dose: </span><span class="si">{</span><span class="n">dose</span><span class="p">[</span><span class="s1">'AL'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
-<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>
-<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="c1"># Deposited distribution</span>
-<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="n">deposited</span> <span class="o">=</span> <span class="n">lung</span><span class="p">[</span><span class="s1">'deposited'</span><span class="p">]</span>  <span class="c1"># Number deposited at each size</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Calculate lung deposition</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">lung</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">lung_deposition</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="s1">'light'</span><span class="p">)</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Deposition fractions, one row per diameter (nm)</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">df_fraction</span> <span class="o">=</span> <span class="n">lung</span><span class="p">[</span><span class="s1">'DF'</span><span class="p">]</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="nb">print</span><span class="p">(</span><span class="n">df_fraction</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1">#           HA       TB       AL    Total</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="c1"># 11.8   0.012    0.045    0.285    0.342</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="c1"># 20.5   0.008    0.032    0.198    0.238</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="c1"># 50.0   0.005    0.018    0.112    0.135</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="c1"># 100    0.004    0.012    0.085    0.101</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="c1"># 200    0.006    0.015    0.095    0.116</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="c1"># 500    0.025    0.035    0.125    0.185</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="nb">print</span><span class="p">(</span><span class="n">df_fraction</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="c1">#    HA     TB     AL    Total</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="c1"># 0.025  0.082  0.245    0.352</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="c1"># Regional dose</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="n">dose</span> <span class="o">=</span> <span class="n">lung</span><span class="p">[</span><span class="s1">'dose'</span><span class="p">]</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Alveolar dose: </span><span class="si">{</span><span class="n">dose</span><span class="p">[</span><span class="s1">'AL'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="c1"># Deposited distribution</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="n">deposited</span> <span class="o">=</span> <span class="n">lung</span><span class="p">[</span><span class="s1">'deposited'</span><span class="p">]</span>  <span class="c1"># Number deposited at each size</span>
 </code></pre></div>
 <h3 id="activity-level-comparison">Activity Level Comparison</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">activities</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'sleep'</span><span class="p">,</span> <span class="s1">'sitting'</span><span class="p">,</span> <span class="s1">'light'</span><span class="p">,</span> <span class="s1">'heavy'</span><span class="p">]</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="n">activities</span><span class="p">:</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">lung_deposition</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="n">act</span><span class="p">)</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">results</span><span class="p">[</span><span class="n">act</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'total_dose'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>
-<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"Total deposition by activity:"</span><span class="p">)</span>
-<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="k">for</span> <span class="n">act</span><span class="p">,</span> <span class="n">dose</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">act</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dose</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">activities</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'sleep'</span><span class="p">,</span> <span class="s1">'sitting'</span><span class="p">,</span> <span class="s1">'light'</span><span class="p">,</span> <span class="s1">'heavy'</span><span class="p">]</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="n">activities</span><span class="p">:</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">lung_deposition</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="n">act</span><span class="p">)</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="n">results</span><span class="p">[</span><span class="n">act</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">'total_dose'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="nb">print</span><span class="p">(</span><span class="s2">"Total deposition by activity:"</span><span class="p">)</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="k">for</span> <span class="n">act</span><span class="p">,</span> <span class="n">dose</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  </span><span class="si">{</span><span class="n">act</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dose</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
 </code></pre></div>
 <hr />
 <h2 id="complete-example-script">Complete Example Script</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">RawDataReader</span><span class="p">,</span> <span class="n">merge_psd</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess.SizeDistr</span><span class="w"> </span><span class="kn">import</span> <span class="n">SizeDist</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
-<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="c1"># 1. Read data (pass dates as start=/end= keywords — positional args 3/4 are</span>
-<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="c1">#    reset/qc, so positional datetimes would be misinterpreted)</span>
-<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'SMPS'</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'./data/smps'</span><span class="p">),</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>                     <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="n">aps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'APS'</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'./data/aps'</span><span class="p">),</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>                    <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="n">pm25</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'TEOM'</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'./data/teom'</span><span class="p">),</span>
-<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>                     <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">))[[</span><span class="s1">'PM_Total'</span><span class="p">]]</span>
-<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a>
-<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="c1"># 2. Merge SMPS-APS (v4 requires PM2.5 reference)</span>
-<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="n">merged</span> <span class="o">=</span> <span class="n">merge_psd</span><span class="p">(</span><span class="n">smps</span><span class="p">,</span> <span class="n">aps</span><span class="p">,</span> <span class="n">df_pm25</span><span class="o">=</span><span class="n">pm25</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="n">df_pnsd</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="s1">'data'</span><span class="p">]</span>   <span class="c1"># recommended merged dN/dlogDp</span>
-<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a>
-<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="c1"># 3. Create SizeDist object</span>
-<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="n">psd</span> <span class="o">=</span> <span class="n">SizeDist</span><span class="p">(</span><span class="n">df_pnsd</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">'dlogdp'</span><span class="p">,</span> <span class="n">weighting</span><span class="o">=</span><span class="s1">'n'</span><span class="p">)</span>
-<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a>
-<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="c1"># 4. Distribution conversion</span>
-<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="n">surface</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_surface</span><span class="p">()</span>
-<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="n">volume</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_volume</span><span class="p">()</span>
-<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a>
-<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="c1"># 5. Statistical analysis (props is time-indexed: one row per timestamp,</span>
-<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="c1">#    so aggregate each column with .mean() etc. before printing)</span>
-<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="n">props</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span>
-<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="n">stats</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">mode_statistics</span><span class="p">()</span>
-<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a>
-<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="c1"># 6. Lung deposition</span>
-<a id="__codelineno-8-32" name="__codelineno-8-32" href="#__codelineno-8-32"></a><span class="n">lung</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">lung_deposition</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="s1">'light'</span><span class="p">)</span>
-<a id="__codelineno-8-33" name="__codelineno-8-33" href="#__codelineno-8-33"></a>
-<a id="__codelineno-8-34" name="__codelineno-8-34" href="#__codelineno-8-34"></a><span class="c1"># 7. Output results</span>
-<a id="__codelineno-8-35" name="__codelineno-8-35" href="#__codelineno-8-35"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average total N: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'total_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
-<a id="__codelineno-8-36" name="__codelineno-8-36" href="#__codelineno-8-36"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average GMD: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'GMD_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm"</span><span class="p">)</span>
-<a id="__codelineno-8-37" name="__codelineno-8-37" href="#__codelineno-8-37"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average lung deposition: </span><span class="si">{</span><span class="n">lung</span><span class="p">[</span><span class="s1">'total_dose'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">RawDataReader</span><span class="p">,</span> <span class="n">merge_psd</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz.dataProcess.SizeDistr</span><span class="w"> </span><span class="kn">import</span> <span class="n">SizeDist</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="c1"># 1. Read data (pass dates as start=/end= keywords — positional args 3/4 are</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="c1">#    reset/qc, so positional datetimes would be misinterpreted)</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="n">smps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'SMPS'</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'./data/smps'</span><span class="p">),</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>                     <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="n">aps</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'APS'</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'./data/aps'</span><span class="p">),</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>                    <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="n">pm25</span> <span class="o">=</span> <span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'TEOM'</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s1">'./data/teom'</span><span class="p">),</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>                     <span class="n">start</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">end</span><span class="o">=</span><span class="n">datetime</span><span class="p">(</span><span class="mi">2024</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">))[[</span><span class="s1">'PM_Total'</span><span class="p">]]</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="c1"># 2. Merge SMPS-APS (v4 requires PM2.5 reference)</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="n">merged</span> <span class="o">=</span> <span class="n">merge_psd</span><span class="p">(</span><span class="n">smps</span><span class="p">,</span> <span class="n">aps</span><span class="p">,</span> <span class="n">df_pm25</span><span class="o">=</span><span class="n">pm25</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="n">df_pnsd</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="s1">'data'</span><span class="p">]</span>   <span class="c1"># recommended merged dN/dlogDp</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="c1"># 3. Create SizeDist object</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="n">psd</span> <span class="o">=</span> <span class="n">SizeDist</span><span class="p">(</span><span class="n">df_pnsd</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="s1">'dlogdp'</span><span class="p">,</span> <span class="n">weighting</span><span class="o">=</span><span class="s1">'n'</span><span class="p">)</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="c1"># 4. Distribution conversion</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="n">surface</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_surface</span><span class="p">()</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="n">volume</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">to_volume</span><span class="p">()</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="c1"># 5. Statistical analysis (props is time-indexed: one row per timestamp,</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="c1">#    so aggregate each column with .mean() etc. before printing)</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a><span class="n">props</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">properties</span><span class="p">()</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="n">stats</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">mode_statistics</span><span class="p">()</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="c1"># 6. Lung deposition</span>
+<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a><span class="n">lung</span> <span class="o">=</span> <span class="n">psd</span><span class="o">.</span><span class="n">lung_deposition</span><span class="p">(</span><span class="n">activity</span><span class="o">=</span><span class="s1">'light'</span><span class="p">)</span>
+<a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>
+<a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a><span class="c1"># 7. Output results</span>
+<a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average total N: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'total_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
+<a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average GMD: </span><span class="si">{</span><span class="n">props</span><span class="p">[</span><span class="s1">'GMD_n'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm"</span><span class="p">)</span>
+<a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Average lung deposition: </span><span class="si">{</span><span class="n">lung</span><span class="p">[</span><span class="s1">'total_dose'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> #/cm3"</span><span class="p">)</span>
 </code></pre></div>
 <hr />
 <h2 id="common-issues">Common Issues</h2>
@@ -4126,7 +4225,7 @@ PSD matrix. Keep the default <code>append_stats=False</code> for anything you fe
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 15:06:18 UTC">October 3, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 17, 2026 16:04:48 UTC">October 17, 2026</span>
   </span>
 
     
@@ -4171,7 +4270,7 @@ PSD matrix. Keep the default <code>append_stats=False</code> for anything you fe
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../rawdatareader/" class="md-footer__link md-footer__link--prev" aria-label="Previous: RawDataReader Usage">
+          <a href="../cli/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Command Line (aeroviz)">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4181,7 +4280,7 @@ PSD matrix. Keep the default <code>append_stats=False</code> for anything you fe
                 Previous
               </span>
               <div class="md-ellipsis">
-                RawDataReader Usage
+                Command Line (aeroviz)
               </div>
             </div>
           </a>

@@ -1046,6 +1046,8 @@
       
         
       
+        
+      
     
     
     
@@ -1106,6 +1108,34 @@
     
   
     RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guide/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line (aeroviz)
   
 
     
@@ -1508,6 +1538,17 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lognormal-modes-by-mass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lognormal Modes by Mass
+      
+    </span>
+  </a>
   
 </li>
       
@@ -3546,6 +3587,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#lognormal-modes-by-mass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lognormal Modes by Mass
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#in-aeroviz" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3621,6 +3673,18 @@
 <div class="arithmatex">\[b_{ext} = \sum_i b_{ext,i}\]</div>
 <h3 id="core-shell-structure">Core-Shell Structure</h3>
 <p>EC as the core with other components as the shell. Suitable for aged aerosols.</p>
+<h2 id="lognormal-modes-by-mass">Lognormal Modes by Mass</h2>
+<p>A synthetic mode is usually known by its mass loading, not its number
+concentration. For a lognormal number mode with count median diameter <span class="arithmatex">\(CMD\)</span>
+and geometric standard deviation <span class="arithmatex">\(\sigma_g\)</span>, the Hatch–Choate relations give
+the volume-mode median and the total volume:</p>
+<div class="arithmatex">\[VMD = CMD \cdot e^{3\ln^2\sigma_g}, \qquad
+V = N \cdot \frac{\pi}{6}\,CMD^3\, e^{4.5\ln^2\sigma_g}\]</div>
+<p>so a mass concentration <span class="arithmatex">\(M\)</span> with density <span class="arithmatex">\(\rho\)</span> fixes <span class="arithmatex">\(N = M/(\rho V_1)\)</span>, where
+<span class="arithmatex">\(V_1\)</span> is the volume of a unit-number mode. <code>mie_lognormal(..., total_mass=,
+density=)</code> and <code>mie_multimodal(..., amount='mass', density=)</code> do this
+conversion; <code>hatch_choate()</code> converts medians between weightings. The grid is
+built as <span class="arithmatex">\(dN/d\log_{10}D_p\)</span>, which is what the integration assumes.</p>
 <h2 id="in-aeroviz">In AeroViz</h2>
 <p>Usage lives in the guide: <a href="../../guide/dataprocess/#mie-calculation"><code>mie</code></a> for the call and its <code>mixing</code> / <code>distribution</code> options, and <a href="../../guide/optical_closure/#mie-closure">Optical Closure</a> for a worked comparison against measured extinction.</p>
 <h2 id="references">References</h2>
@@ -3650,7 +3714,7 @@
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 11, 2026 06:22:10 UTC">September 11, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 16:23:45 UTC">October 3, 2026</span>
   </span>
 
     

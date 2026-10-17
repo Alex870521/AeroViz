@@ -1460,6 +1460,8 @@
       
         
       
+        
+      
     
     
     
@@ -1523,6 +1525,34 @@
     
   
     RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line (aeroviz)
   
 
     
@@ -4224,108 +4254,125 @@ coefficients.</p>
 <a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
 <a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="c1"># One-shot optics from a synthetic lognormal (or multi-mode) PSD</span>
 <a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="n">mie_lognormal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">geo_mean</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">geo_std</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>              <span class="n">total_number</span><span class="o">=</span><span class="mf">1e6</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span>   <span class="o">-&gt;</span> <span class="p">{</span><span class="s1">'ext'</span><span class="p">,</span> <span class="s1">'sca'</span><span class="p">,</span> <span class="s1">'abs'</span><span class="p">}</span>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="n">mie_multimodal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">modes</span><span class="p">,</span>
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>               <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">))</span>                    <span class="o">-&gt;</span> <span class="p">{</span><span class="s1">'ext'</span><span class="p">,</span> <span class="s1">'sca'</span><span class="p">,</span> <span class="s1">'abs'</span><span class="p">}</span>
-<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="c1"># modes = [(geo_mean, geo_std, total_number), ...]</span>
-<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
-<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="c1"># Core-shell (Aden-Kerker)</span>
-<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="n">mie_core_shell</span><span class="p">(</span><span class="n">m_core</span><span class="p">,</span> <span class="n">m_shell</span><span class="p">,</span> <span class="n">d_core</span><span class="p">,</span> <span class="n">d_total</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">)</span>
-<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="c1">#   -&gt; single-particle efficiencies Q_ext, Q_sca, Q_abs, g, Q_pr, Q_back, Q_ratio</span>
-<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="n">mie_core_shell_sd</span><span class="p">(</span><span class="n">m_core</span><span class="p">,</span> <span class="n">m_shell</span><span class="p">,</span> <span class="n">dp_core</span><span class="p">,</span> <span class="n">dp_total</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span>
-<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a>                  <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">psd_type</span><span class="o">=</span><span class="s1">'dNdlogDp'</span><span class="p">)</span>
-<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="c1">#   -&gt; PSD-integrated ext, sca, abs (Mm⁻¹) plus g_eff</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>              <span class="n">total_number</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">),</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>              <span class="n">total_volume</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>              <span class="n">mode</span><span class="o">=</span><span class="s1">'number'</span><span class="p">)</span>                                       <span class="o">-&gt;</span> <span class="p">{</span><span class="s1">'ext'</span><span class="p">,</span> <span class="s1">'sca'</span><span class="p">,</span> <span class="s1">'abs'</span><span class="p">}</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="n">mie_multimodal</span><span class="p">(</span><span class="n">refractive_index</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">modes</span><span class="p">,</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>               <span class="n">n_bins</span><span class="o">=</span><span class="mi">167</span><span class="p">,</span> <span class="n">dp_range</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2500</span><span class="p">),</span>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>               <span class="n">amount</span><span class="o">=</span><span class="s1">'number'</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">'number'</span><span class="p">)</span>       <span class="o">-&gt;</span> <span class="p">{</span><span class="s1">'ext'</span><span class="p">,</span> <span class="s1">'sca'</span><span class="p">,</span> <span class="s1">'abs'</span><span class="p">}</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a><span class="c1"># modes = [(geo_mean, geo_std, amount), ...]  — amount in #/cm³, µm³/cm³ or µg/m³</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="c1"># The mode's amount is whichever you know: a number concentration (default</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="c1"># 1e6 #/cm³), a volume concentration, or a mass loading with a density —</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="c1"># e.g. "10 µg/m³ of BC, ρ = 1.8" at 880 nm:</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a><span class="n">mie_lognormal</span><span class="p">(</span><span class="mf">1.95</span> <span class="o">+</span> <span class="mf">0.79</span><span class="n">j</span><span class="p">,</span> <span class="mi">880</span><span class="p">,</span> <span class="n">geo_mean</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">geo_std</span><span class="o">=</span><span class="mf">1.6</span><span class="p">,</span> <span class="n">total_mass</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="mf">1.8</span><span class="p">)</span>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="c1"># geo_mean is the number-mode median; pass mode='volume' when you have the</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="c1"># volume-mode median instead (VMD = CMD·exp(3 ln²σg), Hatch–Choate — see</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a><span class="c1"># `hatch_choate` under `size`). Total volume is N·(π/6)·CMD³·exp(4.5 ln²σg).</span>
 </code></pre></div>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">scattering_function</span><span class="p">,</span> <span class="n">scattering_function_sd</span><span class="p">,</span> <span class="n">phase_matrix</span><span class="p">,</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>                     <span class="n">nephelometer_truncation_correction</span><span class="p">)</span>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">scattering_function</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s1">'theta'</span><span class="p">)</span>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1">#   -&gt; {'angles', 'SL', 'SR', 'SU'}   parallel / perpendicular / unpolarised phase function</span>
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">scattering_function_sd</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s1">'theta'</span><span class="p">,</span> <span class="n">psd_type</span><span class="o">=</span><span class="s1">'auto'</span><span class="p">)</span>
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="c1">#   -&gt; same keys, PSD-integrated</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="n">phase_matrix</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a><span class="c1">#   -&gt; {'mu', 'S11', 'S12', 'S33', 'S34'}   Mueller phase-matrix elements</span>
-<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a><span class="n">nephelometer_truncation_correction</span><span class="p">(</span><span class="n">sae</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s1">'NEPH'</span><span class="p">)</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a><span class="c1">#   -&gt; Anderson &amp; Ogren (1998) multiplicative factor for an integrating nephelometer</span>
-<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a><span class="c1">#      (TSI 3563 default; Aurora 3000 also tabulated); sae = scattering Ångström exponent</span>
+<p>To see <em>which sizes</em> of such a mode do the scattering and absorbing,
+<code>AeroViz.plot.optical.mie_contribution(m, wavelengths, geo_mean=…, geo_std=…,
+total_mass=…, density=…)</code> draws the mode (dN and dV) over the per-size
+dσ_sca/dlogDp and dσ_abs/dlogDp, with the integrated σ in the legend.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">mie_core_shell</span><span class="p">,</span> <span class="n">mie_core_shell_sd</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="c1"># Core-shell (Aden-Kerker)</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">mie_core_shell</span><span class="p">(</span><span class="n">m_core</span><span class="p">,</span> <span class="n">m_shell</span><span class="p">,</span> <span class="n">d_core</span><span class="p">,</span> <span class="n">d_total</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">)</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="c1">#   -&gt; single-particle efficiencies Q_ext, Q_sca, Q_abs, g, Q_pr, Q_back, Q_ratio</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">mie_core_shell_sd</span><span class="p">(</span><span class="n">m_core</span><span class="p">,</span> <span class="n">m_shell</span><span class="p">,</span> <span class="n">dp_core</span><span class="p">,</span> <span class="n">dp_total</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>                  <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">psd_type</span><span class="o">=</span><span class="s1">'dNdlogDp'</span><span class="p">)</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="c1">#   -&gt; PSD-integrated ext, sca, abs (Mm⁻¹) plus g_eff</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">scattering_function</span><span class="p">,</span> <span class="n">scattering_function_sd</span><span class="p">,</span> <span class="n">phase_matrix</span><span class="p">,</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>                     <span class="n">nephelometer_truncation_correction</span><span class="p">)</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">scattering_function</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s1">'theta'</span><span class="p">)</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="c1">#   -&gt; {'angles', 'SL', 'SR', 'SU'}   parallel / perpendicular / unpolarised phase function</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="n">scattering_function_sd</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span> <span class="n">angles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">space</span><span class="o">=</span><span class="s1">'theta'</span><span class="p">,</span> <span class="n">psd_type</span><span class="o">=</span><span class="s1">'auto'</span><span class="p">)</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1">#   -&gt; same keys, PSD-integrated</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="n">phase_matrix</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">wavelength</span><span class="p">,</span> <span class="n">diameter</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a><span class="c1">#   -&gt; {'mu', 'S11', 'S12', 'S33', 'S34'}   Mueller phase-matrix elements</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a><span class="n">nephelometer_truncation_correction</span><span class="p">(</span><span class="n">sae</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s1">'NEPH'</span><span class="p">)</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="c1">#   -&gt; Anderson &amp; Ogren (1998) multiplicative factor for an integrating nephelometer</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="c1">#      (TSI 3563 default; Aurora 3000 also tabulated); sae = scattering Ångström exponent</span>
 </code></pre></div>
 <h3 id="inverse-problems">Inverse problems</h3>
 <p>Besides <code>retrieve_ri</code> (below), two retrievals work from bulk (Bext, Bsca, Babs)
 and a PSD description instead of a per-bin matrix:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">iterative_inversion</span><span class="p">,</span> <span class="n">iterative_inversion_sd</span><span class="p">,</span> <span class="n">contour_intersection</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1"># Newton-Raphson on measured (Bext, Bsca, Babs)</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="n">iterative_inversion</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">lognormal_params</span><span class="p">,</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>                    <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">n_initial</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">k_initial</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="c1">#   lognormal_params = {'geo_mean': ..., 'geo_std': ..., 'total_number': ...}</span>
-<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a><span class="c1">#   -&gt; {'n', 'k', 'iterations', 'converged', 'residuals'}</span>
-<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a><span class="n">iterative_inversion_sd</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span>
-<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>                       <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">n_initial</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">k_initial</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>   <span class="c1"># measured PSD instead</span>
-<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>
-<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a><span class="c1"># Sumlin (2018) contour-intersection retrieval over an (n, k) grid</span>
-<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a><span class="n">contour_intersection</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">lognormal_params</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span>
-<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>                     <span class="n">n_range</span><span class="o">=</span><span class="p">(</span><span class="mf">1.3</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="n">k_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">grid</span><span class="o">=</span><span class="mi">51</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">iterative_inversion</span><span class="p">,</span> <span class="n">iterative_inversion_sd</span><span class="p">,</span> <span class="n">contour_intersection</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="c1"># Newton-Raphson on measured (Bext, Bsca, Babs)</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="n">iterative_inversion</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">lognormal_params</span><span class="p">,</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>                    <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">n_initial</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">k_initial</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="c1">#   lognormal_params = {'geo_mean': ..., 'geo_std': ..., 'total_number': ...}</span>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a><span class="c1">#   -&gt; {'n', 'k', 'iterations', 'converged', 'residuals'}</span>
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="n">iterative_inversion_sd</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">dp</span><span class="p">,</span> <span class="n">ndp</span><span class="p">,</span>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>                       <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span> <span class="n">n_initial</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">k_initial</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>   <span class="c1"># measured PSD instead</span>
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a><span class="c1"># Sumlin (2018) contour-intersection retrieval over an (n, k) grid</span>
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a><span class="n">contour_intersection</span><span class="p">(</span><span class="n">b_ext</span><span class="p">,</span> <span class="n">b_sca</span><span class="p">,</span> <span class="n">b_abs</span><span class="p">,</span> <span class="n">lognormal_params</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">,</span>
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>                     <span class="n">n_range</span><span class="o">=</span><span class="p">(</span><span class="mf">1.3</span><span class="p">,</span> <span class="mf">2.0</span><span class="p">),</span> <span class="n">k_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span> <span class="n">grid</span><span class="o">=</span><span class="mi">51</span><span class="p">)</span>
 </code></pre></div>
 <h3 id="gas-extinction">Gas Extinction</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">gas_extinction</span>
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a><span class="n">g</span> <span class="o">=</span> <span class="n">gas_extinction</span><span class="p">(</span><span class="n">df_no2</span><span class="p">,</span> <span class="n">df_temp</span><span class="p">)</span>
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="c1"># Columns: ScatteringByGas, AbsorptionByGas, ExtinctionByGas</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">gas_extinction</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">g</span> <span class="o">=</span> <span class="n">gas_extinction</span><span class="p">(</span><span class="n">df_no2</span><span class="p">,</span> <span class="n">df_temp</span><span class="p">)</span>
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># Columns: ScatteringByGas, AbsorptionByGas, ExtinctionByGas</span>
 </code></pre></div>
 <h3 id="refractive-index-retrieval">Refractive Index Retrieval</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">retrieve_ri</span>
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>
-<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a><span class="n">ri</span> <span class="o">=</span> <span class="n">retrieve_ri</span><span class="p">(</span><span class="n">df_optical</span><span class="p">,</span> <span class="n">df_pnsd</span><span class="p">,</span> <span class="n">dlogdp</span><span class="o">=</span><span class="mf">0.014</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">)</span>
-<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a><span class="c1"># Columns: re_real, re_imaginary</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">retrieve_ri</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">ri</span> <span class="o">=</span> <span class="n">retrieve_ri</span><span class="p">(</span><span class="n">df_optical</span><span class="p">,</span> <span class="n">df_pnsd</span><span class="p">,</span> <span class="n">dlogdp</span><span class="o">=</span><span class="mf">0.014</span><span class="p">,</span> <span class="n">wavelength</span><span class="o">=</span><span class="mi">550</span><span class="p">)</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Columns: re_real, re_imaginary</span>
 </code></pre></div>
 <h3 id="brown-carbon-separation">Brown Carbon Separation</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">brown_carbon</span>
-<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
-<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="n">bc_brc</span> <span class="o">=</span> <span class="n">brown_carbon</span><span class="p">(</span><span class="n">df_abs</span><span class="p">,</span> <span class="n">ref_wavelength</span><span class="o">=</span><span class="mi">880</span><span class="p">,</span> <span class="n">aae_bc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="c1"># Splits multi-wavelength absorption into BC vs BrC components</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">brown_carbon</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="n">bc_brc</span> <span class="o">=</span> <span class="n">brown_carbon</span><span class="p">(</span><span class="n">df_abs</span><span class="p">,</span> <span class="n">ref_wavelength</span><span class="o">=</span><span class="mi">880</span><span class="p">,</span> <span class="n">aae_bc</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># Splits multi-wavelength absorption into BC vs BrC components</span>
 </code></pre></div>
 <hr />
 <h2 id="voc">VOC</h2>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
-<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
-<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="n">result</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df_voc</span><span class="p">)</span>
-<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="c1"># result['Conc']  - mass concentration per species (ug/m3)</span>
-<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a><span class="c1"># result['OFP']   - Ozone Formation Potential per species (ug O3/m3)</span>
-<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a><span class="c1"># result['SOAP']  - SOAP per species</span>
-<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="c1"># result['LOH']   - OH-reactivity per species</span>
-<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="c1"># Each frame also has per-class '*_total' columns and a grand 'Total' column,</span>
-<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="c1"># so the grand total OFP is result['OFP']['Total'].</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a><span class="n">result</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df_voc</span><span class="p">)</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># result['Conc']  - mass concentration per species (ug/m3)</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="c1"># result['OFP']   - Ozone Formation Potential per species (ug O3/m3)</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="c1"># result['SOAP']  - SOAP per species</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="c1"># result['LOH']   - OH-reactivity per species</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a><span class="c1"># Each frame also has per-class '*_total' columns and a grand 'Total' column,</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="c1"># so the grand total OFP is result['OFP']['Total'].</span>
 </code></pre></div>
 <hr />
 <h2 id="input-format-requirements">Input Format Requirements</h2>
 <h3 id="size-distribution_1">Size Distribution</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="c1"># Columns are particle diameters (nm)</span>
-<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="n">df_pnsd</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="mf">11.8</span><span class="p">,</span> <span class="mf">13.6</span><span class="p">,</span> <span class="mf">15.7</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="mf">523.3</span><span class="p">]</span>
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
-<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="c1"># Index is time</span>
-<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="n">df_pnsd</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">DatetimeIndex</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># Columns are particle diameters (nm)</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">df_pnsd</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="mf">11.8</span><span class="p">,</span> <span class="mf">13.6</span><span class="p">,</span> <span class="mf">15.7</span><span class="p">,</span> <span class="o">...</span><span class="p">,</span> <span class="mf">523.3</span><span class="p">]</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a><span class="c1"># Index is time</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a><span class="n">df_pnsd</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">DatetimeIndex</span>
 </code></pre></div>
 <h3 id="chemical-composition">Chemical Composition</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="c1"># Required columns</span>
-<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
-<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>    <span class="s1">'SO42-'</span><span class="p">,</span> <span class="s1">'NO3-'</span><span class="p">,</span> <span class="s1">'NH4+'</span><span class="p">,</span>      <span class="c1"># Ions</span>
-<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    <span class="s1">'OC'</span><span class="p">,</span> <span class="s1">'EC'</span><span class="p">,</span>                    <span class="c1"># Carbon</span>
-<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>    <span class="s1">'Na+'</span><span class="p">,</span> <span class="s1">'Cl-'</span><span class="p">,</span>                  <span class="c1"># Sea salt</span>
-<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>    <span class="s1">'Al'</span><span class="p">,</span> <span class="s1">'Fe'</span><span class="p">,</span> <span class="s1">'Ti'</span><span class="p">,</span>              <span class="c1"># Crustal elements</span>
-<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>    <span class="s1">'PM25'</span>                         <span class="c1"># Mass</span>
-<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a><span class="p">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Required columns</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="s1">'SO42-'</span><span class="p">,</span> <span class="s1">'NO3-'</span><span class="p">,</span> <span class="s1">'NH4+'</span><span class="p">,</span>      <span class="c1"># Ions</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    <span class="s1">'OC'</span><span class="p">,</span> <span class="s1">'EC'</span><span class="p">,</span>                    <span class="c1"># Carbon</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>    <span class="s1">'Na+'</span><span class="p">,</span> <span class="s1">'Cl-'</span><span class="p">,</span>                  <span class="c1"># Sea salt</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>    <span class="s1">'Al'</span><span class="p">,</span> <span class="s1">'Fe'</span><span class="p">,</span> <span class="s1">'Ti'</span><span class="p">,</span>              <span class="c1"># Crustal elements</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>    <span class="s1">'PM25'</span>                         <span class="c1"># Mass</span>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a><span class="p">]</span>
 </code></pre></div>
 <h3 id="voc_1">VOC</h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="c1"># Columns are species names</span>
-<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a><span class="n">df_voc</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Benzene'</span><span class="p">,</span> <span class="s1">'Toluene'</span><span class="p">,</span> <span class="s1">'Ethylbenzene'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
-<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>
-<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="c1"># Units: ppb or ug/m3</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="c1"># Columns are species names</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="n">df_voc</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'Benzene'</span><span class="p">,</span> <span class="s1">'Toluene'</span><span class="p">,</span> <span class="s1">'Ethylbenzene'</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="c1"># Units: ppb or ug/m3</span>
 </code></pre></div>
 <hr />
 <h2 id="output-handling">Output Handling</h2>
 <p>The new functions return DataFrames or dicts of DataFrames; they do <strong>not</strong> write files. If you want CSVs, call <code>.to_csv()</code> yourself:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">)</span>
-<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a><span class="n">result</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'./output/mass.csv'</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">result</span> <span class="o">=</span> <span class="n">reconstruct_mass</span><span class="p">(</span><span class="n">df_chem</span><span class="p">)</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="n">result</span><span class="p">[</span><span class="s1">'mass'</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s1">'./output/mass.csv'</span><span class="p">)</span>
 </code></pre></div>
 <p>(<code>isoropia</code> still <em>accepts</em> a <code>path_out</code> argument for backward compatibility but ignores it: ISORROPIA II runs as a native f2py extension on every platform, with no temp files. The argument will be removed in a future release.)</p>
 <hr />
@@ -4359,7 +4406,7 @@ and a PSD description instead of a per-bin matrix:</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="September 11, 2026 06:22:10 UTC">September 11, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 16:23:45 UTC">October 3, 2026</span>
   </span>
 
     

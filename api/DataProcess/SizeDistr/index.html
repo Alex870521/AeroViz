@@ -1046,6 +1046,8 @@
       
         
       
+        
+      
     
     
     
@@ -1106,6 +1108,34 @@
     
   
     RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guide/cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line (aeroviz)
   
 
     
@@ -3238,6 +3268,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.size.hatch_choate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hatch_choate
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4190,6 +4231,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#AeroViz.size.hatch_choate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hatch_choate
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -4401,7 +4453,7 @@ Theory: <a href="../../../theory/lognormal/">Log-normal Distribution</a>,
   </span>
 
 </h4>
-<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'psd_stats'</span><span class="p">,</span> <span class="s1">'psd_distributions'</span><span class="p">,</span> <span class="s1">'merge_psd'</span><span class="p">]</span>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'psd_stats'</span><span class="p">,</span> <span class="s1">'psd_distributions'</span><span class="p">,</span> <span class="s1">'merge_psd'</span><span class="p">,</span> <span class="s1">'hatch_choate'</span><span class="p">]</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -6219,12 +6271,46 @@ present:</p>
             <td>
               <div class="doc-md-description">
                 <p>If <code>version</code> is not in <code>{1, 2, 3, 4, 5}</code>, <code>version=4</code> without
-<code>df_pm25</code>, or <code>version=5</code> without <code>df_pm1</code>.</p>
+<code>df_pm25</code>, or <code>version=5</code> without <code>df_pm1</code>; or if either
+distribution records a unit other than dN/dlogDp in its attrs.</p>
               </div>
             </td>
           </tr>
       </tbody>
     </table>
+
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h4 id="AeroViz.size.hatch_choate" class="doc doc-heading">
+            <span class="doc doc-object-name doc-function-name">hatch_choate</span>
+
+
+</h4>
+<div class="doc-signature highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">hatch_choate</span><span class="p">(</span><span class="n">geo_mean</span><span class="p">,</span> <span class="n">geo_std</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">from_</span><span class="o">=</span><span class="s1">'number'</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s1">'volume'</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Convert a lognormal mode's median diameter between weightings.</p>
+<p>Same <code>geo_std</code> throughout; <code>d_to = d_from · exp((p_to − p_from) ln²σg)</code>
+with moment order <code>p</code> = 0 / 2 / 3 for <code>'number'</code> / <code>'surface'</code> /
+<code>'volume'</code> (<code>'mass'</code> ≡ volume). Hatch &amp; Choate (1929); Hinds (1999).</p>
+<blockquote>
+<blockquote>
+<blockquote>
+<p>hatch_choate(100, 2.0)                     # CMD 100 nm → VMD
+421.0...
+hatch_choate(421, 2.0, from_='volume', to='number')
+99.9...</p>
+</blockquote>
+</blockquote>
+</blockquote>
 
 
     </div>

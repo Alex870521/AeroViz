@@ -1159,6 +1159,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#terminal-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terminal output
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1345,6 +1356,8 @@
       
         
       
+        
+      
     
     
     
@@ -1408,6 +1421,34 @@
     
   
     RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line (aeroviz)
   
 
     
@@ -3668,6 +3709,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#terminal-output" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Terminal output
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3876,7 +3928,9 @@ the invariants each step must respect, is in
 <a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>├── report.json                       # rates per period + up/down timeline
 <a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>└── {inst}.log                        # parse warnings, dropped files, QC summary
 </code></pre></div>
-<p><code>output_prefix=</code> renames the <code>output_{inst}</code> stem; <code>save_pkl</code>,
+<p><code>output_split='month'|'year'</code> writes each CSV product per period
+(<code>output_{inst}_2026-10.csv</code>) and leaves unchanged files untouched.
+<code>output_prefix=</code> renames the <code>output_{inst}</code> stem; <code>save_pkl</code>,
 <code>save_intermediate_csv</code>, <code>save_report</code>, <code>save_csv</code> switch the respective files off.</p>
 <h3 id="what-a-column-goes-through">What a column goes through</h3>
 <table>
@@ -3994,6 +4048,8 @@ that instrument's flags, so a typo cannot silently do nothing.</p>
 <a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>__call__   QC_Invalid → whole row NaN ; QC_Flag + QC_Invalid dropped
 </code></pre></div>
 <h3 id="the-qc-summary">The QC summary</h3>
+<p>As written to <code>{inst}.log</code> (the terminal shows the same numbers, sorted and
+with zero-hit rules hidden — see <a href="#terminal-output">Terminal output</a>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>AE33 QC Summary:
 <a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  Status Error: 24312 (4.9%)
 <a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  Invalid BC: 29265 (5.9%)
@@ -4056,7 +4112,13 @@ so a consumer can explain an outage, not just measure it.</p>
 <td><code>df.attrs</code></td>
 <td><code>_stamp</code> (L3)</td>
 <td>per call</td>
-<td>provenance, <code>coverage_*</code> vs <code>requested_*</code>, <code>raw_freq</code>, rates, <code>qc_rules</code>, <code>status_conditions</code></td>
+<td>provenance, <code>coverage_*</code> vs <code>requested_*</code>, <code>raw_freq</code>, rates, <code>qc_rules</code>, <code>status_conditions</code>; SMPS / APS also <code>size_dist_unit</code> (<code>'dN/dlogDp'</code>) and <code>source_units</code> (<code>{export unit: [files]}</code> for converted files)</td>
+</tr>
+<tr>
+<td>terminal</td>
+<td><code>console_summary</code> (after the call)</td>
+<td>per call</td>
+<td>grouped summary of the above — see <a href="#terminal-output">Terminal output</a></td>
 </tr>
 </tbody>
 </table>
@@ -4095,6 +4157,95 @@ a <code>qc</code> period string (<code>'W'</code>, <code>'2MS'</code>, …) adds
 <code>df.attrs['acquisition_rate' / 'yield_rate' / 'total_rate']</code>.
 <code>process_timeline_report</code> adds up/down periods and matches them against a
 <code>known_issues.yml</code> named by the <code>KNOWN_ISSUES_PATH</code> environment variable.</p>
+<h3 id="terminal-output">Terminal output</h3>
+<p>With <code>quiet=False</code> (the default) the terminal shows a header and the progress
+bar while the read runs, then <strong>one summary</strong> in fixed sections. Every message
+still goes to <code>{inst}.log</code> as it happens; only the terminal copy is held back
+and grouped. <code>quiet=True</code> prints nothing.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>╭─ SMPS · TP_SMPS ──────────────────────╮
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>│  2026-03-01 00:00 → 2026-03-31 23:59  │
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>╰───────────────────────────────────────╯
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>✓ ━━━━━━━━━━━━━━━━━━━━━━━━━ 100% Reading SMPS files: 260331.TXT
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>Files       166 files · 162 used · 4 skipped
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>  ⚠ skipped 4 files on a different size-bin grid (read them alone with size_range=)
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>      11.34–615.27 nm  SMPS_3082001426002_20260205_174800.csv, …165400.csv, …20260206_174800.csv
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>      13.6–478.3 nm    260213.TXT
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>Notes
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>  ⚠ Mixed time resolution across files (163× 6min, 2× 362s); using most common '6min'.
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>QC          all scans read (69,710)
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>  Valid                       984    1.4%  █
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>  Status Error             63,018   90.4%  ██████████████████
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a>  Insufficient              5,920    8.5%  ██  advisory, data kept
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>  Invalid Number Conc         107    0.2%  █
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>  Usable                    6,665    9.6%  ██  valid + advisory only
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>  1 rule with no hits not shown
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>Coverage    2026/03/01 00:00 → 2026/03/31 23:54, hourly
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a>  Acquisition 94.6%   Yield 0.6%   Total 0.5%
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a>  03/01 ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  03/31
+<a id="__codelineno-6-24" name="__codelineno-6-24" href="#__codelineno-6-24"></a>  █ up 0 h · ░ down 743 h in 1 event
+<a id="__codelineno-6-25" name="__codelineno-6-25" href="#__codelineno-6-25"></a>  longest gap:
+<a id="__codelineno-6-26" name="__codelineno-6-26" href="#__codelineno-6-26"></a>    2026/03/01 00:00 → 2026/03/31 23:00  30 days 23 hours  Data Gap
+<a id="__codelineno-6-27" name="__codelineno-6-27" href="#__codelineno-6-27"></a>
+<a id="__codelineno-6-28" name="__codelineno-6-28" href="#__codelineno-6-28"></a>Output      ⌘+click to open
+<a id="__codelineno-6-29" name="__codelineno-6-29" href="#__codelineno-6-29"></a>  /Users/…/out
+<a id="__codelineno-6-30" name="__codelineno-6-30" href="#__codelineno-6-30"></a>  output_smps.csv  95.0 KB
+<a id="__codelineno-6-31" name="__codelineno-6-31" href="#__codelineno-6-31"></a>  report.json  2.6 KB
+<a id="__codelineno-6-32" name="__codelineno-6-32" href="#__codelineno-6-32"></a>  SMPS.log  2.7 KB
+<a id="__codelineno-6-33" name="__codelineno-6-33" href="#__codelineno-6-33"></a>  intermediate: _read_smps_qc.csv  _read_smps_qc.pkl  _read_smps_raw.csv  _read_smps_raw.pkl
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Counts</th>
+<th>Shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Files</strong></td>
+<td>the files the pattern matched</td>
+<td>used / excluded / skipped / converted, then one line per <em>kind</em> of problem with the first 3 files it concerns (<code>+N more (see log)</code>). Kinds: different size-bin grid, unit that cannot be converted, read errors, rows dropped, converted units, files on a non-default grid that were kept, files excluded by design (Xact calibration samples), files that held no data</td>
+</tr>
+<tr>
+<td><strong>Notes</strong></td>
+<td>—</td>
+<td>any other warning or error, de-duplicated (first 5)</td>
+</tr>
+<tr>
+<td><strong>QC</strong></td>
+<td>all scans read, whatever the requested range</td>
+<td><code>Valid</code>, then only the rules that hit, sorted, with a bar; advisory rules marked <em>data kept</em>; <code>Usable</code> when it differs from <code>Valid</code></td>
+</tr>
+<tr>
+<td><strong>Coverage</strong></td>
+<td>the requested period, hourly</td>
+<td>the three <a href="#rates">rates</a>, the timeline bar, total up / down hours and the longest gaps (first 3; all of them are in <code>report.json</code>)</td>
+</tr>
+<tr>
+<td><strong>Output</strong></td>
+<td>the files this run wrote</td>
+<td>each as a clickable link; unchanged <code>output_split</code> files are not listed</td>
+</tr>
+</tbody>
+</table>
+<p>The two scopes differ on purpose — QC describes the files, Coverage the period
+asked for — so <code>Valid 1.4 %</code> and <code>up 0 h</code> above are not a contradiction: the
+valid scans fall outside March.</p>
+<p>Links are OSC 8 hyperlinks to <code>file://</code> URIs (spaces and CJK characters
+percent-encoded), clickable in PyCharm, VS Code, iTerm2, WezTerm and Ghostty.
+macOS Terminal.app clicks neither those nor a bare <code>file://</code> URI, so there the
+section ends with a command to paste instead:
+<code>open the folder: open '/Users/…/out'</code>. Other terminals show the paths as
+plain text.</p>
+<p>If the read raises, the Files and Notes gathered up to that point are still
+printed before the exception, so a failure such as <em>All files were either
+empty or failed to read</em> comes with the reason each file was skipped.</p>
+<p>For reader authors: give a per-file message a group so the summary can fold
+it — see <a href="../contributing-reader/#logging">Contributing a Reader</a>.</p>
 <hr />
 <h2 id="3-how-a-status-judgement-is-made">3. How a status judgement is made</h2>
 <p>Every status check goes through one function —
@@ -4159,10 +4310,10 @@ whitelist is applied.</p>
 </ul>
 <p>Entries that don't fit a reader's mode are skipped, so one whitelist can be
 passed to any reader safely:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'TEOM'</span><span class="p">,</span>   <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">536870912</span><span class="p">])</span>          <span class="c1"># bitwise: ignore "Dryer A"</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'SMPS'</span><span class="p">,</span>   <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="s1">'Low aerosol flow'</span><span class="p">])</span> <span class="c1"># text: per token</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'APS'</span><span class="p">,</span>    <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>               <span class="c1"># binary_string: clear bits 0,1</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'Aurora'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">])</span>              <span class="c1"># numeric: extra OK codes</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'TEOM'</span><span class="p">,</span>   <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">536870912</span><span class="p">])</span>          <span class="c1"># bitwise: ignore "Dryer A"</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'SMPS'</span><span class="p">,</span>   <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="s1">'Low aerosol flow'</span><span class="p">])</span> <span class="c1"># text: per token</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'APS'</span><span class="p">,</span>    <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>               <span class="c1"># binary_string: clear bits 0,1</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">RawDataReader</span><span class="p">(</span><span class="s1">'Aurora'</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">ignored_status_errors</span><span class="o">=</span><span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">16</span><span class="p">])</span>              <span class="c1"># numeric: extra OK codes</span>
 </code></pre></div>
 <h3 id="which-condition-not-just-a-condition">Which condition, not just <em>a</em> condition</h3>
 <p><code>Status Error</code> is a boolean verdict — it cannot say which bit tripped it. A
@@ -4457,13 +4608,13 @@ parse and the readers only ran generic checks. They were withdrawn from
 <code>RawDataReader</code> in v0.4.0; <code>RawDataReader('VOC', …)</code> / <code>('Minion', …)</code> raise a
 <code>KeyError</code> carrying migration advice.</p>
 <p>Read them yourself and go straight to the analysis functions:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'voc.csv'</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>                 <span class="n">na_values</span><span class="o">=</span><span class="p">(</span><span class="s1">'-'</span><span class="p">,</span> <span class="s1">'N.D.'</span><span class="p">))</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">out</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>      <span class="c1"># validates species against support_voc.json</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">AeroViz</span><span class="w"> </span><span class="kn">import</span> <span class="n">voc_potentials</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'voc.csv'</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>                 <span class="n">na_values</span><span class="o">=</span><span class="p">(</span><span class="s1">'-'</span><span class="p">,</span> <span class="s1">'N.D.'</span><span class="p">))</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="n">out</span> <span class="o">=</span> <span class="n">voc_potentials</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>      <span class="c1"># validates species against support_voc.json</span>
 </code></pre></div>
 <p>Minion arrives as a monthly report spreadsheet (<code>read_excel</code>), with a units row
 at the top and site-specific invalid markers (<code>維護校正</code>, <code>Nodata</code>, <code>0L</code>); the
@@ -4474,10 +4625,10 @@ does not belong behind a general-purpose reader.</p>
 to write and test a parser against. It stays in <code>meta</code> (the 30-min native
 frequency is known) and is registered in <code>supported_instruments.pending</code>, so
 <code>RawDataReader('Q-ACSM', …)</code> raises a plain</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>NotImplementedError: Q-ACSM is a real instrument, but its reader is not
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>implemented yet — no sample export has been available to write and test a parser
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>against. Contribute one by adding AeroViz/rawDataReader/script/Q-ACSM.py with
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>_raw_reader and _QC ...
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>NotImplementedError: Q-ACSM is a real instrument, but its reader is not
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>implemented yet — no sample export has been available to write and test a parser
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>against. Contribute one by adding AeroViz/rawDataReader/script/Q-ACSM.py with
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>_raw_reader and _QC ...
 </code></pre></div>
 <p>rather than an abstract-class <code>TypeError</code>. Removing the <code>pending</code> entry is all
 that is needed once a reader lands.</p>
@@ -4732,7 +4883,7 @@ included.</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 15:06:18 UTC">October 3, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 17, 2026 16:04:48 UTC">October 17, 2026</span>
   </span>
 
     

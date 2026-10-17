@@ -1211,6 +1211,8 @@
       
         
       
+        
+      
     
     
     
@@ -1274,6 +1276,34 @@
     
   
     RawDataReader Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Command Line (aeroviz)
   
 
     
@@ -3763,14 +3793,17 @@ pipeline is unreliable — see <code>core/metadata.py</code>.</p>
 <p>→ <strong>L2 frame.</strong> Everything up to here is skipped entirely on a whole-frame
 cache hit. With <code>cache_dir=</code> and <code>reset='incremental'</code> there is a finer cache
 one level down: step 1 loads each <em>unchanged</em> file's parsed frame instead of
-parsing it, and steps 2–12 run as usual (see §4).</p>
+parsing it, and steps 2–12 run as usual (see §4). Step 1 can also run on
+several threads (<code>parse_workers=</code>); files are merged in name order regardless,
+so neither option changes the frame.</p>
 <h3 id="l3-presentation-every-call-cache-hit-or-not">L3 — presentation (every call, cache hit or not)</h3>
 <ol>
 <li><strong>Place on the requested range</strong> — <code>_timeIndex_process(start, end)</code>;
     <code>fill_missing=True</code> pads out to <code>[start, end]</code>, <code>False</code> clamps to the data's
     coverage.</li>
 <li><strong>Apply <code>outlier.json</code></strong> — <code>_outlier_process</code> NaNs operator-declared
-    intervals found in <code>{path}/outlier.json</code> (<strong>qc path only</strong>).</li>
+    intervals found in <code>{path}/outlier.json</code> plus any <code>outliers</code> windows from
+    <code>qc_config=</code> (<strong>qc path only</strong>).</li>
 <li><strong>Apply the verdict</strong> — rows where <code>QC_Invalid</code> → all columns NaN; both
     <code>QC_Flag</code> and <code>QC_Invalid</code> dropped from the public frame. A frame with no
     verdict column (a hand-built one, or a pre-severity cache) falls back to
@@ -3853,15 +3886,18 @@ comes back. Use it to inspect raw parsed data.</p>
 </tr>
 </tbody>
 </table>
-<p><code>CACHE_FORMAT = 4</code> is stamped into <code>df.attrs['cache_format']</code>; a pickle written
-by an older layout is detected as stale and re-parsed automatically. Parse
-provenance (<code>n_files</code>, <code>raw_freq</code>, <code>freq_mixed</code>) round-trips through the pickle
-so a cache hit still reports it in <code>df.attrs</code>.</p>
+<p><code>CACHE_FORMAT = 5</code> is stamped into <code>df.attrs['cache_format']</code>; a pickle written
+by an older layout is detected as stale and re-parsed automatically (5: SMPS /
+APS convert non-dN/dlogDp exports, so a version-4 pickle may hold them
+unconverted). Parse provenance (<code>n_files</code>, <code>raw_freq</code>, <code>freq_mixed</code>, and each
+file's export unit for <code>df.attrs['source_units']</code>) round-trips through the
+pickle so a cache hit still reports it in <code>df.attrs</code>.</p>
 <p><strong>Per-file parse cache</strong> (<code>core/parse_cache.py</code>, opt-in with <code>cache_dir=</code>).
 Below the whole-frame pkl sits a cache of each raw file's L1 parse — one pickle
 per file under <code>{cache_dir}/{INSTRUMENT}/{source-folder hash}/</code>, keyed by file
-name, size, mtime, reader, AeroViz version and a reader salt
-(<code>_parse_cache_salt</code>). <code>reset='incremental'</code> bypasses the whole-frame pkl,
+name, size, mtime, reader, AeroViz version, <code>PARSE_CACHE_FORMAT</code> (now 4: SMPS
+metadata renamed to the AIM 10.3 names, unit conversion, per-file
+<code>export_unit</code> tag) and a reader salt (<code>_parse_cache_salt</code>). <code>reset='incremental'</code> bypasses the whole-frame pkl,
 reuses every unchanged file and parses the rest; stale entries are pruned;
 <code>reset=True</code> rebuilds it. Readers whose <code>_raw_reader</code> keeps side state (SMPS:
 the CPC detector fields) carry it in the cached frame's <code>attrs['parse_meta']</code>
@@ -3971,7 +4007,7 @@ valid when <strong>&gt; 50 %</strong> of its points are <code>Valid</code>):</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 3, 2026 15:06:18 UTC">October 3, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 17, 2026 16:04:48 UTC">October 17, 2026</span>
   </span>
 
     

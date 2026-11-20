@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../../assets/icon.svg">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
     
     
       
@@ -30,10 +30,10 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
       
       
 
@@ -3756,10 +3756,14 @@ pipeline is unreliable — see <code>core/metadata.py</code>.</p>
    grid that matches it.</li>
 <li><strong>Resolve one grid frequency</strong> — <code>resolve_freq</code>: <code>raw_freq=</code> override &gt;
    unanimous detection &gt; most-common (sets <code>freq_mixed</code>, warns with the
-   breakdown) &gt; <code>meta['freq']</code>.</li>
+   breakdown) &gt; <code>meta['freq']</code>. A reader with <code>PIECEWISE_FREQ</code> (SMPS) then
+   builds a frequency schedule from the per-file detections and keeps each
+   period on its own grid — see
+   <a href="../rawdatareader/#frequency-schedule">Frequency schedule</a>.</li>
 <li><strong>Partition incompatible scan groups</strong> — <code>_partition_compatible_scans</code>
-   (no-op by default; SMPS keeps the dominant size-bin grid and names every
-   dropped file in a warning).</li>
+   (no-op by default; SMPS reads every file on the 64-channel/decade lattice
+   together and drops only a foreign grid or a narrower scan range, naming
+   every dropped file in a warning).</li>
 <li><strong>Merge</strong> — <code>concat(...).groupby(level=0).first()</code>.</li>
 <li><strong>Flag stray timestamps</strong> — <code>_flag_outlier_dates</code> (median/MAD, <code>k=10</code>).
    Warn by default; drop only with <code>drop_outlier_dates=True</code>.</li>
@@ -3788,7 +3792,7 @@ pipeline is unreliable — see <code>core/metadata.py</code>.</p>
     inside <code>_QC</code> instead.</li>
 <li><strong><code>_save_data</code></strong> — write <code>_read_*_raw.{pkl,csv}</code> and <code>_read_*_qc.{pkl,csv}</code>,
     stamped with <code>cache_format</code> and the parse provenance (<code>n_files</code>, <code>raw_freq</code>,
-    <code>freq_mixed</code>).</li>
+    <code>freq_mixed</code>, <code>freq_schedule</code>).</li>
 </ol>
 <p>→ <strong>L2 frame.</strong> Everything up to here is skipped entirely on a whole-frame
 cache hit. With <code>cache_dir=</code> and <code>reset='incremental'</code> there is a finer cache
@@ -4007,7 +4011,7 @@ valid when <strong>&gt; 50 %</strong> of its points are <code>Valid</code>):</p>
     <span class="md-icon" title="Last update">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21 13.1c-.1 0-.3.1-.4.2l-1 1 2.1 2.1 1-1c.2-.2.2-.6 0-.8l-1.3-1.3c-.1-.1-.2-.2-.4-.2m-1.9 1.8-6.1 6V23h2.1l6.1-6.1zM12.5 7v5.2l4 2.4-1 1L11 13V7zM11 21.9c-5.1-.5-9-4.8-9-9.9C2 6.5 6.5 2 12 2c5.3 0 9.6 4.1 10 9.3-.3-.1-.6-.2-1-.2s-.7.1-1 .2C19.6 7.2 16.2 4 12 4c-4.4 0-8 3.6-8 8 0 4.1 3.1 7.5 7.1 7.9l-.1.2z"/></svg>
     </span>
-    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="October 17, 2026 16:04:48 UTC">October 17, 2026</span>
+    <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-date" title="November 20, 2026 11:01:22 UTC">November 20, 2026</span>
   </span>
 
     
@@ -4141,10 +4145,10 @@ valid when <strong>&gt; 50 %</strong> of its points are <code>Valid</code>):</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "navigation.footer", "navigation.instant", "navigation.instant.progress", "navigation.indexes", "navigation.tracking", "toc.follow", "search.share", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "announce.dismiss"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="../../javascripts/mathjax.js"></script>
       

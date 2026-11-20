@@ -1,3 +1,9 @@
+## v0.5.2 (2026-11-20)
+
+### Feat
+
+- **smps**: identify size bins by lattice channel; keep each scan period on its own grid
+
 ## v0.5.1 (2026-10-18)
 
 ### Feat

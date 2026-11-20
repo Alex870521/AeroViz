@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-14, windows-latest]
+        os: [ubuntu-latest, macos-15, windows-latest]
         python: ['310', '311', '312', '313', '314']
 
     steps:
@@ -70,7 +70,7 @@ jobs:
           else
             # macOS — Homebrew gcc bundles gfortran. Apple Silicon puts
             # it in /opt/homebrew/bin; Intel in /usr/local/bin. We only
-            # ship arm64 wheels but keep the fallback in case macos-14
+            # ship arm64 wheels but keep the fallback in case macos-15
             # path layout ever shifts.
             brew install gcc
             GFORTRAN_BIN=$(brew --prefix gcc)/bin/gfortran
@@ -132,10 +132,12 @@ jobs:
           # the wheel's `.libs` directory.
           CIBW_BEFORE_BUILD_WINDOWS: pip install delvewheel
           CIBW_REPAIR_WHEEL_COMMAND_WINDOWS: delvewheel repair -w {dest_dir} {wheel}
-          # Homebrew's libgfortran/libquadmath on macos-14 are built with
-          # a minimum target of macOS 14.0; the wheel default of 11.0
+          # Homebrew's libgfortran/libquadmath on the runner are built with
+          # a minimum target of the runner's own macOS (15.0 on macos-15;
+          # GitHub retired macos-14 in 2026-11, which cancelled every macOS
+          # job of the first v0.5.2 run); the wheel default of 11.0
           # fails delocate's version check, so bump it to match.
-          MACOSX_DEPLOYMENT_TARGET: '14.0'
+          MACOSX_DEPLOYMENT_TARGET: '15.0'
           # Smoke-test the wheel: import the package and call the new
           # Fortran extension once. A broken extension fails here, not
           # in PyPI users' hands.

@@ -138,7 +138,7 @@ def _files_section(console, reader, groups, notes) -> None:
             _indent(console, f'[dim]{escape(detail):<{width}}[/dim]  {_files(folder, names)}', depth=3)
 
     if grid_skipped:
-        block('[yellow]⚠[/yellow]', f'skipped {_n(len(grid_skipped), "file")} on a different size-bin grid '
+        block('[yellow]⚠[/yellow]', f'skipped {_n(len(grid_skipped), "file")} on a different size-bin grid or scan range '
               '[dim](read them alone with size_range=)[/dim]', _by_detail(groups['grid_skipped']))
     if unit_skipped:
         block('[yellow]⚠[/yellow]', f'skipped {_n(len(unit_skipped), "file")} whose unit cannot be '

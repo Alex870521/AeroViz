@@ -22,7 +22,8 @@ from collections import Counter
 import numpy as np
 import pandas as pd
 
-__all__ = ['detect_freq', 'resolve_freq', 'detect_isolated_dates', 'snap_to_grid', 'to_grid']
+__all__ = ['detect_freq', 'resolve_freq', 'detect_isolated_dates', 'snap_to_grid', 'to_grid',
+           'freq_is_reliable', 'build_freq_schedule', 'split_by_schedule', 'to_grid_piecewise']
 
 
 def _with_multiplier(offset) -> str:
@@ -105,7 +106,7 @@ def detect_freq(index) -> str | None:
 def resolve_freq(per_file: dict[str, str | None], *,
                  override: str | None = None,
                  fallback: str | None = None,
-                 logger=None) -> tuple[str | None, bool]:
+                 logger=None, piecewise: bool = False) -> tuple[str | None, bool]:
     """Reconcile per-file detected frequencies into one grid frequency.
 
     Resolution order: ``override`` (user ``raw_freq``) > unanimous detection >
@@ -135,10 +136,155 @@ def resolve_freq(per_file: dict[str, str | None], *,
     chosen, _ = counts.most_common(1)[0]
     if logger is not None:
         breakdown = ', '.join(f'{n}× {fr}' for fr, n in counts.most_common())
-        logger.warning(
-            f"Mixed time resolution across files ({breakdown}); using most common "
-            f"'{chosen}'. Pass raw_freq= to override.")
+        if piecewise:
+            # The reader keeps each period on its own grid (see
+            # `build_freq_schedule`); nothing is lost, so this is information.
+            logger.info(
+                f"Mixed time resolution across files ({breakdown}); each period is "
+                f"kept on its own grid. Pass raw_freq= to force a single one.")
+        else:
+            logger.warning(
+                f"Mixed time resolution across files ({breakdown}); using most common "
+                f"'{chosen}'. Pass raw_freq= to override.")
     return chosen, True
+
+
+#: Below this many intervals a file's median delta is too noisy to found a
+#: schedule segment on, unless its timestamps are perfectly regular.
+_RELIABLE_MIN_INTERVALS = _SECONDS_PRECISION_MIN_INTERVALS
+
+
+def freq_is_reliable(index) -> bool:
+    """Whether a file's detected frequency can be trusted on its own.
+
+    True when the index is long enough for the median delta to have converged,
+    or when it is short but most of its intervals agree: at least two, and at
+    least half of them, within 2 s of the median. A short file with an outage
+    in it still qualifies — its other intervals repeat — while a handful of
+    scans around a restart, each a different distance apart, does not; that
+    file takes its neighbours' frequency instead.
+    """
+    try:
+        idx = pd.DatetimeIndex(pd.to_datetime(index, errors='coerce')).dropna().sort_values()
+    except (TypeError, ValueError):
+        return False
+    if len(idx) < 3:
+        return False
+    if (len(idx) - 1) >= _RELIABLE_MIN_INTERVALS:
+        return True
+    deltas = pd.Series(idx).diff().dropna().dt.total_seconds()
+    agreeing = int(((deltas - deltas.median()).abs() <= 2).sum())
+    return agreeing >= 2 and agreeing >= len(deltas) / 2
+
+
+def build_freq_schedule(files: list[tuple]) -> list[tuple[pd.Timestamp, str]] | None:
+    """Turn per-file frequencies into a time-ordered schedule of periods.
+
+    ``files`` holds one ``(first_timestamp, freq, reliable)`` per parsed file.
+    The result is ``[(period_start, freq), ...]`` — each period runs until the
+    next one starts, the first also covers everything before it — or ``None``
+    when no file has a reliable frequency.
+
+    An instrument whose sampling period was changed on purpose (an SMPS moved
+    from 6- to 5-minute scans) has no single native grid: forcing one drops or
+    merges scans in every period that is not the majority. The schedule keeps
+    each period on the grid it was recorded on.
+
+    A file without a reliable frequency inherits the previous reliable file's
+    (the next one's at the very start), so it never opens a period of its own.
+    Consecutive files with the same frequency merge into one period.
+
+    Only a whole number of minutes can found a period. A setting an operator
+    chooses is one (1, 5, 6, 10 minutes); a detection such as ``362s`` is a
+    6-minute cycle running slow, and giving it a grid of its own would stamp
+    its scans at times no one would recognise. Such a file inherits like an
+    unreliable one and is snapped to its neighbours' grid, as before.
+    """
+    def whole_minutes(freq):
+        try:
+            return pd.Timedelta(pd.tseries.frequencies.to_offset(freq)).total_seconds() % 60 == 0
+        except (ValueError, TypeError):
+            return False
+
+    ordered = sorted((f for f in files if f[0] is not None and not pd.isna(f[0])),
+                     key=lambda f: f[0])
+    freqs = [freq if (freq and reliable and whole_minutes(freq)) else None
+             for _, freq, reliable in ordered]
+    if not any(freqs):
+        return None
+
+    last = None
+    for i, freq in enumerate(freqs):          # forward fill
+        last = freq or last
+        freqs[i] = last
+    first = next(f for f in freqs if f)
+    freqs = [f or first for f in freqs]       # leading files take the first known
+
+    schedule: list[tuple[pd.Timestamp, str]] = []
+    for (start, _, _), freq in zip(ordered, freqs):
+        if not schedule or schedule[-1][1] != freq:
+            schedule.append((pd.Timestamp(start).floor(freq), freq))
+    return schedule
+
+
+def split_by_schedule(index, schedule) -> list[tuple[str, np.ndarray]]:
+    """``[(freq, boolean mask over index), ...]``, one per schedule period that
+    holds at least one row. Rows before the first period belong to it."""
+    idx = pd.DatetimeIndex(index)
+    starts = np.array([s.to_datetime64() for s, _ in schedule])
+    which = np.clip(np.searchsorted(starts, idx.values, side='right') - 1, 0, None)
+    return [(freq, which == i) for i, (_, freq) in enumerate(schedule) if (which == i).any()]
+
+
+def to_grid_piecewise(df: pd.DataFrame, schedule, *,
+                      start=None, end=None, fill_missing: bool = True,
+                      logger=None) -> pd.DataFrame:
+    """`to_grid` for a frequency schedule: every period on its own grid.
+
+    Rows are snapped to the frequency of the period they fall in; the output
+    index is the periods' regular grids laid end to end. A gap that spans a
+    boundary is padded at the earlier period's frequency, stopping a full
+    period short of the boundary so no padding slot overlaps the next grid.
+    """
+    if len(schedule) == 1:
+        return to_grid(df, schedule[0][1], start=start, end=end,
+                       fill_missing=fill_missing, logger=logger)
+    if df.empty:
+        return df
+
+    df = df.sort_index()
+    parts = [snap_to_grid(df[mask], freq, logger=logger)
+             for freq, mask in split_by_schedule(df.index, schedule)]
+    out = pd.concat(parts)
+    out = out[~out.index.duplicated(keep='first')].sort_index()
+
+    d0, d1 = out.index[0], out.index[-1]
+    if fill_missing:
+        lo = pd.Timestamp(start) if start is not None else d0
+        hi = pd.Timestamp(end) if end is not None else d1
+    else:
+        lo = max(pd.Timestamp(start), d0) if start is not None else d0
+        hi = min(pd.Timestamp(end), d1) if end is not None else d1
+
+    grids = []
+    for i, (seg_start, freq) in enumerate(schedule):
+        seg_lo = lo if i == 0 else max(lo, seg_start)
+        seg_lo = seg_lo.floor(freq) if i == 0 else seg_lo.ceil(freq)
+        if i + 1 < len(schedule):
+            boundary = schedule[i + 1][0]
+            # Stop one full period short of the boundary: a padding slot
+            # that starts less than a period before the next grid begins
+            # would overlap it (a 16:24 six-minute slot against a 16:25
+            # start). A real reading there is kept — see the union below.
+            last = min(hi, boundary - pd.Timedelta(pd.tseries.frequencies.to_offset(freq)))
+            grid = pd.date_range(seg_lo, last, freq=freq)
+        else:
+            grid = pd.date_range(seg_lo, hi, freq=freq)
+        grids.append(grid)
+    in_range = out.index[(out.index >= lo.floor(schedule[0][1])) & (out.index <= hi)]
+    index = pd.DatetimeIndex(
+        np.unique(np.concatenate([g.values for g in grids] + [in_range.values])), name='time')
+    return out.reindex(index)
 
 
 def detect_isolated_dates(index, *, k: float = 10.0,

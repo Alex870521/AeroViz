@@ -9,6 +9,9 @@ from AeroViz.rawDataReader.core.time_grid import (
     resolve_freq,
     snap_to_grid,
     to_grid,
+    build_freq_schedule,
+    freq_is_reliable,
+    to_grid_piecewise,
 )
 
 
@@ -274,3 +277,75 @@ class TestSnapCollisionIsReported:
 
         assert len(out) == 2
         assert out['v'].iloc[0] == 1, 'first wins'
+
+
+# ------------------------------------------------------- frequency schedules
+class TestFreqSchedule:
+    """An instrument whose sampling period was changed on purpose keeps each
+    period on its own grid (readers opt in with ``PIECEWISE_FREQ``)."""
+
+    T = pd.Timestamp
+
+    def test_reliable_needs_regularity_or_length(self):
+        assert freq_is_reliable(pd.date_range('2024-01-01', periods=3, freq='5min'))
+        assert not freq_is_reliable(pd.date_range('2024-01-01', periods=2, freq='5min'))
+        gappy = pd.DatetimeIndex(['2024-01-01 00:00', '2024-01-01 00:06', '2024-01-01 00:30'])
+        assert not freq_is_reliable(gappy)
+
+    def test_consecutive_same_freq_files_merge(self):
+        files = [(self.T('2024-01-01'), '6min', True), (self.T('2024-01-02'), '6min', True),
+                 (self.T('2024-01-03 10:25'), '5min', True)]
+        assert build_freq_schedule(files) == [
+            (self.T('2024-01-01'), '6min'), (self.T('2024-01-03 10:25'), '5min')]
+
+    def test_unreliable_file_inherits_its_neighbour(self):
+        files = [(self.T('2024-01-01'), '12min', False),     # leading: takes the next
+                 (self.T('2024-01-02'), '6min', True),
+                 (self.T('2024-01-03'), '18min', False),     # takes the previous
+                 (self.T('2024-01-04'), '6min', True)]
+        assert build_freq_schedule(files) == [(self.T('2024-01-01'), '6min')]
+
+    def test_off_minute_detection_does_not_found_a_period(self):
+        """A 6-minute cycle that detects as 362 s stays on the 6-minute grid."""
+        files = [(self.T('2024-01-01'), '6min', True), (self.T('2024-01-02'), '362s', True),
+                 (self.T('2024-01-03'), '6min', True)]
+        assert build_freq_schedule(files) == [(self.T('2024-01-01'), '6min')]
+
+    def test_no_reliable_file_means_no_schedule(self):
+        assert build_freq_schedule([(self.T('2024-01-01'), '6min', False)]) is None
+
+    def test_piecewise_grid_keeps_every_scan(self):
+        old = pd.date_range('2024-01-01 00:00', periods=10, freq='6min')
+        new = pd.date_range('2024-01-01 02:25', periods=12, freq='5min')
+        df = pd.DataFrame({'x': range(22)}, index=old.append(new))
+        schedule = [(old[0], '6min'), (new[0], '5min')]
+
+        out = to_grid_piecewise(df, schedule)
+        assert out['x'].notna().sum() == 22                      # nothing merged or dropped
+        assert out.index.is_monotonic_increasing and not out.index.duplicated().any()
+        before, after = out[:'2024-01-01 02:24'], out['2024-01-01 02:25':]
+        assert (before.index.minute % 6 == 0).all() and (after.index.minute % 5 == 0).all()
+        # the gap is padded on the old grid, stopping a full period short of the change
+        assert before.index[-1] == pd.Timestamp('2024-01-01 02:18')
+
+    def test_single_grid_would_have_lost_scans(self):
+        """What the schedule replaces: 5-minute scans on the 6-minute grid."""
+        new = pd.date_range('2024-01-01 02:25', periods=12, freq='5min')
+        df = pd.DataFrame({'x': range(12)}, index=new)
+        assert to_grid(df, '6min')['x'].notna().sum() < 12
+
+    def test_requested_range_pads_both_ends(self):
+        old = pd.date_range('2024-01-01 00:00', periods=5, freq='6min')
+        new = pd.date_range('2024-01-01 01:00', periods=5, freq='5min')
+        df = pd.DataFrame({'x': range(10)}, index=old.append(new))
+        out = to_grid_piecewise(df, [(old[0], '6min'), (new[0], '5min')],
+                                start='2023-12-31 23:00', end='2024-01-01 03:00')
+        assert out.index[0] == pd.Timestamp('2023-12-31 23:00')
+        assert out.index[-1] == pd.Timestamp('2024-01-01 03:00')
+        assert out['x'].notna().sum() == 10
+
+    def test_one_period_is_plain_to_grid(self):
+        idx = pd.date_range('2024-01-01', periods=8, freq='6min')
+        df = pd.DataFrame({'x': range(8)}, index=idx)
+        pd.testing.assert_frame_equal(to_grid_piecewise(df, [(idx[0], '6min')]),
+                                      to_grid(df, '6min'))

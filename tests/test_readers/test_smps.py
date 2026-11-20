@@ -174,13 +174,14 @@ class TestSMPSReader(BaseReaderTest):
 
     def test_partition_compatible_scans(self, tmp_path):
         """`_partition_compatible_scans` keeps the dominant grid and drops
-        files on a different size-bin grid, so the concat downstream sees one
-        consistent schema.
+        files on a foreign size-bin grid, so the concat downstream sees one
+        consistent schema. The dominant group is picked by total row count,
+        not file count, so one large export beats a swarm of tiny ones.
 
-        Mixing AIM 10.3 (.TXT, bins 11.8/13.6/593.5) with AIM 11.x (.CSV,
-        bins 11.34/13.10/615.27) in one folder is the failure mode this fix
-        targets. The dominant group is picked by total row count, not file
-        count, so a single large TXT export beats a swarm of tiny CSVs.
+        These frames carry no lattice tag, so each bin tuple is its own grid —
+        the case of a file that is off the 64-channel/decade lattice. Real
+        AIM 10.3 and AIM 11.x exports ARE on it and are read together; see
+        test_smps_lattice.py.
         """
         import pandas as pd
         from pathlib import Path

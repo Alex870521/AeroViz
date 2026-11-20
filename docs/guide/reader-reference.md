@@ -244,8 +244,8 @@ and grouped. `quiet=True` prints nothing.
 ✓ ━━━━━━━━━━━━━━━━━━━━━━━━━ 100% Reading SMPS files: 260331.TXT
 
 Files       166 files · 162 used · 4 skipped
-  ⚠ skipped 4 files on a different size-bin grid (read them alone with size_range=)
-      11.34–615.27 nm  SMPS_3082001426002_20260205_174800.csv, …165400.csv, …20260206_174800.csv
+  ⚠ skipped 4 files on a different size-bin grid or scan range (read them alone with size_range=)
+      11.44–667.14 nm  2026-02-05_174800_SMPS.csv, …165400_SMPS.csv, …2026-02-06_174800_SMPS.csv
       13.6–478.3 nm    260213.TXT
 Notes
   ⚠ Mixed time resolution across files (163× 6min, 2× 362s); using most common '6min'.

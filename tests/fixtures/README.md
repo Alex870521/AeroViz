@@ -19,6 +19,7 @@ fixtures/
     │   ├── normal/           # Standard files
     │   ├── txt_format/       # .txt format files
     │   ├── csv_format/       # .csv format files
+    │   ├── mixed_aim/        # AIM 10.3 .TXT + AIM 11.5 .csv in one folder (different labels, 6- and 5-min scans)
     │   └── transposed/       # Transposed format
     ├── TEOM/
     │   ├── normal/           # Standard files

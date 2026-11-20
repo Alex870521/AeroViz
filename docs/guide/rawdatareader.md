@@ -55,7 +55,7 @@ Parameters in signature order:
 | `start` | datetime / str | Start time; omit to begin at the files' first record | `None` |
 | `end` | datetime / str | End time; omit to end at the files' last record | `None` |
 | `mean_freq` | str | Averaging frequency (`'1h'`, `'30min'`, `'1D'`); omit for native resolution | `None` (no resampling) |
-| `size_range` | tuple | SMPS only (accepted but ignored by APS / GRIMM): `(first_bin, last_bin)` in nm — a file whose grid does not match **exactly** is rejected, so pass the instrument's real endpoints, e.g. `(11.8, 593.5)` | `None` |
+| `size_range` | tuple | SMPS only (accepted but ignored by APS / GRIMM): `(first_bin, last_bin)` in nm as AIM printed them — a file whose window does not match **exactly** is rejected, so pass the instrument's real endpoints, e.g. `(11.8, 593.5)` | `None` |
 | `append_stats` | bool | SMPS / APS only: append the `psd_stats` columns to the returned frame (the `_stats.csv` sidecar is written regardless) | `False` |
 | `fill_missing` | bool | `True` pads output to the requested range; `False` clamps to data coverage | `True` |
 | `ignored_status_errors` | list | Status codes / tokens / bits that should **not** count as `Status Error` — see [RawDataReader Reference §3](reader-reference.md#3-how-a-status-judgement-is-made) | `None` |
@@ -131,6 +131,7 @@ df.attrs['total_rate']       # overall % valid (only present when qc is on)
 | `coverage_start` / `coverage_end` | always | real data span (ignores NaN padding) |
 | `requested_start` / `requested_end` | always | the range you passed (omitted when not given) |
 | `raw_freq`, `freq_mixed` | always | native frequency + whether files disagreed |
+| `freq_schedule` | always | `[[start, freq], ...]` when the reader kept each resolution period on its own grid (SMPS); `None` for a single grid |
 | `fill_missing` | always | grid padded to the request, or clamped to coverage |
 | `aeroviz_version`, `processed_at` | always | build / run stamp |
 | `mean_freq` | always | output frequency (`None` = native) |
@@ -430,8 +431,30 @@ smps = RawDataReader(
 )
 ```
 
-Without it, a mismatching grid only warns, and `_partition_compatible_scans`
-keeps the dominant grid automatically.
+Without it every file on the standard channel lattice is read, whatever its
+window: shared channels line up and a channel a file did not measure is NaN
+for its rows (see [SMPS — Size-channel lattice](../api/instruments/particle-sizers/SMPS.md#size-channel-lattice)).
+
+### Frequency schedule
+
+Normally a folder has one native resolution and every row is snapped to that
+grid. When files disagree the most common one is used and `freq_mixed` is set.
+
+A reader can instead opt in (`PIECEWISE_FREQ`; SMPS does) to keep **each
+period on its own grid**, for instruments whose sampling period is an operator
+setting that gets changed on purpose:
+
+- each file's frequency is detected as usual; a file too short or too
+  irregular to measure a period from, or one that detects as something other
+  than a whole number of minutes (`362s`), takes its neighbour's;
+- consecutive files with the same frequency form a period, starting at the
+  first file's first timestamp;
+- rows are snapped to their period's grid, and the output index is those
+  grids laid end to end — so it is regular *within* a period, not overall;
+- hourly completeness is judged against each period's own points per hour.
+
+`df.attrs['freq_schedule']` records the periods; `raw_freq` keeps reporting
+the most common one. Pass `raw_freq=` to force a single grid.
 
 ### Multi-instrument Integration
 

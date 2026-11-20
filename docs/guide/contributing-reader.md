@@ -129,7 +129,7 @@ self.logger.warning(
 |---|---|---|
 | `read_error` | ✗ *N files could not be read* | set by the core when `_raw_reader` raises — raise rather than log |
 | `unit_skipped` | ⚠ *skipped N files whose unit cannot be converted* | a whole file in a unit the reader cannot use |
-| `grid_skipped` | ⚠ *skipped N files on a different size-bin grid* | files dropped before concat (`items=[...]` for several at once) |
+| `grid_skipped` | ⚠ *skipped N files on a different size-bin grid or scan range* | files dropped before concat (`items=[...]` for several at once) |
 | `rows_dropped` | ⚠ *dropped rows … in N files* | part of a file discarded; `detail` says how much |
 | `converted` | ℹ *converted N files to dN/dlogDp* | data rewritten into the canonical unit; `detail` = the source unit |
 | `grid` | ℹ *N files on a grid other than … (kept)* | an unusual but accepted layout; `expected=` names the default |

@@ -8,6 +8,8 @@ from AeroViz.dataProcess.SizeDistr._size_dist import bin_widths
 from pandas import Series, read_csv, to_datetime, to_numeric
 
 from AeroViz.rawDataReader.core import AbstractReader, QCRule, QCFlagBuilder, WARNING
+from AeroViz.rawDataReader.core.size_grid import (
+    DEFAULT_CHANNELS_PER_DECADE, channel_label, lattice_channels, label_range)
 from AeroViz.rawDataReader.script._size_dist_output import finalize_size_dist
 from AeroViz.dataProcess.SizeDistr.units import (
     DN_DLOGDP, FILE_UNIT_ATTR, parse_export_unit, to_dndlogdp)
@@ -24,6 +26,11 @@ class Reader(AbstractReader):
     file layout, status codes and QC rules.
     """
     nam = 'SMPS'
+
+    # The scan period is an operator setting (AIM 10.3 ran 6-minute scans at
+    # TCLab; AIM 11.x offers 1 / 5 / 10 minutes), so one folder can hold
+    # several on purpose. Keep each period on its own grid.
+    PIECEWISE_FREQ = True
 
     # =========================================================================
     # QC Thresholds
@@ -54,6 +61,10 @@ class Reader(AbstractReader):
     # bin above is exactly zero never came from a full DMA voltage ramp. 2x the
     # smallest bin is 23.6 nm on the standard 11.8-593.5 nm grid.
     TRUNCATED_SCAN_FACTOR = 2.0
+    #: The long-DMA window every TCLab station has recorded since 2018, as
+    #: AIM 10.3 prints it. The default span for QC totals and the default
+    #: reference window a file must span (`_pick_reference_window`).
+    STANDARD_WINDOW = (11.8, 593.5)
 
     # =========================================================================
     # Status columns across AIM versions
@@ -133,13 +144,21 @@ class Reader(AbstractReader):
     # =========================================================================
     # AIM-version reconciliation (10.3 .TXT vs 11.x .CSV exports)
     # =========================================================================
-    # The same physical SMPS can export at different size-bin grids depending
-    # on the host software version (AIM 10.3: 11.8–593.5 nm; AIM 11.x:
-    # 11.34–615.27 nm with shifted intermediate bins) AND re-labels many
-    # metadata columns. Two separate problems:
+    # The same physical SMPS exports different-looking size-bin headers
+    # depending on the host software (AIM 10.3: 11.8–593.5 nm, one decimal;
+    # AIM 11.x: 11.34–615.27 nm, two decimals) AND re-labels many metadata
+    # columns. Two separate problems:
     #
-    # 1. Mixed-bin-grid in one folder — handled by `_partition_compatible_scans`
-    #    (keep the dominant-row group, drop the minority with a warning).
+    # 1. Bin labels — every 64-channel/decade export sits on one fixed
+    #    lattice (see `core/size_grid.py`); the versions differ only in the
+    #    digits printed and in which window of the lattice they report.
+    #    `_raw_reader` renames each file's bins to the canonical label of
+    #    their lattice channel, so files of any version and any scan range
+    #    concatenate into one frame: shared channels line up, channels a file
+    #    did not measure stay NaN. Values are never interpolated. Only a file
+    #    that is NOT on that lattice (another resolution, a damaged header) is
+    #    a foreign grid — `_partition_compatible_scans` keeps the dominant
+    #    group and drops the rest with a warning.
     # 2. AIM-version metadata column drift — `METADATA_ALIASES` rewrites the
     #    older AIM (≤ 10.2, `Sheath Flow(lpm)` style) and AIM 11.x forms to the
     #    AIM 10.3 form on every parsed file, so a folder of any version (or a
@@ -197,6 +216,10 @@ class Reader(AbstractReader):
     #: measured at the impactor.
     AEROSOL_FLOW_COLUMNS = ('Aerosol Flow (L/min)', 'Impactor Flow (L/min)')
     SHEATH_FLOW_COLUMN = 'Sheath Flow (L/min)'
+
+    #: Per-file attr: True when the file's bins were mapped onto the standard
+    #: lattice (and so carry canonical labels). Rides through the parse cache.
+    ON_LATTICE_ATTR = 'smps_on_lattice'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -390,8 +413,20 @@ class Reader(AbstractReader):
             _df.index.name = 'time'
             _df = _df.loc[_df.index.dropna().copy()]
 
-            # Rename size bin columns to float values
+            # Rename size bin columns to float values. A file on the standard
+            # 64-channel/decade lattice gets the canonical label of each
+            # channel (AIM 11.x `11.76` -> `11.8`; an AIM <= 10.3 file is
+            # already canonical), which is what lets exports of different AIM
+            # versions and scan ranges share columns. Anything else keeps the
+            # labels it was printed with.
             bin_rename = {col: float(col.strip()) for col in numeric_cols}
+            file_cpd = to_numeric(export.get('Channels/Decade'), errors='coerce')
+            if not np.isfinite(file_cpd):
+                file_cpd = DEFAULT_CHANNELS_PER_DECADE
+            lattice_k = (lattice_channels(bin_rename.values())
+                         if file_cpd == DEFAULT_CHANNELS_PER_DECADE else None)
+            if lattice_k is not None:
+                bin_rename = {col: channel_label(k) for col, k in zip(bin_rename, lattice_k)}
             _df = _df.rename(columns=bin_rename)
             bin_cols = sorted(bin_rename.values())
 
@@ -399,6 +434,8 @@ class Reader(AbstractReader):
             # Otherwise just warn so older instrument configs (e.g. 2017 with 18.8-914 nm)
             # still get parsed for coverage / time-index purposes.
             explicit_range = self.kwargs.get('size_range')
+            if explicit_range is not None and lattice_k is not None:
+                explicit_range = self._canonical_range(explicit_range)
             size_range = explicit_range or (11.8, 593.5)
             if bin_cols[0] != size_range[0] or bin_cols[-1] != size_range[1]:
                 self.logger.warning(f'SMPS file: {file.name} size range mismatch. '
@@ -452,68 +489,149 @@ class Reader(AbstractReader):
                 self.logger.info(f"{file.name}: converted {export_unit.label} to {DN_DLOGDP}",
                                  group='converted', item=file.name, detail=export_unit.label)
             _df.attrs[FILE_UNIT_ATTR] = export_unit.label
+            _df.attrs[self.ON_LATTICE_ATTR] = lattice_k is not None
             return _df
 
     @staticmethod
-    def _bin_signature(df):
-        """Stable fingerprint of a file's size-bin grid (sorted tuple of
-        diameter columns, rounded to 2 decimals so trivial float jitter
-        doesn't split otherwise-identical scans into different groups)."""
+    def _canonical_range(size_range):
+        """`size_range` ends as canonical lattice labels.
+
+        Callers name a range by the diameters their AIM version printed
+        (`(11.34, 615.27)` for AIM 11.x); the columns carry canonical labels
+        (`11.3`, `615.3`). Ends that are not on the lattice are left alone.
+        """
+        channels = lattice_channels(size_range)
+        if channels is None:
+            return tuple(size_range)
+        return tuple(channel_label(k) for k in channels)
+
+    @classmethod
+    def _bin_signature(cls, df):
+        """Which grid a file belongs to, for `_partition_compatible_scans`.
+
+        Every file on the standard lattice shares one signature whatever its
+        scan range — their columns are the same channels under the same
+        labels, so they concatenate cleanly. A file off the lattice is
+        fingerprinted by its own sorted bin tuple (rounded to 2 decimals so
+        float jitter does not split identical grids).
+        """
+        if df.attrs.get(cls.ON_LATTICE_ATTR):
+            return ('lattice', DEFAULT_CHANNELS_PER_DECADE)
         return tuple(sorted(round(float(c), 2)
                             for c in df.columns if isinstance(c, (int, float))))
 
+    @staticmethod
+    def _bin_labels(df):
+        return sorted(float(c) for c in df.columns if isinstance(c, (int, float)))
+
     def _partition_compatible_scans(self, df_list, files):
-        """Keep files whose size-bin grid matches the dominant group; drop
-        the rest so the concat sees one consistent schema.
+        """Keep the files that can stand in one record; drop the rest, by name.
 
-        The grouping fingerprint is the file's sorted size-bin tuple. The
-        "dominant" group is picked by total row count, not file count —
-        this stops a swarm of tiny files from outvoting one large-but-typical
-        file. The minority files are not silently discarded: every dropped
-        file is named in a warning, so the user can re-run them in isolation
-        (different folder, or with `size_range=`) if both grids are wanted.
+        Two independent reasons a file is left out, both reported as
+        `grid_skipped` with the file names so nothing disappears quietly:
+
+        1. **Foreign grid.** Files on the standard lattice always go together
+           (see `_bin_signature`); a file off it (another channels-per-decade
+           setting, a damaged header) cannot share their columns. The group
+           with the most rows wins — rows, not files, so a swarm of tiny
+           files cannot outvote one large typical one.
+        2. **Narrower window.** Among lattice files, one whose scan range does
+           not span the record's reference window (`_pick_reference_window`)
+           is a different measurement — a nano-DMA test, a shortened range.
+           Left in, its scans would sit in the record with most channels
+           empty, drag every total and mean diameter down, and take the time
+           slot of a full scan recorded alongside it.
+
+        Everything else is read whole: AIM 10.3 next to AIM 11.x, a window
+        wider than the reference. The windows mixed are listed so the
+        wider-than-usual frame is not a surprise.
         """
-        if len(df_list) < 2:
-            return df_list
-
         groups: dict = {}
         for f, df in zip(files, df_list):
-            sig = self._bin_signature(df)
-            groups.setdefault(sig, []).append((f, df))
+            groups.setdefault(self._bin_signature(df), []).append((f, df))
 
-        if len(groups) == 1:
-            return df_list  # homogeneous folder — no isolation needed.
-
-        # Pick the dominant group by total row count.
         def total_rows(items):
             return sum(len(df) for _, df in items)
 
-        sigs_ranked = sorted(groups.items(), key=lambda kv: total_rows(kv[1]), reverse=True)
-        dominant_sig, dominant_items = sigs_ranked[0]
-        kept = [df for _, df in dominant_items]
-
-        # Build a single readable warning naming every dropped file.
-        for sig, items in sigs_ranked[1:]:
-            dropped_names = [f.name for f, _ in items]
-            n_rows = total_rows(items)
-            shown = ', '.join(dropped_names[:5])
-            if len(dropped_names) > 5:
-                shown += f', ... (+{len(dropped_names) - 5} more)'
-            d_min, d_max = (min(sig), max(sig)) if sig else (None, None)
-            kept_min, kept_max = (min(dominant_sig), max(dominant_sig))
+        def skip(items, reason, detail):
+            names = [f.name for f, _ in items]
+            shown = ', '.join(names[:5]) + (f', ... (+{len(names) - 5} more)' if len(names) > 5 else '')
             self.logger.warning(
-                f"Mixed-format SMPS folder: skipping {len(dropped_names)} "
-                f"file(s) ({n_rows} rows) on a different size-bin grid "
-                f"({d_min}–{d_max} nm, {len(sig)} bins) than the dominant "
-                f"group ({kept_min}–{kept_max} nm, {len(dominant_sig)} bins). "
-                f"Files: {shown}. "
-                f"Move them to a separate folder (or pass `size_range=`) to "
-                f"process them in their own run.",
-                group='grid_skipped', items=dropped_names,
-                detail=f'{d_min:g}–{d_max:g} nm' if sig else 'no bins',
-            )
+                f"Mixed-format SMPS folder: skipping {len(names)} file(s) "
+                f"({total_rows(items)} rows) {reason}. Files: {shown}. "
+                f"Move them to a separate folder to process them in their own run.",
+                group='grid_skipped', items=names, detail=detail)
 
-        return kept
+        sigs_ranked = sorted(groups.items(), key=lambda kv: total_rows(kv[1]), reverse=True)
+        dominant_sig, kept_items = sigs_ranked[0]
+        kept_labels = sorted({c for _, df in kept_items for c in self._bin_labels(df)})
+
+        for sig, items in sigs_ranked[1:]:
+            labels = sorted({c for _, df in items for c in self._bin_labels(df)})
+            skip(items,
+                 f"whose size bins ({label_range(labels)}) are on a different grid than "
+                 f"the dominant group ({label_range(kept_labels)}) and cannot share its columns",
+                 label_range(labels))
+
+        n_before = len(kept_items)
+        if dominant_sig and dominant_sig[0] == 'lattice':
+            self._reference_window = ref = self._pick_reference_window(
+                [df for _, df in kept_items])
+            windows: dict = {}
+            for item in kept_items:
+                labels = self._bin_labels(item[1])
+                if labels:
+                    windows.setdefault((labels[0], labels[-1]), []).append(item)
+            if ref is not None:
+                for (lo, hi), items in windows.items():
+                    if lo > ref[0] or hi < ref[1]:
+                        skip(items,
+                             f"whose scan range ({lo:g}–{hi:g} nm) does not span this "
+                             f"record's {ref[0]:g}–{ref[1]:g} nm window",
+                             f'{lo:g}–{hi:g} nm')
+                windows = {w: items for w, items in windows.items()
+                           if w[0] <= ref[0] and w[1] >= ref[1]}
+                kept_items = [item for items in windows.values() for item in items]
+            if len(windows) > 1:
+                ranked = sorted(windows.items(), key=lambda kv: len(kv[1]), reverse=True)
+                breakdown = ', '.join(f'{lo:g}–{hi:g} nm ({len(items)} file(s))'
+                                      for (lo, hi), items in ranked)
+                self.logger.info(
+                    f"SMPS files cover different size ranges on the same channel "
+                    f"lattice: {breakdown}. All kept; a channel is NaN where a "
+                    f"file did not measure it.",
+                    group='grid_windows', detail=breakdown)
+
+        # Nothing dropped: hand back the caller's own list.
+        if len(groups) == 1 and len(kept_items) == n_before:
+            return df_list
+        keep = {id(df) for _, df in kept_items}
+        return [df for df in df_list if id(df) in keep]
+
+    def _pick_reference_window(self, df_list):
+        """The size window a file must span to stand in this record: ``(lo, hi)``.
+
+        - an explicit ``size_range=``, else
+        - the standard 11.8–593.5 nm window when the folder's dominant window
+          (by rows) covers it — so AIM 10.3 and the wider AIM 11.x both pass,
+          whichever happens to hold more rows, else
+        - the dominant window itself (an archive recorded on another range,
+          e.g. 18.8–914 nm, is its own reference).
+        """
+        explicit = (getattr(self, 'kwargs', None) or {}).get('size_range')
+        if explicit is not None:
+            return self._canonical_range(explicit)
+        rows: dict = {}
+        for df in df_list:
+            labels = self._bin_labels(df)
+            if labels:
+                key = (labels[0], labels[-1])
+                rows[key] = rows.get(key, 0) + len(df)
+        if not rows:
+            return None
+        dominant = max(rows, key=rows.get)
+        lo, hi = self.STANDARD_WINDOW
+        return (lo, hi) if dominant[0] <= lo and dominant[1] >= hi else dominant
 
     def _flow_ratio(self, _df):
         """Per-scan aerosol/sheath flow ratio β, or ``None`` if the flows are absent.
@@ -644,7 +762,7 @@ class Reader(AbstractReader):
         _index = _df.index.copy()
 
         # Apply size range filter
-        size_range = self.kwargs.get('size_range') or (11.8, 593.5)
+        size_range = self._canonical_range(self.kwargs.get('size_range') or self.STANDARD_WINDOW)
         numeric_cols = [col for col in _df.columns if isinstance(col, (int, float))]
         df_numeric = _df[numeric_cols]
         size_mask = (df_numeric.columns.astype(float) >= size_range[0]) & (df_numeric.columns.astype(float) <= size_range[1])
@@ -762,8 +880,12 @@ class Reader(AbstractReader):
             ),
             QCRule(
                 name='Insufficient',
-                condition=lambda df: self.QC_control().hourly_completeness_QC(
-                    df[df_numeric.columns], freq=self._resolved_freq or self.meta['freq']
+                # Judged per scan, not per bin: a scan is one measurement, and
+                # in a folder mixing scan ranges a channel that one period never
+                # measured would otherwise mark that whole period insufficient.
+                condition=lambda df: self._hourly_completeness(
+                    df[df_numeric.columns].notna().any(axis=1)
+                    .astype(float).replace(0.0, np.nan).to_frame('scan')
                 ),
                 description='Less than 50% hourly data completeness',
                 # Representativeness, not validity: the readings in a sparse

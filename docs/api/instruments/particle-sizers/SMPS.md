@@ -17,9 +17,10 @@ The SMPS is an instrument used for measuring particle size distributions in the 
   the data header row. The header row is found by scanning for a first cell of
   `Sample #` (TXT / AIM 10.3, ~row 25) or `Scan Number` (CSV / AIM 11.x,
   ~row 52).
-- **Default size grid: 11.8–593.5 nm (110 bins) on AIM 10.3; 11.34–615.27 nm
-  (112 bins) on AIM 11.x.** A folder mixing both versions cannot be
-  outer-joined safely — see "Mixed AIM versions" below.
+- **Size bins: one fixed lattice, 64 channels per decade.** AIM 10.3 prints
+  the long-DMA default as 11.8–593.5 nm (110 bins, one decimal); AIM 11.x
+  prints 11.34–615.27 nm (112 bins, two decimals). They are the same channels
+  — see "Size-channel lattice" below.
 
 ### Parse recipe
 
@@ -34,10 +35,11 @@ The SMPS is an instrument used for measuring particle size distributions in the 
   rotated and re-parsed.
 - Columns whose *name* contains a comma are taken as a comma-decimal export;
   the comma is rewritten to `.` with a warning.
-- Size bins are the numeric column names, converted to float and sorted
-  numerically. Expected range 11.8–593.5 nm: a mismatch **warns** (so older
-  instrument configs such as 18.8–914 nm still parse for coverage purposes);
-  the file is only rejected when the caller passed an explicit `size_range=`.
+- Size bins are the numeric column names, converted to float, renamed to the
+  canonical label of their lattice channel (see "Size-channel lattice") and
+  sorted numerically. A window other than 11.8–593.5 nm is **noted** in the
+  summary and kept; the file is only rejected when the caller passed an
+  explicit `size_range=` that it does not match.
 - The consumed index columns (`Date`, `Start Time`, `DateTime Sample Start`,
   `Sample #`, `Scan Number`, `Diameter Midpoint`) are dropped; every other
   source column is kept through L1.
@@ -71,30 +73,75 @@ match its number export — that is the export, not the conversion.
 Each file's export unit is recorded; the returned frame says what any
 converted files were in (see [Output](#output)).
 
+### Size-channel lattice
+
+Every 64-channel/decade AIM export reports its bins on **one fixed logarithmic
+lattice**: channel `k` spans `10^(k/64)`–`10^((k+1)/64)` nm and is labelled by
+its midpoint `10^((k+0.5)/64)`. The sheath flow, the DMA, the scan range and
+the AIM version only choose which *window* of the lattice a file reports —
+they never move the bins. This holds for every distinct header in the TCLab
+archive (2017–2026; long and nano DMA; AIM ≤ 10.2, 10.3 and 11.x; 1.02–982.2 nm).
+
+What differs between versions is the number of digits printed:
+
+| | channel 68 | channel 73 | channel 177 | rule |
+|---|---|---|---|---|
+| AIM ≤ 10.3 | `11.8` | `16.8` | `593.5` | 2 decimals below 10 nm, 1 above |
+| AIM 11.x | `11.76` | `16.85` | `593.52` | always 2 decimals |
+
+So a printed diameter is not a stable name for a bin, and rounding does not
+make it one (`16.85` rounds to 16.9; AIM 10.3 printed 16.8 from 16.849).
+The reader therefore identifies a bin by its **channel index** and gives every
+channel one canonical column label — the AIM ≤ 10.3 form, which is what the
+existing archive already uses. `core/size_grid.py` holds the arithmetic
+(`channel_index`, `channel_midpoint`, `channel_label`).
+
+Consequences:
+
+- An AIM ≤ 10.3 file is unchanged: its labels are already canonical.
+- An AIM 11.x file has its columns **renamed** (`11.76` → `11.8`, `11.34` →
+  `11.3`, `615.27` → `615.3`). No value is interpolated or altered.
+- Files of any version concatenate into one frame, as does a file with a
+  **wider** scan range. Shared channels line up; a channel a file did not
+  measure is NaN for that file's rows. The log lists the windows found.
+- When you need the exact diameter rather than the label, use
+  `channel_midpoint(channel_index(label))`.
+- `size_range=` is given in the diameters your AIM version printed
+  (`(11.34, 615.27)`); the ends are mapped to canonical labels before matching.
+- QC totals use the default 11.8–593.5 nm window regardless of how wide a
+  file is, so a record that changes window part-way stays comparable.
+
+Two kinds of file are still left out of a folder's record, each named in a
+`skipped` warning (move them to their own folder to read them):
+
+- **A foreign grid** — a file that is not on the lattice (128 channels per
+  decade, a damaged header) cannot share columns with the rest.
+  `_partition_compatible_scans` keeps the group with the most rows (rows, not
+  files, so a swarm of tiny files cannot outvote one large export).
+- **A narrower scan range** — a lattice file whose window does not span the
+  record's *reference window* is a different measurement (a nano-DMA test, a
+  shortened range). Left in, its scans would sit in the record with most
+  channels empty, pull every total and mean diameter down, and take the time
+  slot of a full scan recorded alongside it. The reference window is
+  `size_range=` if given; otherwise the standard 11.8–593.5 nm when the
+  folder's dominant window (by rows) covers it; otherwise the dominant
+  window itself (an archive recorded at 18.8–914 nm is its own reference).
+
+### Scan period
+
+The scan period is an operator setting (6 minutes under AIM 10.3 at TCLab;
+AIM 11.x offers 1, 5 or 10), so one folder can hold more than one on purpose.
+SMPS opts in to a **frequency schedule** (`PIECEWISE_FREQ`): each period is
+kept on its own time grid rather than forced onto the most common one, which
+would merge or drop scans. `df.attrs['freq_schedule']` lists the periods as
+`[[start, freq], ...]` (`None` for a single grid); `raw_freq=` still forces
+one grid. Mechanism: [RawDataReader Usage](../../../guide/rawdatareader.md#frequency-schedule).
+
 ### Mixed AIM versions
 
-The same physical SMPS exports at different size-bin grids and re-labels many
-metadata columns depending on the host software. The reader treats each scan
-grid as its own logical instrument — concatenating mismatched grids would
-create NaN-only columns that downstream completeness checks read as 100 %
-Insufficient. Two independent problems, two mechanisms:
+Besides the bin labels (above), AIM versions re-label many metadata columns.
 
-**1. Partition by bin grid (auto-applied):** `_partition_compatible_scans`
-buckets files by their sorted size-bin tuple. The bucket with the most rows
-wins; the others are dropped before concat with a warning naming every skipped
-file. The picked-by-row-count rule means a swarm of tiny minority files cannot
-outvote one large export just by file count.
-
-To process the dropped bucket explicitly, either move those files to a
-separate folder, or pass `size_range=` to force `_raw_reader` to reject
-files outside that exact range:
-
-```python
-# Process only AIM 11.x scans in a mixed folder:
-df = RawDataReader('SMPS', path=mixed_folder, size_range=(11.34, 615.27))
-```
-
-**2. Metadata column aliases:** older AIM (≤ 10.2, e.g. `Sheath Flow(lpm)`)
+**Metadata column aliases:** older AIM (≤ 10.2, e.g. `Sheath Flow(lpm)`)
 and AIM 11.x both name many metadata columns differently from AIM 10.3 for the
 same physical quantity. `METADATA_ALIASES` rewrites both to the AIM 10.3
 canonical form on every parsed file, so a folder of any version (or a
@@ -345,7 +392,8 @@ Files written per read are listed in
 ## Notes
 
 - Different AIM software versions may produce different file formats — see
-  "Mixed AIM versions" above for how the reader isolates and reconciles them
+  "Size-channel lattice" and "Mixed AIM versions" above for how the reader
+  reconciles them
 - Size range validation ensures data quality
 - DMA water ingress detection: High concentrations in bins ≥400nm indicate water contamination in the DMA column
 - Automatic format detection and parsing

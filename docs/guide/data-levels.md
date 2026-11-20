@@ -167,10 +167,14 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
    grid that matches it.
 4. **Resolve one grid frequency** — `resolve_freq`: `raw_freq=` override >
    unanimous detection > most-common (sets `freq_mixed`, warns with the
-   breakdown) > `meta['freq']`.
+   breakdown) > `meta['freq']`. A reader with `PIECEWISE_FREQ` (SMPS) then
+   builds a frequency schedule from the per-file detections and keeps each
+   period on its own grid — see
+   [Frequency schedule](rawdatareader.md#frequency-schedule).
 5. **Partition incompatible scan groups** — `_partition_compatible_scans`
-   (no-op by default; SMPS keeps the dominant size-bin grid and names every
-   dropped file in a warning).
+   (no-op by default; SMPS reads every file on the 64-channel/decade lattice
+   together and drops only a foreign grid or a narrower scan range, naming
+   every dropped file in a warning).
 6. **Merge** — `concat(...).groupby(level=0).first()`.
 7. **Flag stray timestamps** — `_flag_outlier_dates` (median/MAD, `k=10`).
    Warn by default; drop only with `drop_outlier_dates=True`.
@@ -200,7 +204,7 @@ What actually happens, in order, for `RawDataReader(inst, path, start, end, qc=T
     inside `_QC` instead.
 12. **`_save_data`** — write `_read_*_raw.{pkl,csv}` and `_read_*_qc.{pkl,csv}`,
     stamped with `cache_format` and the parse provenance (`n_files`, `raw_freq`,
-    `freq_mixed`).
+    `freq_mixed`, `freq_schedule`).
 
 → **L2 frame.** Everything up to here is skipped entirely on a whole-frame
 cache hit. With `cache_dir=` and `reset='incremental'` there is a finer cache

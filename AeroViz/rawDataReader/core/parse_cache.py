@@ -45,7 +45,9 @@ from AeroViz.rawDataReader.core.metadata import aeroviz_version
 #: 3: SMPS renames AIM ≤ 10.2 metadata columns to the AIM 10.3 names.
 #: 4: SMPS/APS convert dN / dS / dV / dM exports to dN/dlogDp instead of
 #:    skipping them, and tag each frame with its source unit.
-PARSE_CACHE_FORMAT = 4
+#: 5: SMPS bins are renamed to canonical lattice labels (AIM 11.x `11.76` ->
+#:    `11.8`) and each frame is tagged with whether it is on the lattice.
+PARSE_CACHE_FORMAT = 5
 
 
 class ParseCache:

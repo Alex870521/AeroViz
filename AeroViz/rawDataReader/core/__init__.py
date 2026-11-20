@@ -19,7 +19,9 @@ from AeroViz.rawDataReader.core.metadata import aeroviz_version, data_coverage, 
 from AeroViz.dataProcess.SizeDistr.units import DN_DLOGDP, FILE_UNIT_ATTR
 from AeroViz.rawDataReader.core.qc import (QualityControl, QCRule, QCFlagBuilder,
                                           ERROR, WARNING, SEVERITIES)
-from AeroViz.rawDataReader.core.time_grid import detect_freq, resolve_freq, detect_isolated_dates, to_grid
+from AeroViz.rawDataReader.core.time_grid import (
+    detect_freq, resolve_freq, detect_isolated_dates, to_grid,
+    freq_is_reliable, build_freq_schedule, split_by_schedule, to_grid_piecewise)
 from AeroViz.rawDataReader.core.report import calculate_rates, process_rates_report, process_timeline_report, print_timeline_visual
 
 __all__ = ['AbstractReader', 'QCRule', 'QCFlagBuilder', 'ERROR', 'WARNING']
@@ -42,7 +44,10 @@ INVALID_COLUMN = QCFlagBuilder.INVALID_COLUMN
 # wrong values and the old QC verdict, so it is re-parsed rather than served.
 # Bumped to 5 when SMPS/APS started converting non-dN/dlogDp exports (and
 # recording `source_units`): a version-4 pickle holds them unconverted.
-CACHE_FORMAT = 5
+# Bumped to 6 when SMPS bins took canonical lattice labels and a reader could
+# keep a frequency schedule: a version-5 pickle has neither `freq_schedule`
+# nor, for AIM 11.x folders, the labels the current code would give.
+CACHE_FORMAT = 6
 
 #: Accepted values of ``output_split``.
 OUTPUT_SPLITS = ('none', 'month', 'year')
@@ -80,6 +85,12 @@ class AbstractReader(ABC):
     """
 
     nam = 'AbstractReader'
+
+    #: Opt in to keeping each resolution period on its own time grid when the
+    #: files change sampling period over time (see `build_freq_schedule`).
+    #: Off by default: a reader whose mixed detections are noise rather than a
+    #: deliberate change is better served by the single most-common grid.
+    PIECEWISE_FREQ = False
 
     #: Flags this reader raises in `_process` rather than through a `QCRule`,
     #: i.e. everything it passes to `update_qc_flag`. They never reach the
@@ -196,6 +207,10 @@ class AbstractReader(ABC):
         self._n_files = None          # number of raw files read this run
         self._resolved_freq = None    # native frequency resolved from the files
         self._freq_mixed = False      # True if files had differing resolutions
+        #: [(period_start, freq), ...] when the files change resolution over
+        #: time and the reader keeps each period on its own grid
+        #: (`PIECEWISE_FREQ`); None for a single native grid.
+        self._freq_schedule = None
         self._source_units = {}       # file name -> unit it was exported in
         self._empty_files = []        # files that parsed to nothing (header only, backfill dump)
         self._timeline = None         # status changes for the end-of-read summary
@@ -406,6 +421,9 @@ class AbstractReader(ABC):
             requested_end=pd.Timestamp(end) if end is not None else None,
             raw_freq=self._resolved_freq or self.meta.get('freq'),
             freq_mixed=self._freq_mixed,
+            # [[period start, freq], ...] when resolution changes over time and
+            # each period is on its own grid; None for a single native grid.
+            freq_schedule=self._schedule_attr(),
             fill_missing=self.fill_missing,
             # {export unit: [files]} that had to be converted; absent when every
             # file was already in the reader's native unit.
@@ -762,8 +780,36 @@ class AbstractReader(ABC):
         if n_off_grid:
             self.logger.debug(f"Snapped {n_off_grid} off-grid timestamps to the {freq} grid.")
 
+        if self._freq_schedule:
+            return to_grid_piecewise(_df, self._freq_schedule, start=user_start, end=user_end,
+                                     fill_missing=self.fill_missing, logger=self.logger)
+
         return to_grid(_df, freq, start=user_start, end=user_end,
                        fill_missing=self.fill_missing, logger=self.logger)
+
+    def _schedule_attr(self):
+        """The frequency schedule as plain lists (attrs / pickle / JSON safe)."""
+        if not self._freq_schedule:
+            return None
+        return [[pd.Timestamp(start).isoformat(), freq] for start, freq in self._freq_schedule]
+
+    def _hourly_completeness(self, df: pd.DataFrame, threshold: float = 0.5) -> pd.Series:
+        """`hourly_completeness_QC` at the frequency each row was recorded at.
+
+        With a single native grid this is the plain check. Under a frequency
+        schedule each period is judged against its own expected points per
+        hour; the check already scales an hour's expectation by how much of it
+        the data spans, so the hour a period starts or ends in is handled.
+        """
+        qc = self.QC_control()
+        if not self._freq_schedule:
+            return qc.hourly_completeness_QC(
+                df, freq=self._resolved_freq or self.meta['freq'], threshold=threshold)
+        mask = pd.Series(False, index=df.index)
+        for freq, rows in split_by_schedule(df.index, self._freq_schedule):
+            part = qc.hourly_completeness_QC(df[rows], freq=freq, threshold=threshold)
+            mask.loc[part.index] = part
+        return mask
 
     def _outlier_process(self, _df):
         """
@@ -979,6 +1025,7 @@ class AbstractReader(ABC):
             override=self.raw_freq,
             fallback=self.meta.get('freq'),
             logger=self.logger,
+            piecewise=self.PIECEWISE_FREQ,
         )
 
         # Drop files that belong to an incompatible scan group before they can
@@ -988,6 +1035,27 @@ class AbstractReader(ABC):
         # silently fails downstream completeness QC. Isolation up front is
         # cleaner than trying to reconcile after the fact.
         df_list = self._partition_compatible_scans(df_list, parsed_files)
+
+        # A reader that opts in keeps each resolution period on its own grid
+        # instead of forcing the most common one onto all of them.
+        self._freq_schedule = None
+        if self._freq_mixed and self.PIECEWISE_FREQ and not self.raw_freq:
+            # From the files that survived the partition: a dropped file must
+            # not open a period.
+            schedule = build_freq_schedule([
+                (df.index.min(), detect_freq(df.index), freq_is_reliable(df.index))
+                for df in df_list])
+            if schedule and len(schedule) > 1:
+                self._freq_schedule = schedule
+                self.logger.info(
+                    'Frequency schedule: ' + ', '.join(
+                        f'{freq} from {start:%Y-%m-%d %H:%M}' for start, freq in schedule),
+                    group='freq_schedule')
+            elif schedule:
+                # Every reliable file agrees; the disagreement came only from
+                # files too short to measure a period from.
+                self._resolved_freq = schedule[0][1]
+
 
         raw_data = pd.concat(df_list, axis=0).groupby(level=0).first()
 
@@ -1138,6 +1206,7 @@ class AbstractReader(ABC):
         df.attrs['n_files'] = self._n_files
         df.attrs['raw_freq'] = self._resolved_freq
         df.attrs['freq_mixed'] = self._freq_mixed
+        df.attrs['freq_schedule'] = self._schedule_attr()
         df.attrs['source_units_by_file'] = dict(self._source_units)
 
     def _restore_parse_meta(self, df: pd.DataFrame) -> None:
@@ -1145,6 +1214,8 @@ class AbstractReader(ABC):
         self._n_files = df.attrs.get('n_files')
         self._resolved_freq = df.attrs.get('raw_freq')
         self._freq_mixed = df.attrs.get('freq_mixed', False)
+        self._freq_schedule = [(pd.Timestamp(start), freq)
+                               for start, freq in (df.attrs.get('freq_schedule') or [])] or None
         self._source_units = dict(df.attrs.get('source_units_by_file') or {})
 
     def _converted_units(self) -> dict | None:

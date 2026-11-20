@@ -65,7 +65,7 @@ df = RawDataReader(
 | `output_split` | str | CSV layout: `none` (default) / `month` / `year` → `{stem}_YYYY-MM.csv`; unchanged files are not rewritten |
 | `parse_workers` | int | Threads for raw-file parsing (default 1; 4 for network/synced folders; same result) |
 | `cache_dir` | str/Path | Per-file parse cache root for `reset='incremental'` (local scratch path; entries are pickles) |
-| `size_range` | tuple | SMPS only (accepted but ignored by APS/GRIMM): exact `(first_bin, last_bin)` nm of the grid to keep, e.g. `(11.8, 593.5)`; a non-matching file is rejected |
+| `size_range` | tuple | SMPS only (accepted but ignored by APS/GRIMM): exact `(first_bin, last_bin)` nm of the window to keep, as AIM printed them, e.g. `(11.8, 593.5)`; a non-matching file is rejected. Without it, files of any AIM version are read together on the shared 64-channel/decade lattice (columns carry canonical AIM 10.3-style labels; a wider window adds columns, NaN where unmeasured); only an off-lattice grid or a window narrower than the record's is skipped, by name |
 | `fill_missing` | bool | True (default)=pad to requested range; False=clamp to data coverage |
 | `raw_freq` | str | Override auto-detected resolution (e.g. '6min'); skips detection |
 | `drop_outlier_dates` | bool | Stray timestamps far outside the data bulk (e.g. a year-2000 row in 2023 data) are always detected and warned about. False (default)=keep them (warning tells you how to fix the source); True=drop them automatically before gridding |
@@ -297,6 +297,7 @@ df.attrs['total_rate']       # overall % valid (QC path only)
 | `requested_start` / `requested_end` | always | the range you passed |
 | `raw_freq` | always | native frequency, auto-detected per file (config is fallback) |
 | `freq_mixed` | always | True if files had differing resolutions (most-common was used) |
+| `freq_schedule` | always | `[[start, freq], ...]` when each resolution period is kept on its own grid (SMPS: scan period changed on purpose); `None` for one grid |
 | `fill_missing` | always | whether the grid was padded to the request or clamped to coverage |
 | `aeroviz_version`, `processed_at` | always | build / run stamp |
 | `mean_freq`, `qc_applied`, `qc_freq` | qc on | output frequency + QC mode |
@@ -322,7 +323,9 @@ resampling still run in full, so the result equals `reset=True`.
 `inferred_freq`, else median timestamp delta); `meta['freq']` in the instrument
 config is only a last-resort fallback. If files in one batch disagree, the
 most-common resolution is used and `freq_mixed` is set with a warning — pass
-`raw_freq=` to force one. Off-grid timestamps (e.g. 08:20 on an hourly grid) are
+`raw_freq=` to force one. SMPS instead keeps each period on its own grid
+(`df.attrs['freq_schedule']`), so a 6-minute record that moves to 5-minute
+scans loses nothing; the index is then regular within a period, not overall. Off-grid timestamps (e.g. 08:20 on an hourly grid) are
 snapped by rounding each row to its nearest grid bin, so a single reading is
 never duplicated across two slots.
 
